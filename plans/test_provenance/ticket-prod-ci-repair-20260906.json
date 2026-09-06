@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-CI-REPAIR-20260906",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a9a6251be40fd7c84d2c556c7c471d03a0db7bba",
+  "test_files": [
+    {"path": "project/tests/goldens/openapi.json", "sha256": "0bb45e98a9329383cc78dee3e605d8cc69be25d7ace19c8ce7bbddf714c99432"},
+    {"path": "project/tests/test_agent_configurations.py", "sha256": "872b78b98b8332eaf4551310b879c8249333b2c9c8769d776edb5dba268e6fb1"},
+    {"path": "project/tests/test_llm_multirouter.py", "sha256": "f7cfc631a085b961c68ea3b384d4a56bac281ac953d105f16f75d2526d5e7e05"},
+    {"path": "project/tests/test_requirement_grill_command_contract.py", "sha256": "70634ccc02304bd8d661d85be0de4f0af1e8914fd1cda858cecd7f18c76764e3"},
+    {"path": "project/tests/test_skill_configurations.py", "sha256": "edec270476bb6e905dbed700dbbff12065e3133fec8b9e73682ef1baf2e77d99"},
+    {"path": "tests/fixtures/context_handoff/codex/hooks_config.json", "sha256": "03fbfb5d65c1ec86fac121b64fbb5d5c691087608d1972de293a0f366b61e419"},
+    {"path": "tests/test_application_provider_runtime_contract.py", "sha256": "297cee5c10335fcaa2c663685d095a26622c59918cebbe48f93052c967b02735"},
+    {"path": "tests/test_atomic_tdd_lifecycle_governance_v4.py", "sha256": "d2879bee79ccbfa7ec41b269674727b5f12fe3050d78e4d532d74c33fbda14a2"},
+    {"path": "tests/test_context_handoff_hooks.py", "sha256": "c71807c9c4866c7141fae110c518222c8a3782bc3f05217ee20dc7c976a9b9be"},
+    {"path": "tests/test_context_profile_budget_handoff.py", "sha256": "c2b7bf3b2d3850c42485eafe474c595757cf0b839a2652c3d187e633628ab7f7"},
+    {"path": "tests/test_context_profile_generation.py", "sha256": "791115aaabead3c0cd75e4e7d9b59ab09253dd3bfbd33825ed881984ef8be1b5"},
+    {"path": "tests/test_context_profile_hierarchy_runtime.py", "sha256": "6902dcd2024f36e53b818ef15dd910a41e418f39999853a7b29e43bc382ec65b"},
+    {"path": "tests/test_distillation_checklist.py", "sha256": "e45ea814b4050da0e0dc2d9d94040299ed50fbc871b79fe6a3f4100964794e3f"}
+  ],
+  "red_tests": [
+    {"command": ["python3", "-m", "pytest", "-q", "project/tests/test_gateway_contract.py", "project/tests/test_web_regression.py"], "expected_exit": 1, "failure_fingerprint": "stale OpenAPI/provider/governance baselines and cold-start readiness behavior"}
+  ],
+  "allowed_source_paths": [
+    ".agy/rules/agile-governance.md",
+    ".claude/rules/agile-governance.md",
+    "project/core/fast_math.py",
+    "project/static/app.js",
+    "public/app.js",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "The production candidate is blocked by tests whose expected values predate the canonical configuration and by missing browser readiness coverage. This baseline binds the corrected tests before the corresponding source changes."
+}

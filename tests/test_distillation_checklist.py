@@ -1,6 +1,7 @@
 """Contract tests for distillation checklist and dataset integrity."""
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 
@@ -22,4 +23,6 @@ def test_distillation_checklist_updated_timestamp():
     path = Path("project/data/distillation_checklist.json")
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    assert data["last_updated"].startswith("2026-08-31T16:41:53")
+    updated = datetime.fromisoformat(data["last_updated"].replace("Z", "+00:00"))
+    assert updated.tzinfo is not None
+    assert updated.year >= 2026

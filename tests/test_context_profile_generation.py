@@ -39,14 +39,14 @@ def _require_renderer():
     )
 
 
-def test_registry_renders_all_providers_in_one_direction():
+def test_registry_renders_supported_providers_and_marks_unverified_adapters():
     _require_renderer()
     import scripts.render_agent_context_profiles as renderer
     manifest = renderer.render_all(output_root=ROOT / "tmp_test_render")
     assert "codex" in manifest["rendered_targets"]
-    assert "claude" in manifest["rendered_targets"]
-    assert "agy" in manifest["rendered_targets"]
     assert "antigravity" in manifest["rendered_targets"]
+    assert set(manifest["rendered_targets"]) == {"codex", "antigravity"}
+    assert set(manifest["unverified_targets"]) == {"claude", "agy"}
 
 
 def test_newer_or_modified_provider_mirror_is_drift_not_authority():

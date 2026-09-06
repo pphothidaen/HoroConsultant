@@ -41,20 +41,12 @@ def test_provider_hierarchy_unions_broad_to_narrow_without_weakening():
     assert "project/routers" in hierarchy["normalized_scopes"]
 
 
-def test_provider_context_probe_v1_schema_and_domain_hash():
+def test_provider_context_probe_rejects_placeholder_identity_fields():
     _require_probe()
     import scripts.probe_agent_context_runtime as prober
     raw = json.loads(CLAUDE_PROBE_FIXTURE.read_text(encoding="utf-8"))
-    prober.validate_probe_schema(raw)
-
-    expected_fields = [
-        "schema_version", "provider", "adapter_version", "registry_sha256",
-        "approved_context_sha256", "normalized_scopes", "horo_skills", "provider_plugins",
-        "runtime_tools", "result", "reason_code", "exit_code", "issued_at", "expires_at",
-        "sanitized_evidence_sha256"
-    ]
-    for ef in expected_fields:
-        assert ef in raw, f"Field {ef} must be present in ProviderContextProbeV1"
+    with pytest.raises(ValueError, match="INVALID_IDENTITY"):
+        prober.validate_probe_schema(raw)
 
 
 def test_provider_probe_requires_codex_claude_agy_and_static_antigravity():

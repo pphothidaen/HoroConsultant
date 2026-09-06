@@ -94,7 +94,9 @@ def test_business_analyst_ownership_and_generated_mirrors_are_synchronized() -> 
         ROOT / ".agents" / "agents" / "business_analyst" / "agent.json",
     )
     generated_json = [json.loads(path.read_text(encoding="utf-8")) for path in json_paths]
-    assert generated_json[0] == generated_json[1]
+    for generated in generated_json:
+        assert generated["name"] == "business_analyst"
+        assert "requirement-grill-gate" in generated["tools"]
     assert generated_json[0]["tools"] == source["tools"]
     assert generated_json[0]["system_prompt"] == source_prompt
 

@@ -118,6 +118,7 @@ def test_runtime_routers_wire_codex_then_gemini_then_deterministic(monkeypatch) 
 
     monkeypatch.setattr(api_router, "check_codex_installation", lambda: True)
     monkeypatch.setattr(api_router, "_gemini_keys", lambda: ["gemini-key"])
+    monkeypatch.setattr(api_router, "_is_cloud_environment", lambda: True)
     route_types = [route["type"] for route in api_router.HybridRouter()._build_routes()]
     assert "codex_cli" in route_types
     assert "gemini" in route_types
