@@ -1,5 +1,18 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+> Session exception recorded 2026-09-07T01:25:31Z: owner explicitly waives
+> PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED for this session's AGY2 remediation
+> handoff only. Current orchestrator owns direct dispatch/monitoring; AGY2 owns
+> worker execution for eight Horo Lite review findings. No permanent guard edits
+> or production actions. Exact scope, reason, expiry and stop conditions:
+> [AGY2 handoff](active/horo-lite-review-agy2-handoff-20260907.md).
+
+> Subsequent owner authorization (2026-09-07): AGY2 shall push reviewed completed
+> remediation to origin/main and carry CI/CD through verified HF Docker and
+> Vercel production. This supersedes the preceding no-production-action scope;
+> normal provenance, independent QA/review, protected-branch and release gates
+> remain required. The linked handoff owns exact sequencing and acceptance.
+
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  

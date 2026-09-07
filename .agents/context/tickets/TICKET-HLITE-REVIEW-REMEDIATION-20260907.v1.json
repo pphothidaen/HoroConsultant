@@ -1,0 +1,38 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907",
+  "revision": 1,
+  "ticket_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "lanes": [
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLAN",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/active/horo-lite-review-agy2-handoff-20260907.md"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance",
+        "requirement-grill-gate"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-commit",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -52,7 +52,11 @@ def _seed(request: Any) -> int:
 
 
 def _candidate_years(birth_year: int, target_year: int, seed: int) -> list[int]:
-    max_age = max(1, target_year - birth_year - 1)
+    # Children too young for meaningful past-pattern analysis get no candidates.
+    max_age = target_year - birth_year - 1
+    if max_age < 8:
+        return []
+
     preferred_ages = (16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46)
     offset = seed % 3
     years: list[int] = []
@@ -64,7 +68,7 @@ def _candidate_years(birth_year: int, target_year: int, seed: int) -> list[int]:
         if len(years) == 5:
             return years
 
-    fallback_age = max(1, min(max_age, 12))
+    fallback_age = max(8, min(max_age, 12))
     while len(years) < 3 and fallback_age <= max_age:
         year = birth_year + fallback_age
         if year < target_year and year not in years:
@@ -74,7 +78,11 @@ def _candidate_years(birth_year: int, target_year: int, seed: int) -> list[int]:
 
 
 def generate_past_pattern_candidates(request: Any) -> dict[str, Any]:
-    """Return 3-5 deterministic, non-sensitive calibration candidates."""
+    """Return 0-5 deterministic, non-sensitive calibration candidates.
+
+    For persons too young for past-pattern analysis (< ~8 years old),
+    an empty candidates list is returned.
+    """
 
     birth = _birth_date(request)
     target_year = int(getattr(request, "target_year"))

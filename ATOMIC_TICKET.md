@@ -3576,3 +3576,35 @@ python3 scripts/fail_fast_triage.py --mode fast
 # 5. Check git status
 git status
 ```
+# TICKET-HLITE-REVIEW-REMEDIATION-20260907: session-only AGY2 handoff
+
+Subsequent owner instruction (2026-09-07) authorizes AGY2 push to origin/main
+and CI/CD through verified production after all eight remediations and release
+gates pass. This supersedes the no-push/deploy scope below; no force-push or
+gate bypass is authorized. See handoff for release targets and acceptance.
+
+Owner authority recorded 2026-09-07T01:25:31Z: temporary exception to
+PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED for this session only. Current
+orchestrator owns direct AGY2 dispatch and monitoring because canonical AGY
+transport denies pre-spawn; AGY2 specialists own scoped remediation and QA.
+Status: PREFLIGHT_IN_PROGRESS, not worker execution proof. No permanent guard
+edits, push, deployment or publishing. Stop on mismatch, auth/quota failure,
+unexpected writes, owner revocation or scoped completion; expires at session end.
+See [exact eight-item packet and lane ownership](plans/active/horo-lite-review-agy2-handoff-20260907.md).
+
+## Horo Lite Review Remediation Lanes
+
+| Sequential lane | State | Owner / bound skills | Exclusive scope and acceptance |
+|---|---|---|---|
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLAN` | `DONE` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `requirement-grill-gate` | `ATOMIC_TICKET.md`, `plans/plan.md`. Reconcile current source, register atomic baseline/source/review/QA tickets, bind exact paths and skills. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-08-QA-BASELINE` | `READY` | `qa_tester`; `qa-regression-provenance`, `qa-api-ui-e2e` | Newly admitted tests and `plans/test_provenance` records. Reconcile FAILED and RECONSTRUCTED records. Freeze meaningful RED baselines. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-08-SOURCE` | `READY` | `business_analyst` | `ATOMIC_TICKET.md`, `plans/plan.md`. Reconcile actual completion states. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-01-SOURCE` | `READY` | `developer_core`; `sdlc-aisdlc-workflow`, `metaphysical-request-router`, `metaphysical-hitl-scope-gate` | `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`. Replace proxy calculations with shared verified BaZi cycle calculations. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-SOURCE` | `READY` | `developer_core`; `sdlc-aisdlc-workflow`, `metaphysical-request-router`, `metaphysical-hitl-scope-gate` | `project/debate/consensus_matrix.py`. Detect genuine within-domain disagreement; missing evidence cannot count as perfect agreement. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-03-SOURCE` | `READY` | `developer_api`; `sdlc-aisdlc-workflow` | `project/routers/unified_reading_router.py`. Forced, uncertain triggers create retrievable real review items. Prove idempotency. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-04-SOURCE` | `READY` | `developer_core`, then `developer_api`; `sdlc-aisdlc-workflow` | `project/core/past_pattern_calibrator.py`, `project/core/unified_reading_engine.py`, `project/routers/unified_reading_router.py`. Resolve child birth date causing 500 error. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-05-SOURCE` | `READY` | `developer_core`, then `developer_api`, then UI; `sdlc-aisdlc-workflow`, `ui-visual-auditor` | `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`, `project/core/unified_reading_engine.py`, `project/routers/unified_reading_router.py`, `public/lite.js`, `public/export_engine.js`. Unknown_hour=true must ignore supplied birth_time. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-06-SOURCE` | `READY` | `developer_api`; `sdlc-aisdlc-workflow` | `project/routers/unified_reading_router.py`. Fix identical topic copy and inert translation. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-SOURCE` | `READY` | `ux_ui_designer`; `sdlc-aisdlc-workflow`, `ui-visual-auditor` | `public/lite.js`. Feedback changes explanation emphasis while preserving scores/dates/facts; consent precedes persistence. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-REVIEW` | `READY` | `code_reviewer` | Read-only independent source review. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE` | `READY` | `devops`; `devops-deployment`, `hf-static-release-verification` | Push to origin/main and run CI/CD into production (HF Docker backend and Vercel UI). |

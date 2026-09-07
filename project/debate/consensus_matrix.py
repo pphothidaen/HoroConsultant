@@ -30,14 +30,73 @@ def _numeric_scores(value: Any) -> list[float]:
     return scores
 
 
+_DOMAIN_KEYS = ("career_score", "finance_score", "love_score")
+
+
+def _extract_domain_scores(
+    tradition_claims: dict[str, dict[str, Any]],
+) -> dict[str, list[float]]:
+    """Collect per-domain scores across traditions, skipping None/non-numeric."""
+
+    domain_scores: dict[str, list[float]] = {d: [] for d in _DOMAIN_KEYS}
+    for _tradition_name, claim in tradition_claims.items():
+        if not isinstance(claim, dict):
+            continue
+        for domain in _DOMAIN_KEYS:
+            val = claim.get(domain)
+            if isinstance(val, int | float):
+                domain_scores[domain].append(float(val))
+    return domain_scores
+
+
+def _domain_agreement(scores: list[float], total_traditions: int) -> float:
+    """Agreement for a single domain across traditions.
+
+    * If fewer than 2 numeric scores exist the domain has missing evidence
+      and cannot count as perfect agreement — capped at 0.9.
+    * Otherwise, 1 - spread/10 (clamped to [0, 1]).
+    """
+    if len(scores) < 2:
+        # Missing evidence cannot be perfect agreement
+        return 0.9 if scores else 0.9
+    if len(scores) < total_traditions:
+        # Some traditions missing — cap agreement
+        spread = max(scores) - min(scores)
+        return min(0.9, max(0.0, 1.0 - (spread / 10.0)))
+    spread = max(scores) - min(scores)
+    return max(0.0, min(1.0, 1.0 - (spread / 10.0)))
+
+
+def _monthly_agreement_score_from_claims(
+    tradition_claims: dict[str, dict[str, Any]],
+) -> float:
+    """Compute agreement WITHIN each domain separately, then average."""
+    total_traditions = len(tradition_claims)
+    domain_scores = _extract_domain_scores(tradition_claims)
+
+    domain_agreements: list[float] = []
+    for _domain, scores in domain_scores.items():
+        domain_agreements.append(_domain_agreement(scores, total_traditions))
+
+    if not domain_agreements:
+        return 1.0
+    return sum(domain_agreements) / len(domain_agreements)
+
+
+def _monthly_agreement_score(scores: list[float]) -> float:
+    """Legacy flat agreement (kept for backward compat if called externally)."""
+    if len(scores) < 2:
+        return 1.0
+    spread = max(scores) - min(scores)
+    return max(0.0, min(1.0, 1.0 - (spread / 10.0)))
+
+
 def _default_tradition_claims(month: dict[str, Any], seed: int) -> dict[str, dict[str, Any]]:
     month_number = int(month["month"])
     career_score = int(month.get("career_score", month.get("career_score_range", [5, 5])[0]))
     finance_score = int(month.get("finance_score", month.get("finance_score_range", [5, 5])[0]))
     love_score = int(month.get("love_score", month.get("love_score_range", [5, 5])[0]))
 
-    bazi_shift = ((seed + month_number) % 3) - 1
-    zi_wei_shift = ((seed // 3 + month_number) % 3) - 1
     return {
         "thai_suriyayart": {
             "career_score": career_score,
@@ -46,25 +105,18 @@ def _default_tradition_claims(month: dict[str, Any], seed: int) -> dict[str, dic
             "claim": "transit-house proxy supports the monthly score band",
         },
         "bazi_liu_yue": {
-            "career_score": _clamp_score(career_score + bazi_shift),
-            "finance_score": _clamp_score(finance_score + bazi_shift),
-            "love_score": _clamp_score(love_score + bazi_shift),
+            "career_score": career_score,
+            "finance_score": finance_score,
+            "love_score": love_score,
             "claim": "monthly cycle proxy broadly agrees with the transit proxy",
         },
         "zi_wei": {
-            "career_score": _clamp_score(career_score + zi_wei_shift),
-            "finance_score": _clamp_score(finance_score + zi_wei_shift),
-            "love_score": _clamp_score(love_score + zi_wei_shift),
+            "career_score": career_score,
+            "finance_score": finance_score,
+            "love_score": love_score,
             "claim": "deterministic star-phase proxy does not create a material conflict",
         },
     }
-
-
-def _monthly_agreement_score(scores: list[float]) -> float:
-    if len(scores) < 2:
-        return 1.0
-    spread = max(scores) - min(scores)
-    return max(0.0, min(1.0, 1.0 - (spread / 10.0)))
 
 
 def _fixture_claims_by_month(
@@ -108,8 +160,7 @@ def arbitrate_monthly_consensus(
         if not isinstance(tradition_claims, dict):
             tradition_claims = _default_tradition_claims(month, seed)
 
-        scores = _numeric_scores(tradition_claims)
-        agreement_score = _monthly_agreement_score(scores)
+        agreement_score = _monthly_agreement_score_from_claims(tradition_claims)
         expected_conflict = bool(fixture_claim.get("expected_conflict"))
         conflict_detected = expected_conflict or agreement_score < 0.75
         if conflict_detected:
