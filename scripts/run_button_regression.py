@@ -17,7 +17,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -511,7 +511,22 @@ def test_tab_toggle():
     return "DOM Tab Switch Handler verified"
 
 def test_admin_auth_btn():
-    res = client.post("/admin/auth/google", json={"mock_email": "pansakorn@gmail.com"})
+    from project.tests.test_admin_auth import _signed_google_credential
+
+    client_id = "local-client-id"
+    credential, jwks = _signed_google_credential("pansakorn@gmail.com", client_id)
+    with (
+        patch.dict(
+            "os.environ",
+            {
+                "GOOGLE_CLIENT_ID": client_id,
+                "ADMIN_ALLOWED_EMAILS": "pansakorn@gmail.com",
+            },
+            clear=True,
+        ),
+        patch("project.admin_router._google_jwks", new=AsyncMock(return_value=jwks)),
+    ):
+        res = client.post("/admin/auth/google", json={"credential": credential})
     assert res.status_code == 200
     return f"HTTP 200 - Status: {res.json()['status']}"
 
