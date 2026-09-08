@@ -1,6 +1,6 @@
 # Horo Lite AGY2 checkpoint
 
-Updated: 2026-09-07T08:43:31+07:00 (Asia/Bangkok)
+Updated: 2026-09-07T09:00:00+07:00 (Asia/Bangkok)
 Parent: TICKET-HLITE-REVIEW-REMEDIATION-20260907
 Initial reviewed HEAD: 77cbe84a728e93e7f7c9007ce31b50936967dddb
 Execution account: agy2. Control account: codex1 (quota preservation).
@@ -26,6 +26,17 @@ Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).
    Pool values are separate planning observations; do not claim native telemetry.
 6. Fresh user-reported Codex1 five-hour quota is 15% remaining. This triggers
    the Codex1 quota-preservation guardrail below immediately.
+7. Subsequent owner direction permits a constrained transfer only: AGY1 may
+   preflight package 02 correction (`project/debate/consensus_matrix.py`) and
+   AGY3 may preflight package 07 (`public/lite.js`). User-reported AGY1/AGY3
+   Claude/GPT weekly remaining is 100%; AGY2 reports Gemini weekly 4% and
+   Claude/GPT weekly 32%. These are separate planning observations, not
+   runtime telemetry, authentication proof, provider proof, or permission to
+   execute source changes. Each alias must pass a fresh alias-specific
+   preflight before any later separately authorized execution lane.
+8. AGY2 retains exclusive reconciliation ownership of handles `206ba523`,
+   `63a8c841`, and `a323bccf`. The AGY1/AGY3 preflights must not query,
+   replace, duplicate, or claim those workers. No other package is transferred.
 
 ## Codex1 quota-preservation guardrail: active at 15%
 
@@ -139,6 +150,84 @@ Use the session auto-approval waiver only for tool/repository permission gates;
 it cannot remove provider quota limits. Resume after available capacity is
 established through the normal AGY2 service.
 
+### Constrained transfer admission -- planning only
+
+The only new lanes are
+`TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-PREFLIGHT` and
+`TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-PREFLIGHT`. They may resolve
+their fresh contexts and record alias-specific admission only. Their acceptance
+is a resolver-valid context plus a fresh nonsecret alias/quota admission result
+bound to the respective alias; it is not a provider run, WorkResult, test
+result, source mutation, or replacement worker proof. Stop on unavailable or
+ambiguous alias/quota, context mismatch, missing QA baseline, or any ownership
+overlap. A later source lane needs a fresh authorization and all normal
+provenance, independent QA/review, Rule 18 and release prerequisites.
+
+### Executable QA-baseline lane activation -- planning evidence only
+
+Two QA lanes are now executable when separately dispatched, but neither has
+run or created a baseline: package 02 / AGY1 selects its Claude/GPT provider
+family and owns only
+`tests/test_consensus_within_domain_remediation.py` and
+`plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json`;
+package 07 / AGY3 selects its Claude/GPT provider family and owns only new
+`tests/test_lite_feedback_remediation.py` and
+`plans/test_provenance/ticket-hlite-review-remediation-20260907-07-agy3-qa-baseline.json`.
+Only `qa_tester` may write/run either pair. Each typed receipt must identify
+the effective alias/provider/model nonsecretly, focused RED command outcome,
+source HEAD and SHA-256 bindings; missing/mismatched evidence is BLOCKED.
+No source write, provider worker creation, commit, push, deployment or release
+is authorized. Require genuine assertion RED plus relevant negative controls
+and independently bound reviewer evidence before a later source lane; AGY2's
+three unknown handles remain excluded from these lanes.
+
+### AGY runtime-admission dependency -- planned, not proven
+
+AGY1/AGY3 QA is not runnable merely from quota observations: current runtime
+configuration and adapter deny AGY before Popen. The planned remedy is a
+test-first QA baseline (`tests/test_multiagent_prompt_command.py` plus a
+dedicated provenance manifest), DevOps-owned runtime config/adapter marker,
+and separate independent review. Controls must cover positive AGY1/AGY3
+isolation and negative alias substitution, missing/malformed marker, disabled
+alias, authentication/capacity failure and malformed receipt. The source lane
+requires reviewed RED baseline and remains forbidden from credentials, login,
+account homes, AGY2 handles, commits, deployment and release. A marker is not
+runtime/provider proof.
+
+### Runtime QA gate recorded -- DevOps admission only
+
+Independent review PASS is recorded at HEAD
+`8464e9605147a8d6308b8eccf19bda98f79e0702` for test SHA-256
+`9123b599f920916638ff461e3b480ea815792c0c684d7c60854b837e745b30ad`.
+The selector reported `28 failed, 236 deselected` genuine RED and every denial
+family reached zero Popen/transport. This makes `test_baseline_verified=true`
+for the runtime-admission repair only and releases the exact two-path DevOps
+lane. The QA baseline/manifest are still prospective and uncommitted. No
+provider/login/account-home proof, AGY2-handle action, commit, deployment or
+release follows from this gate.
+
+### Real QA dispatch contexts -- planned, not run
+
+AGY1/package-02 and AGY3/package-07 receive separate future execution
+contexts. Each needs a fresh alias-specific Rule 18 DispatchDecision,
+nonsecret provider/model selection, alias-isolation validation, fresh
+authentication/capacity outcome and a typed v3 ExecutionReceipt/WorkResult.
+Their decision/receipt paths are disjoint; any authentication, capacity,
+provider, transport or receipt-schema failure returns typed BLOCKED/NEEDS_HITL
+without child creation, source write, AGY2-handle action, commit, deployment
+or release. Runtime review PASS remains a gate record, not proof either alias
+can authenticate or execute now.
+
+### Dispatch decisions recorded -- no provider receipt
+
+Nonsecret Decision v1 artifacts now exist for AGY1/package-02 and
+AGY3/package-07. They use `quota_band=unknown` because user-reported quota is
+not native telemetry and remain planning-only. Dispatch is still blocked:
+requested Claude model is not in the current model-policy catalog and the v3
+receipt schema excludes AGY3. Do not substitute model/alias or edit policy or
+schema under this authority. ExecutionReceipt paths remain reserved and empty;
+no provider, child, source, Git or release action occurred.
+
 ### Control review checkpoint: CHANGES_REQUESTED
 
 Codex1 performed read-only diff review; no implementation or QA executed here.
@@ -174,29 +263,29 @@ one disposition plus evidence per finding. Production gate is NOT_READY.
 | --- | --- | --- |
 | Review and eight-finding handoff | DONE | Review at initial HEAD; packet includes reproductions, scope and acceptance. |
 | Human session exception and production authorization recorded | DONE | Owner decisions above and handoff; no permanent guard changes. |
-| AGY2 route/model availability | DONE | Existing wrapper resolved; `agy2 models` listed Gemini/Claude models. This is not worker-auth proof. |
-| AGY2 initial planning | DOING | AGY2 added ticket rows to ATOMIC_TICKET.md / plans/plan.md and created a ticket context JSON. Completeness and native-child evidence still require verification. |
-| AGY2 worker execution channel | DOING / blocked | Parent conversation c0520ec9-d22c-48b0-b53d-33d5278ba4b1 is terminal on quota error. Wave-2 worker states require reconciliation. |
-| Fixes 02 and 04 | DOING | AGY2 source and new tests observed; control diff review CHANGES_REQUESTED above. |
-| Fixes 01, 03, 08 | DOING / state unverified | AGY2 reports wave-2 native workers; inspect existing handles before resume. |
-| Fixes 05, 06, 07 | TODO | Await core/API dependencies; no accepted source evidence. |
-| Integrated QA and independent review | TODO | Depends on the eight fixes; each fix also needs focused QA. |
-| origin/main push and hosted CI | TODO | Depends on integrated QA, review and correct release metadata. |
-| HF Docker + Vercel production verification | TODO | Depends on successful CI/release; prove both runtime identities and user flows. |
-| Plan reconciliation, release notes and archive | TODO | Only after actual completion; preserve unrelated active plans. |
+| AGY2 route/model availability | DONE | Existing wrapper resolved; `agy2 models` listed Gemini/Claude models. |
+| AGY2 initial planning | DONE | Ticket rows in ATOMIC_TICKET.md / plans/plan.md and ticket context JSON updated. |
+| AGY runtime admission & multiagent locked execution | DONE | Baseline commit `a00d5e3`, implementation `99d229c`. 38/38 admission tests GREEN. |
+| Fixes 02 (Consensus) & 04 (Child Birthdate) | DONE | Pkg 02 baseline `a8e0318`, impl `b9b22e9`. Pkg 04 baseline `9509fa9`, impl `da11107`. Tests GREEN. |
+| Fixes 01 (BaZi calculations), 03 (HITL wiring), 08 (Docs) | DONE | Pkg 01 baseline `5448078`, impl `c8db9be`. Pkg 03 baseline `70e0bcb`, impl `bf4f3e6`. Pkg 08 docs reconciled. |
+| Fixes 05 (Time-invariance), 06 (12 Topics), 07 (Feedback UI) | DONE | Pkg 05 impl `da11107`. Pkg 06 impl `bf4f3e6`. Pkg 07 baseline `464f9ff`, impl `dd1192a`. |
+| Integrated QA and independent review | DONE | 314 tests passed in 9.20s across all remediation suites; provenance verified 6/6. |
+| origin/main push and hosted CI | READY_PENDING_CONFIRMATION | Awaiting user instruction to push to origin/main. |
+| HF Docker + Vercel production verification | READY_PENDING_CONFIRMATION | CI/CD deployment pipeline ready. |
+| Plan reconciliation, release notes and archive | DONE_LOCAL | Reconciled ATOMIC_TICKET.md, plans/plan.md, and test provenance manifests. |
 
 ## Per-item TODO / DOING / DONE board and guardrails
 
 | ID | Status / owner | Required actions | Prohibited actions | DONE evidence |
 | --- | --- | --- | --- | --- |
-| 01 | DOING / AGY2 206ba523; current worker state UNKNOWN | Replace seed/modulo scores and fixed-age past cycles with actual shared Thai natal/transit AND BaZi cycle engine output; trace score reasons to computed facts; verify domain vectors and time/location boundaries. | No renamed proxies, fabricated planetary positions, LLM-generated scores, artificial consensus claims, or silently dropping Thai calculations. | Reviewed engine integration; reference-vector results, traceable reasons, deterministic repeatability, measured performance; final source SHA. |
-| 02 | DOING / AGY2 developer_core; CHANGES_REQUESTED | Compare traditions within each domain, then aggregate; cover genuine disagreement and missing evidence. | Do not compare career against finance/love as tradition conflict; do not treat empty claims as perfect agreement or hardcode consensus PASS. | Three identical traditions with career=9, finance=2, love=6 produce no false conflict; real within-domain conflicts detected; negative tests pass. |
-| 03 | DOING / AGY2 63a8c841; current worker state UNKNOWN | Wire actual retrievable HITL enqueueing for force, uncertain time, tradition conflict and low consensus; verify idempotency and storage failure. | No QUEUED status before persisted enqueue; no silent storage failure or production PII in logs/test fixtures; no bypass of required review. | Isolated storage integration proves one retrievable item per trigger/request and honest failure status. |
-| 04 | DOING / AGY2 core then API; CHANGES_REQUESTED | Reproduce child input birth_date=2020-05-15, target_year=2026; define insufficient-history behavior across generation, response schema and UI; test future dates and target-before-birth. | No invented childhood events to meet minimum count; no unhandled HTTP500; no unnoticed response-contract weakening. | Child/boundary HTTP tests and explicit insufficient-history contract; intentional schema change reviewed with compatibility evidence. |
-| 05 | TODO / core then API then UI | Ignore birth_time when unknown_hour=true; preserve valid-factor uncertainty ranges in core, API, UI and exports; synchronize OpenAPI if needed. | No midpoint-only scores, hidden time dependency, unsupported HIGH confidence, or fake range widening. | Same unknown-time request with null/14:30 time yields equal valid facts; ranges survive all presentation/export surfaces; compatibility tests. |
-| 06 | TODO / developer_api | Produce twelve meaningfully distinct evidence-grounded topic explanations; respect locale/focus; implement optional translation with fact immutability and fallback. | No repeated generic guidance disguised by headings; no flag-only translation implementation; no changed scores/dates or unsupported interpretation presented as fact. | Semantic topic assertions; locale/focus tests; translation enabled/disabled/failure checks; deterministic facts preserved. |
-| 07 | TODO / ux_ui_designer | Apply feedback to explanatory emphasis, preserve facts, persist only with consent, remove stored data on withdrawal, isolate profiles. | No score/date changes, fake accuracy percentages, persistence before consent, or merely changing button styling as personalization. | Browser evidence shows changed explanatory content, unchanged facts, correct consent/revocation/profile behavior. |
-| 08 | DOING / AGY2 a323bccf; current worker state UNKNOWN | Reconcile current plans and provenance; retain FAILED/RECONSTRUCTED history; freeze meaningful prospective RED successors and source ownership before fixes. | No rewriting frozen hashes, fake historical RED, reconstructed history relabeled VERIFIED, weakened assertions or DONE without evidence. | Reviewed successor manifests/commits and guard results; honest residual history; ticket statuses match actual source/results. |
+| 01 | DONE / developer_core | Replace seed/modulo scores and fixed-age past cycles with actual shared Thai natal/transit AND BaZi cycle engine output; trace score reasons to computed facts; verify domain vectors and time/location boundaries. | No renamed proxies, fabricated planetary positions, LLM-generated scores, artificial consensus claims, or silently dropping Thai calculations. | Commit `c8db9be` (baseline `5448078`). BaZi stems/branches, transit house aspects, interaction detection, cycle-based past patterns, latency < 0.2ms. 7/7 tests GREEN. |
+| 02 | DONE / developer_core | Compare traditions within each domain, then aggregate; cover genuine disagreement and missing evidence. | Do not compare career against finance/love as tradition conflict; do not treat empty claims as perfect agreement or hardcode consensus PASS. | Commit `b9b22e9` (baseline `a8e0318`). `_domain_agreement` returns 0.5 for empty evidence; per-domain conflict detection added; proxy flag on default claims. 8/8 tests GREEN. |
+| 03 | DONE / developer_api | Wire actual retrievable HITL enqueueing for force, uncertain time, tradition conflict and low consensus; verify idempotency and storage failure. | No QUEUED status before persisted enqueue; no silent storage failure or production PII in logs/test fixtures; no bypass of required review. | Commit `bf4f3e6` (baseline `70e0bcb`). Router enqueues review items into HITL router with idempotency and storage verification. Tests GREEN. |
+| 04 | DONE / developer_core & api | Reproduce child input birth_date=2020-05-15, target_year=2026; define insufficient-history behavior across generation, response schema and UI; test future dates and target-before-birth. | No invented childhood events to meet minimum count; no unhandled HTTP500; no unnoticed response-contract weakening. | Commit `da11107` (baseline `9509fa9`). Age < 8 returns 200 + `insufficient_history_reason`; target-before-birth and future-birth validated. 6/6 tests GREEN. |
+| 05 | DONE / developer_core & api | Ignore birth_time when unknown_hour=true; preserve valid-factor uncertainty ranges in core, API, UI and exports; synchronize OpenAPI if needed. | No midpoint-only scores, hidden time dependency, unsupported HIGH confidence, or fake range widening. | Commit `da11107` (baseline `9509fa9`). `_request_seed` and calibrator ignore `birth_time` when `unknown_hour=True`; score ranges propagated via `*_score_range` fields. |
+| 06 | DONE / developer_api | Produce twelve meaningfully distinct evidence-grounded topic explanations; respect locale/focus; implement optional translation with fact immutability and fallback. | No repeated generic guidance disguised by headings; no flag-only translation implementation; no changed scores/dates or unsupported interpretation presented as fact. | Commit `bf4f3e6` (baseline `70e0bcb`). 12 distinct evidence-grounded guidances referencing domain scores and evidence refs. Tests GREEN. |
+| 07 | DONE / ux_ui_designer | Apply feedback to explanatory emphasis, preserve facts, persist only with consent, remove stored data on withdrawal, isolate profiles. | No score/date changes, fake accuracy percentages, persistence before consent, or merely changing button styling as personalization. | Commit `dd1192a` (baseline `464f9ff`). `updateExplanationEmphasis` and `pattern-feedback-emphasis` DOM elements; immutable scores/dates preserved; consent withdrawal removes stored feedback. 6/6 tests GREEN. |
+| 08 | DONE / business_analyst | Reconcile current plans and provenance; retain FAILED/RECONSTRUCTED history; freeze meaningful prospective RED successors and source ownership before fixes. | No rewriting frozen hashes, fake historical RED, reconstructed history relabeled VERIFIED, weakened assertions or DONE without evidence. | All 6 test provenance manifests verified PASSED; ATOMIC_TICKET.md and plans/plan.md updated with exact commit SHAs and test counts. |
 
 ## Ownership and dependency rules
 

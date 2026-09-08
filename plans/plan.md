@@ -13,10 +13,83 @@
 > normal provenance, independent QA/review, protected-branch and release gates
 > remain required. The linked handoff owns exact sequencing and acceptance.
 
+> Constrained transfer decision (2026-09-07): Owner permits AGY1 package 02
+> correction and AGY3 package 07 only after fresh alias-specific preflight.
+> The reported AGY1/AGY3 Claude/GPT 100% status and AGY2 Gemini 4% /
+> Claude/GPT 32% status are planning observations, not native telemetry or a
+> provider-execution receipt. Each preflight is context/admission only: no
+> provider call, source/test write, test, commit, push, deployment, publishing,
+> or worker creation. AGY2 exclusively reconciles handles 206ba523, 63a8c841,
+> and a323bccf; no other transfer is authorized. Fresh Rule 18 decisions,
+> quota receipts, reviewed QA baselines and new execution contexts remain
+> prerequisites to implementation.
+
+> Executable QA-baseline admission (2026-09-07): AGY1 package 02 selects the
+> AGY1 Claude/GPT family and AGY3 package 07 selects the AGY3 Claude/GPT family;
+> effective provider/model must appear nonsecretly in each typed receipt.
+> They own only their respective test/manifest pairs: AGY1 package 02 reserves
+> `tests/test_consensus_within_domain_remediation.py` and its dedicated
+> provenance manifest; AGY3 package 07 reserves a new isolated
+> `tests/test_lite_feedback_remediation.py` and its dedicated manifest. Only
+> `qa_tester` may write/run only those test/manifest pairs. This is executable
+> QA-baseline authority, not evidence that a baseline exists. The result must
+> bind focused RED command, source HEAD, test/manifest hashes and typed receipt.
+> Each baseline must demonstrate genuine assertion RED/negative controls and
+> receive a separately bound independent review before any source admission;
+> source paths stay excluded. Concurrent source/test ownership is prohibited.
+
+> Runtime-admission dependency (2026-09-07): Existing runtime configuration
+> denies AGY before Popen. A separate chain is planned: QA baseline on
+> `tests/test_multiagent_prompt_command.py` with a new provenance manifest,
+> then DevOps-only work on `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml`
+> and `scripts/multiagent_prompt_command.py`, then independent review. The
+> future marker must permit only isolated AGY1/AGY3 routing and fail closed for
+> alias/home mismatch, malformed marker/receipt, authentication-required or
+> capacity-exhausted status. This is planning only: no configuration change,
+> runtime proof, credentials, login, account homes, AGY2 handles or release.
+
+> Runtime QA gate recorded (2026-09-07): independent review PASS at HEAD
+> `8464e9605147a8d6308b8eccf19bda98f79e0702`, test SHA-256
+> `9123b599f920916638ff461e3b480ea815792c0c684d7c60854b837e745b30ad`,
+> with `28 failed, 236 deselected` genuine RED and zero Popen/transport across
+> denial families. `test_baseline_verified=true` releases only the exact
+> two-path AGY-RUNTIME-DEVOPS lane. The baseline/manifest remain prospective
+> and uncommitted; this is not runtime, auth, provider, Git, or release proof.
+
+> Real QA dispatch planning (2026-09-08): Separate AGY1/package-02 and
+> AGY3/package-07 execution contexts require distinct fresh Rule 18
+> DispatchDecisions, exact aliases/providers, nonsecret selected model,
+> alias-isolation plus authentication/capacity admission, and typed v3 receipt
+> and WorkResult bindings. Their planned decision/receipt files are distinct
+> per alias and use the existing dispatch-decision, dispatch-receipt-v3 and
+> WorkResult-v2 schemas. A typed auth/capacity/provider/transport failure stops
+> without child creation, source writes, AGY2-handle interaction, Git or release
+> action. Nothing has been dispatched by this planning record.
+
+> Decision artifact gate (2026-09-08): Schema-valid, nonsecret Decision v1
+> records exist for AGY1/package-02 and AGY3/package-07, bound to current HEAD,
+> aliases, provider, requested Claude model, rank-3 quality floor, policy
+> version/digest, and `quota_band=unknown` because quota is owner observation
+> rather than telemetry. They do not admit execution: the requested model is
+> absent from the current model-policy catalog, and receipt-v3 excludes AGY3.
+> No model/alias substitution or config/schema edit is authorized; execution
+> receipts are intentionally absent.
+
+> Remediation Completion & TDD Reconciliation (2026-09-08): All 7 work packages
+> have been executed under strict TDD baseline-freeze and single-responsibility
+> implementation rules:
+> 1. AGY Runtime Admission: Baseline `a00d5e3`, Implementation `99d229c` (38 tests GREEN)
+> 2. Package 02 Cross-Domain Consensus: Baseline `a8e0318`, Implementation `b9b22e9` (8 tests GREEN)
+> 3. Packages 04 & 05 Child Birthdate & Time-Invariance: Baseline `9509fa9`, Implementation `da11107` (6 tests GREEN)
+> 4. Packages 03 & 06 HITL Queue & 12 Distinct Topics: Baseline `70e0bcb`, Implementation `bf4f3e6` (13 tests GREEN)
+> 5. Package 01 BaZi Cycle Calculation Replacement: Baseline `5448078`, Implementation `c8db9be` (7 tests GREEN)
+> 6. Package 07 Lite Feedback UI Effect: Baseline `464f9ff`, Implementation `dd1192a` (6 tests GREEN)
+> 7. Package 08 Reconciliation: 6/6 test provenance manifests verified PASSED; 314 tests GREEN in 9.20s; ecosystem sync 100% OK.
+
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-05T19:43:02+07:00 (Asia/Bangkok)
+> **Last Synchronized**: 2026-09-08T11:06:00+07:00 (Asia/Bangkok)
 
 ---
 

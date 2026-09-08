@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-EXECUTE",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "unknown",
+  "work_mode": "mutation",
+  "selected_alias": "agy1",
+  "selected_model": "claude-opus-4-6-thinking",
+  "selected_effort": "high",
+  "rationale": "Rule18 planning decision only. Alias=agy1; provider=agy; source_head=8464e9605147a8d6308b8eccf19bda98f79e0702; policy_sha256=ffe971c46c551e6c02f6f0fb32009bf880633b60ef74ee78b6f7bb92ff987d9f; quality_floor_rank=3. User-reported AGY1 Claude/GPT quota is an observation, not telemetry, so quota_band=unknown and dispatch remains fail-closed pending fresh alias-isolation, authentication, capacity, model-policy and runtime-admission evidence. Scope is package-02 QA baseline only; no source/Git/release/AGY2-handle authority.",
+  "policy_version": "2026-08-26.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}
