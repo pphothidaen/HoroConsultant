@@ -274,6 +274,34 @@ one disposition plus evidence per finding. Production gate is NOT_READY.
 | HF Docker + Vercel production verification | READY_PENDING_CONFIRMATION | CI/CD deployment pipeline ready. |
 | Plan reconciliation, release notes and archive | DONE_LOCAL | Reconciled ATOMIC_TICKET.md, plans/plan.md, and test provenance manifests. |
 
+## Non-AGY release recovery checkpoint -- 2026-09-08
+
+Owner instruction `fix BLOCKED` authorizes native Codex workers for the
+remaining release chain after repeated AGY1-AGY4 admission failure. It does not
+waive or alter the native AGY gate. Execute sequentially:
+
+1. QA removes only the Package 02 EOF blank line and creates the new
+   superseding provenance manifest, verifies them, and creates exactly one
+   two-path local commit. QA does not push.
+2. DevOps exclusively stamps the authoritative eight-file set:
+   `project/static/{version.json,app.js,sw.js,index.html}` and
+   `public/{version.json,app.js,sw.js,index.html}`. All four mirror pairs must
+   retain identity, client-version, cache-version, footer, and cache-busting
+   parity before it opens the protected release PR.
+   DevOps may stage/commit the four already-prepared governance artifacts for
+   that PR but may not edit their bytes.
+3. Code review reads the exact new diff; QA then observes all required hosted
+   checks on the exact PR SHA.
+4. DevOps merges only on green, deploys/verifies HF Docker and Vercel, runs API
+   smoke plus 360/375/390/768/1440 visual audit, and records exact identities.
+5. Business analysis performs Rule 22 release notes and archives exactly this
+   checkpoint plus `horo-lite-review-agy2-handoff-20260907.md`.
+6. DevOps completes the protected closeout PR, pushes the next production tag,
+   and removes only the owned release branch.
+
+At every step preserve the 14 commits and the dirty
+`project/data/hitl_reviews.json`; the latter is never staged or deployed.
+
 ## Per-item TODO / DOING / DONE board and guardrails
 
 | ID | Status / owner | Required actions | Prohibited actions | DONE evidence |

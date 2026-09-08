@@ -3727,6 +3727,24 @@ Claude model is not in the current model-policy catalog, and receipt-v3 allows
 grounds to alter policy/schema or substitute a model/alias. Execution receipts
 remain absent because no provider ran.
 
+### Non-AGY release recovery authority -- 2026-09-08
+
+**GRILL REPORT: APPROVED.** The owner's explicit instruction `fix BLOCKED`
+authorizes the already-scoped release recovery to use native Codex specialist
+workers after AGY1-AGY4 admission repeatedly failed. This is a worker-routing
+fallback only: it does not weaken, waive, or modify the native AGY pre-spawn,
+authentication, capacity, alias-isolation, or typed-receipt gates. The existing
+14 commits must be preserved, and the unrelated dirty
+`project/data/hitl_reviews.json` is excluded from every lane and every Git
+operation.
+
+The sequential recovery chain is: QA-only EOF correction with a new
+superseding provenance manifest -> authoritative eight-file static stamp and protected
+branch/PR -> independent read-only review -> hosted CI observation -> HF Docker
+and Vercel deployment/production verification -> Rule 22 closeout -> final
+protected closeout PR, tag, and branch cleanup. No lane may claim success from
+an older SHA, local-only test, HTTP status alone, or a different deployment.
+
 | Sequential lane | State | Owner / bound skills | Exclusive scope and acceptance |
 |---|---|---|---|
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLAN` | `DONE` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `requirement-grill-gate` | `ATOMIC_TICKET.md`, `plans/plan.md`. Reconcile current source, register atomic baseline/source/review/QA tickets, bind exact paths and skills. |
@@ -3748,4 +3766,11 @@ remain absent because no provider ran.
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-DEVOPS` | `DONE` (`VERIFIED_GREEN`) | `devops`; `devops-deployment`, `agile-governance`, `multi-account-agent-orchestration` | `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml`, `scripts/multiagent_prompt_command.py` (Commit `99d229c`). |
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-REVIEW` | `DONE` (PASS) | `code_reviewer`; `qa-regression-provenance`, `qa-e2e-testing` | Read-only inspection and verification of runtime admission gate. |
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-REVIEW` | `READY_FOR_RELEASE` | `code_reviewer` | Read-only independent source review. Full suite 314 tests GREEN. |
-| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE` | `READY_PENDING_CONFIRMATION` | `devops`; `devops-deployment`, `hf-static-release-verification` | Ready for production push and deployment verification upon user instruction. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE` | `DOING_NON_AGY_RECOVERY_AUTHORIZED` | `orchestrator` | Owner confirmation is recorded. Execute only the seven sequential lanes below; preserve 14 commits and exclude `project/data/hitl_reviews.json`. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-QA-EOF` | `READY` | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing`, `agile-governance` | Remove only the extra EOF blank line in `tests/test_consensus_within_domain_remediation.py`; create `plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json`, superseding rather than rewriting the original manifest; run focused test, provenance, and `git diff --check`; create exactly one commit containing only those two paths. No push. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR` | `BLOCKED_BY_RELEASE_QA_EOF` | `devops`; `devops-deployment`, `hf-static-release-verification`, `agile-governance` | Run the authoritative stamp with exact exclusive ownership of `project/static/{version.json,app.js,sw.js,index.html}` and `public/{version.json,app.js,sw.js,index.html}`; require pair parity for identity, client version, cache version, footer, and cache-busting references. DevOps may stage/commit the four already-prepared governance artifacts (`ATOMIC_TICKET.md`, `plans/plan.md`, the checkpoint, and ticket context JSON) but must not edit their bytes. Create a protected release branch, commit the authorized stamp/governance set, push branch, and open PR. Never stage the unrelated HITL file. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-REVIEW` | `BLOCKED_BY_RELEASE_PREP_PR` | `code_reviewer`; `qa-regression-provenance`, `qa-e2e-testing`, `hf-static-release-verification` | Read-only review of the new EOF correction, superseding manifest, all eight stamped static files, exact PR diff, secret safety, and preservation/exclusion boundaries. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CI-OBSERVE` | `BLOCKED_BY_RELEASE_REVIEW` | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing` | Read-only follow of the exact PR head SHA through all required checks, including `Unified CI & Quality Audit Pipeline`, `AI Safety Audit`, and `Test Provenance`; old or unrelated runs do not count. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PROD` | `BLOCKED_BY_RELEASE_CI_OBSERVE` | `devops`; `devops-deployment`, `hf-static-release-verification` | Merge only after required CI passes; deploy/verify the same release identity on HF Docker and Vercel, with health, API/HITL smoke, UI/export E2E, and 360/375/390/768/1440 visual audit evidence. Stop on HTTP 503, identity mismatch, or failed viewport. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CLOSEOUT` | `BLOCKED_BY_RELEASE_PROD` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `orchestrator-delegation` | After verified production only, update `ReleaseNotes.md`, reconcile ticket/plan status, and move the two exact Horo Lite active plans into `plans/archive/2026-09-08-horo-lite-review-remediation/`. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-TAG-CLEANUP` | `BLOCKED_BY_RELEASE_CLOSEOUT` | `devops`; `devops-deployment`, `hf-static-release-verification`, `agile-governance` | Commit closeout on a protected branch, obtain required PR checks/merge, create and push the next non-conflicting production tag, remove only the owned release branch, and prove local/origin main and tag identities agree while preserving the unrelated HITL worktree change. |

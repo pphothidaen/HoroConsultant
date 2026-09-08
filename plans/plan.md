@@ -13,6 +13,28 @@
 > normal provenance, independent QA/review, protected-branch and release gates
 > remain required. The linked handoff owns exact sequencing and acceptance.
 
+> Non-AGY release recovery (2026-09-08): `fix BLOCKED` is explicit owner
+> authority to route the already-scoped production release through native Codex
+> specialists after repeated AGY1-AGY4 admission failures. The AGY native gate
+> remains fail-closed and unchanged. APPROVED scope is limited to seven
+> sequential lanes: EOF/provenance correction, authoritative eight-file static
+> stamp plus protected
+> PR, read-only review, hosted CI observation, HF/Vercel production verification,
+> Rule 22 closeout, and final tag/branch cleanup. Preserve all 14 commits and
+> exclude the unrelated dirty `project/data/hitl_reviews.json` from every write,
+> stage, commit, push, deploy payload, and cleanup operation. Success requires
+> exact-SHA CI, matching release identities, healthy production/API smoke, five
+> viewports (360/375/390/768/1440), completed archive/release notes, pushed tag,
+> and local/origin reconciliation; stop on any failed dependency or scope drift.
+> The stamp lane's exclusive writable files are exactly
+> `project/static/{version.json,app.js,sw.js,index.html}` and
+> `public/{version.json,app.js,sw.js,index.html}`; all four mirror pairs must
+> remain consistent for production identity and UI cache/version checks.
+> QA may create one exact local commit containing only the corrected consensus
+> test and its new successor manifest; it may not push. The following DevOps
+> lane may stage and commit the four prepared governance files with the stamped
+> files, but has no authority to modify governance-file bytes.
+
 > Constrained transfer decision (2026-09-07): Owner permits AGY1 package 02
 > correction and AGY3 package 07 only after fresh alias-specific preflight.
 > The reported AGY1/AGY3 Claude/GPT 100% status and AGY2 Gemini 4% /
