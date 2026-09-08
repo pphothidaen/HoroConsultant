@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-03-06-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "da1110797366fbc22a6daf3c38d78febff0a9478",
+  "test_files": [
+    {
+      "path": "tests/test_topic_guidance_remediation.py",
+      "sha256": "37d07cecaa19502aba3bcb538d85997ad9f96512292070017002a64683d6c697"
+    },
+    {
+      "path": "tests/test_hitl_queue_wiring_remediation.py",
+      "sha256": "b34724ceae103d6ee3907b1bb93ecdffbf512d178d2893bba5c7126ebd82ad2f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_topic_guidance_remediation.py",
+        "tests/test_hitl_queue_wiring_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Topic guidance identical across all 12 modules; HITL queue not written when queued status set"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/unified_reading_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen test baseline for Package 06 (12 distinct evidence-grounded topic guidances) and Package 03 (HITL queue wiring with upsert_external_hitl_item and idempotent review item creation).",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}
