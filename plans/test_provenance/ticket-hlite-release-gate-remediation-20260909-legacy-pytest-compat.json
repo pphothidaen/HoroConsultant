@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "91f48f893c7b607517cdbd09bc639fba52bdd1fe",
+  "test_files": [
+    {
+      "path": "tests/conftest.py",
+      "sha256": "7ccc162197293b35d219dc5e9726f126789e17bfac7988f25b426785e8223a51"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance.py::test_hook_is_read_only_and_registers_across_supported_local_ecosystems"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ATOMIC_TDD_HOOK_REGISTRATION missing: ['.claude/settings.json', '.codex/hooks.json']"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "ea1610bc75077f7967f415570c9cda2d2cb401ea",
+  "correction_reason": "BSA-021/REVIEW-018 requires retaining the immutable v1-v4 suites while correcting only collection behavior: the v1 registry assertion contradicts the later Codex no-native-PreToolUse immutable contract.",
+  "rationale": "Reviewer-approved test-only compatibility correction. The observed v1 focused command failed because the frozen legacy assertion requires the core atomic_tdd_guard path in Claude and Codex registries; immutable v4 instead requires Claude's platform-specific hook and Codex to declare no native PreToolUse. Collection-time strict xfail applies solely to that exact legacy node; no lifecycle test or registry is modified."
+}
