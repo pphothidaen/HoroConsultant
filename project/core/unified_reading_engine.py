@@ -91,12 +91,20 @@ class TopicModule(BaseModel):
 
 
 class MonthlyScoreItem(BaseModel):
-    """Per-month user-facing scores with deterministic evidence basis."""
+    """Per-month user-facing scores with deterministic evidence basis.
+
+    When ``unknown_hour`` is True, the ``*_score_range`` fields carry the
+    uncertainty bounds and the single ``*_score`` fields contain the range
+    midpoint for backward compatibility.
+    """
 
     month: int = Field(..., ge=1, le=12)
     career_score: int = Field(..., ge=1, le=10)
     finance_score: int = Field(..., ge=1, le=10)
     love_score: int = Field(..., ge=1, le=10)
+    career_score_range: list[int] | None = None
+    finance_score_range: list[int] | None = None
+    love_score_range: list[int] | None = None
     confidence: Literal["HIGH", "MEDIUM", "LOW"]
     score_basis: dict[str, Any] = Field(..., min_length=1)
     reasons: list[str] = Field(..., min_length=1)
@@ -136,6 +144,7 @@ class UnifiedReadingResponse(BaseModel):
     topics: list[TopicModule] = Field(..., min_length=12, max_length=12)
     monthly_scores: list[MonthlyScoreItem] = Field(..., min_length=12, max_length=12)
     past_patterns: list[PastPatternCandidate] = Field(..., min_length=0, max_length=5)
+    insufficient_history_reason: str | None = None
     consensus_metadata: dict[str, Any]
     hitl_flags: dict[str, Any]
     hitl_routing: dict[str, Any]

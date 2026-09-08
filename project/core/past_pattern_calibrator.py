@@ -36,8 +36,14 @@ def _seed(request: Any) -> int:
     birth = _birth_date(request)
     longitude_bucket = int(round((float(getattr(request, "longitude", 0.0)) + 180.0) * 10))
     latitude_bucket = int(round((float(getattr(request, "latitude", 0.0)) + 90.0) * 10))
-    time_value = getattr(request, "birth_time", None)
-    time_bucket = 0 if time_value is None else time_value.hour * 2 + time_value.minute // 30
+    unknown_hour = bool(getattr(request, "unknown_hour", False))
+    # When birth hour is unknown, ignore any supplied birth_time to ensure
+    # past-pattern candidates are time-invariant.
+    if unknown_hour:
+        time_bucket = 0
+    else:
+        time_value = getattr(request, "birth_time", None)
+        time_bucket = 0 if time_value is None else time_value.hour * 2 + time_value.minute // 30
     gender_seed = sum(ord(ch) for ch in str(getattr(request, "gender_at_birth", "") or ""))
     return (
         birth.year * 29
