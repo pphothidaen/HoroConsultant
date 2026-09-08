@@ -53,34 +53,46 @@ def _domain_agreement(scores: list[float], total_traditions: int) -> float:
     """Agreement for a single domain across traditions.
 
     * If fewer than 2 numeric scores exist the domain has missing evidence
-      and cannot count as perfect agreement — capped at 0.9.
+      and agreement is unknown — returns 0.5 (below the 0.75 HITL threshold)
+      to force human review rather than certifying high agreement.
+    * If some but not all traditions contributed, agreement is capped at 0.85.
     * Otherwise, 1 - spread/10 (clamped to [0, 1]).
     """
     if len(scores) < 2:
-        # Missing evidence cannot be perfect agreement
-        return 0.9 if scores else 0.9
+        # Missing evidence: agreement is unknown, not high
+        return 0.5
     if len(scores) < total_traditions:
-        # Some traditions missing — cap agreement
+        # Some traditions missing — cap agreement below full certainty
         spread = max(scores) - min(scores)
-        return min(0.9, max(0.0, 1.0 - (spread / 10.0)))
+        return min(0.85, max(0.0, 1.0 - (spread / 10.0)))
     spread = max(scores) - min(scores)
     return max(0.0, min(1.0, 1.0 - (spread / 10.0)))
 
 
 def _monthly_agreement_score_from_claims(
     tradition_claims: dict[str, dict[str, Any]],
-) -> float:
-    """Compute agreement WITHIN each domain separately, then average."""
+) -> tuple[float, bool, dict[str, float]]:
+    """Compute agreement WITHIN each domain separately, then average.
+
+    Returns (aggregate_score, has_per_domain_conflict, domain_agreements).
+    A per-domain conflict is flagged if ANY individual domain's agreement
+    falls below 0.75, even if the aggregate average is above it.
+    """
     total_traditions = len(tradition_claims)
     domain_scores = _extract_domain_scores(tradition_claims)
 
-    domain_agreements: list[float] = []
-    for _domain, scores in domain_scores.items():
-        domain_agreements.append(_domain_agreement(scores, total_traditions))
+    domain_agreements: dict[str, float] = {}
+    has_per_domain_conflict = False
+    for domain, scores in domain_scores.items():
+        agreement = _domain_agreement(scores, total_traditions)
+        domain_agreements[domain] = agreement
+        if agreement < 0.75:
+            has_per_domain_conflict = True
 
     if not domain_agreements:
-        return 1.0
-    return sum(domain_agreements) / len(domain_agreements)
+        return 1.0, False, {}
+    aggregate = sum(domain_agreements.values()) / len(domain_agreements)
+    return aggregate, has_per_domain_conflict, domain_agreements
 
 
 def _monthly_agreement_score(scores: list[float]) -> float:
@@ -92,6 +104,13 @@ def _monthly_agreement_score(scores: list[float]) -> float:
 
 
 def _default_tradition_claims(month: dict[str, Any], seed: int) -> dict[str, dict[str, Any]]:
+    """Generate placeholder tradition claims from month scores.
+
+    These are proxy claims: all traditions receive the same month scores
+    because no real tradition engine exists yet.  The ``proxy`` flag marks
+    them as manufactured so consumers can distinguish them from genuine
+    multi-tradition computation.
+    """
     month_number = int(month["month"])
     career_score = int(month.get("career_score", month.get("career_score_range", [5, 5])[0]))
     finance_score = int(month.get("finance_score", month.get("finance_score_range", [5, 5])[0]))
@@ -102,18 +121,21 @@ def _default_tradition_claims(month: dict[str, Any], seed: int) -> dict[str, dic
             "career_score": career_score,
             "finance_score": finance_score,
             "love_score": love_score,
+            "proxy": True,
             "claim": "transit-house proxy supports the monthly score band",
         },
         "bazi_liu_yue": {
             "career_score": career_score,
             "finance_score": finance_score,
             "love_score": love_score,
+            "proxy": True,
             "claim": "monthly cycle proxy broadly agrees with the transit proxy",
         },
         "zi_wei": {
             "career_score": career_score,
             "finance_score": finance_score,
             "love_score": love_score,
+            "proxy": True,
             "claim": "deterministic star-phase proxy does not create a material conflict",
         },
     }
@@ -160,9 +182,17 @@ def arbitrate_monthly_consensus(
         if not isinstance(tradition_claims, dict):
             tradition_claims = _default_tradition_claims(month, seed)
 
-        agreement_score = _monthly_agreement_score_from_claims(tradition_claims)
+        agreement_score, has_domain_conflict, domain_details = (
+            _monthly_agreement_score_from_claims(tradition_claims)
+        )
         expected_conflict = bool(fixture_claim.get("expected_conflict"))
-        conflict_detected = expected_conflict or agreement_score < 0.75
+        # Conflict when: explicitly expected, aggregate score too low,
+        # OR any individual domain has agreement below threshold.
+        conflict_detected = (
+            expected_conflict
+            or agreement_score < 0.75
+            or has_domain_conflict
+        )
         if conflict_detected:
             conflict_months.append(month_number)
             conflicting_traditions.update(str(name) for name in tradition_claims)
@@ -173,6 +203,7 @@ def arbitrate_monthly_consensus(
                 "month": month_number,
                 "agreement_score": round(agreement_score, 3),
                 "conflict_detected": conflict_detected,
+                "domain_agreements": {k: round(v, 3) for k, v in domain_details.items()},
                 "tradition_claims": tradition_claims,
                 "arbitrated_claim": (
                     "human review required for conflicting tradition claims"
