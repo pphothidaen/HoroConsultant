@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-OPENAPI-ENGINE-CONTRACT-SUPERSEDING",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6ac81365c98e02796dbbe329cc3aed87c7d75f6b",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "5b74ea74b4e74e31572a56b693a83faafee31d726b31903c09b58ab4b0a3ab99"
+    },
+    {
+      "path": "project/tests/goldens/openapi.json",
+      "sha256": "6417ceb57fdd0d37eaa5faae21112e680cebf7ab99e01ac0820ecc98107a461c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_horo_lite_unified_reading.py::test_deterministic_annual_timing_12_months",
+        "project/tests/test_gateway_contract.py::test_python_openapi_matches_captured_literal_golden"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed: Horo Lite deterministic annual timing expected annual_timing_proxy.v1 while source now emits annual_timing_bazi_transit.v2; OpenAPI golden omitted the current score range and insufficient-history response contract."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py",
+    "project/core/unified_reading_engine.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "6ac81365c98e02796dbbe329cc3aed87c7d75f6b",
+  "correction_reason": "Release-scope contract tests were stale after Horo Lite remediation promoted the annual timing engine to annual_timing_bazi_transit.v2 and exposed the existing response schema changes in OpenAPI.",
+  "rationale": "This manifest binds the focused contract test update and regenerated FastAPI OpenAPI golden to the release-remediation source state. It does not authorize additional source changes, deployment, or publication.",
+  "baseline_state": "PROSPECTIVE_SUPERSEDING_CONTRACT_CORRECTION",
+  "source_admission": "NOT_APPLICABLE_TEST_AND_GOLDEN_CONTRACT_SYNC"
+}

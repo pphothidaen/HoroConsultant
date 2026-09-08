@@ -1,0 +1,50 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "ca974f1a3bba61c130f0704b80bae0633291d84e",
+  "test_files": [
+    {
+      "path": "tests/test_consensus_proxy_independence_remediation.py",
+      "sha256": "4d1e088ecf4c9c6b4df66a6771cbd2e678cee69580636b26aed7eb3d03340f07"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_consensus_proxy_independence_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ASSERTION_NORMALIZED: test_proxy_claims_do_not_create_independent_perfect_consensus; result['consensus_score'] expected 0.5, observed 1.0"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/debate/consensus_matrix.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen RED baseline for consensus proxy/shared-lineage independence. The real default arbitration path currently treats three synthetic proxy claims derived from one lineage as independent corroboration, producing artificial agreement_score and consensus_score 1.0 with no conflict review. The test requires the existing unknown-evidence score 0.5 per domain, aggregate consensus 0.5, ARBITRATED_WITH_CONFLICTS, and conflict metadata so low/unverified consensus remains review-required.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED",
+  "approved_context_sha256": "1517481dc31393a21a75580e7f26de7fab041eb6d1959779105c0c51e592d048",
+  "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE",
+  "observed_head": "ca974f1a3bba61c130f0704b80bae0633291d84e",
+  "worktree_boundary": {
+    "base": "2012e8363c3f173d9b66ba10646c376d4814ebce",
+    "head": "ca974f1a3bba61c130f0704b80bae0633291d84e",
+    "test_only_paths": [
+      "tests/test_consensus_proxy_independence_remediation.py",
+      "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json"
+    ],
+    "source_paths_untouched": [
+      "project/debate/consensus_matrix.py"
+    ]
+  }
+}

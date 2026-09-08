@@ -1,0 +1,63 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8464e9605147a8d6308b8eccf19bda98f79e0702",
+  "test_files": [
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "b4509bc3c9de1a57f37951d42083505a579637d7a9f5138beabe777f36ada6b3"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_multiagent_prompt_command.py",
+        "-k",
+        "agy_runtime_admission or agy_executable_admission"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "6 failed, 32 passed, 236 deselected; _mint_agy_runtime_execution_capability, direct _AgyRuntimeExecutionCapability construction with module-global secret, and vars(module) introspection each clear the transport gate. The direct runner reaches mocked subprocess.Popen for every forged capability."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+    "scripts/multiagent_prompt_command.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Prospective genuine RED baseline for a DevOps-owned runtime-admission marker and adapter validator only. It requires a platform-native pre-spawn receipt and permits only isolated agy1 and agy3 routes. It rejects AGY2/AGY4/Codex substitution, absent or malformed marker, disabled aliases, shared account homes, authentication or capacity failure, and malformed receipts. This local fixture is not a native receipt, provider proof, child execution, account-home access, credential operation, or permission to weaken the existing AGY hard denial. VERIFIED is the v1 prospective provenance classification only; no independent review, baseline commit, source admission, provider execution, release, or deployment is claimed.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED",
+  "red_runs": [
+    {
+      "attempt": 1,
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_multiagent_prompt_command.py",
+        "-k",
+        "agy_runtime_admission or agy_executable_admission"
+      ],
+      "exit_code": 1,
+      "failed": 6,
+      "passed": 32,
+      "errors": 0,
+      "failure_fingerprint": "Exported mint/type and module-global secret introspection forge accepted capabilities; runner reaches mocked Popen"
+    }
+  ],
+  "risks": [
+    "The direct transport boundary currently trusts caller-supplied boolean/Mapping values and exported or introspected module-local capability material; none is an execution-path-originated capability boundary.",
+    "No independently reviewed or committed baseline exists yet.",
+    "A validated local marker cannot prove platform-native pre-spawn enforcement or provider execution."
+  ]
+}

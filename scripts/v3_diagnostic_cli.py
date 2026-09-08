@@ -9,6 +9,8 @@ operator-friendly inspection of the ten-domain pipeline.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import sys
 from datetime import date, datetime
@@ -19,15 +21,21 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from project.routers.v3 import V3CalculateRequest, _calculate_emissions  # noqa: E402
-
 RUNTIMES_DIR = ROOT / "TDD-HORO-v3.0" / "05_AGENT_PROMPTS_AND_RUNTIMES"
 if str(RUNTIMES_DIR) not in sys.path:
     sys.path.insert(0, str(RUNTIMES_DIR))
 
-from runtimes.audit_node import AuditNode  # noqa: E402
-from runtimes.consensus_engine import ConsensusEngine  # noqa: E402
-from runtimes.plan_composer import PlanComposer  # noqa: E402
+if __name__ == "__main__":
+    with contextlib.redirect_stderr(io.StringIO()):
+        from project.routers.v3 import V3CalculateRequest, _calculate_emissions  # noqa: E402
+        from runtimes.audit_node import AuditNode  # noqa: E402
+        from runtimes.consensus_engine import ConsensusEngine  # noqa: E402
+        from runtimes.plan_composer import PlanComposer  # noqa: E402
+else:
+    from project.routers.v3 import V3CalculateRequest, _calculate_emissions  # noqa: E402
+    from runtimes.audit_node import AuditNode  # noqa: E402
+    from runtimes.consensus_engine import ConsensusEngine  # noqa: E402
+    from runtimes.plan_composer import PlanComposer  # noqa: E402
 
 DOMAIN_LABELS = {
     "ming_xue_bazi": "BaZi",

@@ -1,9 +1,177 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## 2026-09-08 Independent Release-Review Successor Plan
+
+GRILL REPORT
+
+- Request: register remediation for four independent Horo Lite release-review findings.
+- Status: APPROVED.
+- Authorized next phase: the three independent RED-baseline reviews and validated planning-artifact integration only; source remains blocked by the six-path baseline integration commit.
+- Evidence: digest 299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f; resolver PASS with api/source_security; revision-15 planning parent HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d over origin/main 77cbe84a728e93e7f7c9007ce31b50936967dddb.
+- D1: CONFIRMED. Three behavior fixes, dependent README.md/HOWTO.md sync, and future protected-PR prep are in. project/data/hitl_reviews.json, unrelated source, credentials, provider dispatch, current commit/push/PR/merge/deploy/publish/archive, and release completion are out.
+- D2: CONFIRMED. Proxy evidence is not independent; failed HITL persistence is not queued; modulo houses are not deterministic transits; docs follow final behavior.
+- D3: CONFIRMED. Each genuine RED requires independent baseline review, followed by one six-path-only baseline commit before any source mutation; owned source, independent source review, and independent QA follow. Stop on any failed predecessor, provenance mismatch, extra commit path, false queue state, double-count, or misleading precision.
+- D4: CONFIRMED. The three named tests and three manifests now contain genuine RED outputs. Independent baseline reviewers, exact planning integration, a six-path-only baseline commit, supplied identities, and later source reviewers are required. Docs depend on all three QA results.
+- D5: CONFIRMED. qa_tester owns baselines; canonical developer role executes under developer_core ownership for consensus/annual and developer_api ownership for the router; code_reviewer is read-only; business_analyst owns docs; devops owns future release metadata.
+- D6: CONFIRMED. PR #38 is merged history; current branch has no PR. Honest proxy semantics is the bounded annual remedy.
+- D7: CONFIRMED. Preserve RED/provenance evidence and return to the failed predecessor. No force push/deploy recovery.
+- D8: CONFIRMED. Focused ASCII evidence and provenance; no source tests in planning.
+- D9: CONFIRMED for semantics-only correction. Any new transit algorithm needs canonical sources, owner sign-off, required_human_review for conflict/low-consensus/force-review, and /hitl/scope-audit?source_domain=metaphysical-domain-engine with summary.pass_gate_check=true.
+- Waivers: NONE. Blockers: NONE for baselines. Next question: NONE.
+
+| Finding | Baseline | Source | Review | QA |
+|---|---|---|---|---|
+| 09 consensus independence | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA |
+| 10 HITL enqueue truth | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA |
+| 11 transit semantics | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA |
+| 12 docs gap | Not applicable: docs-only | TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | Protected-PR review | Protected-PR required checks |
+
+### Baseline review and integration gate
+
+| Lane | Role | Exact scope | Gate |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW | code_reviewer | 09 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW | code_reviewer | 10 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW | code_reviewer | 11 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION | devops | Exactly four planning/context files; context.resolve, git.commit | Structural/hash/resolver validation PASS; commit only those four files, with no byte edits in this lane. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION | qa_tester | Exactly three tests and three manifests; context.resolve, git.commit | Blocked until all three baseline reviews PASS; commit only the six reviewed paths, unchanged. |
+
+### Revision 15 legacy consensus superseder
+
+| Lane | Role | Exact scope | Gate |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE | qa_tester | tests/test_consensus_within_domain_remediation.py plus new legacy-superseding manifest only | Change only two stale default-proxy fixtures/expectations to genuine non-proxy claims. Preserve within-domain/cross-domain behavior, prior baseline, EOF superseder, and source bytes. No commit. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW | code_reviewer | Read-only pair plus project/debate/consensus_matrix.py | Blocked until baseline output exists; verify provenance, test meaning, two-fixture-only delta, preserved history/behavior, and no baseline source mutation. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION | qa_tester | Exact reviewed test+new manifest pair; context.resolve, git.commit | After review PASS, commit only the pair unchanged. baseline_parent must equal a84957f35f19416e9df484a1b16df2c1a77dca1d. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION-002 | devops | Exact four planning/context artifacts; context.resolve, git.commit | Commit validated revision-15 planning bytes only; exclude all source/tests/manifests/data/push/deploy. |
+
+The prior baseline and
+plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json
+remain immutable history. The uncommitted reviewed
+project/debate/consensus_matrix.py diff is read-only and untouched. Existing
+09 QA is blocked until both 09 source review PASS and legacy-superseding
+integration exist.
+
+Order is RED BASELINE -> BASELINE-REVIEW -> six-path BASELINE-INTEGRATION
+commit -> SOURCE -> source REVIEW -> QA, then docs and
+TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002. The baseline
+commit must contain only the six test/provenance paths and precede every source
+mutation. PR #38 is historical and MERGED; a new protected PR is required after
+remediation. No new review/integration lane is DONE and no release-ready, push,
+PR, merge, deploy, publish, or archive claim is made.
+
+> Session exception recorded 2026-09-07T01:25:31Z: owner explicitly waives
+> PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED for this session's AGY2 remediation
+> handoff only. Current orchestrator owns direct dispatch/monitoring; AGY2 owns
+> worker execution for eight Horo Lite review findings. No permanent guard edits
+> or production actions. Exact scope, reason, expiry and stop conditions:
+> [AGY2 handoff](active/horo-lite-review-agy2-handoff-20260907.md).
+
+> Subsequent owner authorization (2026-09-07): AGY2 shall push reviewed completed
+> remediation to origin/main and carry CI/CD through verified HF Docker and
+> Vercel production. This supersedes the preceding no-production-action scope;
+> normal provenance, independent QA/review, protected-branch and release gates
+> remain required. The linked handoff owns exact sequencing and acceptance.
+
+> Non-AGY release recovery (2026-09-08): `fix BLOCKED` is explicit owner
+> authority to route the already-scoped production release through native Codex
+> specialists after repeated AGY1-AGY4 admission failures. The AGY native gate
+> remains fail-closed and unchanged. APPROVED scope is limited to seven
+> sequential lanes: EOF/provenance correction, authoritative eight-file static
+> stamp plus protected
+> PR, read-only review, hosted CI observation, HF/Vercel production verification,
+> Rule 22 closeout, and final tag/branch cleanup. Preserve all 14 commits and
+> exclude the unrelated dirty `project/data/hitl_reviews.json` from every write,
+> stage, commit, push, deploy payload, and cleanup operation. Success requires
+> exact-SHA CI, matching release identities, healthy production/API smoke, five
+> viewports (360/375/390/768/1440), completed archive/release notes, pushed tag,
+> and local/origin reconciliation; stop on any failed dependency or scope drift.
+> The stamp lane's exclusive writable files are exactly
+> `project/static/{version.json,app.js,sw.js,index.html}` and
+> `public/{version.json,app.js,sw.js,index.html}`; all four mirror pairs must
+> remain consistent for production identity and UI cache/version checks.
+> QA may create one exact local commit containing only the corrected consensus
+> test and its new successor manifest; it may not push. The following DevOps
+> lane may stage and commit the four prepared governance files with the stamped
+> files, but has no authority to modify governance-file bytes.
+
+> Constrained transfer decision (2026-09-07): Owner permits AGY1 package 02
+> correction and AGY3 package 07 only after fresh alias-specific preflight.
+> The reported AGY1/AGY3 Claude/GPT 100% status and AGY2 Gemini 4% /
+> Claude/GPT 32% status are planning observations, not native telemetry or a
+> provider-execution receipt. Each preflight is context/admission only: no
+> provider call, source/test write, test, commit, push, deployment, publishing,
+> or worker creation. AGY2 exclusively reconciles handles 206ba523, 63a8c841,
+> and a323bccf; no other transfer is authorized. Fresh Rule 18 decisions,
+> quota receipts, reviewed QA baselines and new execution contexts remain
+> prerequisites to implementation.
+
+> Executable QA-baseline admission (2026-09-07): AGY1 package 02 selects the
+> AGY1 Claude/GPT family and AGY3 package 07 selects the AGY3 Claude/GPT family;
+> effective provider/model must appear nonsecretly in each typed receipt.
+> They own only their respective test/manifest pairs: AGY1 package 02 reserves
+> `tests/test_consensus_within_domain_remediation.py` and its dedicated
+> provenance manifest; AGY3 package 07 reserves a new isolated
+> `tests/test_lite_feedback_remediation.py` and its dedicated manifest. Only
+> `qa_tester` may write/run only those test/manifest pairs. This is executable
+> QA-baseline authority, not evidence that a baseline exists. The result must
+> bind focused RED command, source HEAD, test/manifest hashes and typed receipt.
+> Each baseline must demonstrate genuine assertion RED/negative controls and
+> receive a separately bound independent review before any source admission;
+> source paths stay excluded. Concurrent source/test ownership is prohibited.
+
+> Runtime-admission dependency (2026-09-07): Existing runtime configuration
+> denies AGY before Popen. A separate chain is planned: QA baseline on
+> `tests/test_multiagent_prompt_command.py` with a new provenance manifest,
+> then DevOps-only work on `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml`
+> and `scripts/multiagent_prompt_command.py`, then independent review. The
+> future marker must permit only isolated AGY1/AGY3 routing and fail closed for
+> alias/home mismatch, malformed marker/receipt, authentication-required or
+> capacity-exhausted status. This is planning only: no configuration change,
+> runtime proof, credentials, login, account homes, AGY2 handles or release.
+
+> Runtime QA gate recorded (2026-09-07): independent review PASS at HEAD
+> `8464e9605147a8d6308b8eccf19bda98f79e0702`, test SHA-256
+> `9123b599f920916638ff461e3b480ea815792c0c684d7c60854b837e745b30ad`,
+> with `28 failed, 236 deselected` genuine RED and zero Popen/transport across
+> denial families. `test_baseline_verified=true` releases only the exact
+> two-path AGY-RUNTIME-DEVOPS lane. The baseline/manifest remain prospective
+> and uncommitted; this is not runtime, auth, provider, Git, or release proof.
+
+> Real QA dispatch planning (2026-09-08): Separate AGY1/package-02 and
+> AGY3/package-07 execution contexts require distinct fresh Rule 18
+> DispatchDecisions, exact aliases/providers, nonsecret selected model,
+> alias-isolation plus authentication/capacity admission, and typed v3 receipt
+> and WorkResult bindings. Their planned decision/receipt files are distinct
+> per alias and use the existing dispatch-decision, dispatch-receipt-v3 and
+> WorkResult-v2 schemas. A typed auth/capacity/provider/transport failure stops
+> without child creation, source writes, AGY2-handle interaction, Git or release
+> action. Nothing has been dispatched by this planning record.
+
+> Decision artifact gate (2026-09-08): Schema-valid, nonsecret Decision v1
+> records exist for AGY1/package-02 and AGY3/package-07, bound to current HEAD,
+> aliases, provider, requested Claude model, rank-3 quality floor, policy
+> version/digest, and `quota_band=unknown` because quota is owner observation
+> rather than telemetry. They do not admit execution: the requested model is
+> absent from the current model-policy catalog, and receipt-v3 excludes AGY3.
+> No model/alias substitution or config/schema edit is authorized; execution
+> receipts are intentionally absent.
+
+> Remediation Completion & TDD Reconciliation (2026-09-08): All 7 work packages
+> have been executed under strict TDD baseline-freeze and single-responsibility
+> implementation rules:
+> 1. AGY Runtime Admission: Baseline `a00d5e3`, Implementation `99d229c` (38 tests GREEN)
+> 2. Package 02 Cross-Domain Consensus: Baseline `a8e0318`, Implementation `b9b22e9` (8 tests GREEN)
+> 3. Packages 04 & 05 Child Birthdate & Time-Invariance: Baseline `9509fa9`, Implementation `da11107` (6 tests GREEN)
+> 4. Packages 03 & 06 HITL Queue & 12 Distinct Topics: Baseline `70e0bcb`, Implementation `bf4f3e6` (13 tests GREEN)
+> 5. Package 01 BaZi Cycle Calculation Replacement: Baseline `5448078`, Implementation `c8db9be` (7 tests GREEN)
+> 6. Package 07 Lite Feedback UI Effect: Baseline `464f9ff`, Implementation `dd1192a` (6 tests GREEN)
+> 7. Package 08 Reconciliation: 6/6 test provenance manifests verified PASSED; 314 tests GREEN in 9.20s; ecosystem sync 100% OK.
+
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-05T19:43:02+07:00 (Asia/Bangkok)
+> **Last Synchronized**: 2026-09-08T11:06:00+07:00 (Asia/Bangkok)
 
 ---
 

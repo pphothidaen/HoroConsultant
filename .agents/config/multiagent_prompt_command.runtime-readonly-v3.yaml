@@ -18,6 +18,24 @@ runtime:
   raw_streams_retained: false
   provider_execution_denials:
     agy: PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED
+  # This is a local parser gate, not provider authentication or execution.
+  # Only an exact matching native pre-spawn receipt can admit either alias.
+  agy_runtime_admission:
+    schema_version: 1
+    enabled: true
+    aliases:
+      agy1:
+        provider: agy
+        home_env: AGY_HOME
+      agy3:
+        provider: agy
+        home_env: AGY_HOME
+    receipt:
+      schema_version: 1
+      artifact_type: platform-native-prespawn-receipt
+      required_status: PASS
+      required_authentication: PASS
+      required_capacity: PASS
 
 model_policy: multiagent_model_policy.yaml
 

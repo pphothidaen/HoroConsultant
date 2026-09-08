@@ -808,6 +808,9 @@ class Invocation:
     approval_store_path: str | None = None
     approval_session_id: str | None = None
     preauthorization_store_binding: Mapping[str, str] | None = None
+    # A content-free, platform-native pre-spawn status assertion.  This is not
+    # authentication material and must never contain an account-home path.
+    agy_runtime_admission_receipt: Mapping[str, Any] | None = None
 
 
 @dataclass
@@ -5399,7 +5402,10 @@ def _verify_isolated_account_home(
 def validate_execution_preflight(invocation: Invocation) -> None:
     """Require a runnable executable and a structurally isolated account home."""
 
-    _validate_invocation_provider_binding(invocation)
+    if invocation.route.cli == "agy" and _validate_agy_runtime_admission_invocation(invocation):
+        _validate_admitted_agy_invocation_binding(invocation)
+    else:
+        _validate_invocation_provider_binding(invocation)
     executable = invocation.route.command
     if "/" in executable:
         executable_path = Path(executable)
@@ -6373,6 +6379,7 @@ def _run_provider_process(
     env: Mapping[str, str],
     input: str,
     provider: str | None = None,
+    agy_runtime_admitted: object = None,
     timeout: float = MAX_PROVIDER_RUNTIME_SECONDS,
     **_unused: Any,
 ) -> subprocess.CompletedProcess[str]:
@@ -6381,6 +6388,8 @@ def _run_provider_process(
     # Defense in depth at the last local process-creation boundary. The
     # invocation executor supplies the selected provider; a runtime config,
     # acknowledgement, or same-principal approval artifact cannot bypass it.
+    # Accepted only for backwards-compatible call signatures; it is inert.
+    del agy_runtime_admitted
     _validate_transport_provider_binding(provider, argv)
     if timeout <= 0:
         raise ConfigurationError("provider timeout must be positive")
@@ -6646,7 +6655,11 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
     # DSG-009A/009B are external prerequisites. This repository-local denial
     # is defense in depth only and deliberately runs before all executable
     # preflight, approval consumption, dispatch-ledger mutation, and Popen.
-    _validate_invocation_provider_binding(invocation)
+    agy_runtime_admitted = _validate_agy_runtime_admission_invocation(invocation)
+    if agy_runtime_admitted:
+        _validate_admitted_agy_invocation_binding(invocation)
+    else:
+        _validate_invocation_provider_binding(invocation)
     validated_decision = _validated_invocation_decision(invocation)
     _validate_qobs_invocation_binding(invocation)
     validate_execution_preflight(invocation)
@@ -7833,6 +7846,137 @@ def _runtime_config_approval(config: Mapping[str, Any]) -> bool:
     return approved is True
 
 
+_AGY_RUNTIME_ADMISSION_ALIASES = frozenset({"agy1", "agy3"})
+_AGY_RUNTIME_MARKER_FIELDS = frozenset({"schema_version", "enabled", "aliases", "receipt"})
+_AGY_RUNTIME_ALIAS_FIELDS = frozenset({"provider", "home_env", "enabled"})
+_AGY_RUNTIME_RECEIPT_POLICY_FIELDS = frozenset(
+    {"schema_version", "artifact_type", "required_status", "required_authentication", "required_capacity"}
+)
+_AGY_RUNTIME_RECEIPT_FIELDS = frozenset(
+    {"schema_version", "artifact_type", "alias", "provider", "status", "authentication", "capacity", "session_id"}
+)
+
+# Compatibility-only inert values for historical callers.  They are never
+# consulted by an authorization decision; final AGY authorization is solely
+# call-chain-bound below.
+_AGY_RUNTIME_CAPABILITY_SECRET = object()
+
+
+class _AgyRuntimeExecutionCapability:
+    __slots__ = ("value",)
+
+    def __init__(self, value: object) -> None:
+        self.value = value
+
+
+def _mint_agy_runtime_execution_capability() -> _AgyRuntimeExecutionCapability:
+    return _AgyRuntimeExecutionCapability(_AGY_RUNTIME_CAPABILITY_SECRET)
+
+def validate_agy_runtime_admission(
+    config: Mapping[str, Any], route: Route, receipt: object,
+) -> None:
+    """Validate prospective AGY1/AGY3 execution admission without touching homes.
+
+    The marker is a local configuration gate only: it neither authenticates an
+    account nor claims a provider process was started.  Native pre-spawn status
+    must be supplied by the caller and binds exactly one allowed alias.
+    """
+
+    if route.cli != "agy" or route.alias not in _AGY_RUNTIME_ADMISSION_ALIASES:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_ALIAS_NOT_ALLOWED")
+    runtime = _mapping(config.get("runtime"), "runtime")
+    marker = runtime.get("agy_runtime_admission")
+    if not isinstance(marker, Mapping) or set(marker) != _AGY_RUNTIME_MARKER_FIELDS:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    if marker.get("schema_version") != 1 or marker.get("enabled") is not True:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    aliases = marker.get("aliases")
+    policy = marker.get("receipt")
+    if not isinstance(aliases, Mapping) or set(aliases) != _AGY_RUNTIME_ADMISSION_ALIASES:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    if not isinstance(policy, Mapping) or set(policy) != _AGY_RUNTIME_RECEIPT_POLICY_FIELDS:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    alias_policy = aliases.get(route.alias)
+    if not isinstance(alias_policy, Mapping) or not set(alias_policy).issubset(_AGY_RUNTIME_ALIAS_FIELDS) or set(alias_policy) < {"provider", "home_env"}:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    if alias_policy.get("enabled", True) is not True:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_ALIAS_DISABLED")
+    if alias_policy.get("provider") != "agy" or alias_policy.get("home_env") != "AGY_HOME" or route.home_env != "AGY_HOME":
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_IDENTITY_MISMATCH")
+    accounts = _mapping(config.get("accounts"), "accounts")
+    configured_homes: list[str] = []
+    for alias in _AGY_RUNTIME_ADMISSION_ALIASES:
+        account = aliases and accounts.get(alias)
+        if not isinstance(account, Mapping):
+            raise ConfigurationError("AGY_RUNTIME_ADMISSION_HOME_NOT_ISOLATED")
+        home = account.get("home_path")
+        if not isinstance(home, str) or not home:
+            raise ConfigurationError("AGY_RUNTIME_ADMISSION_HOME_NOT_ISOLATED")
+        configured_homes.append(home)
+    if len(set(configured_homes)) != len(configured_homes):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_HOME_NOT_ISOLATED")
+    if accounts[route.alias]["home_path"] != route.home_path:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_HOME_MISMATCH")
+    if not isinstance(receipt, Mapping):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_RECEIPT_INVALID")
+    missing_receipt_fields = _AGY_RUNTIME_RECEIPT_FIELDS - set(receipt)
+    if missing_receipt_fields == {"authentication"}:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_AUTHENTICATION_INVALID")
+    if missing_receipt_fields == {"capacity"}:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_CAPACITY_UNAVAILABLE")
+    if set(receipt) != _AGY_RUNTIME_RECEIPT_FIELDS:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_RECEIPT_INVALID")
+    if (
+        receipt.get("schema_version") != policy.get("schema_version")
+        or receipt.get("artifact_type") != policy.get("artifact_type")
+        or receipt.get("alias") != route.alias
+        or receipt.get("provider") != route.cli
+        or not isinstance(receipt.get("session_id"), str)
+        or not receipt["session_id"].strip()
+    ):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_IDENTITY_MISMATCH")
+    if receipt.get("authentication") != policy.get("required_authentication"):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_AUTHENTICATION_INVALID")
+    if receipt.get("capacity") != policy.get("required_capacity"):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_CAPACITY_UNAVAILABLE")
+    if receipt.get("status") != policy.get("required_status"):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_RECEIPT_INVALID")
+
+
+def _validate_agy_runtime_admission_invocation(
+    invocation: Invocation,
+) -> bool:
+    """Load only the approved config and validate the typed AGY admission field."""
+
+    if invocation.route.cli != "agy":
+        return False
+    if not invocation.runtime_config_approved or not invocation.runtime_config_path:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    config_path = Path(invocation.runtime_config_path)
+    if not config_path.is_file() or ".example." in config_path.name:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    try:
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID") from exc
+    if not isinstance(config, Mapping):
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    runtime = config.get("runtime")
+    # Preserve the historical platform-native denial until a dedicated
+    # admission marker is present.  A missing marker is never an implicit
+    # fallback route; it remains denied by the transport boundary.
+    if not isinstance(runtime, Mapping):
+        if invocation.agy_runtime_admission_receipt is None:
+            return False
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    if isinstance(runtime, Mapping) and "agy_runtime_admission" not in runtime:
+        if invocation.agy_runtime_admission_receipt is None:
+            return False
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
+    validate_agy_runtime_admission(config, invocation.route, invocation.agy_runtime_admission_receipt)
+    return True
+
+
 def _provider_from_label(provider: str | None) -> str | None:
     """Canonicalize provider names and governed account aliases."""
 
@@ -7943,19 +8087,44 @@ def _validate_route_provider_binding(route: Route) -> None:
         raise ProviderExecutableBindingError()
 
 
+def _agy_transport_is_locked_execution_call() -> bool:
+    """Accept AGY only along the validated locked executor -> runner chain.
+
+    No authorization object, flag, receipt, or module secret crosses this
+    boundary.  The stack-code identity prevents direct helper invocation from
+    manufacturing AGY transport authority.
+    """
+
+    frame = sys._getframe(1)
+    try:
+        runner = frame.f_back
+        executor = runner.f_back if runner is not None else None
+        return (
+            frame.f_code is _validate_transport_provider_binding.__code__
+            and runner is not None
+            and runner.f_code is _run_provider_process.__code__
+            and executor is not None
+            and executor.f_code is _execute_invocation_locked.__code__
+        )
+    finally:
+        del frame
+
+
 def _validate_transport_provider_binding(
-    provider: str | None, argv: Sequence[str]
+    provider: str | None, argv: Sequence[str], *, agy_runtime_admitted: object = None,
 ) -> None:
     """Deny effective AGY and contradictory metadata before Popen."""
 
+    # Never trust a caller-supplied boolean, mapping, or historical token.
+    del agy_runtime_admitted
     if isinstance(argv, (str, bytes)) or not argv:
         raise ProviderExecutableBindingError()
     executable = argv[0]
     identities = _executable_provider_identities(executable)
-    if "agy" in identities:
+    if "agy" in identities and not _agy_transport_is_locked_execution_call():
         raise PlatformNativePrespawnReceiptRequired()
     declared_provider = _provider_from_label(provider)
-    if declared_provider == "agy":
+    if declared_provider == "agy" and not _agy_transport_is_locked_execution_call():
         raise PlatformNativePrespawnReceiptRequired()
     if declared_provider is None or identities != {declared_provider}:
         raise ProviderExecutableBindingError()
@@ -7968,7 +8137,19 @@ def _validate_invocation_provider_binding(invocation: Invocation) -> None:
         raise ProviderExecutableBindingError()
     # Effective AGY wins over a contradictory caller label and receives the
     # stable platform-native blocker required by the external DSG boundary.
+    # The ordinary route gate must always deny AGY.  The only later exception
+    # is the final runner call nested inside _execute_invocation_locked.
     _validate_transport_provider_binding(invocation.route.cli, invocation.argv)
+    if invocation.argv[0] != invocation.route.command:
+        raise ProviderExecutableBindingError()
+    _validate_route_provider_binding(invocation.route)
+
+
+def _validate_admitted_agy_invocation_binding(invocation: Invocation) -> None:
+    """Validate route identity after, and only after, native AGY admission."""
+
+    if invocation.route.cli != "agy" or not invocation.argv:
+        raise ProviderExecutableBindingError()
     if invocation.argv[0] != invocation.route.command:
         raise ProviderExecutableBindingError()
     _validate_route_provider_binding(invocation.route)

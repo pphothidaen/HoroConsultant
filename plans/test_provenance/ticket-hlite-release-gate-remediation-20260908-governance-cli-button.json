@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-RELEASE-GATE-REMEDIATION-20260908-GOVERNANCE-CLI-BUTTON",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9c58b2f9a499bb8d540a6f0dab344fbcd727e0f8",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "cccdab06fc2b7fc0186aa1954f3c941416571d7f5b6e082d37b731bd2f7acb1e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_full_capacity_governance.py",
+        "tests/test_atomic_tdd_lifecycle_governance_v2.py",
+        "tests/test_atomic_tdd_lifecycle_governance_v3.py::test_immutable_v2_contract_suite_remains_mandatory",
+        "tests/test_atomic_tdd_lifecycle_governance_v4.py",
+        "tests/test_full_capacity_dependency_pin.py",
+        "tests/test_multiagent_receipt_schema.py::test_generated_codex_receipt_matches_v3_schema_and_agy_generates_no_receipt"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "15 full-review failures: stale full-capacity dispatcher validator dependency pin, stale Codex native-hook description claiming atomic_tdd_guard, AGY malformed runtime config raising ConfigurationError instead of platform-native denial, V3 diagnostic CLI stderr pollution, and button regression using removed mock_email admin-auth payload."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks/full_capacity_guard.py",
+    ".claude/settings.json",
+    ".codex/hooks.json",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/run_button_regression.py",
+    "scripts/v3_diagnostic_cli.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "9c58b2f9a499bb8d540a6f0dab344fbcd727e0f8",
+  "correction_reason": "Release review exposed stale governance metadata, diagnostic CLI output pollution, and UI button regression drift after the admin auth contract moved to signed Google credentials.",
+  "rationale": "This manifest binds the final release-gate remediation to focused source/config updates and the Codex hook fixture contract. Runtime data, HF dry-run manifests, and HITL/vector-store artifacts remain generated evidence and are intentionally excluded from the commit.",
+  "baseline_state": "PROSPECTIVE_SUPERSEDING_RELEASE_GATE_CORRECTION",
+  "source_admission": "FOCUSED_RELEASE_GATE_REMEDIATION"
+}

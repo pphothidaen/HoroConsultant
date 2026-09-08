@@ -2,6 +2,60 @@
 > Sole authoritative atomic ticket registry, status board, and operational handoff.
 > Consolidated from project_tickets.md, PROJECT_TASKS.md, and atomic_tasks.md.
 
+## TICKET-HLITE-REVIEW-REMEDIATION-20260907 -- Independent Review Successor Remediation
+
+Planning authority: approved digest
+299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f;
+resolver PASS with api/source_security closures. Supplied planning anchor:
+HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d over origin/main
+77cbe84a728e93e7f7c9007ce31b50936967dddb.
+
+PR #38 is MERGED and historical; the current remediation branch has no PR.
+The earlier RELEASE-PREP-PR record remains historical and is prospectively
+superseded by RELEASE-PREP-PR-002. Release remains BLOCKED. No source edit,
+commit, push, PR creation, merge, deploy, publication, DONE claim, or archive
+is authorized by this planning registration.
+
+| Lane ID | State | Role / skills | Exclusive scope and acceptance |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_consensus_proxy_independence_remediation.py and its 09 provenance manifest. Freeze genuine RED proving proxy/shared lineage cannot create independent corroboration or artificial 1.0 agreement. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 09 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_core owner); sdlc-aisdlc-workflow | context.resolve; own project/debate/consensus_matrix.py. Exclude proxy/shared lineage from independent counts; preserve human review for conflict/low consensus. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW | BLOCKED_BY_09_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 09 test, manifest, and source. Verify exact diff, independence, no artificial 1.0, and source_security closure. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA | BLOCKED_BY_09_SOURCE_REVIEW_AND_LEGACY_SUPERSEDING_INTEGRATION | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 09 tests, manifests, and source. Require source-review PASS, exact-pair legacy-superseding integration, focused GREEN, relevant regression, and provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_hitl_enqueue_failure_reporting_remediation.py and its 10 provenance manifest. Freeze genuine RED for swallowed enqueue failure falsely reported as QUEUED_FOR_HUMAN_REVIEW. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 10 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_api owner); sdlc-aisdlc-workflow | context.resolve; own project/routers/unified_reading_router.py. Report QUEUED_FOR_HUMAN_REVIEW only after persistence succeeds; expose failure fail-closed. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW | BLOCKED_BY_10_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 10 test, manifest, and source. Verify API truth, failure propagation, exact diff, api/source_security closures. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA | BLOCKED_BY_10_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 10 test, manifest, and source. Require GREEN success/failure contracts, regression, and provenance. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_annual_timing_transit_semantics_remediation.py and its 11 provenance manifest. Freeze genuine RED for modulo proxy mislabeled deterministic transit calculation. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 11 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_core owner); sdlc-aisdlc-workflow | context.resolve; own project/core/annual_timing_engine.py. Use honest explicit proxy semantics. A verified transit algorithm needs separate canonical sources, owner sign-off, human-review rules, and metaphysical HITL scope-audit PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW | BLOCKED_BY_11_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 11 test, manifest, and source. Verify exact diff, no misleading precision, and source_security closure. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA | BLOCKED_BY_11_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 11 test, manifest, and source. Require GREEN semantic regression and provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | BLOCKED_BY_09_10_11_QA | business_analyst; bsa-doc-skill-management, agile-governance | context.resolve; own README.md and HOWTO.md after behavior finalization. Document API fields, child behavior, HITL persistence/failure, feedback UI, consensus independence, and annual proxy semantics; no board duplication/readiness claim. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002 | BLOCKED_BY_12_DOCS_SYNC | devops; devops-deployment, hf-static-release-verification, agile-governance | context.resolve plus release stamp/protected branch/commit/push/PR actions; own only eight static release mirror paths. Create a new protected PR for exact remediated head; PR #38 cannot satisfy it. No direct-main push or deploy. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION | READY_AFTER_STRUCTURAL_VALIDATION | devops; devops-deployment, agile-governance | context.resolve, git.commit; own exactly ATOMIC_TICKET.md, plans/plan.md, plans/active/horo-lite-agy2-checkpoint-20260907.md, and .agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json. Commit only those validated planning artifacts; do not edit their bytes in this lane. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION | BLOCKED_BY_THREE_BASELINE_REVIEWS | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, git.commit; own exactly the three new tests and three new provenance manifests. After all three BASELINE-REVIEW PASSes, create one commit containing only these six paths, without changing their reviewed bytes. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE | READY_FOR_RED_BASELINE | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own only tests/test_consensus_within_domain_remediation.py and plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-legacy-superseding.json. Change only the two stale default-proxy fixtures/expectations to genuine non-proxy claims; preserve within-domain/cross-domain behavior and all prior baseline/EOF history. No source write or commit. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW | BLOCKED_UNTIL_SUPERSEDING_BASELINE_OUTPUT | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only exact test+new manifest pair and project/debate/consensus_matrix.py. Verify provenance, test meaning, two-fixture-only delta, preserved behavior/history, and no source mutation by the baseline lane. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION | BLOCKED_BY_LEGACY_SUPERSEDING_BASELINE_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, git.commit; commit exactly the reviewed test+new manifest pair, unchanged, after review PASS. baseline_parent must equal planning-integration HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION-002 | READY_AFTER_REVISION_15_VALIDATION | devops; devops-deployment, agile-governance | context.resolve, git.commit; commit exactly ATOMIC_TICKET.md, plans/plan.md, plans/active/horo-lite-agy2-checkpoint-20260907.md, and .agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json. Exclude all source, tests, manifests, data, push, and deploy. |
+
+Required order is RED BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION
+commit -> SOURCE -> source REVIEW -> QA, then docs and RELEASE-PREP-PR-002.
+The baseline commit must contain only the six declared test/provenance paths
+and must precede every source mutation. One editor owns each mutable path.
+Reviews and post-source QA are read-only. project/data/hitl_reviews.json is
+excluded.
+
+Revision 15 adds a prospective legacy-test superseder only. The committed
+original baseline and EOF superseder remain unchanged history. The uncommitted
+reviewed diff in project/debate/consensus_matrix.py remains untouched. The
+legacy superseding integration commit must contain exactly its test and new
+manifest pair, use baseline_parent
+a84957f35f19416e9df484a1b16df2c1a77dca1d, and precede 09 QA.
+
 ## Document Authority & Governance
 
 ### Documentation Authority Rules (current)
@@ -3576,3 +3630,201 @@ python3 scripts/fail_fast_triage.py --mode fast
 # 5. Check git status
 git status
 ```
+# TICKET-HLITE-REVIEW-REMEDIATION-20260907: session-only AGY2 handoff
+
+Subsequent owner instruction (2026-09-07) authorizes AGY2 push to origin/main
+and CI/CD through verified production after all eight remediations and release
+gates pass. This supersedes the no-push/deploy scope below; no force-push or
+gate bypass is authorized. See handoff for release targets and acceptance.
+
+Owner authority recorded 2026-09-07T01:25:31Z: temporary exception to
+PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED for this session only. Current
+orchestrator owns direct AGY2 dispatch and monitoring because canonical AGY
+transport denies pre-spawn; AGY2 specialists own scoped remediation and QA.
+Status: PREFLIGHT_IN_PROGRESS, not worker execution proof. No permanent guard
+edits, push, deployment or publishing. Stop on mismatch, auth/quota failure,
+unexpected writes, owner revocation or scoped completion; expires at session end.
+See [exact eight-item packet and lane ownership](plans/active/horo-lite-review-agy2-handoff-20260907.md).
+
+## Horo Lite Review Remediation Lanes
+
+### Constrained alias transfer decision -- 2026-09-07
+
+Owner direction permits exactly two fresh, alias-specific **preflight-only**
+lanes to preserve the control-account quota. This is a quota observation, not
+provider telemetry or execution proof: AGY1 and AGY3 each have user-reported
+Claude/GPT weekly remaining 100%; AGY2 has Gemini weekly remaining 4% and
+Claude/GPT weekly remaining 32%. No pools are combined or substituted.
+
+- AGY1 may receive only package 02 correction for
+  `project/debate/consensus_matrix.py` after its own fresh preflight succeeds.
+- AGY3 may receive only package 07 for `public/lite.js` after its own fresh
+  preflight succeeds.
+- AGY2 remains the exclusive reconciliation owner for existing handles
+  `206ba523`, `63a8c841`, and `a323bccf`. This transfer neither closes nor
+  replaces those workers, and permits no other package transfer.
+- Both lanes stop after resolver-valid context resolution and a fresh
+  alias-specific admission result. They cannot write source/tests, run tests,
+  invoke a provider, commit, push, deploy, publish, or create a replacement
+  worker. A missing/contradictory quota or alias identity, resolver failure, or
+  ownership conflict is `BLOCKED`/`NEEDS_HITL`.
+
+Execution admission, if later authorized, requires a new ticket revision,
+fresh Rule 18 decision and quota receipt, reviewed prospective QA baseline,
+and exclusive source/test ownership. Neither lane is an execution receipt.
+
+### Executable QA-baseline lane activation -- no baseline executed yet
+
+The owner approves execution authority for exactly two disjoint QA-only
+baseline lanes. AGY1 uses its Claude/GPT provider family for package 02 and
+AGY3 uses its Claude/GPT provider family for package 07; the effective model
+and provider must be reported nonsecretly in the typed result and any mismatch
+is `BLOCKED`. AGY1 package 02 uses the existing focused topology
+`tests/test_consensus_within_domain_remediation.py`; AGY3 package 07 uses new,
+isolated `tests/test_lite_feedback_remediation.py`. Their separate manifests
+are `plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json`
+and `plans/test_provenance/ticket-hlite-review-remediation-20260907-07-agy3-qa-baseline.json`.
+
+`qa_tester` is the only test and manifest writer. The executable lane may
+create/edit only its exact test and manifest pair and run only the focused
+baseline command needed to establish RED. It must return a typed WorkResult
+and in-process-validated ExecutionReceipt binding alias, selected provider,
+safe session/process identifier when available, command outcome, test and
+manifest SHA-256 values, and source HEAD. Package 02 must freeze genuine
+assertion RED controls for
+empty/partial evidence and one severe per-domain conflict that aggregate
+averaging must not mask, while retaining the explicit identical within-domain
+fixture. Package 07 must freeze browser/DOM controls proving explanatory text
+changes after feedback while scores/dates/facts remain identical, consent is
+required before persistence, withdrawal clears only the consented profile, and
+profiles remain isolated. Collection/import failure alone is not genuine RED.
+Each frozen baseline requires a separately bound, read-only independent
+`code_reviewer` gate before any source admission. The QA lanes may not edit
+source files, including `project/debate/consensus_matrix.py` and
+`public/lite.js`, and may not commit, push, deploy, publish, create a provider
+worker, or query/replace AGY2 handles.
+
+### AGY1/AGY3 runtime-admission repair -- staged test-first design
+
+Current evidence is a fail-closed denial, not a runtime-admission proof:
+`.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml` declares
+`provider_execution_denials.agy=PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED`,
+and `scripts/multiagent_prompt_command.py` enforces that denial before Popen.
+The owner approves only this sequential repair design. It does not authorize
+credentials, login, account-home access, release work, or an AGY dispatch here.
+
+1. `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-QA-BASELINE`:
+   `qa_tester` exclusively owns `tests/test_multiagent_prompt_command.py` and
+   new `plans/test_provenance/ticket-hlite-agy-runtime-admission-baseline-20260907.json`.
+   Freeze genuine RED test-only controls for positive AGY1/AGY3 adapter and
+   approved-marker behavior and negative AGY2/AGY4/Codex substitution, missing
+   or malformed marker, cross-alias home/config identity, disabled alias,
+   capacity exhaustion, authentication-required, and malformed receipt cases.
+   Prove no Popen/provider call before every check passes.
+2. `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-DEVOPS` follows only
+   after independent review and `test_baseline_verified=true`. `devops` owns
+   `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml` and
+   `scripts/multiagent_prompt_command.py`; it may add a bounded AGY1/AGY3
+   marker and adapter validation. Preserve deny-by-default behavior, require
+   nonsecret alias-isolation validation and fresh capacity/auth status, and
+   emit a typed in-process receipt only after native parsing.
+3. `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-REVIEW` is separately
+   bound read-only `code_reviewer` inspection of those test, manifest, config
+   and adapter paths. It rejects marker-before-baseline, permissive aliases,
+   cross-home reuse, missing typed receipt, auth/capacity failure and drift.
+
+Source remains `BLOCKED` until the baseline, review, DevOps change and final
+review bind the same snapshot. A marker never proves login, provider capacity,
+or successful AGY execution.
+
+**Runtime QA gate receipt (recorded evidence): PASS_PROSPECTIVE_UNCOMMITTED.**
+At HEAD `8464e9605147a8d6308b8eccf19bda98f79e0702`, an independent review
+accepted the runtime QA baseline test SHA-256
+`9123b599f920916638ff461e3b480ea815792c0c684d7c60854b837e745b30ad`.
+The focused selector produced `28 failed, 236 deselected` as genuine assertion
+RED, and all denial families proved zero Popen and zero transport. This sets
+`test_baseline_verified=true` only for the declared runtime-admission repair
+and releases `AGY-RUNTIME-DEVOPS` to READY with its exact two-path ownership.
+The QA baseline and manifest remain uncommitted/prospective; this record is not
+a commit, provider/login/account-home proof, runtime execution proof, or a
+release of AGY1/AGY3 remediation source lanes. AGY2 handles remain excluded.
+
+### Real alias-specific QA dispatch admission -- planned, not dispatched
+
+Runtime review PASS is a supplied gate record only; it does not supersede the
+current prospective/uncommitted artifact status or establish a provider result.
+Two fresh execution contexts supersede QA-only planning for actual dispatch:
+`02-AGY1-QA-EXECUTE` and `07-AGY3-QA-EXECUTE`. Each requires a fresh Rule 18
+DispatchDecision conforming to
+`.agents/schemas/multiagent-dispatch-decision-v1.schema.json`, exact selected
+alias/provider (`agy1`/`agy` or `agy3`/`agy`), nonsecret Claude/GPT-family
+model, quality floor, policy version/digest, semantic ranks, same-lane context
+digest, source HEAD, and fresh alias-isolation/authentication/capacity decision.
+
+AGY1 owns only its package-02 test/manifest pair plus
+`plans/evidence/horo-lite-review-remediation-20260907/agy1-02-qa-dispatch-decision.json`
+and `plans/evidence/horo-lite-review-remediation-20260907/agy1-02-qa-execution-receipt.json`.
+AGY3 owns the analogous package-07 paths named `agy3-07-qa-dispatch-decision.json`
+and `agy3-07-qa-execution-receipt.json`. Receipts must validate against
+`.agents/schemas/multiagent-dispatch-receipt-v3.schema.json` and bind a typed
+WorkResult under `.agents/schemas/multiagent-work-result-v2.schema.json`.
+Authentication/capacity/provider/transport/receipt failure must be typed
+`BLOCKED` or `NEEDS_HITL`, with no child/source/commit/push/deploy action. Both
+lanes are disjoint, cannot touch AGY2 handles, and never admit source writes.
+
+**Decision artifacts recorded, execution still blocked.** Dedicated BA planning
+ownership now holds the two nonsecret Decision artifacts only. Both decisions
+are schema-valid and intentionally use `quota_band=unknown`: the reported
+Claude/GPT quota is an owner observation, not alias telemetry. Their requested
+Claude model is not in the current model-policy catalog, and receipt-v3 allows
+`agy1`/`agy2` but not `agy3`; these are fail-closed runtime prerequisites, not
+grounds to alter policy/schema or substitute a model/alias. Execution receipts
+remain absent because no provider ran.
+
+### Non-AGY release recovery authority -- 2026-09-08
+
+**GRILL REPORT: APPROVED.** The owner's explicit instruction `fix BLOCKED`
+authorizes the already-scoped release recovery to use native Codex specialist
+workers after AGY1-AGY4 admission repeatedly failed. This is a worker-routing
+fallback only: it does not weaken, waive, or modify the native AGY pre-spawn,
+authentication, capacity, alias-isolation, or typed-receipt gates. The existing
+14 commits must be preserved, and the unrelated dirty
+`project/data/hitl_reviews.json` is excluded from every lane and every Git
+operation.
+
+The sequential recovery chain is: QA-only EOF correction with a new
+superseding provenance manifest -> authoritative eight-file static stamp and protected
+branch/PR -> independent read-only review -> hosted CI observation -> HF Docker
+and Vercel deployment/production verification -> Rule 22 closeout -> final
+protected closeout PR, tag, and branch cleanup. No lane may claim success from
+an older SHA, local-only test, HTTP status alone, or a different deployment.
+
+| Sequential lane | State | Owner / bound skills | Exclusive scope and acceptance |
+|---|---|---|---|
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLAN` | `DONE` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `requirement-grill-gate` | `ATOMIC_TICKET.md`, `plans/plan.md`. Reconcile current source, register atomic baseline/source/review/QA tickets, bind exact paths and skills. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-DISPATCH-DECISION-PLAN` | `DONE_DECISIONS_RECORDED_EXECUTION_BLOCKED` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `requirement-grill-gate` | Sole writer of the two Decision and reserved receipt paths under `plans/evidence/horo-lite-review-remediation-20260907/`. Decisions are schema-valid planning records only; no receipt may be created without provider execution. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-08-QA-BASELINE` | `DONE` (`VERIFIED_GREEN`) | `qa_tester`; `qa-regression-provenance`, `qa-api-ui-e2e` | Newly admitted tests and `plans/test_provenance` records. Reconcile FAILED and RECONSTRUCTED records. Freeze meaningful RED baselines. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-08-SOURCE` | `DONE` (`VERIFIED_LOCAL`) | `business_analyst` | `ATOMIC_TICKET.md`, `plans/plan.md`. Reconcile actual completion states. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-01-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_core`; `sdlc-aisdlc-workflow`, `metaphysical-request-router`, `metaphysical-hitl-scope-gate` | `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`. Replace proxy calculations with shared verified BaZi cycle calculations (Commit `c8db9be`, Baseline `5448078`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-PREFLIGHT` | `DONE` | `developer` via AGY1; `sdlc-aisdlc-workflow`, `agile-governance` | Preflight context resolved. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-BASELINE` | `DONE` (`VERIFIED_GREEN`) | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing` | Exclusive QA paths `tests/test_consensus_within_domain_remediation.py` and `plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json` (Commit `a8e0318`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_core`; `sdlc-aisdlc-workflow`, `metaphysical-request-router`, `metaphysical-hitl-scope-gate` | `project/debate/consensus_matrix.py`. Detect genuine within-domain disagreement; missing evidence returns neutral agreement 0.5 (Commit `b9b22e9`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-03-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_api`; `sdlc-aisdlc-workflow` | `project/routers/unified_reading_router.py`. Forced, uncertain triggers create retrievable real review items with idempotent storage (Commit `bf4f3e6`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-04-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_core`, then `developer_api`; `sdlc-aisdlc-workflow` | `project/core/past_pattern_calibrator.py`, `project/core/unified_reading_engine.py`, `project/routers/unified_reading_router.py`. Resolve child birth date causing 500 error; return 200 with insufficient_history_reason (Commit `da11107`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-05-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_core`, then `developer_api`, then UI; `sdlc-aisdlc-workflow`, `ui-visual-auditor` | `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`, `project/core/unified_reading_engine.py`. Unknown_hour=true ignores supplied birth_time and propagates score ranges (Commit `da11107`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-06-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `developer_api`; `sdlc-aisdlc-workflow` | `project/routers/unified_reading_router.py`. 12 distinct evidence-grounded topic guidances referencing domain scores and evidence refs (Commit `bf4f3e6`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-PREFLIGHT` | `DONE` | `developer` via AGY3; `sdlc-aisdlc-workflow`, `agile-governance` | Preflight context resolved. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-QA-BASELINE` | `DONE` (`VERIFIED_GREEN`) | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing` | Exclusive QA paths `tests/test_lite_feedback_remediation.py` and `plans/test_provenance/ticket-hlite-review-remediation-20260907-07-qa-baseline.json` (Commit `464f9ff`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-SOURCE` | `DONE` (`VERIFIED_GREEN`) | `ux_ui_designer`; `sdlc-aisdlc-workflow`, `ui-visual-auditor` | `public/lite.js`. Feedback updates explanation emphasis while strictly preserving scores/dates/facts; consent precedes persistence; withdrawal clears storage (Commit `dd1192a`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-QA-BASELINE` | `DONE` (`VERIFIED_GREEN`) | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing`, `multi-account-agent-orchestration` | `tests/test_multiagent_prompt_command.py`, `plans/test_provenance/ticket-hlite-agy-runtime-admission-baseline-20260907.json` (Commit `a00d5e3`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-DEVOPS` | `DONE` (`VERIFIED_GREEN`) | `devops`; `devops-deployment`, `agile-governance`, `multi-account-agent-orchestration` | `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml`, `scripts/multiagent_prompt_command.py` (Commit `99d229c`). |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-REVIEW` | `DONE` (PASS) | `code_reviewer`; `qa-regression-provenance`, `qa-e2e-testing` | Read-only inspection and verification of runtime admission gate. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-REVIEW` | `READY_FOR_RELEASE` | `code_reviewer` | Read-only independent source review. Full suite 314 tests GREEN. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE` | `DOING_NON_AGY_RECOVERY_AUTHORIZED` | `orchestrator` | Owner confirmation is recorded. Execute only the seven sequential lanes below; preserve 14 commits and exclude `project/data/hitl_reviews.json`. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-QA-EOF` | `READY` | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing`, `agile-governance` | Remove only the extra EOF blank line in `tests/test_consensus_within_domain_remediation.py`; create `plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json`, superseding rather than rewriting the original manifest; run focused test, provenance, and `git diff --check`; create exactly one commit containing only those two paths. No push. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR` | `BLOCKED_BY_RELEASE_QA_EOF` | `devops`; `devops-deployment`, `hf-static-release-verification`, `agile-governance` | Run the authoritative stamp with exact exclusive ownership of `project/static/{version.json,app.js,sw.js,index.html}` and `public/{version.json,app.js,sw.js,index.html}`; require pair parity for identity, client version, cache version, footer, and cache-busting references. DevOps may stage/commit the four already-prepared governance artifacts (`ATOMIC_TICKET.md`, `plans/plan.md`, the checkpoint, and ticket context JSON) but must not edit their bytes. Create a protected release branch, commit the authorized stamp/governance set, push branch, and open PR. Never stage the unrelated HITL file. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-REVIEW` | `BLOCKED_BY_RELEASE_PREP_PR` | `code_reviewer`; `qa-regression-provenance`, `qa-e2e-testing`, `hf-static-release-verification` | Read-only review of the new EOF correction, superseding manifest, all eight stamped static files, exact PR diff, secret safety, and preservation/exclusion boundaries. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CI-OBSERVE` | `BLOCKED_BY_RELEASE_REVIEW` | `qa_tester`; `qa-regression-provenance`, `qa-e2e-testing` | Read-only follow of the exact PR head SHA through all required checks, including `Unified CI & Quality Audit Pipeline`, `AI Safety Audit`, and `Test Provenance`; old or unrelated runs do not count. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PROD` | `BLOCKED_BY_RELEASE_CI_OBSERVE` | `devops`; `devops-deployment`, `hf-static-release-verification` | Merge only after required CI passes; deploy/verify the same release identity on HF Docker and Vercel, with health, API/HITL smoke, UI/export E2E, and 360/375/390/768/1440 visual audit evidence. Stop on HTTP 503, identity mismatch, or failed viewport. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CLOSEOUT` | `BLOCKED_BY_RELEASE_PROD` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `orchestrator-delegation` | After verified production only, update `ReleaseNotes.md`, reconcile ticket/plan status, and move the two exact Horo Lite active plans into `plans/archive/2026-09-08-horo-lite-review-remediation/`. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-TAG-CLEANUP` | `BLOCKED_BY_RELEASE_CLOSEOUT` | `devops`; `devops-deployment`, `hf-static-release-verification`, `agile-governance` | Commit closeout on a protected branch, obtain required PR checks/merge, create and push the next non-conflicting production tag, remove only the owned release branch, and prove local/origin main and tag identities agree while preserving the unrelated HITL worktree change. |

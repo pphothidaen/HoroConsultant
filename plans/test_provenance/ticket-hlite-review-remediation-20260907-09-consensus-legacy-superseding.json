@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "37c899891fbb9e63594e864b98524ec995da2379",
+  "test_files": [
+    {
+      "path": "tests/test_consensus_within_domain_remediation.py",
+      "sha256": "7bced31e38f35ff28a2a95ba16e2e5932c058b6382c27016341b844ce9b789eb"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "tests/test_consensus_within_domain_remediation.py::test_identical_tradition_scores_no_conflict",
+        "tests/test_consensus_within_domain_remediation.py::test_cross_domain_difference_not_conflict"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Current-worktree pre-correction compatibility observation only, not a new RED-first baseline: 2 failed; test_identical_tradition_scores_no_conflict agreement_score 0.5 != 1.0; test_cross_domain_difference_not_conflict agreement_score 0.5 != 1.0"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/debate/consensus_matrix.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "124bdc45e42aae87322b1b79c1938f037d2336c1",
+  "correction_reason": "Independent review found that exactly two legacy tests still supplied generated default proxy claims while asserting the policy for genuine independent evidence. This test-only correction supplies explicit proxy=false claims from thai_suriyayart, bazi_liu_yue, and zi_wei through the public arbitrate_monthly_consensus API. Assertions and policy meaning are unchanged.",
+  "baseline_state": "PROSPECTIVE_SUPERSEDING_TEST_CORRECTION_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "NOT_APPLICABLE_TEST_ONLY_CORRECTION",
+  "rationale": "This is a prospective QA-owned superseding correction to a stale legacy test input contract after the Package 09 source change already existed and had been reviewed. The observed pre-edit failures are current-worktree compatibility evidence, not historical RED-first evidence and not a newly observed TDD baseline. The original Package 02 manifest and its EOF-whitespace superseder remain immutable. Genuine same-domain agreement and cross-domain-only difference policies retain their original strict assertions. No production source, commit, remote, deployment, or publication is authorized by this record."
+}

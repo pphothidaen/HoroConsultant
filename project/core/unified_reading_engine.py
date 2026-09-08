@@ -60,6 +60,23 @@ class UnifiedReadingRequest(BaseModel):
     primary_focus_question: str | None = None
     force_human_review: bool = False
 
+    @model_validator(mode="after")
+    def validate_birth_target_year_relationship(self) -> "UnifiedReadingRequest":
+        """Reject nonsensical birth_date / target_year combinations.
+
+        - birth_date in the future relative to target_year is invalid.
+        - target_year before birth_year is invalid.
+        These produce the young-person contract: children too young for
+        past-pattern analysis receive an empty past_patterns list instead
+        of an HTTP 500.
+        """
+        if self.birth_date.year > self.target_year:
+            raise ValueError(
+                f"birth_date year ({self.birth_date.year}) must not be after "
+                f"target_year ({self.target_year})"
+            )
+        return self
+
 
 class TopicModule(BaseModel):
     """Canonical topic block within a unified reading response."""
@@ -74,12 +91,20 @@ class TopicModule(BaseModel):
 
 
 class MonthlyScoreItem(BaseModel):
-    """Per-month user-facing scores with deterministic evidence basis."""
+    """Per-month user-facing scores with deterministic evidence basis.
+
+    When ``unknown_hour`` is True, the ``*_score_range`` fields carry the
+    uncertainty bounds and the single ``*_score`` fields contain the range
+    midpoint for backward compatibility.
+    """
 
     month: int = Field(..., ge=1, le=12)
     career_score: int = Field(..., ge=1, le=10)
     finance_score: int = Field(..., ge=1, le=10)
     love_score: int = Field(..., ge=1, le=10)
+    career_score_range: list[int] | None = None
+    finance_score_range: list[int] | None = None
+    love_score_range: list[int] | None = None
     confidence: Literal["HIGH", "MEDIUM", "LOW"]
     score_basis: dict[str, Any] = Field(..., min_length=1)
     reasons: list[str] = Field(..., min_length=1)
@@ -118,7 +143,8 @@ class UnifiedReadingResponse(BaseModel):
     target_year: int = Field(..., ge=1900, le=2200)
     topics: list[TopicModule] = Field(..., min_length=12, max_length=12)
     monthly_scores: list[MonthlyScoreItem] = Field(..., min_length=12, max_length=12)
-    past_patterns: list[PastPatternCandidate] = Field(..., min_length=3, max_length=5)
+    past_patterns: list[PastPatternCandidate] = Field(..., min_length=0, max_length=5)
+    insufficient_history_reason: str | None = None
     consensus_metadata: dict[str, Any]
     hitl_flags: dict[str, Any]
     hitl_routing: dict[str, Any]

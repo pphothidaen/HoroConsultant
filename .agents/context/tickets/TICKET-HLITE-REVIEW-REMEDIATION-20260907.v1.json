@@ -1,0 +1,1098 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907",
+  "revision": 15,
+  "ticket_sha256": "dae642528bc08897c5d32271a55e0526dbc565e6f5ad3e02d429fa44d5adb17a",
+  "plan_sha256": "cbd0a6ecdf245edfb16445f9cfab01ed1d223bce78510f4c5d40cf4d4f836e87",
+  "lanes": [
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLAN",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": [
+        "context.resolve",
+        "requirements.decompose",
+        "release-lanes.bind"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        ".agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance",
+        "requirement-grill-gate",
+        "orchestrator-delegation"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-commit",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-PREFLIGHT",
+      "role": "developer",
+      "phase": "preflight",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "project/debate/consensus_matrix.py"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow",
+        "agile-governance"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "alias-specific-preflight-only",
+        "quota-observation-not-telemetry",
+        "requires-prospective-qa-baseline",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "context-preflight-only",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-test-execution",
+        "no-provider-execution",
+        "no-worker-create",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        "ATOMIC_TICKET.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-PREFLIGHT",
+      "role": "developer",
+      "phase": "preflight",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "public/lite.js"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow",
+        "agile-governance"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "alias-specific-preflight-only",
+        "quota-observation-not-telemetry",
+        "requires-prospective-qa-baseline",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "context-preflight-only",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-test-execution",
+        "no-provider-execution",
+        "no-worker-create",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        "ATOMIC_TICKET.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_consensus_within_domain_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "prospective-baseline-only",
+        "selected-alias-agy1-claude-gpt",
+        "genuine-red-required",
+        "independent-review-required",
+        "no-source-admission",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": [
+        "no-source-write",
+        "no-worker-create",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-QA-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_lite_feedback_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-07-agy3-qa-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "prospective-baseline-only",
+        "selected-alias-agy3-claude-gpt",
+        "genuine-red-required",
+        "independent-review-required",
+        "no-source-admission",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": [
+        "no-source-write",
+        "no-worker-create",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-QA-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_multiagent_prompt_command.py",
+        "plans/test_provenance/ticket-hlite-agy-runtime-admission-baseline-20260907.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "runtime-admission-test-first",
+        "genuine-red-required",
+        "alias-isolation-required",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": [
+        "no-config-write",
+        "no-adapter-write",
+        "no-credential-or-login-operation",
+        "no-account-home-access",
+        "no-provider-dispatch",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish"
+      ],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-DEVOPS",
+      "role": "devops",
+      "phase": "implementation",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+        "scripts/multiagent_prompt_command.py"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "agile-governance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "test-baseline-verified-prospective-uncommitted",
+        "approved-marker-after-baseline-only",
+        "alias-isolation-required",
+        "typed-receipt-required",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "runtime-admission-remediation",
+      "exclusions": [
+        "no-credential-or-login-operation",
+        "no-account-home-access",
+        "no-provider-dispatch-before-fresh-admission",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "runtime-qa-review:HEAD-8464e9605147a8d6308b8eccf19bda98f79e0702:test-sha256-9123b599f920916638ff461e3b480ea815792c0c684d7c60854b837e745b30ad:28-failed-236-deselected:zero-popen-transport"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-AGY-RUNTIME-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_multiagent_prompt_command.py",
+        "plans/test_provenance/ticket-hlite-agy-runtime-admission-baseline-20260907.json",
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+        "scripts/multiagent_prompt_command.py"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "independent-read-only-review",
+        "marker-before-baseline-rejection",
+        "alias-isolation-required",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "read-only-runtime-admission-review",
+      "exclusions": [
+        "no-write",
+        "no-credential-or-login-operation",
+        "no-account-home-access",
+        "no-provider-dispatch",
+        "no-agy2-handle-query-or-replacement",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish"
+      ],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-EXECUTE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_consensus_within_domain_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "selected-alias-agy1-provider-agy",
+        "fresh-rule18-dispatch-decision-required",
+        "alias-isolation-auth-capacity-required",
+        "typed-v3-receipt-required",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "alias-specific-qa-baseline-dispatch",
+      "exclusions": [
+        "no-source-write",
+        "no-agy2-handle-query-or-replacement",
+        "no-alias-or-home-substitution",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-credential-operation"
+      ],
+      "evidence_refs": [
+        ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
+        ".agents/schemas/multiagent-dispatch-receipt-v3.schema.json",
+        ".agents/schemas/multiagent-work-result-v2.schema.json",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-AGY3-QA-EXECUTE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_lite_feedback_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-07-agy3-qa-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "selected-alias-agy3-provider-agy",
+        "fresh-rule18-dispatch-decision-required",
+        "alias-isolation-auth-capacity-required",
+        "typed-v3-receipt-required",
+        "agy2-handle-reconciliation-excluded"
+      ],
+      "allowed_child_command_class": "alias-specific-qa-baseline-dispatch",
+      "exclusions": [
+        "no-source-write",
+        "no-agy2-handle-query-or-replacement",
+        "no-alias-or-home-substitution",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-publish",
+        "no-credential-operation"
+      ],
+      "evidence_refs": [
+        ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
+        ".agents/schemas/multiagent-dispatch-receipt-v3.schema.json",
+        ".agents/schemas/multiagent-work-result-v2.schema.json",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-DISPATCH-DECISION-PLAN",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "plans/evidence/horo-lite-review-remediation-20260907/agy1-02-qa-dispatch-decision.json",
+        "plans/evidence/horo-lite-review-remediation-20260907/agy1-02-qa-execution-receipt.json",
+        "plans/evidence/horo-lite-review-remediation-20260907/agy3-07-qa-dispatch-decision.json",
+        "plans/evidence/horo-lite-review-remediation-20260907/agy3-07-qa-execution-receipt.json"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance",
+        "requirement-grill-gate"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [
+        "decision-artifact-only",
+        "quota-observation-not-telemetry",
+        "execution-receipt-reserved-not-created",
+        "model-policy-and-receipt-schema-blockers"
+      ],
+      "allowed_child_command_class": "decision-artifact-planning",
+      "exclusions": [
+        "no-provider-dispatch",
+        "no-execution-receipt-create",
+        "no-source-write",
+        "no-test-write",
+        "no-config-write",
+        "no-credential-operation",
+        "no-git-operation",
+        "no-deploy",
+        "no-publish"
+      ],
+      "evidence_refs": [
+        ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
+        ".agents/schemas/multiagent-dispatch-receipt-v3.schema.json",
+        ".agents/schemas/multiagent-work-result-v2.schema.json",
+        ".agents/config/multiagent_model_policy.yaml",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-QA-EOF",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": [
+        "context.resolve",
+        "qa.whitespace.correct",
+        "provenance.supersede",
+        "test.focused.run",
+        "git.commit"
+      ],
+      "touched_paths": [
+        "tests/test_consensus_within_domain_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "qa-only-whitespace-correction",
+        "superseding-manifest-required",
+        "preserve-original-manifest",
+        "exact-two-path-commit-only",
+        "unrelated-dirty-file-present"
+      ],
+      "allowed_child_command_class": "qa-whitespace-provenance-correction",
+      "exclusions": [
+        "no-source-write",
+        "no-original-manifest-rewrite",
+        "no-project-data-hitl-reviews-write-or-stage",
+        "no-push",
+        "no-deploy",
+        "no-publish"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR",
+      "role": "devops",
+      "phase": "release",
+      "actions": [
+        "context.resolve",
+        "release-metadata.stamp",
+        "protected-branch.create",
+        "git.commit",
+        "git.push",
+        "pull-request.create"
+      ],
+      "touched_paths": [
+        "project/static/version.json",
+        "project/static/app.js",
+        "project/static/sw.js",
+        "project/static/index.html",
+        "public/version.json",
+        "public/app.js",
+        "public/sw.js",
+        "public/index.html",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        ".agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "agile-governance"
+      ],
+      "source_domain": "release-engineering",
+      "risk_flags": [
+        "protected-branch-required",
+        "exact-release-identity-required",
+        "static-mirror-byte-parity-required",
+        "html-app-service-worker-parity-required",
+        "preserve-fourteen-commits",
+        "unrelated-dirty-file-present"
+      ],
+      "allowed_child_command_class": "release-metadata-protected-pr",
+      "exclusions": [
+        "no-force-push",
+        "no-main-direct-push",
+        "no-branch-protection-bypass",
+        "no-project-data-hitl-reviews-write-or-stage",
+        "no-governance-file-byte-edit",
+        "no-source-or-test-write",
+        "no-deploy-before-ci",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "tests/test_release_metadata_stamping_contract.py"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve",
+        "review.diff",
+        "review.provenance",
+        "review.release-metadata",
+        "review.secret-safety"
+      ],
+      "touched_paths": [
+        "tests/test_consensus_within_domain_remediation.py",
+        "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json",
+        "project/static/version.json",
+        "project/static/app.js",
+        "project/static/sw.js",
+        "project/static/index.html",
+        "public/version.json",
+        "public/app.js",
+        "public/sw.js",
+        "public/index.html",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        ".agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "hf-static-release-verification",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "independent-read-only-review",
+        "exact-pr-head-required",
+        "no-write-authority"
+      ],
+      "allowed_child_command_class": "read-only-release-review",
+      "exclusions": [
+        "no-write",
+        "no-commit",
+        "no-push",
+        "no-merge",
+        "no-deploy",
+        "no-publish",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "protected-release-pr"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CI-OBSERVE",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": [
+        "context.resolve",
+        "hosted-ci.observe",
+        "required-checks.verify"
+      ],
+      "touched_paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/ai_cicd.yml",
+        ".github/workflows/test_provenance.yml"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "agile-governance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "read-only-ci-observation",
+        "exact-pr-head-sha-required",
+        "all-required-checks-terminal-success"
+      ],
+      "allowed_child_command_class": "read-only-hosted-ci-observation",
+      "exclusions": [
+        "no-write",
+        "no-workflow-edit",
+        "no-check-rerun-or-bypass",
+        "no-commit",
+        "no-push",
+        "no-merge",
+        "no-deploy"
+      ],
+      "evidence_refs": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/ai_cicd.yml",
+        ".github/workflows/test_provenance.yml",
+        "protected-release-pr"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PROD",
+      "role": "devops",
+      "phase": "release",
+      "actions": [
+        "context.resolve",
+        "pull-request.merge",
+        "deploy.hf-docker",
+        "deploy.vercel",
+        "production.health.verify",
+        "production.api-smoke.verify",
+        "production.visual-audit.verify"
+      ],
+      "touched_paths": [
+        "project/static/version.json",
+        "project/static/app.js",
+        "project/static/sw.js",
+        "project/static/index.html",
+        "public/version.json",
+        "public/app.js",
+        "public/sw.js",
+        "public/index.html",
+        "plans/evidence/horo-lite-review-remediation-20260907/production-deployment-verification-20260908.json",
+        "project/tests/artifacts/horo_lite_review_remediation_prod_e2e_20260908.json",
+        "project/tests/artifacts/horo_lite_review_remediation_visual_audit_20260908.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "agile-governance"
+      ],
+      "source_domain": "release-engineering",
+      "risk_flags": [
+        "external-production-mutation",
+        "same-sha-release-identity-required",
+        "rollback-identities-required",
+        "five-viewports-required",
+        "hf-currently-503"
+      ],
+      "allowed_child_command_class": "production-deploy-and-verification",
+      "exclusions": [
+        "no-merge-before-required-ci-success",
+        "no-target-substitution",
+        "no-static-sdk-backend-publish",
+        "no-project-data-hitl-reviews-write-or-stage-or-deploy",
+        "no-secret-output",
+        "no-success-on-http-status-alone"
+      ],
+      "evidence_refs": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        ".github/workflows/hf_backend_deploy.yml",
+        ".github/workflows/production_monitor.yml",
+        "scripts/run_prod_e2e_playwright.py",
+        "scripts/run_visual_layout_audit.py"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CLOSEOUT",
+      "role": "business_analyst",
+      "phase": "closeout",
+      "actions": [
+        "context.resolve",
+        "release-notes.reconcile",
+        "plan.archive",
+        "ticket.closeout.reconcile"
+      ],
+      "touched_paths": [
+        "ReleaseNotes.md",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/active/horo-lite-agy2-checkpoint-20260907.md",
+        "plans/active/horo-lite-review-agy2-handoff-20260907.md",
+        "plans/archive/2026-09-08-horo-lite-review-remediation/horo-lite-agy2-checkpoint-20260907.md",
+        "plans/archive/2026-09-08-horo-lite-review-remediation/horo-lite-review-agy2-handoff-20260907.md"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance",
+        "orchestrator-delegation"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [
+        "rule-22-closeout",
+        "production-evidence-required-before-archive",
+        "exact-two-plan-archive-scope"
+      ],
+      "allowed_child_command_class": "release-rule22-closeout",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-archive-before-production-pass",
+        "no-unrelated-plan-archive",
+        "no-project-data-hitl-reviews-write-or-stage",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-tag"
+      ],
+      "evidence_refs": [
+        "plans/evidence/horo-lite-review-remediation-20260907/production-deployment-verification-20260908.json",
+        ".agents/rules/22-plan-completion-and-release-notes.md",
+        "ATOMIC_TICKET.md"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-TAG-CLEANUP",
+      "role": "devops",
+      "phase": "release",
+      "actions": [
+        "context.resolve",
+        "protected-branch.create",
+        "git.commit",
+        "git.push",
+        "pull-request.create",
+        "required-checks.verify",
+        "pull-request.merge",
+        "git.tag.create",
+        "git.tag.push",
+        "release-branch.cleanup",
+        "origin-main.reconcile"
+      ],
+      "touched_paths": [
+        "ReleaseNotes.md",
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/archive/2026-09-08-horo-lite-review-remediation/horo-lite-agy2-checkpoint-20260907.md",
+        "plans/archive/2026-09-08-horo-lite-review-remediation/horo-lite-review-agy2-handoff-20260907.md"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "agile-governance"
+      ],
+      "source_domain": "release-engineering",
+      "risk_flags": [
+        "protected-closeout-pr-required",
+        "next-non-conflicting-production-tag-required",
+        "owned-branch-cleanup-only",
+        "unrelated-dirty-file-present"
+      ],
+      "allowed_child_command_class": "protected-closeout-tag-cleanup",
+      "exclusions": [
+        "no-force-push",
+        "no-main-direct-push",
+        "no-branch-protection-bypass",
+        "no-project-data-hitl-reviews-write-or-stage",
+        "no-unowned-branch-delete",
+        "no-retag-or-tag-overwrite",
+        "no-secret-operation"
+      ],
+      "evidence_refs": [
+        "ReleaseNotes.md",
+        "plans/evidence/horo-lite-review-remediation-20260907/production-deployment-verification-20260908.json",
+        "protected-closeout-pr"
+      ]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_consensus_proxy_independence_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["genuine-red-required", "proxy-lineage-independence", "artificial-perfect-agreement"],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": ["no-source-write", "no-project-data-hitl-reviews-write-or-stage", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md", "independent-release-review-finding-p1-consensus-proxy"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": ["context.resolve"],
+      "touched_paths": ["project/debate/consensus_matrix.py"],
+      "requested_horo_skills": ["sdlc-aisdlc-workflow"],
+      "source_domain": "software-engineering",
+      "risk_flags": ["owner-lane-developer_core", "test-baseline-verified-required", "shared-lineage-not-independent", "required-human-review-preserved"],
+      "allowed_child_command_class": "core-source-remediation",
+      "exclusions": ["no-test-write", "no-provenance-write", "no-project-data-hitl-reviews-write-or-stage", "no-new-metaphysical-algorithm", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_consensus_proxy_independence_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json", "project/debate/consensus_matrix.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-review", "source-security-closure", "exact-diff-required"],
+      "allowed_child_command_class": "read-only-source-review",
+      "exclusions": ["no-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_consensus_proxy_independence_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json", "project/debate/consensus_matrix.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-post-review-qa", "focused-regression-required", "provenance-pass-required", "legacy-superseding-integration-required"],
+      "allowed_child_command_class": "read-only-focused-qa",
+      "exclusions": ["no-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW", "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_hitl_enqueue_failure_reporting_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-10-hitl-enqueue-failure.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["genuine-red-required", "api-truthfulness", "persistence-failure-must-not-be-swallowed"],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": ["no-source-write", "no-project-data-hitl-reviews-write-or-stage", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md", "independent-release-review-finding-p1-hitl-enqueue"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": ["context.resolve"],
+      "touched_paths": ["project/routers/unified_reading_router.py"],
+      "requested_horo_skills": ["sdlc-aisdlc-workflow"],
+      "source_domain": "software-engineering",
+      "risk_flags": ["owner-lane-developer_api", "test-baseline-verified-required", "api-closure", "fail-closed-hitl-persistence"],
+      "allowed_child_command_class": "api-source-remediation",
+      "exclusions": ["no-test-write", "no-provenance-write", "no-project-data-hitl-reviews-write-or-stage", "no-schema-expansion-without-review", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_hitl_enqueue_failure_reporting_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-10-hitl-enqueue-failure.json", "project/routers/unified_reading_router.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-review", "api-and-source-security-closures", "exact-diff-required"],
+      "allowed_child_command_class": "read-only-source-review",
+      "exclusions": ["no-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_hitl_enqueue_failure_reporting_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-10-hitl-enqueue-failure.json", "project/routers/unified_reading_router.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-post-review-qa", "success-and-failure-paths-required", "provenance-pass-required"],
+      "allowed_child_command_class": "read-only-focused-qa",
+      "exclusions": ["no-write", "no-project-data-hitl-reviews-write-or-stage", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_annual_timing_transit_semantics_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-11-transit-semantics.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["genuine-red-required", "misleading-deterministic-transit-label", "proxy-semantics-contract"],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": ["no-source-write", "no-project-data-hitl-reviews-write-or-stage", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md", "independent-release-review-finding-p2-transit-semantics"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": ["context.resolve"],
+      "touched_paths": ["project/core/annual_timing_engine.py"],
+      "requested_horo_skills": ["sdlc-aisdlc-workflow"],
+      "source_domain": "software-engineering",
+      "risk_flags": ["owner-lane-developer_core", "test-baseline-verified-required", "explicit-proxy-semantics-default", "verified-transit-option-needs-separate-hitl-scope-gate"],
+      "allowed_child_command_class": "core-source-remediation",
+      "exclusions": ["no-test-write", "no-provenance-write", "no-new-metaphysical-algorithm", "no-unverified-transit-claim", "no-project-data-hitl-reviews-write-or-stage", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_annual_timing_transit_semantics_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-11-transit-semantics.json", "project/core/annual_timing_engine.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-review", "source-security-closure", "no-misleading-transit-claim"],
+      "allowed_child_command_class": "read-only-source-review",
+      "exclusions": ["no-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_annual_timing_transit_semantics_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-11-transit-semantics.json", "project/core/annual_timing_engine.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-post-review-qa", "semantic-regression-required", "provenance-pass-required"],
+      "allowed_child_command_class": "read-only-focused-qa",
+      "exclusions": ["no-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC",
+      "role": "business_analyst",
+      "phase": "documentation",
+      "actions": ["context.resolve"],
+      "touched_paths": ["README.md", "HOWTO.md"],
+      "requested_horo_skills": ["bsa-doc-skill-management", "agile-governance"],
+      "source_domain": "business-analysis",
+      "risk_flags": ["depends-on-finalized-behavior", "no-ticket-board-duplication", "no-release-readiness-claim"],
+      "allowed_child_command_class": "bounded-documentation-sync",
+      "exclusions": ["no-source-write", "no-test-write", "no-project-data-hitl-reviews-write-or-stage", "no-ticket-status-duplication", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA", "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA", "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002",
+      "role": "devops",
+      "phase": "release",
+      "actions": ["context.resolve", "release-metadata.stamp", "protected-branch.create", "git.commit", "git.push", "pull-request.create"],
+      "touched_paths": ["project/static/version.json", "project/static/app.js", "project/static/sw.js", "project/static/index.html", "public/version.json", "public/app.js", "public/sw.js", "public/index.html"],
+      "requested_horo_skills": ["devops-deployment", "hf-static-release-verification", "agile-governance"],
+      "source_domain": "release-engineering",
+      "risk_flags": ["pr38-merged-historical", "current-branch-has-no-pr", "new-protected-pr-required", "exact-remediated-head-required"],
+      "allowed_child_command_class": "release-metadata-protected-pr",
+      "exclusions": ["no-force-push", "no-main-direct-push", "no-branch-protection-bypass", "no-source-write", "no-test-write", "no-doc-write", "no-project-data-hitl-reviews-write-or-stage", "no-deploy-before-ci", "no-secret-operation"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC", "merged-pr-38-historical-only", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve", "review.red-baseline", "review.provenance"],
+      "touched_paths": ["tests/test_consensus_proxy_independence_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-baseline-review", "genuine-red-required", "baseline-output-required"],
+      "allowed_child_command_class": "read-only-baseline-review",
+      "exclusions": ["no-write", "no-source-write", "no-test-or-manifest-write", "no-project-data-hitl-reviews-read-or-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve", "review.red-baseline", "review.provenance"],
+      "touched_paths": ["tests/test_hitl_enqueue_failure_reporting_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-10-hitl-enqueue-failure.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-baseline-review", "genuine-red-required", "baseline-output-required"],
+      "allowed_child_command_class": "read-only-baseline-review",
+      "exclusions": ["no-write", "no-source-write", "no-test-or-manifest-write", "no-project-data-hitl-reviews-read-or-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve", "review.red-baseline", "review.provenance"],
+      "touched_paths": ["tests/test_annual_timing_transit_semantics_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-11-transit-semantics.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-baseline-review", "genuine-red-required", "baseline-output-required"],
+      "allowed_child_command_class": "read-only-baseline-review",
+      "exclusions": ["no-write", "no-source-write", "no-test-or-manifest-write", "no-project-data-hitl-reviews-read-or-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION",
+      "role": "devops",
+      "phase": "integration",
+      "actions": ["context.resolve", "git.commit"],
+      "touched_paths": ["ATOMIC_TICKET.md", "plans/plan.md", "plans/active/horo-lite-agy2-checkpoint-20260907.md", ".agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json"],
+      "requested_horo_skills": ["devops-deployment", "agile-governance"],
+      "source_domain": "release-engineering",
+      "risk_flags": ["exact-four-path-commit", "validated-planning-bytes-only", "no-byte-edit-during-integration"],
+      "allowed_child_command_class": "planning-artifact-integration",
+      "exclusions": ["no-source-write-or-stage", "no-test-or-manifest-write-or-stage", "no-project-data-hitl-reviews-read-write-or-stage", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["ATOMIC_TICKET.md", "plans/plan.md", "plans/active/horo-lite-agy2-checkpoint-20260907.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION",
+      "role": "qa_tester",
+      "phase": "integration",
+      "actions": ["context.resolve", "git.commit"],
+      "touched_paths": ["tests/test_consensus_proxy_independence_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-independence.json", "tests/test_hitl_enqueue_failure_reporting_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-10-hitl-enqueue-failure.json", "tests/test_annual_timing_transit_semantics_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-11-transit-semantics.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["blocked-by-three-baseline-review-passes", "exact-six-path-commit-only", "must-precede-source-mutation", "reviewed-bytes-unchanged"],
+      "allowed_child_command_class": "test-baseline-integration",
+      "exclusions": ["no-source-write-or-stage", "no-planning-doc-write-or-stage", "no-test-or-manifest-byte-edit", "no-project-data-hitl-reviews-read-write-or-stage", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW", "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW", "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE",
+      "role": "qa_tester",
+      "phase": "qa-baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": ["tests/test_consensus_within_domain_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-legacy-superseding.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["prospective-superseding-baseline", "two-stale-default-proxy-fixtures-only", "genuine-non-proxy-claims-required", "prior-baseline-and-eof-history-preserved"],
+      "allowed_child_command_class": "qa-test-baseline",
+      "exclusions": ["no-source-write", "no-existing-manifest-write", "no-project-data-hitl-reviews-read-or-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json", "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": ["context.resolve", "review.red-baseline", "review.provenance"],
+      "touched_paths": ["tests/test_consensus_within_domain_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-legacy-superseding.json", "project/debate/consensus_matrix.py"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["independent-read-only-baseline-review", "test-meaning-review", "two-fixture-only-delta", "uncommitted-reviewed-source-diff-read-only"],
+      "allowed_child_command_class": "read-only-baseline-review",
+      "exclusions": ["no-write", "no-source-write", "no-test-or-manifest-write", "no-project-data-hitl-reviews-read-or-write", "no-commit", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE", "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-agy1-qa-baseline.json", "plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION",
+      "role": "qa_tester",
+      "phase": "integration",
+      "actions": ["context.resolve", "git.commit"],
+      "touched_paths": ["tests/test_consensus_within_domain_remediation.py", "plans/test_provenance/ticket-hlite-review-remediation-20260907-09-consensus-legacy-superseding.json"],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing", "agile-governance"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["blocked-by-legacy-superseding-baseline-review-pass", "exact-two-path-commit-only", "reviewed-bytes-unchanged", "baseline-parent-a84957f35f19416e9df484a1b16df2c1a77dca1d"],
+      "allowed_child_command_class": "test-baseline-integration",
+      "exclusions": ["no-source-write-or-stage", "no-planning-doc-write-or-stage", "no-test-or-manifest-byte-edit", "no-existing-manifest-write-or-stage", "no-project-data-hitl-reviews-read-write-or-stage", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW", "planning-integration-head:a84957f35f19416e9df484a1b16df2c1a77dca1d", "ATOMIC_TICKET.md", "plans/plan.md"]
+    },
+    {
+      "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION-002",
+      "role": "devops",
+      "phase": "integration",
+      "actions": ["context.resolve", "git.commit"],
+      "touched_paths": ["ATOMIC_TICKET.md", "plans/plan.md", "plans/active/horo-lite-agy2-checkpoint-20260907.md", ".agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json"],
+      "requested_horo_skills": ["devops-deployment", "agile-governance"],
+      "source_domain": "release-engineering",
+      "risk_flags": ["exact-four-path-commit", "revision-15-planning-bytes-only", "no-byte-edit-during-integration"],
+      "allowed_child_command_class": "planning-artifact-integration",
+      "exclusions": ["no-source-write-or-stage", "no-test-or-manifest-write-or-stage", "no-project-data-hitl-reviews-read-write-or-stage", "no-push", "no-deploy", "no-publish"],
+      "evidence_refs": ["planning-parent-head:a84957f35f19416e9df484a1b16df2c1a77dca1d", "ATOMIC_TICKET.md", "plans/plan.md", "plans/active/horo-lite-agy2-checkpoint-20260907.md"]
+    }
+  ]
+}
