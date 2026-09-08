@@ -8,7 +8,7 @@ Parent: TICKET-HLITE-REVIEW-REMEDIATION-20260907
 Gate APPROVED for three independent RED-baseline reviews and planning-artifact
 integration only. Source remains blocked until baseline integration. Digest:
 299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f.
-Supplied HEAD 2012e8363c3f173d9b66ba10646c376d4814ebce; origin/main
+Revision-15 planning parent HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d; origin/main
 77cbe84a728e93e7f7c9007ce31b50936967dddb.
 
 PR #38 is MERGED historical evidence; the current branch has no PR. The former
@@ -16,7 +16,7 @@ RELEASE-PREP-PR is prospectively superseded by RELEASE-PREP-PR-002.
 
 | Finding | Ordered lane suffixes | State |
 |---|---|---|
-| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
+| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | 09 QA additionally blocked by legacy-superseding integration |
 | P1 HITL persistence | 10-HITL-ENQUEUE-FAILURE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
 | P2 transit semantics | 11-TRANSIT-SEMANTICS-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
 | P2 docs gap | 12-DOCS-SYNC | Blocked by all three QA lanes |
@@ -31,6 +31,23 @@ then creates a new protected PR. Annual work is proxy-semantics-only unless a
 separate canonical-source/HITL scope gate passes. project/data/hitl_reviews.json
 is excluded. No new review/integration lane is DONE; no commit, push, PR,
 merge, deploy, publish, or archive occurred.
+Revision 15 successor lanes:
+
+- 09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE: qa_tester owns only the legacy
+  consensus test and new superseding manifest; two stale default-proxy
+  fixtures/expectations become genuine non-proxy claims.
+- 09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW: code_reviewer reads only
+  that pair plus consensus_matrix.py and verifies provenance/test meaning.
+- 09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION: qa_tester commits the exact pair
+  only after review PASS; baseline_parent is
+  a84957f35f19416e9df484a1b16df2c1a77dca1d.
+- PLANNING-ARTIFACT-INTEGRATION-002: devops commits exactly the four planning
+  artifacts and excludes source, tests, manifests, data, push, and deploy.
+
+All suffixes use TICKET-HLITE-REVIEW-REMEDIATION-20260907-. Prior baseline and
+EOF superseder history stays unchanged. The existing uncommitted reviewed
+consensus_matrix.py diff remains untouched. No revision-15 lane is DONE.
+
 Initial reviewed HEAD: 77cbe84a728e93e7f7c9007ce31b50936967dddb
 Execution account: agy2. Control account: codex1 (quota preservation).
 Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).

@@ -7,7 +7,7 @@ GRILL REPORT
 - Request: register remediation for four independent Horo Lite release-review findings.
 - Status: APPROVED.
 - Authorized next phase: the three independent RED-baseline reviews and validated planning-artifact integration only; source remains blocked by the six-path baseline integration commit.
-- Evidence: digest 299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f; resolver PASS with api/source_security; supplied HEAD 2012e8363c3f173d9b66ba10646c376d4814ebce over origin/main 77cbe84a728e93e7f7c9007ce31b50936967dddb.
+- Evidence: digest 299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f; resolver PASS with api/source_security; revision-15 planning parent HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d over origin/main 77cbe84a728e93e7f7c9007ce31b50936967dddb.
 - D1: CONFIRMED. Three behavior fixes, dependent README.md/HOWTO.md sync, and future protected-PR prep are in. project/data/hitl_reviews.json, unrelated source, credentials, provider dispatch, current commit/push/PR/merge/deploy/publish/archive, and release completion are out.
 - D2: CONFIRMED. Proxy evidence is not independent; failed HITL persistence is not queued; modulo houses are not deterministic transits; docs follow final behavior.
 - D3: CONFIRMED. Each genuine RED requires independent baseline review, followed by one six-path-only baseline commit before any source mutation; owned source, independent source review, and independent QA follow. Stop on any failed predecessor, provenance mismatch, extra commit path, false queue state, double-count, or misleading precision.
@@ -35,6 +35,22 @@ GRILL REPORT
 | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW | code_reviewer | 11 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
 | TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION | devops | Exactly four planning/context files; context.resolve, git.commit | Structural/hash/resolver validation PASS; commit only those four files, with no byte edits in this lane. |
 | TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION | qa_tester | Exactly three tests and three manifests; context.resolve, git.commit | Blocked until all three baseline reviews PASS; commit only the six reviewed paths, unchanged. |
+
+### Revision 15 legacy consensus superseder
+
+| Lane | Role | Exact scope | Gate |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE | qa_tester | tests/test_consensus_within_domain_remediation.py plus new legacy-superseding manifest only | Change only two stale default-proxy fixtures/expectations to genuine non-proxy claims. Preserve within-domain/cross-domain behavior, prior baseline, EOF superseder, and source bytes. No commit. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW | code_reviewer | Read-only pair plus project/debate/consensus_matrix.py | Blocked until baseline output exists; verify provenance, test meaning, two-fixture-only delta, preserved history/behavior, and no baseline source mutation. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION | qa_tester | Exact reviewed test+new manifest pair; context.resolve, git.commit | After review PASS, commit only the pair unchanged. baseline_parent must equal a84957f35f19416e9df484a1b16df2c1a77dca1d. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION-002 | devops | Exact four planning/context artifacts; context.resolve, git.commit | Commit validated revision-15 planning bytes only; exclude all source/tests/manifests/data/push/deploy. |
+
+The prior baseline and
+plans/test_provenance/ticket-hlite-review-remediation-20260907-02-eof-whitespace-superseding.json
+remain immutable history. The uncommitted reviewed
+project/debate/consensus_matrix.py diff is read-only and untouched. Existing
+09 QA is blocked until both 09 source review PASS and legacy-superseding
+integration exist.
 
 Order is RED BASELINE -> BASELINE-REVIEW -> six-path BASELINE-INTEGRATION
 commit -> SOURCE -> source REVIEW -> QA, then docs and
