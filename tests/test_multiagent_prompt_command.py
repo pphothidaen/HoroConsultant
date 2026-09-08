@@ -3572,3 +3572,457 @@ def test_capacity_released_when_execution_boundary_raises(tmp_path, monkeypatch,
             invocation.capacity_store_path, invocation.capacity_lease,
             requests=1, policy=invocation.capacity_policy,
         )
+
+
+# TICKET-HLITE-REVIEW-REMEDIATION-20260907 AGY runtime-admission RED baseline.
+# These cases intentionally name the prospective adapter contract.  The current
+# dispatcher still has the unconditional AGY pre-spawn denial; a config marker
+# alone is neither provider proof nor permission to create a child.
+def _prospective_agy_runtime_marker() -> dict[str, object]:
+    return {
+        "schema_version": 1,
+        "enabled": True,
+        "aliases": {
+            "agy1": {"provider": "agy", "home_env": "AGY_HOME"},
+            "agy3": {"provider": "agy", "home_env": "AGY_HOME"},
+        },
+        "receipt": {
+            "schema_version": 1,
+            "artifact_type": "platform-native-prespawn-receipt",
+            "required_status": "PASS",
+            "required_authentication": "PASS",
+            "required_capacity": "PASS",
+        },
+    }
+
+
+def _prospective_agy_receipt(alias: str) -> dict[str, object]:
+    return {
+        "schema_version": 1,
+        "artifact_type": "platform-native-prespawn-receipt",
+        "alias": alias,
+        "provider": "agy",
+        "status": "PASS",
+        "authentication": "PASS",
+        "capacity": "PASS",
+        "session_id": f"native-{alias}-session",
+    }
+
+
+def _prospective_agy_route(alias: str, home_path: str) -> command.Route:
+    return command.Route(
+        role="researcher",
+        alias=alias,
+        cli="agy",
+        command="agy",
+        home_env="AGY_HOME",
+        home_path=home_path,
+        model="gemini-3.1-pro-high",
+        effort="high",
+        mode="plan",
+        sandbox=True,
+    )
+
+
+@pytest.mark.parametrize("alias", ("agy1", "agy3"))
+def test_agy_runtime_admission_prospectively_accepts_only_isolated_agy1_and_agy3(alias):
+    """Future adapter must require the marker and a matching native receipt."""
+
+    config = {
+        "runtime": {"agy_runtime_admission": _prospective_agy_runtime_marker()},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/agy1"},
+            "agy3": {"home_path": "/isolated/agy3"},
+        },
+    }
+    route = _prospective_agy_route(alias, f"/isolated/{alias}")
+
+    assert command.validate_agy_runtime_admission(
+        config, route, _prospective_agy_receipt(alias)
+    ) is None
+
+
+@pytest.mark.parametrize(
+    ("route", "receipt"),
+    (
+        (_prospective_agy_route("agy2", "/isolated/agy2"), _prospective_agy_receipt("agy2")),
+        (_prospective_agy_route("agy4", "/isolated/agy4"), _prospective_agy_receipt("agy4")),
+        (
+            command.Route("developer", "codex1", "codex", "codex", "CODEX_HOME", "/isolated/codex1", "gpt-5.6-luna", "medium", None, "read-only"),
+            _prospective_agy_receipt("agy1"),
+        ),
+    ),
+)
+def test_agy_runtime_admission_rejects_alias_or_provider_substitution(route, receipt):
+    config = {
+        "runtime": {"agy_runtime_admission": _prospective_agy_runtime_marker()},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/agy1"},
+            "agy3": {"home_path": "/isolated/agy3"},
+        },
+    }
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(config, route, receipt)
+
+
+@pytest.mark.parametrize("marker", (None, {}, {"schema_version": "one"}))
+def test_agy_runtime_admission_rejects_absent_or_malformed_marker(marker):
+    config = {"runtime": {}}
+    if marker is not None:
+        config["runtime"]["agy_runtime_admission"] = marker
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(
+            config, _prospective_agy_route("agy1", "/isolated/agy1"), _prospective_agy_receipt("agy1")
+        )
+
+
+def test_agy_runtime_admission_rejects_disabled_alias():
+    marker = _prospective_agy_runtime_marker()
+    marker["aliases"]["agy3"]["enabled"] = False
+    config = {
+        "runtime": {"agy_runtime_admission": marker},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/agy1"},
+            "agy3": {"home_path": "/isolated/agy3"},
+        },
+    }
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(
+            config, _prospective_agy_route("agy3", "/isolated/agy3"), _prospective_agy_receipt("agy3")
+        )
+
+
+def test_agy_runtime_admission_rejects_shared_account_home():
+    config = {
+        "runtime": {"agy_runtime_admission": _prospective_agy_runtime_marker()},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/shared"},
+            "agy3": {"home_path": "/isolated/shared"},
+        },
+    }
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(
+            config, _prospective_agy_route("agy1", "/isolated/shared"), _prospective_agy_receipt("agy1")
+        )
+
+
+@pytest.mark.parametrize("field", ("authentication", "capacity"))
+def test_agy_runtime_admission_rejects_authentication_or_capacity_failure(field):
+    config = {
+        "runtime": {"agy_runtime_admission": _prospective_agy_runtime_marker()},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/agy1"},
+            "agy3": {"home_path": "/isolated/agy3"},
+        },
+    }
+    receipt = _prospective_agy_receipt("agy1")
+    receipt[field] = "BLOCKED"
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(
+            config, _prospective_agy_route("agy1", "/isolated/agy1"), receipt
+        )
+
+
+@pytest.mark.parametrize("receipt", ({}, {"schema_version": 1}, {**_prospective_agy_receipt("agy1"), "session_id": ""}))
+def test_agy_runtime_admission_rejects_malformed_native_receipt(receipt):
+    config = {
+        "runtime": {"agy_runtime_admission": _prospective_agy_runtime_marker()},
+        "accounts": {
+            "agy1": {"home_path": "/isolated/agy1"},
+            "agy3": {"home_path": "/isolated/agy3"},
+        },
+    }
+    with pytest.raises(command.ConfigurationError):
+        command.validate_agy_runtime_admission(
+            config, _prospective_agy_route("agy1", "/isolated/agy1"), receipt
+        )
+
+
+def _prospective_agy_executable_invocation(
+    tmp_path: Path,
+    route: command.Route,
+    receipt: dict[str, object],
+    *,
+    marker: object = Ellipsis,
+    accounts: dict[str, object] | None = None,
+) -> command.Invocation:
+    """Build a future AGY invocation with a receipt, without starting a provider."""
+
+    config_path = tmp_path / "runtime-admission.yaml"
+    if marker is Ellipsis:
+        marker = _prospective_agy_runtime_marker()
+    runtime: dict[str, object] = {}
+    if marker is not None:
+        runtime["agy_runtime_admission"] = marker
+    config_path.write_text(
+        yaml.safe_dump(
+            {
+                "runtime": runtime,
+                "accounts": accounts or {
+                    "agy1": {"home_path": "/isolated/agy1"},
+                    "agy3": {"home_path": "/isolated/agy3"},
+                },
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    invocation = command.build_invocation(
+        route,
+        command.render_prompt(objective="prospective AGY executable admission"),
+        tmp_path,
+        decision=_decision(
+            selected_alias=route.alias,
+            selected_model="gemini-3.1-pro-high",
+            selected_effort="high",
+            scope_rank=2,
+        ),
+        model_policy=_policy(),
+        runtime_config_path=str(config_path),
+        runtime_config_approved=True,
+        scheduling_snapshot=_scheduling_snapshot(owner="researcher"),
+    )
+    # The future adapter must make this a typed Invocation field.  The local
+    # baseline attaches it only to define the still-missing executable contract.
+    object.__setattr__(invocation, "agy_runtime_admission_receipt", receipt)
+    return invocation
+
+
+def _assert_agy_executable_admission_rejection(
+    invocation: command.Invocation,
+    expected_code: str,
+    monkeypatch,
+) -> None:
+    """Every future rejection must occur before transport or Popen."""
+
+    calls = {"transport": 0, "popen": 0}
+
+    def forbidden_transport(*_args, **_kwargs):
+        calls["transport"] += 1
+        raise AssertionError("AGY transport started after admission rejection")
+
+    def forbidden_popen(*_args, **_kwargs):
+        calls["popen"] += 1
+        raise AssertionError("AGY Popen started after admission rejection")
+
+    monkeypatch.setattr(command, "_run_provider_process", forbidden_transport)
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.ConfigurationError) as raised:
+        command.execute_invocation(invocation)
+    assert calls == {"transport": 0, "popen": 0}
+    assert expected_code in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    ("alias", "home_path", "expected_code"),
+    (
+        ("agy1", "/isolated/agy3", "AGY_RUNTIME_ADMISSION_HOME_MISMATCH"),
+        ("agy3", "/isolated/agy1", "AGY_RUNTIME_ADMISSION_HOME_MISMATCH"),
+    ),
+)
+def test_agy_executable_admission_rejects_reciprocal_configured_home_mismatch(
+    tmp_path, monkeypatch, alias, home_path, expected_code
+):
+    invocation = _prospective_agy_executable_invocation(
+        tmp_path,
+        _prospective_agy_route(alias, home_path),
+        _prospective_agy_receipt(alias),
+    )
+    _assert_agy_executable_admission_rejection(invocation, expected_code, monkeypatch)
+
+
+def test_agy_executable_admission_rejects_route_and_receipt_alias_mismatch(tmp_path, monkeypatch):
+    invocation = _prospective_agy_executable_invocation(
+        tmp_path,
+        _prospective_agy_route("agy1", "/isolated/agy1"),
+        _prospective_agy_receipt("agy3"),
+    )
+    _assert_agy_executable_admission_rejection(
+        invocation, "AGY_RUNTIME_ADMISSION_IDENTITY_MISMATCH", monkeypatch
+    )
+
+
+def test_agy_executable_admission_rejects_missing_authentication_before_transport(tmp_path, monkeypatch):
+    receipt = _prospective_agy_receipt("agy1")
+    del receipt["authentication"]
+    invocation = _prospective_agy_executable_invocation(
+        tmp_path, _prospective_agy_route("agy1", "/isolated/agy1"), receipt
+    )
+    _assert_agy_executable_admission_rejection(
+        invocation, "AGY_RUNTIME_ADMISSION_AUTHENTICATION_INVALID", monkeypatch
+    )
+
+
+def test_agy_executable_admission_rejects_capacity_exhaustion_before_transport(tmp_path, monkeypatch):
+    receipt = _prospective_agy_receipt("agy1")
+    receipt["capacity"] = "EXHAUSTED"
+    invocation = _prospective_agy_executable_invocation(
+        tmp_path, _prospective_agy_route("agy1", "/isolated/agy1"), receipt
+    )
+    _assert_agy_executable_admission_rejection(
+        invocation, "AGY_RUNTIME_ADMISSION_CAPACITY_UNAVAILABLE", monkeypatch
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_code"),
+    (
+        ("alias_substitution", "AGY_RUNTIME_ADMISSION_ALIAS_NOT_ALLOWED"),
+        ("absent_marker", "AGY_RUNTIME_ADMISSION_MARKER_INVALID"),
+        ("malformed_marker", "AGY_RUNTIME_ADMISSION_MARKER_INVALID"),
+        ("disabled_alias", "AGY_RUNTIME_ADMISSION_ALIAS_DISABLED"),
+        ("shared_home", "AGY_RUNTIME_ADMISSION_HOME_NOT_ISOLATED"),
+        ("malformed_receipt", "AGY_RUNTIME_ADMISSION_RECEIPT_INVALID"),
+        ("blocked_authentication", "AGY_RUNTIME_ADMISSION_AUTHENTICATION_INVALID"),
+        ("blocked_capacity", "AGY_RUNTIME_ADMISSION_CAPACITY_UNAVAILABLE"),
+    ),
+)
+def test_agy_executable_admission_rejection_matrix_has_zero_transport(
+    tmp_path, monkeypatch, case, expected_code
+):
+    """Every marker/receipt rejection is checked at the executable boundary."""
+
+    alias = "agy1"
+    route = _prospective_agy_route(alias, "/isolated/agy1")
+    receipt = _prospective_agy_receipt(alias)
+    marker: object = _prospective_agy_runtime_marker()
+    accounts: dict[str, object] | None = None
+    if case == "alias_substitution":
+        route = _prospective_agy_route("agy2", "/isolated/agy2")
+        receipt = _prospective_agy_receipt("agy2")
+    elif case == "absent_marker":
+        marker = None
+    elif case == "malformed_marker":
+        marker = {"schema_version": "bad"}
+    elif case == "disabled_alias":
+        marker["aliases"]["agy1"]["enabled"] = False
+    elif case == "shared_home":
+        accounts = {
+            "agy1": {"home_path": "/isolated/shared"},
+            "agy3": {"home_path": "/isolated/shared"},
+        }
+        route = _prospective_agy_route("agy1", "/isolated/shared")
+    elif case == "malformed_receipt":
+        receipt = {"schema_version": 1}
+    elif case == "blocked_authentication":
+        receipt["authentication"] = "BLOCKED"
+    elif case == "blocked_capacity":
+        receipt["capacity"] = "BLOCKED"
+    else:
+        raise AssertionError(f"unhandled executable rejection case: {case}")
+    invocation = _prospective_agy_executable_invocation(
+        tmp_path, route, receipt, marker=marker, accounts=accounts
+    )
+    _assert_agy_executable_admission_rejection(invocation, expected_code, monkeypatch)
+
+
+@pytest.mark.parametrize("forged_admission", (True, _prospective_agy_receipt("agy1")))
+def test_agy_runtime_admission_direct_transport_rejects_forged_caller_admission(
+    forged_admission, monkeypatch
+):
+    """Only an execution-path capability may clear AGY's final transport gate."""
+
+    popen_calls = 0
+
+    def forbidden_popen(*_args, **_kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("forged AGY admission reached Popen")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command._validate_transport_provider_binding(
+            "agy", ["agy"], agy_runtime_admitted=forged_admission
+        )
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize("forged_admission", (True, _prospective_agy_receipt("agy1")))
+def test_agy_runtime_admission_direct_runner_rejects_forged_caller_admission(
+    tmp_path, monkeypatch, forged_admission
+):
+    """The callable process runner must not trust boolean or receipt-shaped input."""
+
+    popen_calls = 0
+
+    def forbidden_popen(*_args, **_kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("forged AGY admission reached Popen")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command._run_provider_process(
+            ["agy"],
+            cwd=str(tmp_path),
+            env={},
+            input="",
+            provider="agy",
+            agy_runtime_admitted=forged_admission,
+        )
+    assert popen_calls == 0
+
+
+def _forged_agy_execution_capability(kind: str) -> object:
+    """Exercise every public/module-visible route to the alleged opaque token."""
+
+    if kind == "exported_mint":
+        return command._mint_agy_runtime_execution_capability()
+    if kind == "exported_type":
+        return command._AgyRuntimeExecutionCapability(
+            command._AGY_RUNTIME_CAPABILITY_SECRET
+        )
+    if kind == "module_introspection":
+        module_state = vars(command)
+        return module_state["_AgyRuntimeExecutionCapability"](
+            module_state["_AGY_RUNTIME_CAPABILITY_SECRET"]
+        )
+    raise AssertionError(f"unknown forged capability kind: {kind}")
+
+
+@pytest.mark.parametrize("kind", ("exported_mint", "exported_type", "module_introspection"))
+def test_agy_runtime_admission_transport_rejects_exported_or_introspected_capability(
+    kind, monkeypatch
+):
+    """A capability must be unforgeable outside the locked execution path."""
+
+    popen_calls = 0
+
+    def forbidden_popen(*_args, **_kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("forged capability reached Popen")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command._validate_transport_provider_binding(
+            "agy", ["agy"],
+            agy_runtime_admitted=_forged_agy_execution_capability(kind),
+        )
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize("kind", ("exported_mint", "exported_type", "module_introspection"))
+def test_agy_runtime_admission_runner_rejects_exported_or_introspected_capability(
+    tmp_path, monkeypatch, kind
+):
+    """The final runner must reject direct capability construction before Popen."""
+
+    popen_calls = 0
+
+    def forbidden_popen(*_args, **_kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("forged capability reached Popen")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command._run_provider_process(
+            ["agy"],
+            cwd=str(tmp_path),
+            env={},
+            input="",
+            provider="agy",
+            agy_runtime_admitted=_forged_agy_execution_capability(kind),
+        )
+    assert popen_calls == 0
