@@ -2,6 +2,35 @@
 
 Updated: 2026-09-07T09:00:00+07:00 (Asia/Bangkok)
 Parent: TICKET-HLITE-REVIEW-REMEDIATION-20260907
+
+## Independent release-review successor checkpoint -- 2026-09-08
+
+Gate APPROVED for three independent RED-baseline reviews and planning-artifact
+integration only. Source remains blocked until baseline integration. Digest:
+299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f.
+Supplied HEAD 2012e8363c3f173d9b66ba10646c376d4814ebce; origin/main
+77cbe84a728e93e7f7c9007ce31b50936967dddb.
+
+PR #38 is MERGED historical evidence; the current branch has no PR. The former
+RELEASE-PREP-PR is prospectively superseded by RELEASE-PREP-PR-002.
+
+| Finding | Ordered lane suffixes | State |
+|---|---|---|
+| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
+| P1 HITL persistence | 10-HITL-ENQUEUE-FAILURE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
+| P2 transit semantics | 11-TRANSIT-SEMANTICS-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
+| P2 docs gap | 12-DOCS-SYNC | Blocked by all three QA lanes |
+
+All suffixes use prefix TICKET-HLITE-REVIEW-REMEDIATION-20260907-.
+Independent baseline reviewers own only their test+manifest pairs. The
+PLANNING-ARTIFACT-INTEGRATION lane may commit exactly the four planning/context
+files. BASELINE-INTEGRATION is blocked by all three baseline-review PASSes and
+must commit only the six tests/manifests, unchanged, before any source mutation.
+Docs own README.md/HOWTO.md only after behavior is final. RELEASE-PREP-PR-002
+then creates a new protected PR. Annual work is proxy-semantics-only unless a
+separate canonical-source/HITL scope gate passes. project/data/hitl_reviews.json
+is excluded. No new review/integration lane is DONE; no commit, push, PR,
+merge, deploy, publish, or archive occurred.
 Initial reviewed HEAD: 77cbe84a728e93e7f7c9007ce31b50936967dddb
 Execution account: agy2. Control account: codex1 (quota preservation).
 Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).

@@ -2,6 +2,49 @@
 > Sole authoritative atomic ticket registry, status board, and operational handoff.
 > Consolidated from project_tickets.md, PROJECT_TASKS.md, and atomic_tasks.md.
 
+## TICKET-HLITE-REVIEW-REMEDIATION-20260907 -- Independent Review Successor Remediation
+
+Planning authority: approved digest
+299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f;
+resolver PASS with api/source_security closures. Supplied planning anchor:
+HEAD 2012e8363c3f173d9b66ba10646c376d4814ebce over origin/main
+77cbe84a728e93e7f7c9007ce31b50936967dddb.
+
+PR #38 is MERGED and historical; the current remediation branch has no PR.
+The earlier RELEASE-PREP-PR record remains historical and is prospectively
+superseded by RELEASE-PREP-PR-002. Release remains BLOCKED. No source edit,
+commit, push, PR creation, merge, deploy, publication, DONE claim, or archive
+is authorized by this planning registration.
+
+| Lane ID | State | Role / skills | Exclusive scope and acceptance |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_consensus_proxy_independence_remediation.py and its 09 provenance manifest. Freeze genuine RED proving proxy/shared lineage cannot create independent corroboration or artificial 1.0 agreement. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 09 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_core owner); sdlc-aisdlc-workflow | context.resolve; own project/debate/consensus_matrix.py. Exclude proxy/shared lineage from independent counts; preserve human review for conflict/low consensus. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW | BLOCKED_BY_09_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 09 test, manifest, and source. Verify exact diff, independence, no artificial 1.0, and source_security closure. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA | BLOCKED_BY_09_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 09 test, manifest, and source. Require focused GREEN, relevant regression, and provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_hitl_enqueue_failure_reporting_remediation.py and its 10 provenance manifest. Freeze genuine RED for swallowed enqueue failure falsely reported as QUEUED_FOR_HUMAN_REVIEW. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 10 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_api owner); sdlc-aisdlc-workflow | context.resolve; own project/routers/unified_reading_router.py. Report QUEUED_FOR_HUMAN_REVIEW only after persistence succeeds; expose failure fail-closed. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW | BLOCKED_BY_10_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 10 test, manifest, and source. Verify API truth, failure propagation, exact diff, api/source_security closures. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA | BLOCKED_BY_10_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 10 test, manifest, and source. Require GREEN success/failure contracts, regression, and provenance. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE | RED_PRODUCED_UNCOMMITTED | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; own tests/test_annual_timing_transit_semantics_remediation.py and its 11 provenance manifest. Freeze genuine RED for modulo proxy mislabeled deterministic transit calculation. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW | READY_FOR_REVIEW | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, review.red-baseline, review.provenance; read-only test and 11 manifest. PASS only if the baseline output exists, is genuinely RED for the stated defect, and provenance is truthful. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE | BLOCKED_BY_BASELINE_INTEGRATION | developer (developer_core owner); sdlc-aisdlc-workflow | context.resolve; own project/core/annual_timing_engine.py. Use honest explicit proxy semantics. A verified transit algorithm needs separate canonical sources, owner sign-off, human-review rules, and metaphysical HITL scope-audit PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW | BLOCKED_BY_11_SOURCE | code_reviewer; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 11 test, manifest, and source. Verify exact diff, no misleading precision, and source_security closure. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA | BLOCKED_BY_11_REVIEW | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve; read-only 11 test, manifest, and source. Require GREEN semantic regression and provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | BLOCKED_BY_09_10_11_QA | business_analyst; bsa-doc-skill-management, agile-governance | context.resolve; own README.md and HOWTO.md after behavior finalization. Document API fields, child behavior, HITL persistence/failure, feedback UI, consensus independence, and annual proxy semantics; no board duplication/readiness claim. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002 | BLOCKED_BY_12_DOCS_SYNC | devops; devops-deployment, hf-static-release-verification, agile-governance | context.resolve plus release stamp/protected branch/commit/push/PR actions; own only eight static release mirror paths. Create a new protected PR for exact remediated head; PR #38 cannot satisfy it. No direct-main push or deploy. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION | READY_AFTER_STRUCTURAL_VALIDATION | devops; devops-deployment, agile-governance | context.resolve, git.commit; own exactly ATOMIC_TICKET.md, plans/plan.md, plans/active/horo-lite-agy2-checkpoint-20260907.md, and .agents/context/tickets/TICKET-HLITE-REVIEW-REMEDIATION-20260907.v1.json. Commit only those validated planning artifacts; do not edit their bytes in this lane. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION | BLOCKED_BY_THREE_BASELINE_REVIEWS | qa_tester; qa-regression-provenance, qa-e2e-testing, agile-governance | context.resolve, git.commit; own exactly the three new tests and three new provenance manifests. After all three BASELINE-REVIEW PASSes, create one commit containing only these six paths, without changing their reviewed bytes. |
+
+Required order is RED BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION
+commit -> SOURCE -> source REVIEW -> QA, then docs and RELEASE-PREP-PR-002.
+The baseline commit must contain only the six declared test/provenance paths
+and must precede every source mutation. One editor owns each mutable path.
+Reviews and post-source QA are read-only. project/data/hitl_reviews.json is
+excluded.
+
 ## Document Authority & Governance
 
 ### Documentation Authority Rules (current)

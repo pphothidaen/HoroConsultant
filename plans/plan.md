@@ -1,5 +1,49 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## 2026-09-08 Independent Release-Review Successor Plan
+
+GRILL REPORT
+
+- Request: register remediation for four independent Horo Lite release-review findings.
+- Status: APPROVED.
+- Authorized next phase: the three independent RED-baseline reviews and validated planning-artifact integration only; source remains blocked by the six-path baseline integration commit.
+- Evidence: digest 299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f; resolver PASS with api/source_security; supplied HEAD 2012e8363c3f173d9b66ba10646c376d4814ebce over origin/main 77cbe84a728e93e7f7c9007ce31b50936967dddb.
+- D1: CONFIRMED. Three behavior fixes, dependent README.md/HOWTO.md sync, and future protected-PR prep are in. project/data/hitl_reviews.json, unrelated source, credentials, provider dispatch, current commit/push/PR/merge/deploy/publish/archive, and release completion are out.
+- D2: CONFIRMED. Proxy evidence is not independent; failed HITL persistence is not queued; modulo houses are not deterministic transits; docs follow final behavior.
+- D3: CONFIRMED. Each genuine RED requires independent baseline review, followed by one six-path-only baseline commit before any source mutation; owned source, independent source review, and independent QA follow. Stop on any failed predecessor, provenance mismatch, extra commit path, false queue state, double-count, or misleading precision.
+- D4: CONFIRMED. The three named tests and three manifests now contain genuine RED outputs. Independent baseline reviewers, exact planning integration, a six-path-only baseline commit, supplied identities, and later source reviewers are required. Docs depend on all three QA results.
+- D5: CONFIRMED. qa_tester owns baselines; canonical developer role executes under developer_core ownership for consensus/annual and developer_api ownership for the router; code_reviewer is read-only; business_analyst owns docs; devops owns future release metadata.
+- D6: CONFIRMED. PR #38 is merged history; current branch has no PR. Honest proxy semantics is the bounded annual remedy.
+- D7: CONFIRMED. Preserve RED/provenance evidence and return to the failed predecessor. No force push/deploy recovery.
+- D8: CONFIRMED. Focused ASCII evidence and provenance; no source tests in planning.
+- D9: CONFIRMED for semantics-only correction. Any new transit algorithm needs canonical sources, owner sign-off, required_human_review for conflict/low-consensus/force-review, and /hitl/scope-audit?source_domain=metaphysical-domain-engine with summary.pass_gate_check=true.
+- Waivers: NONE. Blockers: NONE for baselines. Next question: NONE.
+
+| Finding | Baseline | Source | Review | QA |
+|---|---|---|---|---|
+| 09 consensus independence | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA |
+| 10 HITL enqueue truth | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA |
+| 11 transit semantics | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA |
+| 12 docs gap | Not applicable: docs-only | TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | Protected-PR review | Protected-PR required checks |
+
+### Baseline review and integration gate
+
+| Lane | Role | Exact scope | Gate |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE-REVIEW | code_reviewer | 09 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE-REVIEW | code_reviewer | 10 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE-REVIEW | code_reviewer | 11 test and manifest, read-only; context.resolve, review.red-baseline, review.provenance | Baseline output exists; require genuine RED and truthful provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION | devops | Exactly four planning/context files; context.resolve, git.commit | Structural/hash/resolver validation PASS; commit only those four files, with no byte edits in this lane. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-BASELINE-INTEGRATION | qa_tester | Exactly three tests and three manifests; context.resolve, git.commit | Blocked until all three baseline reviews PASS; commit only the six reviewed paths, unchanged. |
+
+Order is RED BASELINE -> BASELINE-REVIEW -> six-path BASELINE-INTEGRATION
+commit -> SOURCE -> source REVIEW -> QA, then docs and
+TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002. The baseline
+commit must contain only the six test/provenance paths and precede every source
+mutation. PR #38 is historical and MERGED; a new protected PR is required after
+remediation. No new review/integration lane is DONE and no release-ready, push,
+PR, merge, deploy, publish, or archive claim is made.
+
 > Session exception recorded 2026-09-07T01:25:31Z: owner explicitly waives
 > PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED for this session's AGY2 remediation
 > handoff only. Current orchestrator owns direct dispatch/monitoring; AGY2 owns
