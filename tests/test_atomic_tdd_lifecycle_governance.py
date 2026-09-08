@@ -21,11 +21,12 @@ SKILL_PATHS = (
     ".agents/skills/bsa-doc-skill-management/SKILL.md",
     ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
 )
-REGISTRY_EXPECTED_HOOKS = {
-    ".agents/hooks.json": ".agents/hooks/atomic_tdd_guard.py",
-    ".claude/settings.json": ".claude/hooks/atomic_tdd_guard.py",
-    ".agy/hooks.json": ".agy/hooks/atomic-tdd-guard.sh",
-}
+REGISTRY_PATHS = (
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json",
+)
 SOURCE_TICKET = "TDD-GOV-DEV-020"
 
 
@@ -137,16 +138,8 @@ def test_hook_is_read_only_and_registers_across_supported_local_ecosystems() -> 
     assert after == before, "ATOMIC_TDD_HOOK_MUTATED_REPOSITORY"
     assert "subprocess" in hook.read_text(encoding="utf-8"), "ATOMIC_TDD_HOOK must inspect Git evidence"
 
-    missing = [
-        path
-        for path, expected_hook in REGISTRY_EXPECTED_HOOKS.items()
-        if expected_hook not in (ROOT / path).read_text(encoding="utf-8")
-    ]
+    missing = [path for path in REGISTRY_PATHS if HOOK_PATH not in (ROOT / path).read_text(encoding="utf-8")]
     assert not missing, f"ATOMIC_TDD_HOOK_REGISTRATION missing: {missing}"
-
-    codex_hooks = (ROOT / ".codex/hooks.json").read_text(encoding="utf-8").lower()
-    assert "no native pretooluse" in codex_hooks
-    assert "atomic_tdd_guard" not in codex_hooks
 
 
 def test_provenance_guard_and_policy_reject_baseline_integrity_bypasses() -> None:
