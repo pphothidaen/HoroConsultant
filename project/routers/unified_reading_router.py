@@ -322,7 +322,10 @@ def create_unified_reading(request: UnifiedReadingRequest) -> UnifiedReadingResp
 
     # Enqueue HITL review item when routing requires human review.
     if hitl_routing_dict.get("status") == "QUEUED_FOR_HUMAN_REVIEW":
-        _enqueue_hitl_review(request, validated, hitl_flags_dict, hitl_routing_dict)
+        if not _enqueue_hitl_review(request, validated, hitl_flags_dict, hitl_routing_dict):
+            validated.hitl_routing["status"] = "HITL_ENQUEUE_FAILED"
+            validated.hitl_routing["reason"] = "hitl_persistence_failed"
+            validated.hitl_routing["queued"] = False
 
     return validated
 
@@ -332,7 +335,7 @@ def _enqueue_hitl_review(
     response: UnifiedReadingResponse,
     hitl_flags: dict[str, Any],
     hitl_routing: dict[str, Any],
-) -> None:
+) -> bool:
     """Create a retrievable HITL review item from a unified reading.
 
     This is idempotent — the same request_id maps to the same HITL item,
@@ -362,9 +365,11 @@ def _enqueue_hitl_review(
             "hitl_routing": hitl_routing,
             "notes": f"Auto-enqueued from unified reading router. Triggers: {trigger_reasons}",
         })
+        return True
     except Exception:
         # Enqueue failure must not break the reading response.
         logging.getLogger("unified_reading_router").warning(
             "Failed to enqueue HITL review item for %s", response.request_id,
             exc_info=True,
         )
+        return False
