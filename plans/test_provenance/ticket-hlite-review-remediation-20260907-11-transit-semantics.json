@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "approved_context_sha256": "1517481dc31393a21a75580e7f26de7fab041eb6d1959779105c0c51e592d048",
+  "baseline_parent": "ca974f1a3bba61c130f0704b80bae0633291d84e",
+  "test_files": [
+    {
+      "path": "tests/test_annual_timing_transit_semantics_remediation.py",
+      "sha256": "ebdcd244ba0f32f99921df2f00081f8592dbd336fcd38b07ad2a73d5b6fa2a22"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_annual_timing_transit_semantics_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed, 1 passed: transit proxy section exposed as thai_suriyayart_transit; consumer reason omits proxy and non-astronomical disclosure"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen RED baseline requiring annual timing planetary-house values to be consumer-visible deterministic proxies with explicit uncertainty, never a verified astronomical transit-house calculation. The admitted remediation is honest proxy semantics; a new transit algorithm is out of scope.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}

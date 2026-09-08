@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "ca974f1a3bba61c130f0704b80bae0633291d84e",
+  "test_files": [
+    {
+      "path": "tests/test_hitl_enqueue_failure_reporting_remediation.py",
+      "sha256": "7e63aa478800b0972c8de004a7dda18a71db5717bd095fc324c100a8e93c2a88"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_hitl_enqueue_failure_reporting_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 1 passed: test_failed_hitl_enqueue_is_not_reported_as_queued asserted response.hitl_routing['status'] != 'QUEUED_FOR_HUMAN_REVIEW' but received QUEUED_FOR_HUMAN_REVIEW after OSError('simulated HITL persistence failure'); router log reports Failed to enqueue HITL review item"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/unified_reading_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen RED baseline for the HITL enqueue persistence truth contract. The successful path must persist a retrievable external review item before reporting QUEUED_FOR_HUMAN_REVIEW; a real save_hitl_db failure must not be swallowed into that status.",
+  "approved_context_sha256": "1517481dc31393a21a75580e7f26de7fab041eb6d1959779105c0c51e592d048",
+  "lane_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED",
+  "user_exclusions": [
+    "never read/write/restore/stage/assert against project/data/hitl_reviews.json",
+    "no-source-write",
+    "no-commit",
+    "no-push",
+    "no-deploy",
+    "no-publish"
+  ]
+}
