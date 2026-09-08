@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-RELEASE-GATE-REMEDIATION-20260908-LEGACY-GOVERNANCE-CONTRACT",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1cb3c9f87b76d1eae9f9d020d8e16b0c4bbe70bb",
+  "test_files": [
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance.py",
+      "sha256": "9004ad4f519098a66dbc6fa66db72af3796cef1c8db112721b1aaa4a6a4c1bd2"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance.py::test_hook_is_read_only_and_registers_across_supported_local_ecosystems"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Legacy governance test required .agents/hooks/atomic_tdd_guard.py registration in .claude/settings.json and .codex/hooks.json, contradicting v2/v4 contracts that require Claude's own hook path and no Codex native PreToolUse atomic_tdd_guard registration."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".codex/hooks.json",
+    ".agy/hooks.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "1cb3c9f87b76d1eae9f9d020d8e16b0c4bbe70bb",
+  "correction_reason": "The original immutable governance test still encoded the superseded Codex registry contradiction after v2/v4 established platform-aware hook semantics.",
+  "rationale": "This manifest binds the legacy governance test update to the newer platform-specific contract: agents, Claude, and AGY each register one functional guard, while Codex declares no native PreToolUse hook and does not register atomic_tdd_guard.",
+  "baseline_state": "PROSPECTIVE_SUPERSEDING_LEGACY_TEST_CORRECTION",
+  "source_admission": "NOT_APPLICABLE_TEST_CONTRACT_SYNC"
+}
