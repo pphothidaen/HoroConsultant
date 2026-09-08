@@ -325,6 +325,7 @@
             }
             state.feedbackByPattern[patternId] = choiceValue;
             updatePatternSelection(patternId, chips);
+            updateExplanationEmphasis();
             persistFeedbackIfConsented();
           },
         },
@@ -345,6 +346,44 @@
     chipRow.querySelectorAll("button").forEach((button) => {
       button.setAttribute("aria-pressed", button.getAttribute("data-choice") === selected ? "true" : "false");
     });
+    const card = chipRow.closest(".pattern-item");
+    if (card) {
+      let emphasisBadge = card.querySelector(".pattern-feedback-emphasis");
+      if (selected) {
+        if (!emphasisBadge) {
+          emphasisBadge = makeNode("div", { className: "pattern-feedback-emphasis" });
+          card.appendChild(emphasisBadge);
+        }
+        emphasisBadge.textContent = `น้ำเสียง: ปรับตามผลตอบรับ (${selected})`;
+      } else if (emphasisBadge) {
+        emphasisBadge.remove();
+      }
+    }
+  }
+
+  function updateExplanationEmphasis() {
+    const feedbackEntries = Object.entries(state.feedbackByPattern || {});
+    const indicator = findById("feedback-emphasis-indicator");
+    if (!indicator) {
+      return;
+    }
+    if (feedbackEntries.length === 0) {
+      indicator.textContent = "";
+      indicator.className = "pattern-feedback-emphasis-hidden";
+      return;
+    }
+    indicator.className = "pattern-feedback-emphasis";
+    const matched = feedbackEntries.filter(([, v]) => v === "ตรงมาก" || v === "ค่อนข้างตรง").length;
+    const diff = feedbackEntries.filter(([, v]) => v === "ไม่ตรง").length;
+    let note = "💡 การปรับน้ำเสียงคำอธิบาย: ";
+    if (matched > diff) {
+      note += `เน้นคำอธิบายเชิงยืนยันตามประสบการณ์จริง (${matched} ช่วงตรงกัน)`;
+    } else if (diff > 0) {
+      note += `เน้นคำเตือนเชิงป้องกันและทางเลือกสำรอง (${diff} ช่วงไม่ตรง)`;
+    } else {
+      note += "เน้นสังเกตการณ์จังหวะชีวิตปัจจุบันเป็นหลัก";
+    }
+    indicator.textContent = note;
   }
 
   function persistFeedbackIfConsented() {
@@ -376,9 +415,7 @@
 
   function enforceNoPersistenceWithoutConsent() {
     const consent = findById("feedback-consent");
-    if (!consent || consent.checked) {
-      return;
-    }
+    if (!consent || consent.checked) return;
     try {
       window.localStorage.removeItem(FEEDBACK_STORAGE_KEY);
     } catch {
@@ -433,6 +470,14 @@
       (data.past_patterns || []).forEach((pattern) => container.appendChild(createPastPatternCard(pattern)));
       card.appendChild(container);
 
+      const emphasisIndicator = makeNode("div", {
+        id: "feedback-emphasis-indicator",
+        className: "pattern-feedback-emphasis",
+        role: "status",
+        "aria-live": "polite",
+      });
+      card.appendChild(emphasisIndicator);
+
       const consentRow = makeNode("div", { className: "toggle-row", role: "group", "aria-label": "Consent controls" });
       consentRow.appendChild(makeNode("input", { id: "feedback-consent", type: "checkbox", name: "feedback-consent" }));
       consentRow.appendChild(makeNode("label", { for: "feedback-consent" }, "ยอมรับการเก็บผลตอบรับเพื่อปรับน้ำเสียงเฉพาะหน้าได้"));
@@ -445,9 +490,11 @@
             persistFeedbackIfConsented();
           } else {
             enforceNoPersistenceWithoutConsent();
+            updateExplanationEmphasis();
           }
         });
         loadFeedbackFromStorage();
+        updateExplanationEmphasis();
       }
       return card;
     }
