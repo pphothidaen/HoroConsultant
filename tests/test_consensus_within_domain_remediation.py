@@ -212,3 +212,115 @@ def test_cross_domain_difference_not_conflict() -> None:
         )
 
     assert result["arbitration_status"] == "ARBITRATED"
+
+
+# ---------------------------------------------------------------------------
+# 6. Empty claims dictionary → low agreement (CHANGES_REQUESTED P1 #2)
+# ---------------------------------------------------------------------------
+def test_empty_claims_low_agreement() -> None:
+    """With an empty claim dictionary all domains yield unknown agreement.
+    Missing evidence must NOT certify high agreement (must be below 0.75)."""
+
+    claims_per_month = [
+        {
+            "month": m,
+            "tradition_claims": {},
+        }
+        for m in range(1, 13)
+    ]
+    months = [{"month": m} for m in range(1, 13)]
+
+    result = arbitrate_monthly_consensus(
+        months, tradition_monthly_claims=claims_per_month
+    )
+
+    for claim in result["monthly_consensus"]:
+        # With no traditions at all, domain agreement is unknown (0.5)
+        # and the aggregate is 0.5, well below 0.75
+        assert claim["agreement_score"] < 0.75, (
+            f"Month {claim['month']}: empty claims must NOT produce high "
+            f"agreement (got {claim['agreement_score']})"
+        )
+
+
+# ---------------------------------------------------------------------------
+# 7. Domain averaging must not mask single-domain conflict
+#    (CHANGES_REQUESTED P1 #3)
+# ---------------------------------------------------------------------------
+def test_single_domain_conflict_not_masked_by_averaging() -> None:
+    """One domain with spread=7 (agreement ~0.3) and two domains that fully
+    agree (agreement=1.0) must still flag conflict, even though the average
+    would be ~0.767 (above 0.75)."""
+
+    claims_per_month = [
+        {
+            "month": m,
+            "tradition_claims": {
+                "thai_suriyayart": {
+                    "career_score": 9,
+                    "finance_score": 5,
+                    "love_score": 5,
+                    "claim": "strong career",
+                },
+                "bazi_liu_yue": {
+                    "career_score": 2,
+                    "finance_score": 5,
+                    "love_score": 5,
+                    "claim": "weak career",
+                },
+                "zi_wei": {
+                    "career_score": 2,
+                    "finance_score": 5,
+                    "love_score": 5,
+                    "claim": "cautious career",
+                },
+            },
+        }
+        for m in range(1, 13)
+    ]
+    months = [{"month": m} for m in range(1, 13)]
+
+    result = arbitrate_monthly_consensus(
+        months, tradition_monthly_claims=claims_per_month
+    )
+
+    for claim in result["monthly_consensus"]:
+        # career agreement = 1 - 7/10 = 0.3, finance = 1.0, love = 1.0
+        # Average = (0.3 + 1.0 + 1.0) / 3 = 0.767, which WOULD pass 0.75
+        # But career domain individually is below 0.75, so conflict MUST be
+        # detected via per-domain check.
+        assert claim["conflict_detected"] is True, (
+            f"Month {claim['month']}: single-domain conflict (career) "
+            f"must be detected even when averaging would mask it"
+        )
+        # Verify per-domain detail shows the career conflict
+        domain_agr = claim.get("domain_agreements", {})
+        assert domain_agr.get("career_score", 1.0) < 0.75, (
+            f"Month {claim['month']}: career domain agreement must be "
+            f"below threshold"
+        )
+
+    assert result["arbitration_status"] == "ARBITRATED_WITH_CONFLICTS"
+
+
+# ---------------------------------------------------------------------------
+# 8. Default tradition claims carry proxy flag (CHANGES_REQUESTED P1 #1)
+# ---------------------------------------------------------------------------
+def test_default_tradition_claims_carry_proxy_flag() -> None:
+    """Default claims are proxy-sourced and must be flagged as such."""
+
+    month_data = {
+        "month": 6,
+        "career_score": 7,
+        "finance_score": 4,
+        "love_score": 8,
+    }
+
+    claims = _default_tradition_claims(month_data, seed=42)
+
+    for tradition_name, tradition_data in claims.items():
+        assert tradition_data.get("proxy") is True, (
+            f"Tradition '{tradition_name}': default claims must carry "
+            f"proxy=True flag"
+        )
+
