@@ -323,4 +323,3 @@ def test_default_tradition_claims_carry_proxy_flag() -> None:
             f"Tradition '{tradition_name}': default claims must carry "
             f"proxy=True flag"
         )
-
