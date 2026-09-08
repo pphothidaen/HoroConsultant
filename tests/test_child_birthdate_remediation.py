@@ -150,6 +150,16 @@ def test_young_person_insufficient_history_explicit_response(monkeypatch: pytest
         f"Child aged ~6 should have fewer than 3 past patterns, got {len(past_patterns)}"
     )
 
+    # When past_patterns is empty, the API must explicitly explain why
+    if len(past_patterns) == 0:
+        reason = payload.get("insufficient_history_reason")
+        assert reason is not None, (
+            "Empty past_patterns must include an insufficient_history_reason"
+        )
+        assert "insufficient history" in reason.lower(), (
+            f"Reason must mention 'insufficient history', got: {reason}"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Test 3: _candidate_years for child returns valid or empty list
