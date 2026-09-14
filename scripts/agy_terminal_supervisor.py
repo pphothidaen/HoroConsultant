@@ -369,6 +369,14 @@ def backend_spec(request: object) -> tuple[Path, Path]:
     return root, outside
 
 
+def _safe_hash(path: Path) -> str | None:
+    """Best-effort sha256 for plan-mode binding; None if unavailable or unsafe to hash."""
+    try:
+        return path_hash(path)
+    except Rejected:
+        return None
+
+
 def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     helper, program = Path('/usr/bin/sandbox-exec'), Path('/usr/bin/perl')
     helper_available = helper.is_file()
@@ -401,9 +409,9 @@ def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
                'owned_root': str(root), 'outside_canary_sha256': request['outside_canary_sha256'],
                'platform': platform_name,
                'helper': {'path': str(helper), 'available': helper_available,
-                          'sha256': path_hash(helper) if helper_available else None},
+                          'sha256': _safe_hash(helper) if helper_available else None},
                'program': {'path': str(program), 'available': program_available,
-                           'sha256': path_hash(program) if program_available else None},
+                           'sha256': _safe_hash(program) if program_available else None},
                'fixed_program_sha256': hashlib.sha256(code.encode()).hexdigest(),
                'profile': profile, 'profile_sha256': hashlib.sha256(profile.encode()).hexdigest()}
     return {'binding': binding, 'policy': {'filesystem_default': 'deny', 'network': 'deny',
