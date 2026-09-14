@@ -371,12 +371,19 @@ def backend_spec(request: object) -> tuple[Path, Path]:
 
 def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     helper, program = Path('/usr/bin/sandbox-exec'), Path('/usr/bin/perl')
-    require(sys.platform == 'darwin' and helper.is_file() and program.is_file(),
-            'OS_BACKEND_UNAVAILABLE')
+    helper_available = helper.is_file()
+    program_available = program.is_file()
+    platform_name = sys.platform
+    execution_available = platform_name == 'darwin' and helper_available and program_available
     # Exact root-directory access is needed by libignition's openat bootstrap.
     # No user/home, /private/var, or broad /System read exception is present.
-    runtime_trees = ['/usr/lib', '/System/Library', '/System/Cryptexes/OS',
-                     '/System/Volumes/Preboot/Cryptexes/OS']
+    # Darwin-only sandbox profile paths; on Linux the profile is informational
+    # (execution_available=False means no sandbox is invoked at runtime).
+    if platform_name == 'darwin':
+        runtime_trees = ['/usr/lib', '/System/Library', '/System/Cryptexes/OS',
+                         '/System/Volumes/Preboot/Cryptexes/OS']
+    else:
+        runtime_trees = []
     runtime_files = ['/', str(program), '/dev/null']
     quote = lambda p: json.dumps(str(p), ensure_ascii=False)
     runtime = ' '.join('(subpath ' + quote(p) + ')' for p in runtime_trees)
@@ -392,14 +399,18 @@ def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     binding = {'source_sha256': path_hash(Path(__file__).resolve()),
                'session_id': request['session_id'], 'owned_manifest': request['owned_manifest'],
                'owned_root': str(root), 'outside_canary_sha256': request['outside_canary_sha256'],
-               'helper': {'path': str(helper), 'sha256': path_hash(helper)},
-               'program': {'path': str(program), 'sha256': path_hash(program)},
+               'platform': platform_name,
+               'helper': {'path': str(helper), 'available': helper_available,
+                          'sha256': path_hash(helper) if helper_available else None},
+               'program': {'path': str(program), 'available': program_available,
+                           'sha256': path_hash(program) if program_available else None},
                'fixed_program_sha256': hashlib.sha256(code.encode()).hexdigest(),
                'profile': profile, 'profile_sha256': hashlib.sha256(profile.encode()).hexdigest()}
     return {'binding': binding, 'policy': {'filesystem_default': 'deny', 'network': 'deny',
             'runtime_read_allowlist': runtime_trees + runtime_files,
             'runtime_directory_reads': ['/'], 'writable_subtree': str(scratch / 'writable')},
-            'environment': request['environment']}
+            'environment': request['environment'], 'execution_available': execution_available,
+            'platform': platform_name}
 
 
 def collect_probe(argv: list[str], environment: dict, limits: dict, response: dict) -> dict:
@@ -479,10 +490,14 @@ def backend(request: object, response: dict) -> int:
             raise
         response.update(status='UNSUPPORTED', reason_code='OS_BACKEND_UNAVAILABLE')
         return 1
-    response.update(plan)
     if request['operation'] == 'plan':
+        response.update(plan)
         response['status'] = 'PLANNED'
         return 0
+    if not plan['execution_available']:
+        response.update(status='UNSUPPORTED', reason_code='OS_BACKEND_UNAVAILABLE')
+        return 1
+    response.update(plan)
     code = FILESYSTEM_PROGRAM if request['probe_id'] == 'filesystem' else LIFECYCLE_PROGRAM
     # Anchor creation/removal to open no-follow descriptors. Never recursively
     # remove caller paths or accept caller-selected scratch/helper/program bytes.

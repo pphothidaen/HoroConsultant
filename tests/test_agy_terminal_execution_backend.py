@@ -90,8 +90,14 @@ def assert_binding(spec, response):
     for key in ("helper", "program"):
         item = binding.get(key, {})
         path = Path(item.get("path", ""))
-        assert path.is_absolute() and path.is_file(), "BACKEND_EXECUTABLE_NOT_PINNED"
-        assert item.get("sha256") == sha(path), "BACKEND_EXECUTABLE_HASH_MISMATCH"
+        assert path.is_absolute(), "BACKEND_EXECUTABLE_NOT_PINNED"
+        if response.get("status") == "PLANNED" and not path.is_file():
+            assert item.get("available") is False, "MISSING_EXECUTABLE_AVAILABILITY_FABRICATED"
+            assert item.get("sha256") is None, "MISSING_EXECUTABLE_HASH_FABRICATED"
+            assert response.get("execution_available") is False
+        else:
+            assert path.is_file(), "BACKEND_EXECUTABLE_NOT_PINNED"
+            assert item.get("sha256") == sha(path), "BACKEND_EXECUTABLE_HASH_MISMATCH"
         assert path.name not in {"sh", "bash", "zsh", "agy", "gemini", "codex", "claude"}, "SHELL_OR_PROVIDER_PROGRAM_DENIED"
     profile = binding.get("profile", "")
     assert profile and binding.get("profile_sha256") == hashlib.sha256(profile.encode()).hexdigest()
@@ -192,3 +198,78 @@ def test_existing_run_gate_cannot_be_bypassed_with_backend_claim():
                             switch="--request-json")
     assert code != 0 and response.get("reason_code") == "SANDBOX_NOT_PROVEN"
     assert response.get("child_started") is False
+
+
+@pytest.fixture
+def linux_spec(spec):
+    import tempfile
+
+    # Use a real fixture under /tmp, valid under both Linux and Darwin policies.
+    with tempfile.TemporaryDirectory(prefix="horo-linux-plan-", dir="/tmp") as directory:
+        root = Path(directory).resolve()
+        owned = root / "owned"
+        owned.mkdir()
+        (owned / "input.txt").write_text("owned input\n")
+        outside = root / "outside-canary.txt"
+        outside.write_text(CANARY)
+        spec.update(owned_root=str(owned), outside_canary=str(outside))
+        yield spec
+
+
+@pytest.mark.parametrize("probe_id", list(CONTROLS))
+@pytest.mark.parametrize("operation", ["plan", "probe"])
+@pytest.mark.parametrize("platform", ["linux", "darwin-missing-helper"])
+def test_linux_plan_is_pure_but_execution_remains_unavailable(linux_spec, monkeypatch, probe_id, operation, platform):
+    """Simulated platform branch regression; never evidence of Linux OS isolation."""
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = linux_spec
+    module_spec = importlib.util.spec_from_file_location("supervisor_linux_contract", SOURCE)
+    supervisor = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(supervisor)
+    # Change only this module's platform view, not pytest or the host interpreter.
+    platform_view = dict(vars(sys))
+    platform_view["platform"] = "linux" if platform == "linux" else "darwin"
+    monkeypatch.setattr(supervisor, "sys", SimpleNamespace(**platform_view))
+    if platform == "darwin-missing-helper":
+        original_is_file = Path.is_file
+        monkeypatch.setattr(Path, "is_file", lambda p: False if str(p) == "/usr/bin/sandbox-exec"
+                            else original_is_file(p))
+
+    def forbidden_launch(*args, **kwargs):
+        pytest.fail("UNSUPPORTED_PLATFORM_MUST_NOT_LAUNCH")
+
+    monkeypatch.setattr(supervisor, "collect_probe", forbidden_launch)
+    spec.update(operation=operation, probe_id=probe_id)
+    before = snapshot(spec)
+    entries_before = sorted(Path(spec["owned_root"]).rglob("*"))
+    response = {"native_proof": False, "auth_isolation": "NOT_PROVEN", "child_started": False}
+    code = supervisor.backend(spec, response)
+    assert response["child_started"] is False
+    assert response["native_proof"] is False
+    assert response["auth_isolation"] == "NOT_PROVEN"
+    assert response["capability"] == "UNPROVEN"
+    assert response["verified_controls"] == []
+    assert snapshot(spec) == before
+    assert sorted(Path(spec["owned_root"]).rglob("*")) == entries_before
+    assert sha(Path(spec["outside_canary"])) == spec["outside_canary_sha256"]
+    if operation == "plan":
+        assert code == 0 and response.get("status") == "PLANNED", "PURE_LINUX_BACKEND_PLAN_REJECTED"
+        assert response.get("execution_available") is False, "UNSUPPORTED_PLAN_IS_NOT_EXECUTION_PROOF"
+        assert response.get("binding", {}).get("helper", {}).get("path") == "/usr/bin/sandbox-exec"
+        # Explicit platform field binding (F4 regression guard)
+        expected_platform = "linux" if platform == "linux" else "darwin"
+        assert response.get("binding", {}).get("platform") == expected_platform, "PLATFORM_FIELD_MISMATCH"
+        assert response.get("platform") == expected_platform, "TOPLEVEL_PLATFORM_MISMATCH"
+        # Darwin-only runtime_trees must be empty when simulated platform is Linux
+        if platform == "linux":
+            policy = response.get("policy", {})
+            allowlist = policy.get("runtime_read_allowlist", [])
+            # Linux should only have runtime_files (/, /usr/bin/perl, /dev/null), NOT Darwin runtime_trees
+            assert "/System/Library" not in allowlist, "DARWIN_PATHS_LEAKED_TO_LINUX"
+            assert "/usr/lib" not in allowlist, "DARWIN_PATHS_LEAKED_TO_LINUX"
+        assert_binding(spec, response)
+    else:
+        assert code != 0 and response.get("status") == "UNSUPPORTED"
+        assert response.get("reason_code") == "OS_BACKEND_UNAVAILABLE"
