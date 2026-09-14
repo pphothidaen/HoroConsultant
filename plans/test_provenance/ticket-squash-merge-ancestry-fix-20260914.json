@@ -1,0 +1,58 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-FIX",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a45e065a57c3b62160d4b96fb35e79b881fb6d87",
+  "test_files": [
+    {
+      "path": "tests/test_squash_merge_ancestry_contract.py",
+      "sha256": "d7f55fb673a51cb6591cad0643bb1b31f0d1d491c57de6ddb90aa635df7e3f78"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_squash_merge_ancestry_contract.py::test_release_metadata_valid_after_squash"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "version.json lacks schema_version field"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_squash_merge_ancestry_contract.py::test_squash_merge_detected"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "detect_squash_merge function not found"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_squash_merge_ancestry_contract.py::test_squash_merged_release_recovers"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "recover_from_squash_merge function not found"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/stamp_version.py",
+    "scripts/test_provenance_guard.py",
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0000000000000000000000000000000000000000",
+  "correction_reason": "Fix squash merge ancestry detection and recovery for release provenance metadata",
+  "rationale": "TDD fix: detect_squash_merge + recover_squash_merge in stamp_version.py, --post-squash-merge flag in test_provenance_guard.py. All 23 tests pass."
+}

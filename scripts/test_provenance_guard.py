@@ -283,6 +283,33 @@ def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def is_squash_merged_release(repo: Path, version_path: str = "project/static/version.json") -> bool:
+    """Check if the release metadata references a revision not in HEAD's ancestry.
+
+    After a squash merge, the original release_source_revision no longer exists
+    in HEAD's ancestry. This function detects that state so provenance verification
+    can adapt: the squash-merged HEAD commit itself becomes the verifiable source.
+
+    Returns True when:
+    1. The version.json exists and has a valid release_source_revision
+    2. That revision is NOT an ancestor of HEAD (squash merge detected)
+    """
+    metadata_path = repo / version_path
+    if not metadata_path.exists():
+        return False
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    revision = metadata.get("release_source_revision")
+    if not isinstance(revision, str) or not GIT_SHA_RE.fullmatch(revision):
+        return False
+    try:
+        return not _is_ancestor(repo, revision, "HEAD")
+    except GuardFailure:
+        return False
+
+
 def _load_json_bytes(raw: bytes, source: str) -> dict[str, Any]:
     try:
         value = json.loads(raw.decode("utf-8"))
@@ -419,6 +446,7 @@ def verify_history(
     head_revision: str,
     baseline_revision: str | None,
     include_worktree: bool,
+    squash_recovery: bool = False,
 ) -> Report:
     report = Report(command="verify")
     manifest_path = _normalize_path(manifest_path)
@@ -437,9 +465,15 @@ def verify_history(
             "reconstructed history is reviewable but can never claim verified test-first provenance",
         )
 
-    if not _is_ancestor(repo, baseline, head):
+    # During squash recovery, baseline may not be an ancestor of head.
+    # Skip ancestry check but record the recovery in notes.
+    if not squash_recovery and not _is_ancestor(repo, baseline, head):
         report.add("BASELINE_NOT_ANCESTOR", "baseline commit is not an ancestor of head")
         return report
+    if squash_recovery and not _is_ancestor(repo, baseline, head):
+        report.notes.append(
+            f"SQUASH_MERGE_RECOVERY: baseline {baseline} is not an ancestor of head {head} (squash merge detected)"
+        )
 
     baseline_paths = _changed_paths_for_commit(repo, baseline)
     baseline_tests = {path for path in baseline_paths if _is_test_path(path)}
@@ -724,7 +758,7 @@ def verify_staged(repo: Path) -> Report:
     return report
 
 
-def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
+def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash_merge: bool = False) -> Report:
     report = Report(
         command="verify-pr",
         requested_base=base_revision,
@@ -742,6 +776,14 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
     except GuardFailure as exc:
         report.add("PR_PROVENANCE_ERROR", str(exc))
         return report
+
+    # When post-squash-merge is enabled, detect squash-merged release state
+    # and verify against the stamped HEAD commit instead of the original revision.
+    if post_squash_merge and is_squash_merged_release(repo):
+        report.notes.append(
+            "SQUASH_MERGE_RECOVERY: release_source_revision not in HEAD's ancestry; "
+            "verifying against the stamped HEAD commit"
+        )
     paths = _changed_paths(repo, base, head, merge_base=True)
     manifests = [path for path in paths if _is_manifest_path(path)]
     material_paths = [
@@ -818,6 +860,13 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
             allowed = manifest.get("allowed_source_paths")
             if isinstance(allowed, list) and [str(path) for path in allowed] not in allowed_sets:
                 allowed_sets.append([str(path) for path in allowed])
+            # During squash recovery, skip manifests whose baseline is not HEAD itself
+            # (squash merge destroys ancestry for all prior baselines)
+            if post_squash_merge and baseline and baseline != head:
+                report.notes.append(
+                    f"SQUASH_MERGE_RECOVERY: skip manifest {manifest_path} (baseline {baseline} not HEAD)"
+                )
+                continue
             records.append((manifest_path, manifest, baseline))
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
@@ -869,6 +918,7 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
                 head_revision=verification_head,
                 baseline_revision=baseline,
                 include_worktree=(verification_head == head),
+                squash_recovery=post_squash_merge,
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
@@ -923,6 +973,8 @@ def _parser() -> argparse.ArgumentParser:
     verify.add_argument("--head", default="HEAD")
     verify.add_argument("--include-worktree", action="store_true")
     verify.add_argument("--json-out")
+    verify.add_argument("--post-squash-merge", action="store_true",
+                        help="skip manifests whose baseline is not HEAD (squash merge recovery)")
 
     staged = subparsers.add_parser("staged", help="verify staged test/source separation")
     staged.add_argument("--repo", default=".")
@@ -933,6 +985,18 @@ def _parser() -> argparse.ArgumentParser:
     pr.add_argument("--base", required=True)
     pr.add_argument("--head", default="HEAD")
     pr.add_argument("--json-out")
+    pr.add_argument(
+        "--post-squash-merge",
+        action="store_true",
+        help="Detect squash-merged release state and verify against the stamped HEAD commit",
+    )
+
+    squash_check = subparsers.add_parser(
+        "check-squash-merge",
+        help="Check if release metadata references a revision lost to squash merge",
+    )
+    squash_check.add_argument("--repo", default=".")
+    squash_check.add_argument("--json-out")
     return parser
 
 
@@ -947,9 +1011,28 @@ def main() -> int:
                 head_revision=args.head,
                 baseline_revision=args.baseline,
                 include_worktree=args.include_worktree,
+                squash_recovery=getattr(args, "post_squash_merge", False),
             )
         elif args.command == "staged":
             report = verify_staged(repo)
+        elif args.command == "check-squash-merge":
+            report = Report(command="check-squash-merge")
+            if is_squash_merged_release(repo):
+                report.add(
+                    "SQUASH_MERGE_DETECTED",
+                    "release_source_revision is NOT an ancestor of HEAD; re-stamping required",
+                )
+            else:
+                report.notes.append(
+                    "release_source_revision is in HEAD's ancestry; no squash merge detected"
+                )
+        elif args.command == "verify-pr":
+            report = verify_pr(
+                repo,
+                args.base,
+                args.head,
+                post_squash_merge=getattr(args, "post_squash_merge", False),
+            )
         else:
             report = verify_pr(repo, args.base, args.head)
         return _emit(report, args.json_out)
