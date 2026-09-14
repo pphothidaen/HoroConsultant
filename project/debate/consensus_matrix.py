@@ -36,11 +36,13 @@ _DOMAIN_KEYS = ("career_score", "finance_score", "love_score")
 def _extract_domain_scores(
     tradition_claims: dict[str, dict[str, Any]],
 ) -> dict[str, list[float]]:
-    """Collect per-domain scores across traditions, skipping None/non-numeric."""
+    """Collect independent per-domain scores, skipping proxy/non-numeric claims."""
 
     domain_scores: dict[str, list[float]] = {d: [] for d in _DOMAIN_KEYS}
     for _tradition_name, claim in tradition_claims.items():
         if not isinstance(claim, dict):
+            continue
+        if claim.get("proxy") is True:
             continue
         for domain in _DOMAIN_KEYS:
             val = claim.get(domain)

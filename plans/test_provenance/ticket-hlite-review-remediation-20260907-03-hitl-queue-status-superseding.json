@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-03-HITL-QUEUE-STATUS-SUPERSEDING",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "37c899891fbb9e63594e864b98524ec995da2379",
+  "test_files": [
+    {
+      "path": "tests/test_hitl_queue_wiring_remediation.py",
+      "sha256": "6662a17d516dcddfff842094b309fa1b82ab2fcc62c305db967c4648ce55ffa4"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_hitl_queue_wiring_remediation.py::test_enqueue_failure_does_not_break_reading"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Legacy expectation conflicted with the Package 10 persistence truth contract by accepting QUEUED_FOR_HUMAN_REVIEW after HITL storage failure."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/unified_reading_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "70e0bcb9a58a86053536f44fc84b14e1bd393beb",
+  "correction_reason": "Package 10 established that QUEUED_FOR_HUMAN_REVIEW may be reported only after successful HITL persistence. This supersedes the older Package 03 compatibility expectation for the enqueue-failure case while preserving the no-exception response contract.",
+  "rationale": "The corrected test keeps the original safety property that a reading response must still return when HITL storage fails, and adds the stricter truthfulness requirement that the public routing status must not claim a successful queue write.",
+  "baseline_state": "PROSPECTIVE_SUPERSEDING_TEST_CORRECTION",
+  "source_admission": "SOURCE_REPAIR_BOUND_TO_PACKAGE_10_HITL_PERSISTENCE_CONTRACT"
+}

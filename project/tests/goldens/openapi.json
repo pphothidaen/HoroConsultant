@@ -4271,6 +4271,48 @@
             "minimum": 1.0,
             "title": "Love Score"
           },
+          "career_score_range": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Career Score Range"
+          },
+          "finance_score_range": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finance Score Range"
+          },
+          "love_score_range": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Love Score Range"
+          },
           "confidence": {
             "type": "string",
             "enum": [
@@ -4306,7 +4348,7 @@
           "reasons"
         ],
         "title": "MonthlyScoreItem",
-        "description": "Per-month user-facing scores with deterministic evidence basis."
+        "description": "Per-month user-facing scores with deterministic evidence basis.\n\nWhen ``unknown_hour`` is True, the ``*_score_range`` fields carry the\nuncertainty bounds and the single ``*_score`` fields contain the range\nmidpoint for backward compatibility."
       },
       "PastPatternCandidate": {
         "properties": {
@@ -4959,8 +5001,19 @@
             },
             "type": "array",
             "maxItems": 5,
-            "minItems": 3,
+            "minItems": 0,
             "title": "Past Patterns"
+          },
+          "insufficient_history_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insufficient History Reason"
           },
           "consensus_metadata": {
             "additionalProperties": true,

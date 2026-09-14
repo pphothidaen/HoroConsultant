@@ -62,9 +62,11 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
    - [1.4 การดูบทวิเคราะห์ AI & Gemini Audit Tabs](#14-การดูบทวิเคราะห์-ai--gemini-audit-tabs)
    - [1.5 การกดคำนวณผัง 9 ศาสตร์ย่อย (5-Branch Metaphysics)](#15-การกดคำนวณผัง-9-ศาสตร์ย่อย-5-branch-metaphysics)
    - [1.6 การใช้งาน OpenAPI Interactive API Documentation (/docs, /redoc)](#16-การใช้งาน-openapi-interactive-api-documentation-docs-redoc)
+   - [1.7 คู่มือ Unified Reading API, Edge Cases และ Calibration Dynamics](#17-คู่มือ-unified-reading-api-edge-cases-และ-calibration-dynamics)
 2. [🔐 คู่มือสำหรับ Admin & นักอภิมหาโหร (Admin & HITL Reviewer Guide)](#2-คู่มือสำหรับ-admin--นักอภิมหาโหร-admin--hitl-reviewer-guide)
    - [2.1 การใช้งาน Admin Panel & Knowledge Catalog](#21-การใช้งาน-admin-panel--knowledge-catalog)
    - [2.2 การใช้งาน HITL Review Studio & Confidence Heatmap](#22-การใช้งาน-hitl-review-studio--confidence-heatmap)
+   - [2.3 Horo Lite Governance & Remediated Behavioral Contracts (HITL, Consensus, & Proxy Semantics)](#23-horo-lite-governance--remediated-behavioral-contracts-hitl-consensus--proxy-semantics)
 3. [💻 คู่มือการใช้งานบนแพลตฟอร์มต่างๆ สำหรับนักพัฒนา (Multi-Platform Developer How-To)](#3-คู่มือการใช้งานบนแพลตฟอร์มต่างๆ-สำหรับนักพัฒนา-multi-platform-developer-how-to)
    - [3.1 Local Development Platform (macOS / Linux)](#31-local-development-platform-macos--linux)
    - [3.2 Docker Deployment Platform (Ubuntu Production)](#32-docker-deployment-platform-ubuntu-production)
@@ -170,6 +172,42 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
 - **📘 Swagger UI Interactive Documentation (`http://localhost:8000/docs`)**
 - **📕 ReDoc Schema Explorer (`http://localhost:8000/redoc`)**
 
+---
+
+### 1.7 คู่มือ Unified Reading API, Edge Cases และ Calibration Dynamics
+
+ระบบ Horo Lite รองรับ Unified Reading API (`POST /api/v1/reading/unified`) เพื่อการพยากรณ์ภาพรวมประจำปีแบบครบวงจร พร้อมกลไกจัดการกรณีขอบเขต (Edge Cases) และระบบปรับแต่งความสอดคล้องตามข้อเสนอแนะ (Calibration Feedback):
+
+#### 1. การจัดการกรณีไม่ทราบเวลาเกิด (Unknown Hour Semantics: `unknown_hour=True`)
+- **การละเว้นเสายามและลัคนา**: เมื่อผู้ใช้ระบุ `unknown_hour: true` (หรือส่งค่า `birth_time` เป็น null) ระบบจะคำนวณเฉพาะปัจจัย วัน เดือน และปีเกิดที่แน่นอนเท่านั้น โดยตัดการคำนวณเสายาม (BaZi Hour Pillar) และลัคนาไทย (Thai Lagna) ออกทั้งหมด เพื่อหลีกเลี่ยงความแม่นยำเท็จ (False Precision)
+- **การกระจายช่วงคะแนนความไม่แน่นอน (Score Ranges)**: แทนที่จะสุ่มหรือใช้ค่ากึ่งกลาง (Midpoint Substitution) ระบบจะรายงานคะแนนเป็นช่วงความน่าจะเป็น (`career_score_range`, `finance_score_range`, `love_score_range`) และปรับลดระดับความเชื่อมั่นโดยรวมเป็น `ESTIMATED` หรือ `LOW` พร้อมป้องกันระบบขัดข้องด้วยข้อผิดพลาด HTTP 500
+
+#### 2. การจัดการดวงชะตาเด็กและผู้เยาว์ (Child Birth Date Handling)
+- **ประวัติในอดีตไม่เพียงพอ (Insufficient Past History)**: สำหรับดวงชะตาที่ยังไม่มีประวัติชีวิตในวัยผู้ใหญ่เพียงพอ (เช่น เด็กอายุต่ำกว่า 8 ปี หรือปีเป้าหมายใกล้เคียงกับปีเกิด) ระบบจะตอบกลับด้วย `HTTP 200 OK` โดยส่งรายการ `past_patterns: []` ว่างเปล่า พร้อมแนบฟิลด์ระบุเหตุผลชัดเจน `insufficient_history_reason: "Subject is a child with insufficient past adult event history"` แทนการพ่นข้อผิดพลาด HTTP 500 หรือการแต่งเรื่องราวในอดีตขึ้นมาเอง
+- **การคัดกรองวันเกิดที่ไม่สมเหตุสมผล**: ระบบจะปฏิเสธวันเกิดที่เป็นอนาคตเมื่อเทียบกับปีเป้าหมาย (`birth_date.year > target_year`) หรือปีเป้าหมายก่อนปีเกิดทันทีในชั้น Schema Validation
+
+#### 3. โครงสร้างคำแนะนำ 12 หมวดตามหลักฐาน (12 Distinct Topic Guidances)
+- ผลลัพธ์ Unified Reading จะสร้างหัวข้อคำพยากรณ์ 12 หมวดตามลำดับมาตรฐานที่ล็อกไว้ (`CANONICAL_TOPIC_IDS`):
+  1. `personal_overview_strengths` (ภาพรวมตัวตนและจุดแข็ง)
+  2. `past_pattern_calibration` (การเทียบเคียงเหตุการณ์ในอดีต)
+  3. `annual_overview` (ภาพรวมเกณฑ์ชะตาประจำปี)
+  4. `career_business` (การงานและธุรกิจ)
+  5. `finance` (การเงินและโชคลาภ)
+  6. `love_relationships` (ความรักและความสัมพันธ์)
+  7. `health_wellbeing` (สุขภาพและสุขภาวะ)
+  8. `family_surrounding_people` (ครอบครัวและคนรอบข้าง)
+  9. `opportunities_caution_periods` (จังหวะโอกาสและช่วงพึงระวัง)
+  10. `twelve_month_roadmap` (แผนที่นำทางราย 12 เดือน)
+  11. `top_priorities_cautions` (สิ่งสำคัญอันดับแรกและข้อควรระวัง)
+  12. `export_sharing_actions` (ข้อปฏิบัติและแนวทางส่งออกข้อมูล)
+- ทุกหัวข้อจะสร้างข้อความสรุป (`summary`) และคำแนะนำ (`guidance`) ที่มีความเฉพาะตัว ไม่ซ้ำกัน (Distinct Content) อ้างอิงตามคะแนนมิติจริง พร้อมการระบุรายการอ้างอิงหลักฐานทางโหราศาสตร์ (`evidence_refs`) ชัดเจน
+
+#### 4. พลวัตระบบ Calibration Feedback และความเป็นส่วนตัว (Consent & Privacy)
+- **การปรับเน้นคำอธิบาย (Explanation Emphasis)**: เมื่อผู้ใช้เลือก Feedback บน Past Pattern (`ตรง`, `ตรงบางส่วน`, `ไม่ตรง`, `จำไม่ได้`) ระบบจะอัปเดตน้ำหนักการอธิบายในหน้าจอ DOM โดยตรง (ผ่าน `.pattern-feedback-emphasis` และฟังก์ชัน `updateExplanationEmphasis`) เพื่อปรับโฟกัสบริบทการพยากรณ์
+- **ความไม่แปรเปลี่ยนของคะแนนและข้อเท็จจริง (Fact Immutability)**: การให้ Feedback จะไม่มีผลเปลี่ยนแปลงตัวเลขคะแนนดวงชะตา (`monthly_scores`), วันเดือนปีเกิด (`birth_date`) หรือข้อเท็จจริงทางโหราศาสตร์ใดๆ ทั้งสิ้น
+- **ความยินยอมก่อนจัดเก็บ (Consent Precedes Persistence)**: ข้อมูล Feedback จะถูกบันทึกลงใน `localStorage` ของเบราว์เซอร์ **ต่อเมื่อ** ผู้ใช้ทำเครื่องหมายยินยอมในกล่อง `#feedback-consent` เท่านั้น
+- **การเพิกถอนสิทธิ์จะล้างข้อมูลทันที (Withdrawal Clears Storage)**: หากผู้ใช้ยกเลิกเครื่องหมายยินยอม ฟังก์ชัน `enforceNoPersistenceWithoutConsent()` จะลบกุญแจ `FEEDBACK_STORAGE_KEY` ออกจากเบราว์เซอร์ทันที และระบบจัดการ Feedback จะถูกแยกขาดตามแต่ละ Pattern ID (`state.feedbackByPattern[patternId]`) โดยไม่มีการปนเปื้อนข้ามชุดข้อมูล
+
 
 ---
 
@@ -228,20 +266,52 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
 4. **การส่งออกชุดข้อมูลเพื่อ Fine-Tune (Export JSONL):**
    - คลิกปุ่ม **"📥 Export Approved JSONL Dataset"** เพื่อดาวน์โหลดไฟล์ `hitl_approved.jsonl` นำไปใช้ปรับแต่งโมเดลในรอบถัดไป
 
-### 2.3 Horo Lite Annual Timing HITL Metadata
+### 2.3 Horo Lite Governance & Remediated Behavioral Contracts (HITL, Consensus, & Proxy Semantics)
 
-Horo Lite annual timing returns three governance fields with the reading:
-`consensus_metadata`, `hitl_flags`, and `hitl_routing`.
+ระบบ Horo Lite Annual Timing และ Unified Reading ส่งคืนฟิลด์กำกับดูแล 3 ส่วนร่วมกับผลการอ่าน:
+`consensus_metadata`, `hitl_flags`, และ `hitl_routing` พร้อมทั้งปฏิบัติตามสัญญาการทำงาน (Behavioral Contracts) ที่ได้รับการตรวจสอบความปลอดภัย:
 
-- `consensus_metadata` includes `consensus_score`,
-  `arbitration_status`, `traditions_considered`, monthly arbitration records,
-  and `consensus_matrix_source: project.debate.consensus_matrix`.
-- `hitl_routing.status` must be `QUEUED_FOR_HUMAN_REVIEW` when any fail-closed
-  trigger applies: low consensus, tradition conflict, `force_human_review`, or
-  unknown/uncertain birth time.
-- `hitl_routing.status` may be `NOT_REQUIRED` only when no HITL trigger applies.
-- LLM and copy layers may rewrite presentation text only; they may not mutate
-  deterministic scores, dates, or facts.
+#### 1. สัญญาคิวตรวจทาน HITL และระบบ Fail-Closed (HITL Review Queue Persistence)
+- **การยืนยันการบันทึกก่อนแจ้งสถานะสำเร็จ**:
+  - สถานะ `hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"` จะถูกส่งกลับให้ผู้ใช้และระบบภายนอก **เฉพาะหลังจาก** ข้อมูลถูกบันทึกลงฐานข้อมูล HITL Review สำเร็จเรียบร้อยแล้วเท่านั้น (`upsert_external_hitl_item`)
+- **การรายงานข้อผิดพลาดแบบ Fail-Closed เมื่อบันทึกล้มเหลว (Persistence Failure)**:
+  - หากระบบจัดเก็บข้อมูลล้มเหลว (เช่น Disk เต็ม, การเชื่อมต่อฐานข้อมูลขัดข้อง) ระบบจะไม่เกิด Crash 500 แต่จะส่งคืนสถานะแจ้งเตือนข้อผิดพลาดแบบ Fail-Closed ทันที:
+    ```json
+    {
+      "status": "HITL_ENQUEUE_FAILED",
+      "reason": "hitl_persistence_failed",
+      "queued": false
+    }
+    ```
+  - พร้อมทั้งส่งสัญญาณเตือน (Warning Log) เพื่อให้ระบบสังเกตการณ์ (Monitoring) ทราบว่าการคัดกรองเข้าสู่คิวของมนุษย์ล้มเหลว
+- **การทำงานแบบ Idempotent**:
+  - การ Enqueue ถูกผูกด้วย `request_id` ที่มีความเฉพาะตัว หากมีการเรียกซ้ำด้วยพารามิเตอร์เดิม ระบบจะทำการ Upsert รายการเดิมแทนที่จะสร้างรายการซ้ำซ้อนในคิว
+
+#### 2. ความเป็นอิสระของ Consensus Matrix (Consensus Matrix Independence)
+- **การแยกแยะ Proxy Claims ออกจากการ Corroborate**:
+  - การพยากรณ์ของแต่ละศาสตร์ที่เป็นค่า Placeholder เริ่มต้น (`thai_suriyayart`, `bazi_liu_yue`, `zi_wei`) จะถูกติดแฟล็ก `proxy: True` อย่างชัดเจน
+  - ข้ออ้างที่สร้างแบบสังเคราะห์ (Synthetic Proxy Claims) จากสายคำนวณเดียวกันจะถูก **ตัดออก** จากการนับข้อพิสูจน์ที่ยืนยันร่วมกันอย่างเป็นอิสระ (Independent Corroboration Counts)
+- **การคืนค่าความเป็นกลางเมื่อหลักฐานไม่เพียงพอ**:
+  - หากมิติคะแนนใดมีข้อมูลตัวเลขที่ไม่ใช่ Proxy น้อยกว่า 2 แหล่ง ข้อมูลจะถือว่าขาดหลักฐานอิสระ และระบบจะคืนค่าระดับความเห็นพ้องเป็นค่ากลางคือ `0.5` (ซึ่งต่ำกว่าเกณฑ์ HITL ที่ 0.75)
+  - ส่งผลให้ระบบกำหนดสถานะโดยรวมเป็น `ARBITRATED_WITH_CONFLICTS` พร้อม `conflict_detected: True` เพื่อบังคับส่งให้ผู้เชี่ยวชาญมนุษย์ตรวจทานเสมอ โดยไม่ยอมให้คะแนน Proxy สร้างความเห็นพ้องสมบูรณ์แบบ 1.0 จอมปลอม
+
+#### 3. ความหมายของ Proxy การโคจรประจำปีและข้อสงวนสิทธิ์ (Annual Timing Transit Proxy Semantics)
+- **การระบุสถานะ Deterministic Proxy (`thai_suriyayart_proxy`)**:
+  - ตำแหน่งเรือนภพดาวเคราะห์จร (พฤหัสบดี, เสาร์, ราหู) ที่คำนวณจากเลขคณิตมอดุโล (Modulo Arithmetic) จะถูกส่งกลับเป็นโครงสร้าง Proxy อย่างเปิดเผย:
+    ```json
+    "thai_suriyayart_proxy": {
+      "jupiter_house": 1,
+      "saturn_house": 5,
+      "rahu_house": 9,
+      "precision": "deterministic proxy house estimate",
+      "verified": false,
+      "uncertainty": "Proxy estimate only; not a verified astronomical transit."
+    }
+    ```
+- **ข้อสงวนสิทธิ์ความไม่แน่นอนที่ชัดเจน (Explicit Uncertainty Disclaimer)**:
+  - ในฟิลด์ `reasons` และข้อความอธิบายจะเปิดเผยอย่างตรงไปตรงมาว่า การคำนวณดังกล่าวเป็นค่าประมาณการแบบฮิวริสติก (Deterministic Heuristic Proxy) **ไม่ใช่** ผลการคำนวณตำแหน่งดาราศาสตร์จริงที่มีการยืนยัน (Not a verified astronomical transit) เพื่อป้องกันการอ้างความแม่นยำเกินจริง ขณะเดียวกันยังคงรักษาคุณสมบัติความคงที่และทำซ้ำได้ (Deterministic Reproducibility)
+- **ความไม่แปรเปลี่ยนของคะแนน (Deterministic Fact Immutability)**:
+  - ชั้นโมเดลภาษา LLM และ Copy Transformation อนุญาตให้ปรับสำนวนการอธิบายเท่านั้น ห้ามแก้ไขดัดแปลงตัวเลขคะแนน วันที่ หรือข้อเท็จจริงทางโหราศาสตร์เด็ดขาด
 
 ---
 

@@ -2,6 +2,63 @@
 
 Updated: 2026-09-07T09:00:00+07:00 (Asia/Bangkok)
 Parent: TICKET-HLITE-REVIEW-REMEDIATION-20260907
+
+## Independent release-review successor checkpoint -- 2026-09-08
+
+Gate APPROVED for three independent RED-baseline reviews and planning-artifact
+integration only. Source remains blocked until baseline integration. Digest:
+299f14aa38bbfa9bdf1346f47f98bcbeba48b3144d0d98be4da299caf9b4889f.
+Revision-15 planning parent HEAD a84957f35f19416e9df484a1b16df2c1a77dca1d; origin/main
+77cbe84a728e93e7f7c9007ce31b50936967dddb.
+
+PR #38 is MERGED historical evidence; the current branch has no PR. The former
+RELEASE-PREP-PR is prospectively superseded by RELEASE-PREP-PR-002.
+
+| Finding | Ordered lane suffixes | State |
+|---|---|---|
+| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; verified green in 16dfc3a5 |
+| P1 HITL persistence | 10-HITL-ENQUEUE-FAILURE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; fail-closed verified green |
+| P2 transit semantics | 11-TRANSIT-SEMANTICS-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; proxy semantics verified green |
+| P2 docs gap | 12-DOCS-SYNC -> 12-DOCS-INTEGRATION | Docs reviewed in 12-DOCS-SYNC; 12-DOCS-INTEGRATION ready for commit |
+| P1 supervisor Linux plan | 13-SUPERVISOR-LINUX-PLAN-BASELINE -> BASELINE-REVIEW -> SOURCE -> REVIEW -> QA | 3 failures on Linux CI PR #41 (PURE_BACKEND_PLAN_REJECTED); genuine RED needed |
+
+All suffixes use prefix TICKET-HLITE-REVIEW-REMEDIATION-20260907-.
+Independent baseline reviewers own only their test+manifest pairs. The
+PLANNING-ARTIFACT-INTEGRATION lane may commit exactly the four planning/context
+files. BASELINE-INTEGRATION is blocked by all three baseline-review PASSes and
+must commit only the six tests/manifests, unchanged, before any source mutation.
+Docs own README.md/HOWTO.md only after behavior is final. RELEASE-PREP-PR-002
+then creates a new protected PR. Annual work is proxy-semantics-only unless a
+separate canonical-source/HITL scope gate passes. project/data/hitl_reviews.json
+is excluded. No new review/integration lane is DONE; no commit, push, PR,
+merge, deploy, publish, or archive occurred.
+Revision 15 successor lanes:
+
+- 09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE: qa_tester owns only the legacy
+  consensus test and new superseding manifest; two stale default-proxy
+  fixtures/expectations become genuine non-proxy claims.
+- 09-CONSENSUS-LEGACY-SUPERSEDING-BASELINE-REVIEW: code_reviewer reads only
+  that pair plus consensus_matrix.py and verifies provenance/test meaning.
+- 09-CONSENSUS-LEGACY-SUPERSEDING-INTEGRATION: qa_tester commits the exact pair
+  only after review PASS; baseline_parent is
+  a84957f35f19416e9df484a1b16df2c1a77dca1d.
+- PLANNING-ARTIFACT-INTEGRATION-002: devops commits exactly the four planning
+  artifacts and excludes source, tests, manifests, data, push, and deploy.
+
+Revision 16 successor lanes:
+
+- 12-DOCS-INTEGRATION: devops stages and commits reviewed README.md and HOWTO.md diffs without byte edits.
+- 13-SUPERVISOR-LINUX-PLAN-BASELINE: qa_tester freezes genuine RED for scripts/agy_terminal_supervisor.py backend_plan rejection on Linux without darwin sandbox-exec.
+- 13-SUPERVISOR-LINUX-PLAN-BASELINE-REVIEW: code_reviewer inspects test and 13 manifest; requires genuine RED.
+- 13-SUPERVISOR-LINUX-PLAN-SOURCE: developer remediates backend_plan to provide platform-honest plan evidence on Linux while strictly preserving fail-closed OS execution for probe execution.
+- 13-SUPERVISOR-LINUX-PLAN-REVIEW: code_reviewer verifies diff and provenance.
+- 13-SUPERVISOR-LINUX-PLAN-QA: qa_tester verifies focused and full regression.
+- PLANNING-ARTIFACT-INTEGRATION-003: devops commits exactly the four revision-16 planning artifacts.
+
+All suffixes use TICKET-HLITE-REVIEW-REMEDIATION-20260907-. Prior baseline and
+EOF superseder history stays unchanged. The existing uncommitted reviewed
+consensus_matrix.py diff remains untouched. No revision-15 or revision-16 lane is DONE.
+
 Initial reviewed HEAD: 77cbe84a728e93e7f7c9007ce31b50936967dddb
 Execution account: agy2. Control account: codex1 (quota preservation).
 Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).
@@ -37,6 +94,16 @@ Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).
 8. AGY2 retains exclusive reconciliation ownership of handles `206ba523`,
    `63a8c841`, and `a323bccf`. The AGY1/AGY3 preflights must not query,
    replace, duplicate, or claim those workers. No other package is transferred.
+9. Current evidence reconciliation (2026-09-14): Owner explicitly authorizes
+   continuing the full release chain; no generic confirmation required.
+   Docs review (12-DOCS-SYNC) verified all 5 behavioral contracts. Focused tests:
+   14 passed green; broad run had 45 passed and 1 host node loader failure.
+   Hosted CI on GitHub PR #41 (commit 83de65d28664e950f2a3643c64ef8a2856a9c833)
+   failed run 34266798802 with 3 failing tests in test_backend_plans_fixed_probe_without_execution
+   (PURE_BACKEND_PLAN_REJECTED); safety audit run 34266798838 reports
+   STOP_CONDITION_TEST_REGRESSION exit -1. Restamping cannot fix this defect.
+   Lane 13 binds sequential TDD remediation to restore Linux CI plan platform
+   honesty without contract weakening.
 
 ## Codex1 quota-preservation guardrail: active at 15%
 
@@ -273,6 +340,34 @@ one disposition plus evidence per finding. Production gate is NOT_READY.
 | origin/main push and hosted CI | READY_PENDING_CONFIRMATION | Awaiting user instruction to push to origin/main. |
 | HF Docker + Vercel production verification | READY_PENDING_CONFIRMATION | CI/CD deployment pipeline ready. |
 | Plan reconciliation, release notes and archive | DONE_LOCAL | Reconciled ATOMIC_TICKET.md, plans/plan.md, and test provenance manifests. |
+
+## Non-AGY release recovery checkpoint -- 2026-09-08
+
+Owner instruction `fix BLOCKED` authorizes native Codex workers for the
+remaining release chain after repeated AGY1-AGY4 admission failure. It does not
+waive or alter the native AGY gate. Execute sequentially:
+
+1. QA removes only the Package 02 EOF blank line and creates the new
+   superseding provenance manifest, verifies them, and creates exactly one
+   two-path local commit. QA does not push.
+2. DevOps exclusively stamps the authoritative eight-file set:
+   `project/static/{version.json,app.js,sw.js,index.html}` and
+   `public/{version.json,app.js,sw.js,index.html}`. All four mirror pairs must
+   retain identity, client-version, cache-version, footer, and cache-busting
+   parity before it opens the protected release PR.
+   DevOps may stage/commit the four already-prepared governance artifacts for
+   that PR but may not edit their bytes.
+3. Code review reads the exact new diff; QA then observes all required hosted
+   checks on the exact PR SHA.
+4. DevOps merges only on green, deploys/verifies HF Docker and Vercel, runs API
+   smoke plus 360/375/390/768/1440 visual audit, and records exact identities.
+5. Business analysis performs Rule 22 release notes and archives exactly this
+   checkpoint plus `horo-lite-review-agy2-handoff-20260907.md`.
+6. DevOps completes the protected closeout PR, pushes the next production tag,
+   and removes only the owned release branch.
+
+At every step preserve the 14 commits and the dirty
+`project/data/hitl_reviews.json`; the latter is never staged or deployed.
 
 ## Per-item TODO / DOING / DONE board and guardrails
 

@@ -24,18 +24,31 @@ def test_identical_tradition_scores_no_conflict() -> None:
     (career=9, finance=2, love=6), agreement should be 1.0 and no
     conflict detected."""
 
-    months = [
+    claims_per_month = [
         {
             "month": m,
-            "career_score": 9,
-            "finance_score": 2,
-            "love_score": 6,
+            "tradition_claims": {
+                tradition: {
+                    "career_score": 9,
+                    "finance_score": 2,
+                    "love_score": 6,
+                    "proxy": False,
+                    "claim": "independent tradition agreement",
+                }
+                for tradition in (
+                    "thai_suriyayart",
+                    "bazi_liu_yue",
+                    "zi_wei",
+                )
+            },
         }
         for m in range(1, 13)
     ]
+    months = [{"month": m} for m in range(1, 13)]
 
-    # Use the default tradition claims path (no fixture override).
-    result = arbitrate_monthly_consensus(months, seed=0)
+    result = arbitrate_monthly_consensus(
+        months, tradition_monthly_claims=claims_per_month
+    )
 
     for claim in result["monthly_consensus"]:
         assert claim["agreement_score"] == 1.0, (
@@ -185,17 +198,31 @@ def test_cross_domain_difference_not_conflict() -> None:
     """Different scores across domains (career=9, finance=2) from the
     SAME tradition is NOT a conflict."""
 
-    months = [
+    claims_per_month = [
         {
             "month": m,
-            "career_score": 9,
-            "finance_score": 2,
-            "love_score": 5,
+            "tradition_claims": {
+                tradition: {
+                    "career_score": 9,
+                    "finance_score": 2,
+                    "love_score": 5,
+                    "proxy": False,
+                    "claim": "independent cross-domain scores",
+                }
+                for tradition in (
+                    "thai_suriyayart",
+                    "bazi_liu_yue",
+                    "zi_wei",
+                )
+            },
         }
         for m in range(1, 13)
     ]
+    months = [{"month": m} for m in range(1, 13)]
 
-    result = arbitrate_monthly_consensus(months, seed=0)
+    result = arbitrate_monthly_consensus(
+        months, tradition_monthly_claims=claims_per_month
+    )
 
     # Even though career and finance differ by 7, that is cross-domain
     # (not cross-tradition), so agreement should be 1.0 per domain and

@@ -156,11 +156,12 @@ def _build_hitl_payload(
 
 
 def calculate_annual_timing(request: Any) -> dict[str, Any]:
-    """Return deterministic 12-month annual timing scores grounded in BaZi & Thai transits.
+    """Return deterministic 12-month annual timing scores grounded in BaZi and Thai proxies.
 
     Combines target-year/month sexagenary cycle positions (Liu Nian/Liu Yue),
     natal Day Master interactions (combinations, clashes, harmonies), and Thai
-    Suriyayart transit-house calculations.
+    Suriyayart-style house proxies. The house values are deterministic proxies,
+    not verified astronomical transit calculations.
     """
 
     target_year = int(getattr(request, "target_year"))
@@ -260,11 +261,15 @@ def calculate_annual_timing(request: Any) -> dict[str, Any]:
 
         reasons = [
             f"BaZi month pillar {month_stem}{month_branch} ({month_element}) interacts with natal Day Master {natal_dm} ({natal_dm_elem}).",
+            (
+                "Thai Suriyayart house values are deterministic proxy signals, "
+                "not a verified astronomical transit."
+            ),
         ]
         if interactions:
             reasons.append(interactions[0])
         else:
-            reasons.append(f"Transit Jupiter in house {jupiter_house} provides steady structural support.")
+            reasons.append(f"Proxy Jupiter house {jupiter_house} provides steady structural support.")
 
         item: dict[str, Any] = {
             "month": month,
@@ -285,17 +290,13 @@ def calculate_annual_timing(request: Any) -> dict[str, Any]:
                     "monthly_cycle_index": monthly_cycle,
                     "cycle_element": month_element,
                 },
-                "thai_suriyayart_transit": {
-                    "jupiter_house": jupiter_house,
-                    "saturn_house": saturn_house,
-                    "rahu_house": rahu_house,
-                    "precision": "deterministic transit-house calculation",
-                },
                 "thai_suriyayart_proxy": {
                     "jupiter_house": jupiter_house,
                     "saturn_house": saturn_house,
                     "rahu_house": rahu_house,
-                    "precision": "deterministic transit-house calculation",
+                    "precision": "deterministic proxy house estimate",
+                    "verified": False,
+                    "uncertainty": "Proxy estimate only; not a verified astronomical transit.",
                 },
                 "interactions": interactions,
             },

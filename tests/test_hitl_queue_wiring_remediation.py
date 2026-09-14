@@ -123,7 +123,7 @@ def test_no_hitl_enqueue_when_not_required(tmp_path: Any) -> None:
 # 4. Enqueue failure does not break the reading response
 # ---------------------------------------------------------------------------
 def test_enqueue_failure_does_not_break_reading() -> None:
-    """Even if the HITL storage fails, the reading must still return."""
+    """Even if HITL storage fails, the reading returns with a non-queued status."""
     with patch(
         "project.routers.unified_reading_router.upsert_external_hitl_item",
         side_effect=RuntimeError("Storage unavailable"),
@@ -132,7 +132,8 @@ def test_enqueue_failure_does_not_break_reading() -> None:
         # Must not raise
         resp = create_unified_reading(request)
         assert resp.request_id is not None
-        assert resp.hitl_routing["status"] == "QUEUED_FOR_HUMAN_REVIEW"
+        assert resp.hitl_routing["status"] == "HITL_ENQUEUE_FAILED"
+        assert resp.hitl_routing["reason"] == "hitl_persistence_failed"
 
 
 # ---------------------------------------------------------------------------

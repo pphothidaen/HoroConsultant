@@ -459,19 +459,70 @@ Access Interactive UI Dashboards & Metrics:
 - **Prometheus Metrics Endpoint:** `http://localhost:8000/metrics`
 - **Synthetic Monitoring Health Alias:** `http://localhost:8000/api/health`
 
-### Horo Lite Annual Timing Contract
+### Horo Lite Annual Timing & Remediated Behavioral Contracts
 
-Horo Lite annual timing responses include deterministic governance metadata:
-`consensus_metadata`, `hitl_flags`, and `hitl_routing`.
-`consensus_metadata` carries `consensus_score`, `arbitration_status`,
-`traditions_considered`, monthly arbitration records, and
-`consensus_matrix_source: project.debate.consensus_matrix`.
+Horo Lite annual timing and unified reading responses (`/api/v1/reading/unified`) implement deterministic governance metadata (`consensus_metadata`, `hitl_flags`, and `hitl_routing`) and adhere to five remediated behavioral contracts:
 
-HITL routing is fail-closed. `hitl_routing.status` is
-`QUEUED_FOR_HUMAN_REVIEW` when low consensus, tradition conflict,
-`force_human_review`, or unknown/uncertain birth time is present. It is
-`NOT_REQUIRED` only when no trigger applies. LLM and copy-generation layers may
-not mutate deterministic scores, dates, or facts.
+#### 1. Unified Reading API & Edge Case Handling
+- **Unknown Hour Semantics (`unknown_hour=True`)**:
+  - When `unknown_hour=True` is provided (or when `birth_time` is omitted/null), the calculation strictly restricts analysis to valid Day, Month, and Year factors, ignoring any hour pillar or supplied birth time (omits BaZi Hour Pillar and Thai Lagna).
+  - Rather than substituting arbitrary midpoints or guessing, uncertainty bounds are propagated as explicit score ranges (`career_score_range`, `finance_score_range`, `love_score_range`) and overall confidence is tagged as `ESTIMATED` (or `LOW`), preventing false precision and eliminating HTTP 500 crashes.
+- **Child Birth Date & Young Person Handling**:
+  - Birth dates with insufficient past history (e.g., young children under age 8, or target years too close to birth year) return `HTTP 200 OK` with an empty past pattern candidate list (`past_patterns: []`) and an explicit `insufficient_history_reason` string (e.g. `"Subject is a child with insufficient past adult event history"`), avoiding HTTP 500 errors and preventing invented childhood events.
+  - Nonsensical combinations (such as `birth_date` in the future relative to `target_year` or `target_year < birth_date.year`) are rejected upfront via schema validation.
+- **12 Distinct Evidence-Grounded Topic Guidances**:
+  - Responses include exactly 12 canonical topic modules in immutable sequential order (`CANONICAL_TOPIC_IDS`: `personal_overview_strengths`, `past_pattern_calibration`, `annual_overview`, `career_business`, `finance`, `love_relationships`, `health_wellbeing`, `family_surrounding_people`, `opportunities_caution_periods`, `twelve_month_roadmap`, `top_priorities_cautions`, `export_sharing_actions`).
+  - Every topic produces distinct, non-generic summary and guidance text grounded in domain scores (career, finance, love) and citations pointing to deterministic `evidence_refs`.
+
+#### 2. HITL Review Queue Persistence & Fail-Closed Contract
+- **Persistence-Guaranteed Review Status**:
+  - `hitl_routing.status` reports `QUEUED_FOR_HUMAN_REVIEW` **ONLY** after the item has been successfully and persistently saved to the review database (`upsert_external_hitl_item`).
+- **Fail-Closed Enqueue Failure Reporting**:
+  - If database persistence fails (e.g. storage error, disk failure), the router does not crash with an unhandled 500, but immediately reports fail-closed routing status:
+    ```json
+    {
+      "status": "HITL_ENQUEUE_FAILED",
+      "reason": "hitl_persistence_failed",
+      "queued": false
+    }
+    ```
+  - An audit failure warning is logged, notifying monitoring systems that human review could not be secured.
+- **Idempotency**:
+  - HITL enqueue is idempotent, keyed by deterministic `request_id`, so repeated client requests upsert the existing review item instead of creating duplicate records.
+
+#### 3. Calibration & Feedback Dynamics
+- **Explanation Emphasis Adaptation**:
+  - Selecting feedback on past pattern candidates (`ตรง`, `ตรงบางส่วน`, `ไม่ตรง`, `จำไม่ได้`) dynamically updates explanatory emphasis in the UI (via `.pattern-feedback-emphasis` and `updateExplanationEmphasis`), adapting narrative focus without altering astrological computations.
+- **Fact & Score Immutability**:
+  - User calibration feedback strictly preserves underlying scores (`monthly_scores`), dates (`birth_date`), and astrological facts. Presentation layers and LLMs may not mutate deterministic calculations.
+- **Consent Precedes Persistence**:
+  - User feedback is stored in browser `localStorage` **ONLY** after explicit user consent is confirmed via `#feedback-consent`.
+- **Withdrawal Clears Storage**:
+  - Withdrawing or unchecking consent immediately executes `enforceNoPersistenceWithoutConsent()`, purging `FEEDBACK_STORAGE_KEY` and clearing stored feedback. Feedback states remain strictly isolated per pattern ID (`state.feedbackByPattern[patternId]`).
+
+#### 4. Consensus Matrix Independence
+- **Proxy Claim Isolation**:
+  - Default placeholder claims generated for multi-tradition arbitration (`thai_suriyayart`, `bazi_liu_yue`, `zi_wei`) are explicitly marked with `proxy: True`.
+  - Synthetic proxy claims derived from a single lineage are strictly excluded from independent corroboration counts.
+- **Neutral Agreement on Insufficient Evidence**:
+  - If fewer than 2 non-proxy numeric scores are present for a domain, the consensus engine flags missing evidence and returns a neutral agreement score of `0.5` (below the `0.75` HITL threshold), resulting in an aggregate status of `ARBITRATED_WITH_CONFLICTS` with `conflict_detected: true`.
+  - Manufactured proxy claims can never simulate artificial 1.0 consensus.
+
+#### 5. Annual Timing & Planetary Proxy Semantics
+- **Deterministic Proxy Semantics (`thai_suriyayart_proxy`)**:
+  - Planetary transit house values (Jupiter, Saturn, Rahu) derived via modulo arithmetic are explicitly typed and returned as deterministic proxies rather than astronomical ephemeris observations:
+    ```json
+    "thai_suriyayart_proxy": {
+      "jupiter_house": 1,
+      "saturn_house": 5,
+      "rahu_house": 9,
+      "precision": "deterministic proxy house estimate",
+      "verified": false,
+      "uncertainty": "Proxy estimate only; not a verified astronomical transit."
+    }
+    ```
+- **Explicit Uncertainty Disclaimers**:
+  - Consumer-facing explanation text and `reasons` arrays explicitly disclose that modulo calculations represent honest heuristic proxies and are not verified astronomical transits, preventing misleading claims of scientific precision while preserving deterministic reproducibility.
 
 ---
 

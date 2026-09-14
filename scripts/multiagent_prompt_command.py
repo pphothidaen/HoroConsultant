@@ -7965,6 +7965,10 @@ def _validate_agy_runtime_admission_invocation(
     # Preserve the historical platform-native denial until a dedicated
     # admission marker is present.  A missing marker is never an implicit
     # fallback route; it remains denied by the transport boundary.
+    if not isinstance(runtime, Mapping):
+        if invocation.agy_runtime_admission_receipt is None:
+            return False
+        raise ConfigurationError("AGY_RUNTIME_ADMISSION_MARKER_INVALID")
     if isinstance(runtime, Mapping) and "agy_runtime_admission" not in runtime:
         if invocation.agy_runtime_admission_receipt is None:
             return False
