@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-FIX",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4bbcc318adfb99c07dd860a2871a74eb7ebb797e",
+  "test_files": [
+    {
+      "path": "tests/test_context_profile_budget_handoff.py",
+      "sha256": "b74878355e901ba44793e93e3cb516304d96a2f2b3871577c64cf474b2391681"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3", "-m", "pytest", "-q",
+        "tests/test_context_profile_budget_handoff.py::test_handoff_authority_and_ticket_binding_are_exact"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert 'TICKET-HLITE-REVIEW-REMEDIATION-20260907' == 'TICKET-RELEASE-V146-PROD-20260906'"
+    }
+  ],
+  "allowed_source_paths": ["HANDOFF.md"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "4bbcc318adfb99c07dd860a2871a74eb7ebb797e",
+  "correction_reason": "Update HANDOFF.md ticket_id assertion from TICKET-RELEASE-V146-PROD-20260906 to TICKET-HLITE-REVIEW-REMEDIATION-20260907 to match current active ticket.",
+  "rationale": "VERIFIED: HANDOFF.md refreshed with new ticket_id TICKET-HLITE-REVIEW-REMEDIATION-20260907. Test assertion must match. Pre-fix RED: AssertionError ticket_id mismatch. Post-fix: PASS."
+}

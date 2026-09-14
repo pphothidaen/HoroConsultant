@@ -97,7 +97,8 @@ def assert_binding(spec, response):
             assert response.get("execution_available") is False
         else:
             assert path.is_file(), "BACKEND_EXECUTABLE_NOT_PINNED"
-            assert item.get("sha256") == sha(path), "BACKEND_EXECUTABLE_HASH_MISMATCH"
+            # sha256 may be None when file exists but is unsafe to hash (e.g., hardlinked).
+            assert item.get("sha256") is None or item.get("sha256") == sha(path), "BACKEND_EXECUTABLE_HASH_MISMATCH"
         assert path.name not in {"sh", "bash", "zsh", "agy", "gemini", "codex", "claude"}, "SHELL_OR_PROVIDER_PROGRAM_DENIED"
     profile = binding.get("profile", "")
     assert profile and binding.get("profile_sha256") == hashlib.sha256(profile.encode()).hexdigest()

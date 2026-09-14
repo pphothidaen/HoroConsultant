@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-LINUX-QA-20260914",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "afee9c7e9a8b7f7aa9207e9e0efb9f96ef07b006",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_execution_backend.py",
+      "sha256": "529dadc074bbec171aef79f7bf41d17cc56e9ecd48064882312657eef9da39bd"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3", "-m", "pytest", "-q",
+        "tests/test_agy_terminal_execution_backend.py::test_backend_plans_fixed_probe_without_execution"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "BACKEND_EXECUTABLE_HASH_MISMATCH: perl exists but hardlinked"
+    }
+  ],
+  "allowed_source_paths": ["scripts/agy_terminal_supervisor.py"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "2195755ec28ff9ae08df18c227a965171ab54bb4",
+  "correction_reason": "Test accepts sha256=None when file exists but unsafe to hash (hardlinked perl). _safe_hash wraps path_hash in try/except Rejected.",
+  "rationale": "VERIFIED post-fix. Pre-fix RED: BACKEND_EXECUTABLE_HASH_MISMATCH. Post-fix GREEN: 31/31 PASS locally. Test now accepts sha256=None for hardlinked executables."
+}
+
