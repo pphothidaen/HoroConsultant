@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-01-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bf4f3e6f430a119e5b3c94fbcc7c3d7b141a92a8",
+  "test_files": [
+    {
+      "path": "tests/test_bazi_cycle_calculation_remediation.py",
+      "sha256": "0636df092821db8ea2ff67e0d3b6da12f8a84f2d552cb537fb1c115c60fe954f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_bazi_cycle_calculation_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "4 failed, 3 passed: missing bazi_annual/bazi_monthly stems & branches in score_basis; generic proxy reasons; missing interaction detection; past pattern basis does not cite astrological cycles"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py",
+    "project/core/past_pattern_calibrator.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen test baseline for Package 01 proxy calculation replacement. Verifies that annual timing scores, basis, and reasons are grounded in verified BaZi stems & branches and Thai transit aspects, interaction metadata is detected, and past pattern candidate years trace to recognized astrological cycles while maintaining <50ms latency.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}

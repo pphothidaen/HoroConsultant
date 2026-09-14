@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-07-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c8db9be4318e08abf3c862613d6b02487443e3ee",
+  "test_files": [
+    {
+      "path": "tests/test_lite_feedback_remediation.py",
+      "sha256": "5a1463a9069aff2bd622d392522ab8b66929b2b4df0ac0df21eaa60a19769102"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_lite_feedback_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed, 4 passed: missing pattern-feedback-emphasis DOM updates; missing localStorage.removeItem in enforceNoPersistenceWithoutConsent"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen test baseline for Package 07 Lite feedback UI effect and consent lifecycle. Verifies that selecting past-pattern calibration feedback updates explanation emphasis in the DOM without modifying underlying immutable scores or dates, consent precedes persistence, and unchecking consent immediately clears stored feedback.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}

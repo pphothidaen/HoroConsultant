@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-04-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b9b22e9964c84de046f991e7f0fa6bd03c55fb77",
+  "test_files": [
+    {
+      "path": "tests/test_child_birthdate_remediation.py",
+      "sha256": "84463c09be38b1c04f872085be37e0104131de7df41a0d7e5c88a1fb7fc7c906"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_child_birthdate_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "HTTP 500 on child birthdate; empty past_patterns lacks insufficient_history_reason; future birth date unhandled"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py",
+    "project/core/past_pattern_calibrator.py",
+    "project/core/unified_reading_engine.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen test baseline for Package 04 child birth date and young person past patterns remediation. Verifies 200 response for child birth dates, explicit insufficient_history_reason when empty, and validation rejection of future birth dates and target years before birth.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}

@@ -36,8 +36,14 @@ def _seed(request: Any) -> int:
     birth = _birth_date(request)
     longitude_bucket = int(round((float(getattr(request, "longitude", 0.0)) + 180.0) * 10))
     latitude_bucket = int(round((float(getattr(request, "latitude", 0.0)) + 90.0) * 10))
-    time_value = getattr(request, "birth_time", None)
-    time_bucket = 0 if time_value is None else time_value.hour * 2 + time_value.minute // 30
+    unknown_hour = bool(getattr(request, "unknown_hour", False))
+    # When birth hour is unknown, ignore any supplied birth_time to ensure
+    # past-pattern candidates are time-invariant.
+    if unknown_hour:
+        time_bucket = 0
+    else:
+        time_value = getattr(request, "birth_time", None)
+        time_bucket = 0 if time_value is None else time_value.hour * 2 + time_value.minute // 30
     gender_seed = sum(ord(ch) for ch in str(getattr(request, "gender_at_birth", "") or ""))
     return (
         birth.year * 29
@@ -52,29 +58,44 @@ def _seed(request: Any) -> int:
 
 
 def _candidate_years(birth_year: int, target_year: int, seed: int) -> list[int]:
-    max_age = max(1, target_year - birth_year - 1)
-    preferred_ages = (16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46)
-    offset = seed % 3
+    # Children too young for meaningful past-pattern analysis get no candidates.
+    max_age = target_year - birth_year - 1
+    if max_age < 8:
+        return []
+
+    # Astrological cycle milestones:
+    # 1. 12-year Jupiter transit returns (ages 12, 24, 36, 48)
+    # 2. 10-year Da Yun major luck transition milestones (ages 10, 20, 30, 40, 50)
+    # 3. 6-year opposition clash cycles (ages 18, 30, 42)
+    cycle_ages = [10, 12, 18, 20, 24, 30, 36, 40, 42, 48]
+    offset = seed % 2
+
     years: list[int] = []
-    for age in preferred_ages:
+    for age in cycle_ages:
         adjusted_age = age + offset
         year = birth_year + adjusted_age
         if 8 <= adjusted_age <= max_age and year < target_year:
-            years.append(year)
+            if year not in years:
+                years.append(year)
         if len(years) == 5:
-            return years
+            return sorted(years)
 
-    fallback_age = max(1, min(max_age, 12))
+    # Fallback to ensure at least 3 candidates for adults when eligible
+    fallback_age = max(8, min(max_age, 14))
     while len(years) < 3 and fallback_age <= max_age:
         year = birth_year + fallback_age
         if year < target_year and year not in years:
             years.append(year)
-        fallback_age += 2
-    return years[:5]
+        fallback_age += 3
+    return sorted(years[:5])
 
 
 def generate_past_pattern_candidates(request: Any) -> dict[str, Any]:
-    """Return 3-5 deterministic, non-sensitive calibration candidates."""
+    """Return 0-5 deterministic, non-sensitive calibration candidates.
+
+    For persons too young for past-pattern analysis (< ~8 years old),
+    an empty candidates list is returned.
+    """
 
     birth = _birth_date(request)
     target_year = int(getattr(request, "target_year"))
@@ -88,13 +109,26 @@ def generate_past_pattern_candidates(request: Any) -> dict[str, Any]:
         theme = _THEME_ORDER[(start_theme + index) % len(_THEME_ORDER)]
         year_range = [start_year, end_year]
         age_range = [year_range[0] - birth.year, year_range[1] - birth.year]
+
+        # Determine astrological cycle context for deterministic basis
+        age = start_year - birth.year
+        cycle_basis: list[str] = []
+        if age % 12 in (0, 1):
+            cycle_basis.append("12-year Jupiter transit return cycle")
+        if age % 10 in (0, 1):
+            cycle_basis.append("10-year Da Yun major luck transition boundary")
+        if (age - 6) % 12 in (0, 1):
+            cycle_basis.append("Natal branch 6-year clash opposition transit")
+        if not cycle_basis:
+            cycle_basis.append("Astrological transit house cycle progression")
+
         candidates.append(
             {
                 "pattern_id": f"{theme}_{year_range[0]}_{year_range[1]}",
                 "year_range": year_range,
                 "age_range": age_range,
                 "theme": theme,
-                "deterministic_basis": list(_BASIS_BY_THEME[theme]),
+                "deterministic_basis": cycle_basis + list(_BASIS_BY_THEME[theme]),
                 "sensitive_category": False,
                 "allowed_feedback": list(ALLOWED_FEEDBACK_CHOICES),
                 "user_feedback": None,

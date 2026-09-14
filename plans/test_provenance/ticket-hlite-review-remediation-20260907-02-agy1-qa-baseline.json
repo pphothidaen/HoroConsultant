@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "99d229c8d7c77aa4be8181b88b05afe3f7e69c2a",
+  "test_files": [
+    {
+      "path": "tests/test_consensus_within_domain_remediation.py",
+      "sha256": "2bf246daeefa20ee6ff7a577d8ee37629fa9318fd3203b886c6956031a4e9316"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_consensus_within_domain_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed, 5 passed: empty claims yield agreement >= 0.75; domain averaging masks single-domain conflict; default tradition claims lack proxy=True"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/debate/consensus_matrix.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Frozen test baseline for Package 02 cross-domain consensus remediation. Verifies within-domain tradition agreement, empty claim low agreement (<0.75), single-domain conflict detection not masked by cross-domain averaging, and proxy flagging on default tradition claims.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED"
+}

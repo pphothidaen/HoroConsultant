@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-02-AGY1-QA-BASELINE",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8baa37ac9a36daf9aed136dd20bba67cbb84abc7",
+  "test_files": [
+    {
+      "path": "tests/test_consensus_within_domain_remediation.py",
+      "sha256": "59f96d3f0b897586b817b7a9f9154c0b5e85322a45f136685086401333ed8934"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_consensus_within_domain_remediation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed, 5 passed: empty claims yield agreement >= 0.75; domain averaging masks single-domain conflict; default tradition claims lack proxy=True"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/debate/consensus_matrix.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "a8e031873131b0461c41dad4ef127ceed5e48dc3",
+  "correction_reason": "The sequence-1 frozen test ended with one superfluous blank line. This QA-only correction removes that EOF whitespace without changing assertions, test behavior, or production source.",
+  "rationale": "Supersede the original baseline commit while preserving its manifest unchanged. The prior manifest SHA-256 is e159bda596cfbef204aed224b5e9eea4721ded0f817ebfb341de7d155a077b75 and the prior test SHA-256 is 2bf246daeefa20ee6ff7a577d8ee37629fa9318fd3203b886c6956031a4e9316. The corrected test SHA-256 is 59f96d3f0b897586b817b7a9f9154c0b5e85322a45f136685086401333ed8934; the only byte-level change is removal of the final blank line, with no assertion, behavior, or source change."
+}
