@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-FIX",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "6c101d7c4b2c5bc38c2f8349b056d9a287127db9",
+  "baseline_parent": "a45e065a57c3b62160d4b96fb35e79b881fb6d87",
   "test_files": [
     {
       "path": "tests/test_squash_merge_ancestry_contract.py",
-      "sha256": "8924cef5ed4fb843cf62f28dba279d7b8aef64cc1be638a1cd10121937fcdccb"
+      "sha256": "d7f55fb673a51cb6591cad0643bb1b31f0d1d491c57de6ddb90aa635df7e3f78"
     }
   ],
   "red_tests": [

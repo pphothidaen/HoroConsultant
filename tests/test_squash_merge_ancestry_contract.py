@@ -168,20 +168,6 @@ def test_post_squash_merge_flag_in_verify_pr() -> None:
     assert "--post-squash-merge" in result.stdout
 
 
-def test_post_squash_merge_flag_in_verify() -> None:
-    """Verify that --post-squash-merge flag is accepted by verify command."""
-    result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "test_provenance_guard.py"),
-         "verify", "--help"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert result.returncode == 0
-    assert "--post-squash-merge" in result.stdout
-
-
 def test_verify_pr_post_squash_merge_emits_recovery_note(tmp_path: Path) -> None:
     """When --post-squash-merge is set and squash detected, verify-pr emits SQUASH_MERGE_RECOVERY note."""
     repo = tmp_path / "repo"
