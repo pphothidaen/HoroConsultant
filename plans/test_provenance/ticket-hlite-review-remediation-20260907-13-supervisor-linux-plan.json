@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-LINUX-BASELINE-20260914",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e0626dcf7c1892031bfbe503a40a958af0c99ade",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_execution_backend.py",
+      "sha256": "eddbf4a2c4d0897c7fe0232cb502e2cd9a98f8eb6c3723880892686186309b52"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_agy_terminal_execution_backend.py",
+        "--tb=line"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "6 failed, 25 passed; zero collection/setup errors; PURE_LINUX_BACKEND_PLAN_REJECTED for linux and darwin-missing-helper x filesystem/deadline/streams; assertion/node SHA256 0b4a9b02cafc7df3c7bbeeea89884473653b949e230e805c3cb4c4ab2ffab746"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_terminal_supervisor.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "d25db5c895e64aad7b8ef2aac8c420615fae0ceb",
+  "correction_reason": "Authorized prospective supersession of original pure-plan executable binding assertion: absent required helper/program cannot truthfully have an on-disk hash. Only PLANNED missing executables may use available=false and sha256=null, with execution_available=false. Actual observed probes and all present executable bindings retain exact file and hash assertions. No historical manifest is modified.",
+  "rationale": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING. Genuine pre-source RED captured twice on Darwin host: 6 failed, 25 passed, no collection/setup errors. New tests simulate only module platform or missing sandbox-exec metadata; these are branch regression evidence, not Linux runtime or OS confinement proof. All unsupported probe cases pass nonzero UNSUPPORTED OS_BACKEND_UNAVAILABLE with no launch, scratch/input/canary changes, native/auth/capability proof or verified controls. Root reports prior actual Linux hosted CI34812636141 and safety34812636145 at e0626dcf7c1892031bfbe503a40a958af0c99ade had three PURE_BACKEND_PLAN_REJECTED failures; those are attributed historical reports, not independently fetched by this lane. Original backend006 baseline digest b6d3ed1107e3fc63561970c2a6b03e10d05b540a05e19c3a9efe447c83aed56f. Unmodified source SHA256 76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7. Fresh resolver PASS digest 9d81f27ababde7bc36f69876b686056959999cc28b61a97df8c048bf92bfe666. VERIFIED denotes prospective schema classification only, not independent review, baseline commit or history guard completion. Source admission awaits independent review and exact test-only integration."
+}
