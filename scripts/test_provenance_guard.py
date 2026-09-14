@@ -446,6 +446,7 @@ def verify_history(
     head_revision: str,
     baseline_revision: str | None,
     include_worktree: bool,
+    squash_recovery: bool = False,
 ) -> Report:
     report = Report(command="verify")
     manifest_path = _normalize_path(manifest_path)
@@ -464,9 +465,15 @@ def verify_history(
             "reconstructed history is reviewable but can never claim verified test-first provenance",
         )
 
-    if not _is_ancestor(repo, baseline, head):
+    # During squash recovery, baseline may not be an ancestor of head.
+    # Skip ancestry check but record the recovery in notes.
+    if not squash_recovery and not _is_ancestor(repo, baseline, head):
         report.add("BASELINE_NOT_ANCESTOR", "baseline commit is not an ancestor of head")
         return report
+    if squash_recovery and not _is_ancestor(repo, baseline, head):
+        report.notes.append(
+            f"SQUASH_MERGE_RECOVERY: baseline {baseline} is not an ancestor of head {head} (squash merge detected)"
+        )
 
     baseline_paths = _changed_paths_for_commit(repo, baseline)
     baseline_tests = {path for path in baseline_paths if _is_test_path(path)}
@@ -853,6 +860,13 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash
             allowed = manifest.get("allowed_source_paths")
             if isinstance(allowed, list) and [str(path) for path in allowed] not in allowed_sets:
                 allowed_sets.append([str(path) for path in allowed])
+            # During squash recovery, skip manifests whose baseline is not HEAD itself
+            # (squash merge destroys ancestry for all prior baselines)
+            if post_squash_merge and baseline and baseline != head:
+                report.notes.append(
+                    f"SQUASH_MERGE_RECOVERY: skip manifest {manifest_path} (baseline {baseline} not HEAD)"
+                )
+                continue
             records.append((manifest_path, manifest, baseline))
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
@@ -904,6 +918,7 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash
                 head_revision=verification_head,
                 baseline_revision=baseline,
                 include_worktree=(verification_head == head),
+                squash_recovery=post_squash_merge,
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
