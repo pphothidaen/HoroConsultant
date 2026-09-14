@@ -158,7 +158,7 @@ def test_handoff_authority_and_ticket_binding_are_exact():
         "<!-- HANDOFF-SNAPSHOT-V1:END -->", 1
     )[0]
     payload = json.loads(snapshot)
-    assert payload["ticket_id"] == "TICKET-RELEASE-V146-PROD-20260906"
+    assert payload["ticket_id"] == "TICKET-HLITE-REVIEW-REMEDIATION-20260907"
 
 
 def test_handoff_is_bounded_canonical_secret_free_and_current():
