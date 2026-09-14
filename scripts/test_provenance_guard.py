@@ -973,6 +973,8 @@ def _parser() -> argparse.ArgumentParser:
     verify.add_argument("--head", default="HEAD")
     verify.add_argument("--include-worktree", action="store_true")
     verify.add_argument("--json-out")
+    verify.add_argument("--post-squash-merge", action="store_true",
+                        help="skip manifests whose baseline is not HEAD (squash merge recovery)")
 
     staged = subparsers.add_parser("staged", help="verify staged test/source separation")
     staged.add_argument("--repo", default=".")
@@ -1009,6 +1011,7 @@ def main() -> int:
                 head_revision=args.head,
                 baseline_revision=args.baseline,
                 include_worktree=args.include_worktree,
+                squash_recovery=getattr(args, "post_squash_merge", False),
             )
         elif args.command == "staged":
             report = verify_staged(repo)
