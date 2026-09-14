@@ -373,11 +373,17 @@ def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     helper, program = Path('/usr/bin/sandbox-exec'), Path('/usr/bin/perl')
     helper_available = helper.is_file()
     program_available = program.is_file()
-    execution_available = sys.platform == 'darwin' and helper_available and program_available
+    platform_name = sys.platform
+    execution_available = platform_name == 'darwin' and helper_available and program_available
     # Exact root-directory access is needed by libignition's openat bootstrap.
     # No user/home, /private/var, or broad /System read exception is present.
-    runtime_trees = ['/usr/lib', '/System/Library', '/System/Cryptexes/OS',
-                     '/System/Volumes/Preboot/Cryptexes/OS']
+    # Darwin-only sandbox profile paths; on Linux the profile is informational
+    # (execution_available=False means no sandbox is invoked at runtime).
+    if platform_name == 'darwin':
+        runtime_trees = ['/usr/lib', '/System/Library', '/System/Cryptexes/OS',
+                         '/System/Volumes/Preboot/Cryptexes/OS']
+    else:
+        runtime_trees = []
     runtime_files = ['/', str(program), '/dev/null']
     quote = lambda p: json.dumps(str(p), ensure_ascii=False)
     runtime = ' '.join('(subpath ' + quote(p) + ')' for p in runtime_trees)
@@ -393,6 +399,7 @@ def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     binding = {'source_sha256': path_hash(Path(__file__).resolve()),
                'session_id': request['session_id'], 'owned_manifest': request['owned_manifest'],
                'owned_root': str(root), 'outside_canary_sha256': request['outside_canary_sha256'],
+               'platform': platform_name,
                'helper': {'path': str(helper), 'available': helper_available,
                           'sha256': path_hash(helper) if helper_available else None},
                'program': {'path': str(program), 'available': program_available,
@@ -402,7 +409,8 @@ def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
     return {'binding': binding, 'policy': {'filesystem_default': 'deny', 'network': 'deny',
             'runtime_read_allowlist': runtime_trees + runtime_files,
             'runtime_directory_reads': ['/'], 'writable_subtree': str(scratch / 'writable')},
-            'environment': request['environment'], 'execution_available': execution_available}
+            'environment': request['environment'], 'execution_available': execution_available,
+            'platform': platform_name}
 
 
 def collect_probe(argv: list[str], environment: dict, limits: dict, response: dict) -> dict:

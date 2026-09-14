@@ -1,5 +1,103 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Release-blocker remediation successor plan -- 2026-09-14 (revision 18)
+
+Status: APPROVED for successor-lane planning only. Current source anchor is
+`b11183c2492a169f9dc30fa59aac656f264c69dc`; baseline is
+`a61b7497644f7eb6f291f0c3e9418a54be7ba78b`. Confirmed recent receipts are 31
+focused tests PASS, zero repository secret leaks, and release preparation
+stopped before stamp/push/PR. They are not production proof. Historical
+manifests, including revision-17's `e0626dcf` wording, cannot negate later
+exact-SHA review or QA receipts.
+
+Execution graph: `DOCKER-CANDIDATE-VALIDATE` and `CODEX2-CONFIG-DIAGNOSE` may
+start independently; `CODEX2-CONFIG-SYNC` follows diagnosis PASS; `EXACT-SHA-
+REVIEW` follows A plus B-sync PASS. All lane contracts, ownership, evidence,
+acceptance, exclusions, timeout handling, and typed stop conditions are
+canonical in the revision-18 board in `ATOMIC_TICKET.md`.
+
+The observed canonical codex2 profile does not substantiate a currently
+admissible historical “two disabled skills and six disabled remote plugins”
+claim: discovery must establish exact names/counts and an idempotent intended
+diff before mutation. No caches/deletions/credentials/provider dispatch,
+source/tests/static mirrors, `project/data/**`, `project/static/charts/**`,
+HANDOFF.md, release notes, sync, commit, push, PR, or deployment is authorized
+by this planning lane.
+
+## Current resume reconciliation -- 2026-09-14 (revision 17)
+
+This section supersedes operational status in the historical sections below;
+those sections are preserved as evidence, not current execution instructions.
+Current source anchor: main e0626dcf7c1892031bfbe503a40a958af0c99ade.
+
+GRILL REPORT: APPROVED for the bounded finding-13 repair chain and derived
+handoff refresh. Production release remains BLOCKED by current regression.
+D1 [CONFIRMED]: resume Horo Lite release; repair Linux pure planning only,
+refresh plan/handoff, retain later production/closeout gates; unrelated roadmap,
+new transit algorithms, credentials and project/data/hitl_reviews.json excluded.
+D2 [AUTO]: PR42 integrated remediation; PR45 integrated squash provenance
+recovery; finding 13 still rejects Linux planning in backend_plan.
+D3 [CONFIRMED]: reviewed genuine RED, frozen baseline integration, source
+review and GREEN focused/full hosted tests precede release; stop on failed
+predecessor, changed baseline, unbound ownership or unproven production identity.
+D4 [AUTO]: current source/tests and exact-main hosted failures available;
+new successor manifest required; no provider credentials needed for repair.
+D5 [CONFIRMED]: QA owns baseline/manifest, developer owns supervisor only,
+reviewer is read-only, BSA owns planning and a separate HANDOFF-only lane.
+D6 [AUTO]: merge is not test or deployment proof; old PR38/41 instructions
+are obsolete; missing production evidence is UNKNOWN, not success.
+D7 [AUTO]: preserve fail-closed actual probes, immutable prior provenance,
+and historical planning; recover via failed predecessor without force pushes.
+D8 [CONFIRMED]: bounded ASCII logs and exact-SHA hosted evidence; no quota
+or provider-execution claim from observations. D9 [NOT-APPLICABLE]: this
+repair changes infrastructure planning, not metaphysical calculations/HITL.
+Waivers: NONE for this phase. Next question: NONE.
+
+| Requirement | Current evidence | State / next owner |
+|---|---|---|
+| Remediation 01-12 integration | PR42 squash e003b5bd includes source, tests and README/HOWTO changes | Integrated history; no fresh all-contract QA claim |
+| PR/provenance reconciliation | PR41 closed unmerged; PR42/43/45 merged; PR44 closed unmerged; exact-main provenance run 34812636042 succeeds | Provenance hosted gate PASS on e0626dcf |
+| Linux pure planning (13) | Current backend_plan requires darwin; CI 34812636141 has 3 failures, 4550 passed, 47 skipped, 1 xfailed; safety 34812636145 same 3 failures, 4546 passed, 51 skipped, 1 xfailed | BLOCKED; repair three parametrizations filesystem/deadline/streams |
+| Full CI and independent safety | Both exact-main runs terminal failure; Rust/security/live E2E jobs pass only their own scope | BLOCKED by finding 13; green provenance alone insufficient |
+| Deployment and exact release identity | Deploy run 34813231499 skipped; synthetic 34851702220 fails HF health HTTP503 while four Vercel assets HTTP200 | BLOCKED; post-repair deployment plus exact backend/UI identities required |
+| Five viewport audit and rollback | No current scoped production receipt; required widths 360/375/390/768/1440 | UNVERIFIED; production QA after healthy deployment |
+| Rule22 archive/release notes | ReleaseNotes.md remains conditional Sept6; active Horo Lite plans retained | NOT DONE; archive only after full production acceptance |
+| Tag and local/origin reconciliation | Local v1.4.6-prod absent at inspection; main matched GitHub b11183c2 after Linux plan fix | NOT DONE; verify remote tags and protected closeout after acceptance |
+| HANDOFF.md | Derived capsule refreshed 2026-09-14T15:59:06Z from b11183c2 | DONE; clear_ready=false retained |
+
+Hosted evidence was independently read by RELEASE-CI-OBSERVE on 2026-09-14.
+Runs are under https://github.com/pphothidaen/HoroConsultant/actions/runs/.
+No running release handle is inferred from an old status record.
+
+Current lane ownership, skills and acceptance are maintained only in the
+revision-17 board in ATOMIC_TICKET.md. Execution sequence: baseline -> independent
+baseline review -> baseline integration -> source -> independent source review
+-> focused QA -> source integration -> protected PR -> exact-SHA hosted gates.
+HANDOFF refresh is independent and must keep clear_ready=false.
+
+### Revision 17 binding clarification
+
+The already-dispatched 13-SUPERVISOR-LINUX-PLAN-BASELINE owns the original
+Sept7-named 13 manifest, which was absent at current HEAD. Successor 13-LINUX
+lanes refer to that same pair and execute sequentially, never concurrently.
+The existing plan assertion requires actual helper files/hashes even when the
+Darwin helper is absent on Linux. QA may prospectively supersede only that
+pure-plan binding expectation with explicit platform/backend availability and
+unavailable hash evidence; preserve all actual probe denial/confinement checks,
+all unaffected tests and prior provenance. Record original hosted RED and new
+genuine semantic RED before source changes; independent review must verify
+that no fake helper/hash, skipped regression or weakened actual probe occurs.
+
+Source integration and protected PR preparation are separately bound in
+ATOMIC_TICKET.md; only reviewed source/test/planning bytes may be integrated,
+and byte edits in preparation are limited to eight static mirrors.
+
+After repair QA, reuse separately resolved release preparation, independent
+review, exact-SHA CI, production verification, Rule22 closeout and tag/cleanup
+lanes in that order. Their gates remain unmet; no archive or production claim
+is made by this reconciliation.
+
+
 ## 2026-09-08 Independent Release-Review Successor Plan
 
 GRILL REPORT

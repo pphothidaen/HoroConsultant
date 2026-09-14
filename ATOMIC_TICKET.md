@@ -1,4 +1,124 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
+
+## Release-blocker remediation successor plan -- 2026-09-14 (revision 18)
+
+GRILL REPORT: APPROVED for planning and only the four bounded successor lanes
+below. No release, source, test, mirror, data, chart, account credential, sync,
+commit, push, PR, or deployment authority is granted. This revision supersedes
+the operational status of earlier release-review records only where it names the
+current anchors and lanes; those records remain historical evidence.
+
+Current source anchor [AUTO]: `b11183c2492a169f9dc30fa59aac656f264c69dc`.
+Baseline [CONFIRMED]: `a61b7497644f7eb6f291f0c3e9418a54be7ba78b`.
+Recent receipts [CONFIRMED]: 31 focused tests PASS; secret scan reports zero
+repository leaks; release preparation stopped before stamp, push, or PR. These
+receipts are current but are not deployment or production proof. Older manifests
+and the revision-17 `e0626dcf` narrative are historical and cannot override a
+later exact-SHA review or QA receipt.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition |
+|---|---|---|---|
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-DOCKER-CANDIDATE-VALIDATE` | `READY`; devops | `context.resolve`, `worktree.create`, `docker.dry-run`, `worktree.cleanup`; one new detached temporary worktree at exact `b11183c...`, plus one sanitized evidence file under `plans/evidence/horo-lite-review-remediation-20260907/`. Exclude `project/data/**`, `project/static/charts/**`, all source/tests/static mirrors/configs, and the primary worktree. | No predecessor. Prove a clean detached worktree can run `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk docker --dry-run` while exclusions remain absent from the candidate diff/status; record HEAD, command, exit class, and exact temp path. Remove only that exact worktree with `git worktree remove --force <recorded-path>` on every terminal path; if removal fails, record `BLOCKED_CLEANUP` and leave it for owner recovery. Stop on dirty candidate, SHA mismatch, excluded path present, timeout (terminate child; wait up to 10 seconds for termination), nonzero dry-run, or cleanup failure. No staging/commit/push/deploy. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-CODEX2-CONFIG-DIAGNOSE` | `READY`; devops | `context.resolve`, `config.inventory`, `sync.diff-plan`; read-only non-secret canonical account-profile/config inputs and one sanitized evidence file under `plans/evidence/horo-lite-review-remediation-20260907/`. | May run in parallel with DOCKER-CANDIDATE-VALIDATE. Inventory the canonical `codex2` profile/config, identify the exact two intended skill entries and six intended remote-plugin entries, and emit the idempotent intended sync diff without changing it. Current evidence shows this cardinality is unverified (multiple disabled skills and four explicit remote-plugin disables in the observed profile), so no historical ticket is admissible on this evidence. Stop `BLOCKED_CONFIG_INVENTORY_MISMATCH` on missing canonical authority, count/name mismatch, secret-bearing output, or non-idempotent/ambiguous diff. No cache reads/writes, deletion, credentials, provider dispatch, commit/push/deploy. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-CODEX2-CONFIG-SYNC` | `BLOCKED_BY_CODEX2_CONFIG_DIAGNOSE`; devops | `context.resolve`, `config.apply`, `ecosystem.sync`, `ecosystem.check`, `budget.check`; only the exact non-secret canonical config paths proven by DIAGNOSE and the same evidence directory. | Requires DIAGNOSE `PASS` with the exact intended diff and explicit single-editor handoff. Capture pre/post `python3 scripts/sync_ai_agent_ecosystem.py --check` and configured skill/plugin budget evidence; apply exactly the reviewed idempotent change, then run the authorized sync/check path. Acceptance: both checks PASS, post inventory equals the approved two-skill/six-plugin set, and a second diff is empty. Stop on pre-check failure, diff expansion, budget overrun/UNKNOWN, sync/check failure, secret exposure, cache/deletion/credential/provider action, or any non-owned write. No commit/push/deploy. |
+| `TICKET-HLITE-REVIEW-REMEDIATION-20260907-EXACT-SHA-REVIEW` | `BLOCKED_BY_DOCKER_CANDIDATE_VALIDATE_AND_CODEX2_CONFIG_SYNC`; code_reviewer | `context.resolve`, `review.release-evidence`; read-only current `b11183c...` tree, A/B evidence files, relevant later review/QA receipts, and one sanitized review verdict under `plans/evidence/horo-lite-review-remediation-20260907/`. | Requires A success and B sync success. Bounded commands: `git rev-parse HEAD`, `git status --short`, `git diff --check`, `python3 project/core/code_reviewer.py --scan-secrets`, and `python3 project/core/code_reviewer.py --review`; each is capped at 120 seconds. On timeout terminate the process, wait no more than 10 seconds, then emit typed `BLOCKED_REVIEW_TIMEOUT`. Acceptance: exact HEAD equals `b11183c...`; zero secret leaks; reviewer returns `READY_FOR_PROD`; A/B receipts are complete; and the verdict explicitly classifies stale manifest wording as historical rather than proof of incomplete work when later exact-SHA review/QA receipts exist. Otherwise emit typed `BLOCKED` with evidence. No writes outside the verdict, no staging/commit/push/deploy. |
+
+Nine-dimension register: D1 [CONFIRMED] planning/lane binding only; explicit
+exclusions above. D2 [AUTO] replaces stale operational assumptions with
+exact-SHA evidence ordering. D3 [CONFIRMED] every lane has measurable
+acceptance and typed stop. D4 [AUTO] A requires Docker/local Git; B requires
+canonical non-secret configuration authority; C requires A/B receipts. D5
+[CONFIRMED] one editor per evidence file and no overlapping mutable product
+paths. D6 [CONFIRMED] “two skills/six plugins” is an intended target, not a
+current fact. D7 [AUTO] cleanup failure, timeout, diff drift, and stale proof
+each fail closed. D8 [CONFIRMED] sanitized ASCII evidence only; no provider
+dispatch. D9 [NOT-APPLICABLE] no metaphysical calculation or HITL data changes.
+
+Authorized next phase: dispatch A and B-diagnose only; B-sync and C remain
+dependency-blocked. Waivers: NONE. Next question: NONE.
+
+## Current resume reconciliation -- 2026-09-14 (revision 17)
+
+This section supersedes operational status in the historical sections below;
+those sections are preserved as evidence, not current execution instructions.
+Current source anchor: main e0626dcf7c1892031bfbe503a40a958af0c99ade.
+
+GRILL REPORT: APPROVED for the bounded finding-13 repair chain and derived
+handoff refresh. Production release remains BLOCKED by current regression.
+D1 [CONFIRMED]: resume Horo Lite release; repair Linux pure planning only,
+refresh plan/handoff, retain later production/closeout gates; unrelated roadmap,
+new transit algorithms, credentials and project/data/hitl_reviews.json excluded.
+D2 [AUTO]: PR42 integrated remediation; PR45 integrated squash provenance
+recovery; finding 13 still rejects Linux planning in backend_plan.
+D3 [CONFIRMED]: reviewed genuine RED, frozen baseline integration, source
+review and GREEN focused/full hosted tests precede release; stop on failed
+predecessor, changed baseline, unbound ownership or unproven production identity.
+D4 [AUTO]: current source/tests and exact-main hosted failures available;
+new successor manifest required; no provider credentials needed for repair.
+D5 [CONFIRMED]: QA owns baseline/manifest, developer owns supervisor only,
+reviewer is read-only, BSA owns planning and a separate HANDOFF-only lane.
+D6 [AUTO]: merge is not test or deployment proof; old PR38/41 instructions
+are obsolete; missing production evidence is UNKNOWN, not success.
+D7 [AUTO]: preserve fail-closed actual probes, immutable prior provenance,
+and historical planning; recover via failed predecessor without force pushes.
+D8 [CONFIRMED]: bounded ASCII logs and exact-SHA hosted evidence; no quota
+or provider-execution claim from observations. D9 [NOT-APPLICABLE]: this
+repair changes infrastructure planning, not metaphysical calculations/HITL.
+Waivers: NONE for this phase. Next question: NONE.
+
+| Requirement | Current evidence | State / next owner |
+|---|---|---|
+| Remediation 01-12 integration | PR42 squash e003b5bd includes source, tests and README/HOWTO changes | Integrated history; no fresh all-contract QA claim |
+| PR/provenance reconciliation | PR41 closed unmerged; PR42/43/45 merged; PR44 closed unmerged; exact-main provenance run 34812636042 succeeds | Provenance hosted gate PASS on e0626dcf |
+| Linux pure planning (13) | Current backend_plan requires darwin; CI 34812636141 has 3 failures, 4550 passed, 47 skipped, 1 xfailed; safety 34812636145 same 3 failures, 4546 passed, 51 skipped, 1 xfailed | BLOCKED; repair three parametrizations filesystem/deadline/streams |
+| Full CI and independent safety | Both exact-main runs terminal failure; Rust/security/live E2E jobs pass only their own scope | BLOCKED by finding 13; green provenance alone insufficient |
+| Deployment and exact release identity | Deploy run 34813231499 skipped; synthetic 34851702220 fails HF health HTTP503 while four Vercel assets HTTP200 | BLOCKED; post-repair deployment plus exact backend/UI identities required |
+| Five viewport audit and rollback | No current scoped production receipt; required widths 360/375/390/768/1440 | UNVERIFIED; production QA after healthy deployment |
+| Rule22 archive/release notes | ReleaseNotes.md remains conditional Sept6; active Horo Lite plans retained | NOT DONE; archive only after full production acceptance |
+| Tag and local/origin reconciliation | Local v1.4.6-prod absent at inspection; main matched GitHub b11183c2 after Linux plan fix | NOT DONE; verify remote tags and protected closeout after acceptance |
+| HANDOFF.md | Derived capsule refreshed 2026-09-14T15:59:06Z from b11183c2 | DONE; clear_ready=false retained |
+
+Hosted evidence was independently read by RELEASE-CI-OBSERVE on 2026-09-14.
+Runs are under https://github.com/pphothidaen/HoroConsultant/actions/runs/.
+No running release handle is inferred from an old status record.
+
+### Current atomic successor sequence
+
+All suffixes below use TICKET-HLITE-REVIEW-REMEDIATION-20260907-.
+
+| Lane suffix | Owner / skills | Scope and acceptance |
+|---|---|---|
+| 13-LINUX-BASELINE-20260914 | qa_tester / qa-regression-provenance, qa-e2e-testing, agile-governance | Existing tests/test_agy_terminal_execution_backend.py and new plans/test_provenance/ticket-hlite-review-remediation-20260907-13-supervisor-linux-plan.json only. Freeze genuine Linux RED for the existing three assertions; preserve existing probe denial and binding contracts. Record exact HEAD, commands, hashes and hosted failure anchors. |
+| 13-LINUX-BASELINE-REVIEW-20260914 | code_reviewer / qa-regression-provenance, qa-e2e-testing, agile-governance | Read-only source/test/new manifest; independently confirm genuine RED, unchanged production source and truthful immutable predecessor provenance. |
+| 13-LINUX-BASELINE-INTEGRATION-20260914 | qa_tester / qa-regression-provenance, agile-governance | Commit only reviewed baseline test/manifest bytes after review PASS; no source mutation before integration. |
+| 13-LINUX-SOURCE-20260914 | developer / sdlc-aisdlc-workflow | scripts/agy_terminal_supervisor.py only after baseline integration. Pure plan must return PLANNED without child execution on Linux, retain UNPROVEN capability and no verified controls; actual probe remains fail-closed when OS backend unavailable. No fabricated helper hashes or weakened confinement. |
+| 13-LINUX-REVIEW-20260914 | code_reviewer / qa-regression-provenance, qa-e2e-testing, agile-governance | Independently review exact source delta and provenance; no writes. |
+| 13-LINUX-QA-20260914 | qa_tester / qa-regression-provenance, qa-e2e-testing, agile-governance | After source review PASS require entire backend module GREEN plus relevant regression; no test/source mutation; hosted full suite remains required before release. |
+| HANDOFF-REFRESH-20260914 | business_analyst / anti-cognitive-decay, bsa-doc-skill-management, agile-governance | HANDOFF.md only. Regenerate bounded HandoffSnapshotV1 from this current state, schema validate, retain clear_ready=false and actual next lane; do not reintroduce old PR38 worktree instructions. |
+
+### Revision 17 binding clarification
+
+The already-dispatched 13-SUPERVISOR-LINUX-PLAN-BASELINE owns the original
+Sept7-named 13 manifest, which was absent at current HEAD. Successor 13-LINUX
+lanes refer to that same pair and execute sequentially, never concurrently.
+The existing plan assertion requires actual helper files/hashes even when the
+Darwin helper is absent on Linux. QA may prospectively supersede only that
+pure-plan binding expectation with explicit platform/backend availability and
+unavailable hash evidence; preserve all actual probe denial/confinement checks,
+all unaffected tests and prior provenance. Record original hosted RED and new
+genuine semantic RED before source changes; independent review must verify
+that no fake helper/hash, skipped regression or weakened actual probe occurs.
+
+| Additional lane suffix | Owner / skills | Scope and gate |
+|---|---|---|
+| 13-LINUX-SOURCE-INTEGRATION-20260914 | devops / devops-deployment, agile-governance | Commit only scripts/agy_terminal_supervisor.py unchanged after source review and focused QA PASS; no baseline/docs mutation. |
+| RELEASE-PREP-PR-20260914 | devops / devops-deployment, hf-static-release-verification, agile-governance | After source integration, stamp the eight existing static mirror paths; integrate only reviewed supervisor and baseline/manifest commits plus four validated planning files and validated HANDOFF.md; create/push protected PR. No source/test/doc byte edits; all required CI and safety gates precede merge/deploy. |
+
+After repair QA, reuse separately resolved release preparation, independent
+review, exact-SHA CI, production verification, Rule22 closeout and tag/cleanup
+lanes in that order. Their gates remain unmet; no archive or production claim
+is made by this reconciliation.
+
 > Sole authoritative atomic ticket registry, status board, and operational handoff.
 > Consolidated from project_tickets.md, PROJECT_TASKS.md, and atomic_tasks.md.
 
