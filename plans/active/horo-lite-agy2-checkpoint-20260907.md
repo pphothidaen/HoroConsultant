@@ -16,10 +16,11 @@ RELEASE-PREP-PR is prospectively superseded by RELEASE-PREP-PR-002.
 
 | Finding | Ordered lane suffixes | State |
 |---|---|---|
-| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | 09 QA additionally blocked by legacy-superseding integration |
-| P1 HITL persistence | 10-HITL-ENQUEUE-FAILURE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
-| P2 transit semantics | 11-TRANSIT-SEMANTICS-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Genuine RED produced; baseline review ready |
-| P2 docs gap | 12-DOCS-SYNC | Blocked by all three QA lanes |
+| P1 consensus | 09-CONSENSUS-INDEPENDENCE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; verified green in 16dfc3a5 |
+| P1 HITL persistence | 10-HITL-ENQUEUE-FAILURE-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; fail-closed verified green |
+| P2 transit semantics | 11-TRANSIT-SEMANTICS-BASELINE -> BASELINE-REVIEW -> BASELINE-INTEGRATION -> SOURCE -> REVIEW -> QA | Implemented in commit 6ac81365; proxy semantics verified green |
+| P2 docs gap | 12-DOCS-SYNC -> 12-DOCS-INTEGRATION | Docs reviewed in 12-DOCS-SYNC; 12-DOCS-INTEGRATION ready for commit |
+| P1 supervisor Linux plan | 13-SUPERVISOR-LINUX-PLAN-BASELINE -> BASELINE-REVIEW -> SOURCE -> REVIEW -> QA | 3 failures on Linux CI PR #41 (PURE_BACKEND_PLAN_REJECTED); genuine RED needed |
 
 All suffixes use prefix TICKET-HLITE-REVIEW-REMEDIATION-20260907-.
 Independent baseline reviewers own only their test+manifest pairs. The
@@ -44,9 +45,19 @@ Revision 15 successor lanes:
 - PLANNING-ARTIFACT-INTEGRATION-002: devops commits exactly the four planning
   artifacts and excludes source, tests, manifests, data, push, and deploy.
 
+Revision 16 successor lanes:
+
+- 12-DOCS-INTEGRATION: devops stages and commits reviewed README.md and HOWTO.md diffs without byte edits.
+- 13-SUPERVISOR-LINUX-PLAN-BASELINE: qa_tester freezes genuine RED for scripts/agy_terminal_supervisor.py backend_plan rejection on Linux without darwin sandbox-exec.
+- 13-SUPERVISOR-LINUX-PLAN-BASELINE-REVIEW: code_reviewer inspects test and 13 manifest; requires genuine RED.
+- 13-SUPERVISOR-LINUX-PLAN-SOURCE: developer remediates backend_plan to provide platform-honest plan evidence on Linux while strictly preserving fail-closed OS execution for probe execution.
+- 13-SUPERVISOR-LINUX-PLAN-REVIEW: code_reviewer verifies diff and provenance.
+- 13-SUPERVISOR-LINUX-PLAN-QA: qa_tester verifies focused and full regression.
+- PLANNING-ARTIFACT-INTEGRATION-003: devops commits exactly the four revision-16 planning artifacts.
+
 All suffixes use TICKET-HLITE-REVIEW-REMEDIATION-20260907-. Prior baseline and
 EOF superseder history stays unchanged. The existing uncommitted reviewed
-consensus_matrix.py diff remains untouched. No revision-15 lane is DONE.
+consensus_matrix.py diff remains untouched. No revision-15 or revision-16 lane is DONE.
 
 Initial reviewed HEAD: 77cbe84a728e93e7f7c9007ce31b50936967dddb
 Execution account: agy2. Control account: codex1 (quota preservation).
@@ -83,6 +94,16 @@ Full scope: [handoff](horo-lite-review-agy2-handoff-20260907.md).
 8. AGY2 retains exclusive reconciliation ownership of handles `206ba523`,
    `63a8c841`, and `a323bccf`. The AGY1/AGY3 preflights must not query,
    replace, duplicate, or claim those workers. No other package is transferred.
+9. Current evidence reconciliation (2026-09-14): Owner explicitly authorizes
+   continuing the full release chain; no generic confirmation required.
+   Docs review (12-DOCS-SYNC) verified all 5 behavioral contracts. Focused tests:
+   14 passed green; broad run had 45 passed and 1 host node loader failure.
+   Hosted CI on GitHub PR #41 (commit 83de65d28664e950f2a3643c64ef8a2856a9c833)
+   failed run 34266798802 with 3 failing tests in test_backend_plans_fixed_probe_without_execution
+   (PURE_BACKEND_PLAN_REJECTED); safety audit run 34266798838 reports
+   STOP_CONDITION_TEST_REGRESSION exit -1. Restamping cannot fix this defect.
+   Lane 13 binds sequential TDD remediation to restore Linux CI plan platform
+   honesty without contract weakening.
 
 ## Codex1 quota-preservation guardrail: active at 15%
 

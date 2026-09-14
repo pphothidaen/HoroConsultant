@@ -24,7 +24,8 @@ GRILL REPORT
 | 09 consensus independence | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-09-CONSENSUS-INDEPENDENCE-QA |
 | 10 HITL enqueue truth | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-10-HITL-ENQUEUE-FAILURE-QA |
 | 11 transit semantics | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-11-TRANSIT-SEMANTICS-QA |
-| 12 docs gap | Not applicable: docs-only | TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | Protected-PR review | Protected-PR required checks |
+| 12 docs gap | Not applicable: docs-only | TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-SYNC | TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-INTEGRATION | Protected-PR required checks |
+| 13 supervisor Linux plan | TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-BASELINE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-SOURCE | TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-REVIEW | TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-QA |
 
 ### Baseline review and integration gate
 
@@ -52,10 +53,28 @@ project/debate/consensus_matrix.py diff is read-only and untouched. Existing
 09 QA is blocked until both 09 source review PASS and legacy-superseding
 integration exist.
 
+### Revision 16 current evidence reconciliation and Linux backend plan remediation
+
+Current evidence reconciliation:
+- Docs review: Lane 12-DOCS-SYNC verified that README.md and HOWTO.md diff accurately documents all 5 completed remediation contracts; diff remains uncommitted in working tree.
+- Local test evidence: 14/14 focused remediation tests passed green. Broad 9-suite run had 45 pass and 1 failure (`test_lite_js_syntax_valid` due to host node dynamic library missing `libllhttp.9.3.dylib`).
+- Hosted CI failure: GitHub PR #41 is at `83de65d28664e950f2a3643c64ef8a2856a9c833`. CI run 34266798802 had 3 test failures in `test_backend_plans_fixed_probe_without_execution` (filesystem, deadline, streams) with `PURE_BACKEND_PLAN_REJECTED` (4544 passed); safety audit run 34266798838 reports `STOP_CONDITION_TEST_REGRESSION` exit -1.
+- Defect fact: `scripts/agy_terminal_supervisor.py` line 374 `backend_plan()` strictly requires `sys.platform == 'darwin'` and `/usr/bin/sandbox-exec` even when operation is "plan" (pure inspection without probe execution), causing fail-closed rejection on Linux CI runners. Static asset restamping will not resolve this defect. Remediation must provide platform-honest plan evidence on Linux while strictly preserving fail-closed OS execution for actual probe execution without contract weakening.
+
+| Lane | Role | Exact scope | Gate |
+|---|---|---|---|
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-12-DOCS-INTEGRATION | devops | README.md and HOWTO.md only; context.resolve, git.commit | Commit reviewed documentation diffs unchanged; no source or test mutations. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-BASELINE | qa_tester | tests/test_agy_terminal_execution_backend.py and new 13 provenance manifest | Freeze genuine RED for Linux planning rejection; genuine RED baseline required. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-BASELINE-REVIEW | code_reviewer | Read-only test and 13 manifest; review.red-baseline, review.provenance | Verify genuine RED on Linux planning and truthful provenance. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-SOURCE | developer | scripts/agy_terminal_supervisor.py; context.resolve | Remediate backend_plan line 374 for platform-honest plan evidence while preserving fail-closed OS execution for probe execution. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-REVIEW | code_reviewer | Read-only source, test, and manifest; review.diff, review.provenance | Verify exact diff, platform-honest planning, preserved fail-closed probe execution, and source_security closure. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-SUPERVISOR-LINUX-PLAN-QA | qa_tester | Read-only source, test, and manifest; context.resolve | Require GREEN regression across all backend tests and provenance PASS. |
+| TICKET-HLITE-REVIEW-REMEDIATION-20260907-PLANNING-ARTIFACT-INTEGRATION-003 | devops | Exact four planning/context artifacts; context.resolve, git.commit | Commit validated revision-16 planning bytes only; exclude all source/tests/manifests/data/push/deploy. |
+
 Order is RED BASELINE -> BASELINE-REVIEW -> six-path BASELINE-INTEGRATION
-commit -> SOURCE -> source REVIEW -> QA, then docs and
-TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002. The baseline
-commit must contain only the six test/provenance paths and precede every source
+commit -> SOURCE -> source REVIEW -> QA, then docs integration, supervisor Linux
+plan remediation, and TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PREP-PR-002.
+The baseline commit must contain only the six test/provenance paths and precede every source
 mutation. PR #38 is historical and MERGED; a new protected PR is required after
 remediation. No new review/integration lane is DONE and no release-ready, push,
 PR, merge, deploy, publish, or archive claim is made.
