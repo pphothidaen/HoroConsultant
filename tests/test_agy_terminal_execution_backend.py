@@ -258,6 +258,17 @@ def test_linux_plan_is_pure_but_execution_remains_unavailable(linux_spec, monkey
         assert code == 0 and response.get("status") == "PLANNED", "PURE_LINUX_BACKEND_PLAN_REJECTED"
         assert response.get("execution_available") is False, "UNSUPPORTED_PLAN_IS_NOT_EXECUTION_PROOF"
         assert response.get("binding", {}).get("helper", {}).get("path") == "/usr/bin/sandbox-exec"
+        # Explicit platform field binding (F4 regression guard)
+        expected_platform = "linux" if platform == "linux" else "darwin"
+        assert response.get("binding", {}).get("platform") == expected_platform, "PLATFORM_FIELD_MISMATCH"
+        assert response.get("platform") == expected_platform, "TOPLEVEL_PLATFORM_MISMATCH"
+        # Darwin-only runtime_trees must be empty when simulated platform is Linux
+        if platform == "linux":
+            policy = response.get("policy", {})
+            allowlist = policy.get("runtime_read_allowlist", [])
+            # Linux should only have runtime_files (/, /usr/bin/perl, /dev/null), NOT Darwin runtime_trees
+            assert "/System/Library" not in allowlist, "DARWIN_PATHS_LEAKED_TO_LINUX"
+            assert "/usr/lib" not in allowlist, "DARWIN_PATHS_LEAKED_TO_LINUX"
         assert_binding(spec, response)
     else:
         assert code != 0 and response.get("status") == "UNSUPPORTED"

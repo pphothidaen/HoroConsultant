@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-LINUX-QA-20260914",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "adfcc1de7cbf8da9b9d38f0fe024d77829604d2e",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_execution_backend.py",
+      "sha256": "de131a9cb43bf17acb1acf8a05149dbedd3e6709f39fa76a2963947f91e5da55"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_agy_terminal_execution_backend.py::test_linux_plan_is_pure_but_execution_remains_unavailable",
+        "--tb=line"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "PRE_FIX_RED: 6 failed, 25 passed; PURE_LINUX_BACKEND_PLAN_REJECTED for linux and darwin-missing-helper x filesystem/deadline/streams"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_terminal_supervisor.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "a61b7497644f7eb6f291f0c3e9418a54be7ba78b",
+  "correction_reason": "Source fix integrated. Tests now pass 31/31 locally. Platform field assertions added for Linux execution_available=False and Darwin path isolation. Pre-fix RED was genuine; post-fix GREEN.",
+  "rationale": "VERIFIED post-fix GREEN integration. Pre-fix RED: 6 failed/25 passed (genuine RED for PURE_LINUX_BACKEND_PLAN_REJECTED). Post-fix GREEN: 31/31 passed. Tests assert platform binding, execution_available=False on Linux, empty runtime_read_allowlist for Linux. Fail-closed probe behavior preserved."
+}
