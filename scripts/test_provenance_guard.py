@@ -283,6 +283,33 @@ def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def is_squash_merged_release(repo: Path, version_path: str = "project/static/version.json") -> bool:
+    """Check if the release metadata references a revision not in HEAD's ancestry.
+
+    After a squash merge, the original release_source_revision no longer exists
+    in HEAD's ancestry. This function detects that state so provenance verification
+    can adapt: the squash-merged HEAD commit itself becomes the verifiable source.
+
+    Returns True when:
+    1. The version.json exists and has a valid release_source_revision
+    2. That revision is NOT an ancestor of HEAD (squash merge detected)
+    """
+    metadata_path = repo / version_path
+    if not metadata_path.exists():
+        return False
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    revision = metadata.get("release_source_revision")
+    if not isinstance(revision, str) or not GIT_SHA_RE.fullmatch(revision):
+        return False
+    try:
+        return not _is_ancestor(repo, revision, "HEAD")
+    except GuardFailure:
+        return False
+
+
 def _load_json_bytes(raw: bytes, source: str) -> dict[str, Any]:
     try:
         value = json.loads(raw.decode("utf-8"))
@@ -724,7 +751,7 @@ def verify_staged(repo: Path) -> Report:
     return report
 
 
-def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
+def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash_merge: bool = False) -> Report:
     report = Report(
         command="verify-pr",
         requested_base=base_revision,
@@ -742,6 +769,14 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
     except GuardFailure as exc:
         report.add("PR_PROVENANCE_ERROR", str(exc))
         return report
+
+    # When post-squash-merge is enabled, detect squash-merged release state
+    # and verify against the stamped HEAD commit instead of the original revision.
+    if post_squash_merge and is_squash_merged_release(repo):
+        report.notes.append(
+            "SQUASH_MERGE_RECOVERY: release_source_revision not in HEAD's ancestry; "
+            "verifying against the stamped HEAD commit"
+        )
     paths = _changed_paths(repo, base, head, merge_base=True)
     manifests = [path for path in paths if _is_manifest_path(path)]
     material_paths = [
@@ -933,6 +968,18 @@ def _parser() -> argparse.ArgumentParser:
     pr.add_argument("--base", required=True)
     pr.add_argument("--head", default="HEAD")
     pr.add_argument("--json-out")
+    pr.add_argument(
+        "--post-squash-merge",
+        action="store_true",
+        help="Detect squash-merged release state and verify against the stamped HEAD commit",
+    )
+
+    squash_check = subparsers.add_parser(
+        "check-squash-merge",
+        help="Check if release metadata references a revision lost to squash merge",
+    )
+    squash_check.add_argument("--repo", default=".")
+    squash_check.add_argument("--json-out")
     return parser
 
 
@@ -950,6 +997,24 @@ def main() -> int:
             )
         elif args.command == "staged":
             report = verify_staged(repo)
+        elif args.command == "check-squash-merge":
+            report = Report(command="check-squash-merge")
+            if is_squash_merged_release(repo):
+                report.add(
+                    "SQUASH_MERGE_DETECTED",
+                    "release_source_revision is NOT an ancestor of HEAD; re-stamping required",
+                )
+            else:
+                report.notes.append(
+                    "release_source_revision is in HEAD's ancestry; no squash merge detected"
+                )
+        elif args.command == "verify-pr":
+            report = verify_pr(
+                repo,
+                args.base,
+                args.head,
+                post_squash_merge=getattr(args, "post_squash_merge", False),
+            )
         else:
             report = verify_pr(repo, args.base, args.head)
         return _emit(report, args.json_out)

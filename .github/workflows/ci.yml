@@ -240,6 +240,11 @@ jobs:
             --head HEAD \
             --json-out test-provenance-report.json
 
+      - name: Post-squash-merge restamp check
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          python3 scripts/stamp_version.py --post-squash-merge
+
       - name: Upload provenance report
         if: always()
         uses: actions/upload-artifact@v4

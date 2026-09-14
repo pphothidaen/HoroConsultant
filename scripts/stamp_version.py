@@ -13,6 +13,7 @@ Targets:
 Usage:
   python3 scripts/stamp_version.py              # stamp all local files
   python3 scripts/stamp_version.py --check      # dry-run: report mismatches only
+  python3 scripts/stamp_version.py --post-squash-merge  # auto-detect squash-merged state and restamp to HEAD
 """
 
 from __future__ import annotations
@@ -29,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RELEASE_SOURCE_METADATA_PATH = "project/static/version.json"
 SHORT_COMMIT_RE = re.compile(r"[0-9a-f]{7}")
 FULL_REVISION_RE = re.compile(r"[0-9a-f]{40}")
+SCHEMA_VERSION = "v2"
 
 
 def get_git_revision(reference: str = "HEAD") -> str:
@@ -47,6 +49,144 @@ def get_git_revision(reference: str = "HEAD") -> str:
         return "unknown"
     except OSError:
         return "unknown"
+
+
+def is_squash_merged(metadata_path: Path) -> bool:
+    """Check if the current version.json references a revision not in HEAD's ancestry.
+
+    After a squash merge, the original release_source_revision no longer exists
+    in HEAD's ancestry. This function detects that state so re-stamping can
+    restore verifiable provenance.
+    """
+    if not metadata_path.exists():
+        return False
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    revision = metadata.get("release_source_revision")
+    if not revision or not FULL_REVISION_RE.fullmatch(revision):
+        return False
+    try:
+        result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", revision, "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+        return result.returncode != 0
+    except OSError:
+        return False
+
+
+def detect_squash_merge(cwd: Path = ROOT) -> dict:
+    """Detect whether the release metadata is in a squash-merged state.
+
+    Returns a dict with detection results:
+    - is_squash_merged: bool indicating if release_source_revision is NOT in HEAD's ancestry
+    - release_source_revision: the recorded revision from version.json
+    - head_revision: the current HEAD revision
+    - recovery_available: bool indicating if re-stamping can restore ancestry
+    """
+    metadata_path = cwd / RELEASE_SOURCE_METADATA_PATH
+    result = {
+        "is_squash_merged": False,
+        "release_source_revision": None,
+        "head_revision": None,
+        "recovery_available": False,
+    }
+
+    if not metadata_path.exists():
+        return result
+
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        result["release_source_revision"] = metadata.get("release_source_revision")
+    except (json.JSONDecodeError, OSError):
+        return result
+
+    # Resolve HEAD
+    try:
+        head_rev = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        result["head_revision"] = head_rev
+    except (subprocess.CalledProcessError, OSError):
+        return result
+
+    # Check ancestry
+    revision = result["release_source_revision"]
+    if revision and FULL_REVISION_RE.fullmatch(revision):
+        try:
+            ancestry_check = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", revision, "HEAD"],
+                cwd=cwd,
+                capture_output=True,
+                check=False,
+            )
+            result["is_squash_merged"] = ancestry_check.returncode != 0
+        except OSError:
+            pass
+
+    # Recovery is available when squash merge is detected (can always re-stamp to HEAD)
+    result["recovery_available"] = result["is_squash_merged"]
+    return result
+
+
+def recover_from_squash_merge(cwd: Path = ROOT) -> dict:
+    """Recover from squash merge by re-stamping version.json to HEAD.
+
+    Returns a dict with recovery results:
+    - recovered: bool indicating if recovery was performed
+    - new_revision: the new release_source_revision after recovery (or existing if no recovery needed)
+    - previous_revision: the original release_source_revision before recovery
+    """
+    metadata_path = cwd / RELEASE_SOURCE_METADATA_PATH
+    result = {
+        "recovered": False,
+        "new_revision": None,
+        "previous_revision": None,
+    }
+
+    # Check if recovery is needed
+    detection = detect_squash_merge(cwd=cwd)
+    result["previous_revision"] = detection["release_source_revision"]
+
+    if not detection["is_squash_merged"]:
+        result["new_revision"] = detection["release_source_revision"]
+        return result
+
+    # Resolve HEAD
+    try:
+        head_rev = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return result
+
+    # Re-stamp to HEAD
+    head_short = head_rev[:7]
+    version = build_version(head_short)
+    try:
+        stamp_version_json(metadata_path, version, head_short, head_rev)
+        # Also stamp public/version.json
+        public_path = cwd / "public" / "version.json"
+        if public_path.exists():
+            stamp_version_json(public_path, version, head_short, head_rev)
+        result["recovered"] = True
+        result["new_revision"] = head_rev
+    except Exception:
+        pass
+
+    return result
 
 
 def get_git_short_hash() -> str:
@@ -219,7 +359,21 @@ def main():
         help="Explicit source commit to resolve and stamp",
     )
     parser.add_argument("--version", type=str, default=None, help="Explicit version string (e.g. 1.0.0.abc1234)")
+    parser.add_argument(
+        "--post-squash-merge",
+        action="store_true",
+        help="Auto-detect squash-merged state and restamp to HEAD to restore ancestry",
+    )
     args = parser.parse_args()
+
+    if args.post_squash_merge:
+        metadata_path = ROOT / RELEASE_SOURCE_METADATA_PATH
+        if is_squash_merged(metadata_path):
+            print("🔄 Squash merge detected: release_source_revision is NOT an ancestor of HEAD")
+            print("   Restamping version metadata to HEAD to restore verifiable ancestry...")
+        else:
+            print("✅ No squash merge detected: release_source_revision is already in HEAD's ancestry")
+            sys.exit(0)
 
     revision = get_git_revision(args.commit or "HEAD")
     if revision == "unknown":
