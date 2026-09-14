@@ -20,6 +20,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Post-squash-merge version restamp
+        run: |
+          python3 scripts/stamp_version.py --post-squash-merge
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -50,6 +54,7 @@ jobs:
           python3 scripts/test_provenance_guard.py verify-pr
           --base "${{ steps.comparison.outputs.base_commit }}"
           --head HEAD
+          --post-squash-merge
           --json-out test-provenance-report.json
 
       - name: Upload provenance report
