@@ -14,6 +14,7 @@ import hashlib
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -151,3 +152,290 @@ def test_squash_merged_release_recovers(tmp_path: Path) -> None:
     detection = stamp_version.detect_squash_merge(cwd=ROOT)
     assert isinstance(detection, dict)
     assert "is_squash_merged" in detection
+
+
+def test_post_squash_merge_flag_in_verify_pr() -> None:
+    """Verify that --post-squash-merge flag is accepted by verify-pr command."""
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "test_provenance_guard.py"),
+         "verify-pr", "--help"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "--post-squash-merge" in result.stdout
+
+
+def test_post_squash_merge_flag_in_verify() -> None:
+    """Verify that --post-squash-merge flag is accepted by verify command."""
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "test_provenance_guard.py"),
+         "verify", "--help"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "--post-squash-merge" in result.stdout
+
+
+def test_verify_pr_post_squash_merge_emits_recovery_note(tmp_path: Path) -> None:
+    """When --post-squash-merge is set and squash detected, verify-pr emits SQUASH_MERGE_RECOVERY note."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-b", "main"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "qa@example.invalid"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "QA"], cwd=repo, capture_output=True, check=True)
+
+    # Create initial commit on main
+    (repo / "README.md").write_text("initial\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "chore: initial"], cwd=repo, capture_output=True, check=True)
+
+    # Create a "release" branch and add a commit (simulating the pre-squash state)
+    subprocess.run(["git", "checkout", "-b", "release/v1.0"], cwd=repo, capture_output=True, check=True)
+    release_file = repo / "release_content"
+    release_file.write_text("release content\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "release: v1.0.0 content"], cwd=repo, capture_output=True, check=True)
+    release_rev = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    # Go back to main and create unrelated history (simulating squash merge)
+    subprocess.run(["git", "checkout", "main"], cwd=repo, capture_output=True, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "chore: add src"], cwd=repo, capture_output=True, check=True)
+
+    # Create test file and manifest
+    (repo / "tests").mkdir()
+    (repo / "tests" / "test_contract.py").write_text(
+        "def test_contract():\n    assert False, 'missing intended behavior'\n",
+        encoding="utf-8",
+    )
+    manifest_dir = repo / "plans" / "test_provenance"
+    manifest_dir.mkdir(parents=True)
+    test_hash = hashlib.sha256((repo / "tests" / "test_contract.py").read_bytes()).hexdigest()
+    parent = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    manifest = {
+        "schema_version": "test-provenance-v1",
+        "ticket_id": "TICKET-SQUASH-001",
+        "sequence": 1,
+        "provenance_status": "VERIFIED",
+        "baseline_parent": parent,
+        "test_files": [{"path": "tests/test_contract.py", "sha256": test_hash}],
+        "red_tests": [{"command": ["python3", "-m", "pytest", "-q", "tests/test_contract.py"], "expected_exit": 1, "failure_fingerprint": "fail"}],
+        "allowed_source_paths": ["src/"],
+        "test_owner_role": "qa_tester",
+        "reviewer_role": "code_reviewer",
+        "supersedes": None,
+        "correction_reason": None,
+        "rationale": "squash merge test",
+    }
+    manifest_path = manifest_dir / "ticket-squash-001.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "test: freeze baseline\n\nTest-Baseline-Ticket: TICKET-SQUASH-001"],
+        cwd=repo, capture_output=True, check=True,
+    )
+    baseline = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    # Commit source change
+    (repo / "src" / "app.py").write_text("VALUE = 2\n", encoding="utf-8")
+    subprocess.run(["git", "add", "src/app.py"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", f"feat: implement\n\nTest-Baseline: {baseline}"],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    # Create version.json that references the release commit (not in HEAD's ancestry)
+    # This simulates a squash merge where the original release commit is no longer an ancestor
+    version_dir = repo / "project" / "static"
+    version_dir.mkdir(parents=True)
+    source_identity = {
+        "release_source_commit": release_rev[:7],
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_revision": release_rev,
+        "version": f"1.0.0.{release_rev[:7]}",
+    }
+    canonical = json.dumps(source_identity, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    version_data = {
+        "version": f"1.0.0.{release_rev[:7]}",
+        "release_source_commit": release_rev[:7],
+        "release_source_revision": release_rev,
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_metadata_sha256": hashlib.sha256(canonical).hexdigest(),
+    }
+    (version_dir / "version.json").write_text(json.dumps(version_data, indent=2) + "\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "chore(release): stamp version"],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    base = subprocess.run(
+        ["git", "rev-parse", "HEAD~2"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    subprocess.run(
+        ["git", "update-ref", "refs/remotes/origin/main", base],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    # Run verify-pr with --post-squash-merge
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "test_provenance_guard.py"),
+         "verify-pr", "--repo", str(repo), "--base", "origin/main", "--head", "HEAD",
+         "--post-squash-merge"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    report = json.loads(result.stdout)
+    # Should emit SQUASH_MERGE_RECOVERY note
+    assert any("SQUASH_MERGE_RECOVERY" in note for note in report["notes"]), (
+        f"Expected SQUASH_MERGE_RECOVERY note in report, got: {report['notes']}"
+    )
+    # Should NOT have SUPERSEDED_BASELINE_INVALID or SOURCE_COMMIT_MISSING_BASELINE_TRAILER
+    issue_codes = [issue["code"] for issue in report["issues"]]
+    assert "SUPERSEDED_BASELINE_INVALID" not in issue_codes, (
+        f"SUPERSEDED_BASELINE_INVALID should be skipped during squash recovery, got: {issue_codes}"
+    )
+    assert "SOURCE_COMMIT_MISSING_BASELINE_TRAILER" not in issue_codes, (
+        f"SOURCE_COMMIT_MISSING_BASELINE_TRAILER should be skipped during squash recovery, got: {issue_codes}"
+    )
+
+
+def test_verify_pr_without_post_squash_merge_still_fails(tmp_path: Path) -> None:
+    """Verify that without --post-squash-merge, squash state is not auto-recovered."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-b", "main"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "qa@example.invalid"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "QA"], cwd=repo, capture_output=True, check=True)
+
+    # Create initial commit on main
+    (repo / "README.md").write_text("initial\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "chore: initial"], cwd=repo, capture_output=True, check=True)
+
+    # Create a "release" branch and add a commit (simulating the pre-squash state)
+    subprocess.run(["git", "checkout", "-b", "release/v1.0"], cwd=repo, capture_output=True, check=True)
+    release_file = repo / "release_content"
+    release_file.write_text("release content\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "release: v1.0.0 content"], cwd=repo, capture_output=True, check=True)
+    release_rev = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    # Go back to main and create unrelated history (simulating squash merge)
+    subprocess.run(["git", "checkout", "main"], cwd=repo, capture_output=True, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "chore: add src"], cwd=repo, capture_output=True, check=True)
+
+    # Create test file and manifest
+    (repo / "tests").mkdir()
+    (repo / "tests" / "test_contract.py").write_text(
+        "def test_contract():\n    assert False, 'missing intended behavior'\n",
+        encoding="utf-8",
+    )
+    manifest_dir = repo / "plans" / "test_provenance"
+    manifest_dir.mkdir(parents=True)
+    test_hash = hashlib.sha256((repo / "tests" / "test_contract.py").read_bytes()).hexdigest()
+    parent = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    manifest = {
+        "schema_version": "test-provenance-v1",
+        "ticket_id": "TICKET-SQUASH-002",
+        "sequence": 1,
+        "provenance_status": "VERIFIED",
+        "baseline_parent": parent,
+        "test_files": [{"path": "tests/test_contract.py", "sha256": test_hash}],
+        "red_tests": [{"command": ["python3", "-m", "pytest", "-q", "tests/test_contract.py"], "expected_exit": 1, "failure_fingerprint": "fail"}],
+        "allowed_source_paths": ["src/"],
+        "test_owner_role": "qa_tester",
+        "reviewer_role": "code_reviewer",
+        "supersedes": None,
+        "correction_reason": None,
+        "rationale": "squash merge test 2",
+    }
+    manifest_path = manifest_dir / "ticket-squash-002.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "test: freeze baseline\n\nTest-Baseline-Ticket: TICKET-SQUASH-002"],
+        cwd=repo, capture_output=True, check=True,
+    )
+    baseline = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    # Commit source change
+    (repo / "src" / "app.py").write_text("VALUE = 2\n", encoding="utf-8")
+    subprocess.run(["git", "add", "src/app.py"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", f"feat: implement\n\nTest-Baseline: {baseline}"],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    # Create version.json that references the release commit (not in HEAD's ancestry)
+    version_dir = repo / "project" / "static"
+    version_dir.mkdir(parents=True)
+    source_identity = {
+        "release_source_commit": release_rev[:7],
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_revision": release_rev,
+        "version": f"1.0.0.{release_rev[:7]}",
+    }
+    canonical = json.dumps(source_identity, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    version_data = {
+        "version": f"1.0.0.{release_rev[:7]}",
+        "release_source_commit": release_rev[:7],
+        "release_source_revision": release_rev,
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_metadata_sha256": hashlib.sha256(canonical).hexdigest(),
+    }
+    (version_dir / "version.json").write_text(json.dumps(version_data, indent=2) + "\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "chore(release): stamp version"],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    base = subprocess.run(
+        ["git", "rev-parse", "HEAD~2"], cwd=repo, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    subprocess.run(
+        ["git", "update-ref", "refs/remotes/origin/main", base],
+        cwd=repo, capture_output=True, check=True,
+    )
+
+    # Run verify-pr WITHOUT --post-squash-merge
+    # It should NOT emit SQUASH_MERGE_RECOVERY because the flag is not set
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "test_provenance_guard.py"),
+         "verify-pr", "--repo", str(repo), "--base", "origin/main", "--head", "HEAD"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    report = json.loads(result.stdout)
+    # Without the flag, SQUASH_MERGE_RECOVERY should NOT be emitted
+    assert not any("SQUASH_MERGE_RECOVERY" in note for note in report["notes"]), (
+        f"SQUASH_MERGE_RECOVERY should NOT be emitted without --post-squash-merge, got: {report['notes']}"
+    )
