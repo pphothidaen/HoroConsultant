@@ -42,7 +42,7 @@ HoroConsultant is an enterprise-grade **Computational Metaphysics Engine** combi
 | **Core Engine** | Python 3.12 (Pure Python math, Rust PyO3 core bindings) |
 | **Web & API** | FastAPI, Uvicorn, HTML5/CSS3 (Glassmorphism Dark UI) |
 | **Vector DB & RAG** | FAISS Index (dim=768) + `nomic-embed-text:latest` (3,132 vectors) |
-| **Local LLM** | Ollama (`qwen2.5:7b`, `qwen2.5-coder:7b`) / MLX QLoRA 4-bit |
+| **Local LLM** | Ollama (`qwen2.5:7b`, `qwen2.5-coder:7b`, `llama3:8b`) / MLX QLoRA 4-bit |
 | **Cloud LLM** | Gemini 2.0 Flash (Dual Key rotation fallback & Prediction Validator) |
 | **Cloud Fine-Tuning** | Kaggle GPU Automation, HuggingFace Hub |
 | **Multi-Agent** | Claude Code, OpenAI Codex, Gemini AGY, Hermes, thClaws CLI |
@@ -57,7 +57,30 @@ HoroConsultant is an enterprise-grade **Computational Metaphysics Engine** combi
 - **MCP Server** — Model Context Protocol for AGY subagent integration
 - **Multi-Agent Governance** — 6-lane concurrency architecture with fail-closed isolation
 
+### Local Model Tiers
+
+| Tier | Variable | Default Model | Purpose |
+|------|----------|---------------|---------|
+| Primary | `OLLAMA_PRIMARY_MODEL` | `qwen2.5:7b` | Best for BaZi/Thai/Chinese interpretation |
+| Secondary | `OLLAMA_SECONDARY_MODEL` | `qwen2.5-coder:7b` | Capable fallback for code and analysis |
+| Tertiary | `OLLAMA_TERTIARY_MODEL` | `llama3:8b` | English fallback for general queries |
+
+### Cloud Model Rotation (Gemini Fallback Chain)
+
+| Priority | Variable | Default Model |
+|----------|----------|---------------|
+| 1 | `PRIMARY_MODEL` | `gemini-2.5-flash` |
+| 2 | `SECONDARY_MODEL` | `gemini-1.5-pro` |
+| 3 | `TERTIARY_MODEL` | `gemini-2.0-flash` |
+| 4 | Rotation | `gemini-flash-latest` |
+| 5 | Rotation | `gemma-4-26b-a4b-it` |
+| 6 | Rotation | `gemma-4-31b-it` |
+| 7 | Rotation | `gemini-3.5-flash-lite` |
+| 8 | Rotation | `gemini-3.6-flash` |
+
 ---
+
+
 
 ## ⚡ Quick Start
 
@@ -262,7 +285,121 @@ The C0 architecture freeze governs the MAREF-000..057 refactor with 9 ADRs, life
 
 > 📖 **Control plane docs:** [`docs/architecture/multiagent-control-plane/README.md`](docs/architecture/multiagent-control-plane/README.md)
 
+### C4 Context Diagram (Mermaid)
+
+```mermaid
+C4Context
+    title System Context — HoroConsultant AI Routing
+
+    Person(user, "End User", "Reads horoscope via Web UI")
+    Person(admin, "Admin", "HITL Review Studio")
+
+    System_Boundary(horo, "HoroConsultant") {
+        System(webui, "Web UI", "FastAPI + Jinja2")
+        System(api, "API Router", "v2/v3 endpoints")
+        System(router, "Hybrid LLM Router", "Ollama local-first → Gemini cloud fallback")
+    }
+
+    System_Ext(ollama, "Local Ollama Service: qwen2.5:7b, qwen2.5-coder:7b, llama3:8b")
+    System_Ext(gemini, "Gemini API: gemini-2.5-flash, gemini-1.5-pro, gemini-2.0-flash, gemini-flash-latest, gemma-4-26b-a4b-it, gemma-4-31b-it, gemini-3.5-flash-lite, gemini-3.6-flash")
+    System_Ext(cloudflare, "Cloudflare Workers AI — zero-cost fallback")
+    System_Ext(codex_cli, "Codex CLI — cloud-mode codex_cli route")
+
+    Rel(user, webui, "HTTPS")
+    Rel(admin, webui, "HTTPS /admin")
+    Rel(webui, api, "REST")
+    Rel(api, router, "generate()")
+    Rel(router, ollama, "Primary local inference")
+    Rel(router, gemini, "Cloud Fallback chain")
+    Rel(router, cloudflare, "Zero-cost fallback")
+    Rel(router, codex_cli, "Codex cloud route")
+```
+
+### Ollama Local-First Routing Flowchart
+
+```mermaid
+flowchart TD
+    A[User Request] --> B{CheckLLM}
+    B -->|Is LLM Interpretation Requested?| C{LLM Requested?}
+    C -->|No| D[Return chart JSON only]
+    C -->|Yes| E[Ollama Primary: qwen2.5:7b]
+    E -->|Timeout / 429 / connect_error / exception / 503| F[Ollama Secondary: qwen2.5-coder:7b]
+    F -->|Timeout / 429 / connect_error / exception / 503| G[Ollama Tertiary: llama3:8b]
+    G -->|All Errors: Timeout / 429 / connect_error / exception / 503| H[CloudFallback: All Error Types]
+    H --> I[Cloudflare AI: @cf/meta/llama-3-8b-instruct]
+    I -->|Fallback| J[Gemini Primary: gemini-2.5-flash]
+    J -->|Fallback| K[Gemini Rotation: gemini-1.5-pro → gemini-2.0-flash → gemini-flash-latest → gemma-4-26b-a4b-it → gemma-4-31b-it → gemini-3.5-flash-lite → gemini-3.6-flash]
+    J -->|Fallback| L[Codex CLI Route: codex_cli]
+    K --> M{Fallback Reading Generation}
+    L --> M
+    D --> N[Response with chart]
+    E --> N
+    F --> N
+    G --> N
+    H --> N
+    I --> N
+    J --> N
+    K --> N
+    M --> N
+```
+
+### Gemini Cloud Fallback Rotation Chain
+
+```mermaid
+flowchart LR
+    A[Gemini API Request] --> B[gemini-2.5-flash]
+    B -->|Error| C[gemini-1.5-pro]
+    C -->|Error| D[gemini-2.0-flash]
+    D -->|Error| E[gemini-flash-latest]
+    E -->|Error| F[gemma-4-26b-a4b-it]
+    F -->|Error| G[gemma-4-31b-it]
+    G -->|Error| H[gemini-3.5-flash-lite]
+    H -->|Error| I[gemini-3.6-flash]
+    I -->|All Failed| J[Codex CLI Route: codex_cli]
+    J -->|Fallback| K[Fallback Reading Generation]
+```
+
+### LLM Decision Point in interpret_bazi
+
+```mermaid
+flowchart TD
+    A[interpret_bazi Request] --> B{Is LLM Interpretation Requested?}
+    B -->|No — chart_only mode| C[Return BaZi chart JSON]
+    B -->|Yes| D[router.generate with full pipeline]
+    D --> E{Ollama Available?}
+    E -->|Yes| F[Use local qwen2.5:7b]
+    E -->|No| G[Cloud Fallback Chain]
+    G --> H[Gemini / Cloudflare / Codex CLI]
+    F --> I[Parse Response]
+    H --> I
+    I --> J{Response Valid?}
+    J -->|Yes| K[Return interpretation]
+    J -->|No — empty/error| L[_generate_fallback_reading()]
+    L --> M[Return fallback reading]
+    C --> N[Response]
+    K --> N
+    M --> N
+```
+
+### HITL Review Studio Sequence
+
+```mermaid
+sequenceDiagram
+    participant HITLUI as HITL Review Studio UI
+    participant DB as SQLite Review Queue
+    participant SVG as SVG Generator
+
+    HITLUI->>DB: upsert_external_hitl_item(item)
+    DB-->>HITLUI: stored item (source_domain, source_id, confidence_score)
+    HITLUI->>SVG: render_zodiac_svg()
+    SVG-->>HITLUI: 12 Zodiac Wheel SVG
+    HITLUI->>HITLUI: Display item + zodiac wheel + heatmap
+    HITLUI->>DB: update review verdict
+```
+
 ---
+
+
 
 ## ☯️ 16 Metaphysical Disciplines Overview
 
@@ -324,6 +461,26 @@ Production uses two fail-closed targets:
 2. **Hugging Face Docker backend** — `pphothidaen/horoconsultant-core-backend`
 
 > 📖 **Release docs:** [`docs/RELEASE_HANDOFF_CHECKLIST.md`](docs/RELEASE_HANDOFF_CHECKLIST.md) · [`docs/RELEASE_ROLLBACK_RUNBOOK.md`](docs/RELEASE_ROLLBACK_RUNBOOK.md) · [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md)
+
+---
+
+## 🔒 Fail-Fast Triage CLI (POSIX-only)
+
+The `scripts/fail_fast_triage.py` script is a **POSIX-only** tool that uses `os.killpg` for process group termination. It will fail closed on unsupported platforms before any subprocess execution.
+
+```bash
+# Verify PR test provenance (immutable base/head)
+python3 scripts/test_provenance_guard.py verify-pr --base origin/main --head HEAD
+
+# Run fail-fast triage
+python3 scripts/fail_fast_triage.py --skip-remote
+```
+
+**Operational contract:**
+- `test_provenance_guard.py verify-pr` uses `git rev-parse origin/main` (immutable base) and `git rev-parse head` (immutable head)
+- Arguments `--base` and `--head` specify the comparison range
+- POSIX-only: uses `os.killpg` for descendant process tree cleanup
+- Unsupported platforms fail closed before subprocess execution
 
 ---
 

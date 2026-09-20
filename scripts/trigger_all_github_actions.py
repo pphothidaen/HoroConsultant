@@ -17,15 +17,20 @@ Active workflows:
  9. notebooklm_cookie_heartbeat.yml (NotebookLM Cookie Health Heartbeat)
 10. production_monitor.yml (Production Synthetic Monitoring)
 11. scheduled_distill_finetune.yml (Scheduled Autonomous Knowledge Distillation & Fine-Tuning)
+12. deploy-vercel.yml (Vercel Production Deploy)
+13. orchestrator-dispatch.yml (Orchestrator Dispatch - Jira -> Subagent)
+14. dod-production-gate.yml (DoD Production Gate)
+15. sync-jira.yml (Sync ATOMIC-TICKET <-> Jira)
+16. update-index.yml (Update Documentation Index)
 
 Retired workflow tombstones (never dispatched):
- 1. azure_cost_guard.yml
- 2. azure_deploy.yml
- 3. deploy.yml
- 4. fly_deploy.yml
+1. azure_cost_guard.yml
+2. azure_deploy.yml
+3. deploy.yml
+4. fly_deploy.yml
 
 Usage:
-    python scripts/trigger_all_github_actions.py
+python scripts/trigger_all_github_actions.py
 """
 
 from __future__ import annotations
@@ -88,6 +93,11 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
             "force": "false",
         },
     ),
+    ("deploy-vercel.yml", "Vercel Production Deploy", {}),
+    ("orchestrator-dispatch.yml", "Orchestrator Dispatch - Jira -> Subagent", {}),
+    ("dod-production-gate.yml", "DoD Production Gate", {}),
+    ("sync-jira.yml", "Sync ATOMIC-TICKET <-> Jira", {}),
+    ("update-index.yml", "Update Documentation Index", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]
