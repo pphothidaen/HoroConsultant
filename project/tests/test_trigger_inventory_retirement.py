@@ -22,6 +22,7 @@ EXPECTED_ACTIVE = (
     "ai_cicd.yml",
     "ci.yml",
     "hf_backend_deploy.yml",
+    "deploy-render.yml",
     "kaggle_dataset_auto_sync.yml",
     "kaggle_finetune.yml",
     "kaggle_sync.yml",
@@ -93,7 +94,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 16
+    assert len(configured_active) == len(set(configured_active)) == 17
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
@@ -224,9 +225,9 @@ def test_main_dispatches_exactly_eleven_active_workflows_with_ascii_output(
     output = capsys.readouterr().out
 
     assert tuple(item[0] for item in dispatches) == EXPECTED_ACTIVE
-    assert len(dispatches) == 16
+    assert len(dispatches) == 17
     assert not {item[0] for item in dispatches} & set(EXPECTED_RETIRED)
-    assert "Total Active Workflows to Trigger: 16" in output
+    assert "Total Active Workflows to Trigger: 17" in output
     assert "\\u2014 \\U0001f680" in output
     assert output.isascii()
 

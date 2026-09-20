@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RENDER-PRIMARY-BACKEND-03",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3d320453b32f4789eb8c3de49e238c6123ee2866",
+  "test_files": [
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "02bf4ee679d982fb9ebc7ad65a08bdad4c5da76ca3b119429bd5956367033f60"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "05acf00530dac5315430dc9aa02420ff600488ade0a72ead308da8237a8a2f2b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_fly_artifact_retirement.py",
+        "project/tests/test_trigger_inventory_retirement.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "workflow inventory/filesystem mismatch (unreviewed=['deploy-render.yml']) and exact inventory set mismatch"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/trigger_all_github_actions.py",
+    ".github/workflows/deploy-render.yml",
+    "scripts/sync-render-secrets.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": "22c326fbee8151a1e04c582164478abd4e3e0715",
+  "correction_reason": "Supersedes TICKET-RENDER-PRIMARY-BACKEND-02: dispatch inventory, Fly retirement audit, and release-payload mode contracts must also register deploy-render.yml and demote sync-render-secrets.sh to 100644.",
+  "rationale": "Fail-closed dispatch inventory, Fly retirement audit, and release payload mode contracts reject the new Render deploy lane until registered."
+}
