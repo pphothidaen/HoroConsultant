@@ -1,0 +1,77 @@
+name: Orchestrator Dispatch — Jira → Subagent
+
+# Polls Jira KAN project for new "Ready" tickets every 5 minutes.
+# Uses Fibonacci backoff when idle: 1,1,2,3,5,8,13 min.
+# When a new ticket is found: creates branch, dispatches subagent, monitors.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+env:
+  JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+  JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+  JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+  JIRA_PROJECT_KEY: 'KAN'
+  TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
+  TWG_USER: ${{ secrets.TWG_USER }}
+  TWG_SITE: ${{ secrets.TWG_SITE }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ORCHESTRATOR_LANE: 'Horo Consultant'
+
+jobs:
+  poll-and-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      dispatched: ${{ steps.dispatch.outputs.dispatched }}
+      ticket_key: ${{ steps.dispatch.outputs.ticket_key }}
+      branch_name: ${{ steps.dispatch.outputs.branch_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install TWG CLI
+        run: |
+          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          twg login --no-verify || true
+
+      - name: Poll Jira for Ready tickets
+        id: poll
+        run: |
+          twg jira workitem query --jql "project = KAN AND status = \"Ready\" AND \"Project Lane\" = \"Horo Consultant\" ORDER BY created ASC" -o json --output-summary none > /tmp/jira_ready.json
+          COUNT=$(jq '.data | length' /tmp/jira_ready.json)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          if [ "$COUNT" -gt 0 ]; then
+            KEY=$(jq -r '.data[0].key' /tmp/jira_ready.json)
+            SUMMARY=$(jq -r '.data[0].summary' /tmp/jira_ready.json)
+            echo "key=$KEY" >> $GITHUB_OUTPUT
+            echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create branch
+        id: branch
+        if: steps.poll.outputs.count > 0
+        run: |
+          KEY="${{ steps.poll.outputs.key }}"
+          BRANCH="release/auto-$(date +%Y%m%d)-${KEY}"
+          git checkout -b "$BRANCH"
+          echo "name=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Push branch
+        if: steps.poll.outputs.count > 0
+        run: |
+          git push -u origin "${{ steps.branch.outputs.name }}"
+
+      - name: Dispatch result
+        id: dispatch
+        if: steps.poll.outputs.count > 0
+        run: |
+          echo "dispatched=true" >> $GITHUB_OUTPUT
+          echo "ticket_key=${{ steps.poll.outputs.key }}" >> $GITHUB_OUTPUT
+          echo "branch_name=${{ steps.branch.outputs.name }}" >> $GITHUB_OUTPUT
+          echo "::notice::Ticket ${{ steps.poll.outputs.key }} dispatched to branch ${{ steps.branch.outputs.name }}"
