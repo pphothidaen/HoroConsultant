@@ -22,6 +22,9 @@
 * [Capacity Tracking](jira/capacity_tracking.md)
 * [Dashboard Config](jira/dashboard_config.md)
 
+## Deployment
+* [Render Backend Deployment](deployment/render-backend-deployment.md)
+
 ## Release
 * [Release Notes](RELEASE_NOTES.md)
 * [Release Handoff Checklist](RELEASE_HANDOFF_CHECKLIST.md)

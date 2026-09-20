@@ -1,9 +1,10 @@
 # 📑 HoroConsultant Documentation Index (Auto-Generated)
 
-> This file is auto-generated. Do not edit manually.
-> Generated: 2026-09-20 12:44:06 UTC
+> This file is auto-generated from `docs/` structure.
+> Do not edit manually — changes will be overwritten.
+> Generated: 2026-09-20 17:56:17 UTC
 
-**Total documents:** 59
+**Total documents:** 60
 
 ## Document Registry
 
@@ -62,6 +63,12 @@
 |------|------|
 | `agy_bucket_admission_v1.md` | `contracts/agy_bucket_admission_v1.md` |
 | `inter_root_dispatch_contract.md` | `contracts/inter_root_dispatch_contract.md` |
+
+### `deployment/`
+
+| File | Path |
+|------|------|
+| `render-backend-deployment.md` | `deployment/render-backend-deployment.md` |
 
 ### `jira/`
 
