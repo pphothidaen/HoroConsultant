@@ -81,13 +81,51 @@ export function configuredBackendOrigin(environment = process.env) {
   }
 }
 
+/**
+ * Resolve the Render primary backend. Same fail-closed contract as the HF
+ * origin: only the exact canonical Render origin is accepted.
+ */
+export function configuredRenderBackendOrigin(environment = process.env) {
+  const configured = typeof environment?.RENDER_BACKEND_URL === "string"
+    ? environment.RENDER_BACKEND_URL.trim()
+    : "";
+  if (!configured) return null;
+
+  try {
+    const parsed = new URL(configured);
+    if (parsed.protocol !== "https:"
+      || parsed.username
+      || parsed.password
+      || parsed.pathname !== "/"
+      || parsed.search
+      || parsed.hash
+      || parsed.origin !== CANONICAL_RENDER_BACKEND_ORIGIN) {
+      return null;
+    }
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Ordered upstream origins: Render (primary) first, HF Space (fallback) last.
+ * Empty when neither origin is configured or both fail validation.
+ */
+export function configuredBackendOrigins(environment = process.env) {
+  return [configuredRenderBackendOrigin(environment), configuredBackendOrigin(environment)]
+    .filter((origin, index, all) => Boolean(origin) && all.indexOf(origin) === index);
+}
+
 function configuredBackendTimeoutMs(environment = process.env) {
   const parsed = Number.parseInt(environment?.VERCEL_BACKEND_TIMEOUT_MS || "", 10);
   if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_BACKEND_TIMEOUT_MS;
   return Math.min(parsed, MAX_BACKEND_TIMEOUT_MS);
 }
 
-const BACKEND_ORIGIN = configuredBackendOrigin(process.env);
+const CANONICAL_RENDER_BACKEND_ORIGIN =
+  "https://horoconsultant-core-backend.onrender.com";
+const BACKEND_ORIGINS = configuredBackendOrigins(process.env);
 const BACKEND_TIMEOUT_MS = configuredBackendTimeoutMs(process.env);
 
 function requestPath(request) {
@@ -279,7 +317,7 @@ async function proxyRequest(request, response, correlationId) {
   if (pathRequiresAuthorization(target) && !hasBearerAuthorization(request)) {
     return sendGatewayError(response, 401, "authorization_required", correlationId);
   }
-  if (!BACKEND_ORIGIN) {
+  if (!BACKEND_ORIGINS.length) {
     return sendGatewayError(response, 503, "backend_not_configured", correlationId);
   }
 
@@ -293,36 +331,48 @@ async function proxyRequest(request, response, correlationId) {
     return sendGatewayError(response, 400, "invalid_request_body", correlationId);
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
-  try {
-    const upstream = await fetch(`${BACKEND_ORIGIN}${target}`, {
-      method: request.method,
-      headers: upstreamHeaders(request, correlationId),
-      body,
-      redirect: "manual",
-      signal: controller.signal,
-    });
-    const upstreamId = safeCorrelationIdFor(request, upstream.headers.get("x-request-id") || "");
-    response.setHeader("x-request-id", upstreamId);
+  const lastOriginIndex = BACKEND_ORIGINS.length - 1;
+  let timedOut = false;
+  for (const [index, origin] of BACKEND_ORIGINS.entries()) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
+    try {
+      const upstream = await fetch(`${origin}${target}`, {
+        method: request.method,
+        headers: upstreamHeaders(request, correlationId),
+        body,
+        redirect: "manual",
+        signal: controller.signal,
+      });
+      if (upstream.status >= 500 && upstream.status <= 599 && index < lastOriginIndex) {
+        // Transient upstream failure on a non-final origin: fail over.
+        continue;
+      }
+      const upstreamId = safeCorrelationIdFor(request, upstream.headers.get("x-request-id") || "");
+      response.setHeader("x-request-id", upstreamId);
 
-    if (!upstream.ok) {
-      const status = upstream.status >= 400 && upstream.status <= 599 ? upstream.status : 502;
-      const code = status < 500 ? "upstream_request_rejected" : "backend_unavailable";
-      return sendGatewayError(response, status, code, upstreamId);
-    }
+      if (!upstream.ok) {
+        const status = upstream.status >= 400 && upstream.status <= 599 ? upstream.status : 502;
+        const code = status < 500 ? "upstream_request_rejected" : "backend_unavailable";
+        return sendGatewayError(response, status, code, upstreamId);
+      }
 
-    const responseBody = Buffer.from(await upstream.arrayBuffer());
-    copyResponseHeaders(upstream, response);
-    return response.status(upstream.status).send(responseBody);
-  } catch {
-    if (controller.signal.aborted) {
-      return sendGatewayError(response, 504, "backend_timeout", correlationId);
+      const responseBody = Buffer.from(await upstream.arrayBuffer());
+      copyResponseHeaders(upstream, response);
+      return response.status(upstream.status).send(responseBody);
+    } catch {
+      if (controller.signal.aborted) timedOut = true;
+      continue;
+    } finally {
+      clearTimeout(timeoutId);
     }
-    return sendGatewayError(response, 502, "backend_unreachable", correlationId);
-  } finally {
-    clearTimeout(timeoutId);
   }
+  return sendGatewayError(
+    response,
+    timedOut ? 504 : 502,
+    timedOut ? "backend_timeout" : "backend_unreachable",
+    correlationId,
+  );
 }
 
 async function handleWakeRequest(request, response, correlationId) {
@@ -330,11 +380,11 @@ async function handleWakeRequest(request, response, correlationId) {
   response.setHeader("x-request-id", correlationId);
 
   // 1. Fast check if backend is already healthy
-  if (BACKEND_ORIGIN) {
+  for (const origin of BACKEND_ORIGINS) {
     try {
       const probeController = new AbortController();
       const probeTimeout = setTimeout(() => probeController.abort(), 3000);
-      const probeRes = await fetch(`${BACKEND_ORIGIN}/health`, {
+      const probeRes = await fetch(`${origin}/health`, {
         method: "GET",
         signal: probeController.signal,
       });
@@ -347,7 +397,7 @@ async function handleWakeRequest(request, response, correlationId) {
         });
       }
     } catch (_) {
-      // Backend not yet reachable, proceed to trigger restart
+      // Backend not yet reachable, try the next configured origin
     }
   }
 
@@ -439,7 +489,7 @@ export default async function handler(request, response) {
   if (request.method === "GET"
     && requestUrl.pathname === "/api/index"
     && !requestUrl.searchParams.has("path")) {
-    if (!BACKEND_ORIGIN) {
+    if (!BACKEND_ORIGINS.length) {
       return sendGatewayError(response, 503, "backend_not_configured", correlationId);
     }
     return response.status(200).json({
