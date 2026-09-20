@@ -37,6 +37,10 @@
     "project/tests/test_gemini_bridge_client.py",
     "project/tests/test_gemini_bridge_toggle.py",
     "project/tests/test_gemini_bridge_redteam.py",
+    ".env.example",
+    "project/core/gemini_bridge_client.py",
+    "project/api_router.py",
+    "project/core/chat_assistant_engine.py",
     "plans/test_provenance/ticket-gemini-bridge-20260921-qa.json"
   ],
   "test_owner_role": "qa_tester",
