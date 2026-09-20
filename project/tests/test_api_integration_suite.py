@@ -8,6 +8,7 @@ Comprehensive Integration Test Suite for all HoroConsultant APIs:
 """
 
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from project.main import app
 
@@ -112,6 +113,61 @@ def test_api_v1_bazi_interpret_full():
     assert "interpretation" in data
     assert "validation_report" in data
     assert len(data["interpretation"]) > 10
+
+
+def test_api_v1_bazi_interpret_validation_bypass():
+    """enable_validation=True must route to PredictionValidator.validate (not
+    the hardcoded fallback). Regression guard for debate.py line ~266 bug where
+    ``validation_report = None`` + ``if not validation_report`` was always True.
+    """
+    payload = {
+        "birth_datetime": "1990-05-15 14:30:00",
+        "longitude": 100.493,
+        "utc_offset_hours": 7.0,
+        "unknown_hour": False,
+        "enable_validation": True,
+        "query": "วิเคราะห์ความแข็งแรง",
+    }
+    fake_report = {
+        "validation_status": "PASSED",
+        "confidence_score": 0.91,
+        "peer_perspective": "Audited via mocked Gemini Validator",
+        "element_logic_audit": "ok",
+        "refined_interpretation": "refined",
+    }
+    with patch("project.main.router.generate", return_value={
+        "text": "บทวิเคราะห์ทดสอบ",
+        "model_used": "mock", "route": "mock", "latency_ms": 10,
+    }), patch("project.routers.debate.validator.validate",
+              return_value=fake_report) as mock_validate:
+        res = client.post("/api/v1/bazi/interpret", json=payload, headers=BROWSER_HEADERS)
+
+    assert res.status_code == 200
+    assert res.json()["validation_report"] == fake_report
+    mock_validate.assert_called_once()
+
+
+def test_api_v1_bazi_interpret_validation_disabled_uses_fallback():
+    """enable_validation=False (default) must use the hardcoded APPROVED report
+    and must NOT call PredictionValidator.validate."""
+    payload = {
+        "birth_datetime": "1990-05-15 14:30:00",
+        "longitude": 100.493,
+        "utc_offset_hours": 7.0,
+        "unknown_hour": False,
+        "enable_validation": False,
+        "query": "ทดสอบ",
+    }
+    with patch("project.main.router.generate", return_value={
+        "text": "บทวิเคราะห์ทดสอบ",
+        "model_used": "mock", "route": "mock", "latency_ms": 10,
+    }), patch("project.routers.debate.validator.validate") as mock_validate:
+        res = client.post("/api/v1/bazi/interpret", json=payload, headers=BROWSER_HEADERS)
+
+    assert res.status_code == 200
+    report = res.json()["validation_report"]
+    assert report["validation_status"] == "APPROVED"
+    mock_validate.assert_not_called()
 
 
 def test_api_v1_location_resolve():

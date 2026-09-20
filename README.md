@@ -1,434 +1,68 @@
-# 🌌 Computational Metaphysics Engine — Developer Architecture & Integration Guide
+# 🌌 HoroConsultant — Computational Metaphysics & AI Fine-Tuning Pipeline
 
-> Successor evidence workflow (planned, CONTRACT-002): snapshot adoption is separate from test-provenance-v1. The dedicated snapshot schema/validator is not yet implemented or admitted. Existing provenance guards remain enforced; reconstructed ecosystem tests never acquire TEST_BASELINE_VERIFIED through adoption. See [canonical ordered tickets](ATOMIC_TICKET.md) for the genuine RED validator baseline, canonical ecosystem repair, separate codex3 repair and fresh independent QA/review. CI remains paused pending priority gates.
-
-> **Project:** HoroConsultant — High-Precision 16-Domain Computational Metaphysics Engine (BaZi, ZiWei, QiMen, LiuRen, IChing, XuanKong, ZeJi, ThaiVedic, Western, Numerology, TaiYi, LiuYao, MeiHua, SanHe, QiZheng, MianXiang), True Solar Time Engine, Multi-Agent Gemini & Local Ollama Hybrid Routing, API v2 Router, FAISS Classical Vault RAG, Rust Fast Math Acceleration, and HITL Review Studio.
-
+> **Project:** HoroConsultant — High-Precision 16-Domain Computational Metaphysics Engine
+> (BaZi, ZiWei, QiMen, LiuRen, IChing, XuanKong, ZeJi, ThaiVedic, Western, Numerology,
+> TaiYi, LiuYao, MeiHua, SanHe, QiZheng, MianXiang), True Solar Time Engine,
+> Multi-Agent Gemini & Local Ollama Hybrid Routing, API v2/v3 Router, FAISS Classical Vault RAG,
+> Rust Fast Math Acceleration, and HITL Review Studio.
 
 ---
 
 > 🚨 **GOVERNANCE MANDATE FOR DEVELOPERS & AI AGENTS (กฎการดูแลรักษาโปรเจกต์):**  
-> **หากมีการเปลี่ยนแปลง โครงสร้าง สถาปัตยกรรม API Endpoint หรือฟีเจอร์ใดๆ ในโปรเจกต์นี้ นักพัฒนาและ AI Agents ทุกคน จะต้องทำการอัปเดตเอกสาร [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md) และคู่มือ [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md) นี้ให้เป็นปัจจุบันเสมอ** เพื่อรักษาความถูกต้อง ความแม่นยำ และความต่อเนื่องของการพัฒนาระบบ
+> **หากมีการเปลี่ยนแปลง โครงสร้าง สถาปัตยกรรม API Endpoint หรือฟีเจอร์ใดๆ ในโปรเจกต์นี้ นักพัฒนาและ AI Agents ทุกคน จะต้องทำการอัปเดตเอกสาร `README.md` และ `HOWTO.md` ให้เป็นปัจจุบันเสมอ** เพื่อรักษาความถูกต้อง ความแม่นยำ และความต่อเนื่องของการพัฒนาระบบ
 
 > 📘 **คู่มือการใช้งานระบบสำหรับผู้ใช้และแพลตฟอร์มต่างๆ:**  
-> สำหรับวิธีใช้งานเว็บไซต์สำหรับ End-User, การใช้งาน Admin Panel, HITL Review Studio และคู่มือการรันบนแพลตฟอร์มต่างๆ (Docker, Ollama, Kaggle GPU, MCP Server) โปรดอ่านเพิ่มเติมได้ที่ [**`HOWTO.md` (คู่มือการใช้งาน HoroConsultant Manual)**](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md)
+> สำหรับวิธีใช้งานเว็บไซต์สำหรับ End-User, การใช้งาน Admin Panel, HITL Review Studio และคู่มือการรันบนแพลตฟอร์มต่างๆ (Docker, Ollama, Kaggle GPU, MCP Server) โปรดอ่านเพิ่มเติมได้ที่ [**`HOWTO.md` (คู่มือการใช้งาน HoroConsultant Manual)**](HOWTO.md)
 
 ---
 
-## 🤖 Codex Agent Compatibility
+## 📖 Table of Contents
 
-The legacy Antigravity agent definitions remain intact in `.antigravity/` and `.agents/`. Codex discovers the existing `.agents/skills/` natively; its 16 custom subagents are generated into `.codex/agents/` from `.agents/agents/*/agent.json`.
-
-```bash
-# After changing legacy agent definitions
-python3 scripts/sync_sdlc_agents.py --sync
-python3 scripts/sync_codex_agents.py --sync
-
-# Read-only verification
-python3 scripts/sync_sdlc_agents.py --check --use-python
-python3 scripts/sync_codex_agents.py --check
-```
-
-Do not hand-edit `.codex/agents/*.toml`. Each file preserves the legacy role prompt but makes Codex inherit the active model rather than copying provider-specific model names.
-
-### Codex skill-context profiles
-
-Codex starts with minimal base context. Reusable role profiles are generated from canonical `.agents/agents/*/agent.json` `tools` bindings and matching `.agents/skills/*/SKILL.md` sources; do not maintain a second role-to-skill list in generated configuration.
-
-Start a profile only in a new session:
-
-```bash
-codex -p <role>
-```
-
-Generated role profiles contain only canonical HoroConsultant skill bindings; they do not enable remote-curated plugins. Remote-curated plugins remain installed but default-disabled and require an explicit launch-time configuration override in a new session, or a future capability profile (not implemented). Codex does not unload skills or plugins from an already-running session. `superpowers` and bundled `browser`, `chrome`, `computer-use`, and `unified-computer-use` capabilities remain preserved. After canonical source changes are complete, run the governed ecosystem sync and check; never hand-edit generated mirrors.
-
-```bash
-python3 scripts/sync_ai_agent_ecosystem.py --sync
-python3 scripts/sync_ai_agent_ecosystem.py --check
-```
-
-### Canonical Scope-Skill Registry & Dynamic Context Resolver
-
-HoroConsultant enforces fail-closed, ticket-bound dynamic context resolution across providers (Codex, Claude, AGY).
-
-1. **Canonical Registry & Schemas**:
-   - Closed-world skill registry: `.agents/config/scope_skill_registry.v1.json` validated against `.agents/schemas/scope-skill-registry-v1.schema.json`.
-   - Approved ticket context: `.agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json` validated against `.agents/schemas/approved-ticket-context-v1.schema.json` and strict `.agents/schemas/evidence-ref-v1.schema.json`.
-   - Disjoint namespaces: `horo_skill`, `provider_plugin`, and `runtime_tool`. The default root bootstrap catalog is strictly four skills: `requirement-grill-gate`, `agile-governance`, `orchestrator-delegation`, and `anti-cognitive-decay`.
-2. **Context Resolver CLI (`scripts/resolve_agent_context.py`)**:
-   - Resolves context as the additive union of: role profile + lifecycle phase + argv-derived action + touched file paths and ancestor scopes + mandatory security/release/metaphysics closures.
-   - Command usage:
-     ```bash
-     # Pure read-only verification
-     python3 scripts/resolve_agent_context.py --check
-
-     # Resolve specific ticket and lane context
-     python3 scripts/resolve_agent_context.py --ticket-id TICKET-CONTEXT-OPT-001 --lane-id lane-ba
-     ```
-   - Local Codex Adapter: Uses `debug prompt-input` command to sample prompt tokens and inspect context budget without executing network calls.
-   - Local Probes & Semantics: Verified via `ProviderContextProbeV1` receipts. Offline verification requires pure local PASS; UNKNOWN or UNAVAILABLE blocks.
-3. **`VERIFIED_LOCAL` Lifecycle State & Boundaries**:
-   - `VERIFIED_LOCAL` is a non-release local verification terminal state.
-   - Acknowledges that local contracts, unit tests, probes, and audits are verified GREEN in the local worktree.
-   - **Explicit Non-Release Boundary**: `VERIFIED_LOCAL` cannot satisfy or weaken Rule 21 `DONE`, cannot authorize release, deployment, publication, or git tag, and does not bypass CI/CD or production verification. It unlocks only fresh read-only release-QA audits.
-   - Preserves strict secret isolation (zero credentials in repo/history, keys referenced by name only) and multi-account pool boundaries.
-
-### 🚀 Approach C: Feature-Flagged Multi-Agent Parity Governance
-
-The **Approach C** material is an `IN_REVIEW` design record, not an accepted
-implementation: its historical failed design review recorded C/H/M/L
-`1/5/1/0`; `PARITY-001` remains rejected and `PARITY-002..006` remain `BLOCKED`
-by that dependency chain.
-- **Zero-Risk Feature Flags**: Defined in `.agents/config/full_capacity_guard.v2.json` and `.agents/config/multiagent_model_policy.yaml` (`enable_agy_parity`, `enable_module_level_source_isolation`, `enable_granular_lane_roles` default to `false`).
-- **Module-Bounded Path Isolation**: Proposed only; it is not an active
-  concurrency permission.
-- **Cryptographic Token Anchor & Owner Gate**: A local token anchor never makes
-  AGY eligible. Every native `spawn_agent` remains owner-gated; `DSG-009A` and
-  `DSG-009B` are `BLOCKED` pending the host-native API and trusted telemetry.
-- **Current local re-freeze**: `DSG-009` is `DONE — LOCAL FAIL-CLOSED RE-FREEZE
-  / QA + SECURITY PASS; RUNTIME NOT_PROVEN`. The 5/11 drift and `543/545`
-  pre-remediation result are superseded historical failed-candidate evidence.
-  Final local evidence is guard QA `552`, integrated safe mocked QA `823`
-  (`552 + 271`, four intentional local-child deselections), PromptCommand QA
-  `275` plus adversarial `33`, named security `761` at C/H/M/L `0/0/0/0`, green
-  sync/check, and a `1,967`-file/`0`-leak secret scan. It grants no runtime,
-  provider, or AGY authority.
-
-The [external dispatch evidence contract](docs/architecture/external-dispatch-platform-contract.md)
-separates offline Spark/AGY characterization from platform acceptance. The
-[AGY terminal supervisor](docs/architecture/agy-terminal-supervisor.md) is design-only;
-it does not enable AGY execution or change the native Spark whitelist.
+- [Project Overview](#-project-overview)
+- [Quick Start](#-quick-start)
+- [Documentation Index](#-documentation-index)
+- [Architecture Overview](#-architecture-overview)
+- [16 Metaphysical Disciplines](#️-16-metaphysical-disciplines-overview)
+- [Testing & QA](#-testing--quality-assurance)
+- [MCP Server Integration](#-model-context-protocol-mcp-server-integration)
+- [Production Architecture](#-canonical-production-architecture)
+- [Governance Rules](#-governance-rule-checklist-for-developers)
+- [License](#-license)
 
 ---
 
-## Test-First Git Provenance
+## 🔭 Project Overview
 
-## AGY quota check pattern
+HoroConsultant is an enterprise-grade **Computational Metaphysics Engine** combining deterministic astronomical algorithms (True Solar Time, NOAA Spencer 1971, Swiss Ephemeris) with a **Local-First Hybrid Multi-Agent AI System** (Ollama Qwen2.5:7b + FAISS RAG + Gemini Cloud Validator).
 
-Check each isolated quota pool independently with the provider-native CLI:
+### Core Technology Stack
 
-```bash
-agy1 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
-agy2 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
-```
+| Layer | Technology |
+|---|---|
+| **Core Engine** | Python 3.12 (Pure Python math, Rust PyO3 core bindings) |
+| **Web & API** | FastAPI, Uvicorn, HTML5/CSS3 (Glassmorphism Dark UI) |
+| **Vector DB & RAG** | FAISS Index (dim=768) + `nomic-embed-text:latest` (3,132 vectors) |
+| **Local LLM** | Ollama (`qwen2.5:7b`, `qwen2.5-coder:7b`) / MLX QLoRA 4-bit |
+| **Cloud LLM** | Gemini 2.0 Flash (Dual Key rotation fallback & Prediction Validator) |
+| **Cloud Fine-Tuning** | Kaggle GPU Automation, HuggingFace Hub |
+| **Multi-Agent** | Claude Code, OpenAI Codex, Gemini AGY, Hermes, thClaws CLI |
 
-Record `agy1` and `agy2` as separate observations; never aggregate their
-limits or treat a configured alias as runtime proof. `agy1` may take longer to
-return in an interactive shell.
+### Key Features
 
-The provider executor is POSIX-only, uses `os.killpg` for bounded process-group
-cleanup, and must verify provenance with `python3 scripts/test_provenance_guard.py verify-pr --base $(git rev-parse origin/main) --head $(git rev-parse HEAD)` before release.
-
-Every feature or bug-fix ticket must freeze its black-box contract before
-source coding. Commit tests and `plans/test_provenance/<ticket>-<sequence>.json`
-first, record the red test or negative control, and use that commit SHA in each
-later source commit:
-
-```text
-Test-Baseline: <full-baseline-commit-sha>
-```
-
-Verify the history before review:
-
-```bash
-python3 scripts/test_provenance_guard.py verify \
-  --manifest plans/test_provenance/<manifest>.json \
-  --baseline <full-baseline-commit-sha> \
-  --head HEAD --include-worktree
-
-python3 project/core/code_reviewer.py --review --use-python \
-  --ticket <ticket-id> \
-  --test-baseline <full-baseline-commit-sha> \
-  --test-manifest plans/test_provenance/<manifest>.json
-```
-
-The local pre-commit hook is read-only. Required CI remains authoritative
-because `--no-verify` can bypass a local hook. Work reconstructed after coding
-must retain the label `NON_TDD_RECONSTRUCTED` and cannot be claimed as verified
-test-first history.
+- **16 Metaphysical Disciplines** with dedicated math engines and SVG vector generators
+- **True Solar Time Engine** with Equation of Time correction
+- **Hybrid LLM Router** — Ollama local-first with Gemini cloud fallback
+- **FAISS RAG** — 3,132 classical metaphysics vector chunks
+- **HITL Review Studio** — Human-in-the-loop fine-tuning pipeline
+- **MCP Server** — Model Context Protocol for AGY subagent integration
+- **Multi-Agent Governance** — 6-lane concurrency architecture with fail-closed isolation
 
 ---
 
-## 🏛️ C4 Software Architecture Levels
-
-### Level 1: System Context Diagram (บริบทระบบภายนอก)
-
-Describes how end-users, expert astrologers, and external AI services interact with the **HoroConsultant Computational Metaphysics Engine**.
-
-```mermaid
-graph TD
-    User([👤 User / Client App]) -->|HTTP / Web Dashboard| Engine["🌌 HoroConsultant Engine<br/>(FastAPI + Rust Core)"]
-    Admin([🔐 Admin / Astrologer]) -->|Admin Panel & HITL Studio| Engine
-    MCPClient([🤖 AGY Subagent / thClaws CLI]) -->|JSON-RPC / MCP Protocol| MCPServer["🔌 MCP Server<br/>(project/mcp_server.py)"]
-    
-    Engine -->|Local Inference| Ollama["🦙 Local Ollama Service<br/>(qwen2.5:7b / llama3:8b)"]
-    Engine -->|Cloud Multi-Agent Audit| Gemini["🛡️ Gemini API Fallback<br/>(Gemini 2.0 Flash / Pro)"]
-    Engine -->|Knowledge Ingestion| GDrive["☁️ Google Drive Vault<br/>(3,132 Vector Chunks)"]
-    Engine -->|Fine-Tune Pipeline| Kaggle["⚡ Kaggle GPU / HF Hub<br/>(Nvidia T4 Accelerator)"]
-    
-    MCPServer --> Engine
-
-    classDef primary fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#e2e8f0;
-    classDef external fill:#1e1b4b,stroke:#a855f7,stroke-width:1.5px,color:#e9d5ff;
-    class Engine,MCPServer primary;
-    class Ollama,Gemini,GDrive,Kaggle external;
-```
-
-#### PlantUML Specification (Level 1 System Context):
-```plantuml
-@startuml C4_Level1_Context
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-
-Person(user, "User / Client", "Interacts with astrology calculator & dashboards.")
-Person(admin, "Admin / Astrologer", "Reviews AI outputs, manages knowledge catalog.")
-System(horo, "HoroConsultant Engine", "Computational Metaphysics & Multi-Agent Calculation Engine.")
-
-System_Ext(ollama, "Local Ollama LLM", "qwen2.5:7b local inference.")
-System_Ext(gemini, "Gemini API", "Gemini 2.0 Multi-Agent Auditor & Fallback.")
-System_Ext(gdrive, "Google Drive Vault", "Obsidian classical text storage.")
-System_Ext(kaggle, "Kaggle GPU Hub", "Fine-tuning & LoRA training.")
-
-Rel(user, horo, "Uses", "HTTPS / Web Dashboard")
-Rel(admin, horo, "Reviews & Manages", "HTTPS / HITL & Admin UI")
-Rel(horo, ollama, "Infers Locally", "HTTP API")
-Rel(horo, gemini, "Validates & Audits", "HTTPS API")
-Rel(horo, gdrive, "Syncs Vault", "GDrive API")
-Rel(horo, kaggle, "Triggers Fine-Tune", "Kaggle CLI")
-@enduml
-```
-
----
-
-### Level 2: Container Diagram (ตู้คอนเทนเนอร์และโครงสร้างระบบ)
-
-Details the internal runtime containers, database layers, background schedulers, and static assets.
-
-```mermaid
-graph TB
-    subgraph Frontend["Web Presentation Layer (Vanilla CSS + JS)"]
-        UI_Dash["🔮 Main Dashboard<br/>(index.html + app.js)"]
-        UI_Admin["🔐 Admin Panel<br/>(admin.html)"]
-        UI_HITL["🔬 HITL Review Studio<br/>(hitl.html)"]
-    end
-
-    subgraph Backend["FastAPI Application Server (project/main.py)"]
-        AstroRouter["🌌 Astrology Router<br/>(/api/v1/*)"]
-        AdminRouter["🔐 Admin Router<br/>(/admin/*)"]
-        HITLRouter["🔬 HITL Router<br/>(/hitl/*)"]
-        MCPModule["🔌 MCP Server Module<br/>(mcp_server.py)"]
-    end
-
-    subgraph Accelerator["Fast Math Core Layer"]
-        RustCore["⚡ Rust Native Module<br/>(rust_core / fast_math)"]
-        FAISSIndex["📚 FAISS RAG Index<br/>(3,132 Vector Chunks)"]
-    end
-
-    subgraph DataStore["Persistence & Vault Layer"]
-        CatalogDB[("JSON Catalog DB<br/>knowledge_catalog.json")]
-        GrayzoneDB[("JSON Grayzone DB<br/>grayzone_answers.json")]
-        HITLDB[("JSON HITL Reviews DB<br/>hitl_reviews.json")]
-    end
-
-    UI_Dash -->|REST API| AstroRouter
-    UI_Admin -->|REST API| AdminRouter
-    UI_HITL -->|REST API| HITLRouter
-
-    AstroRouter --> RustCore
-    AstroRouter --> FAISSIndex
-    AdminRouter --> CatalogDB
-    AdminRouter --> GrayzoneDB
-    HITLRouter --> HITLDB
-
-    classDef ui fill:#09131d,stroke:#3b82f6,stroke-width:1.5px,color:#93c5fd;
-    classDef app fill:#1a0914,stroke:#ec4899,stroke-width:1.5px,color:#fbcfe8;
-    classDef fast fill:#041812,stroke:#22c55e,stroke-width:1.5px,color:#86efac;
-    class UI_Dash,UI_Admin,UI_HITL ui;
-    class AstroRouter,AdminRouter,HITLRouter,MCPModule app;
-    class RustCore,FAISSIndex fast;
-```
-
-#### PlantUML Specification (Level 2 Containers):
-```plantuml
-@startuml C4_Level2_Containers
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-Container(web_ui, "Web Dashboard", "HTML5/Vanilla CSS/JS", "Main calculation dashboard & SVG visualizer.")
-Container(admin_ui, "Admin & HITL UI", "HTML5/Vanilla CSS/JS", "Knowledge management & HITL review studio.")
-Container(fastapi_app, "FastAPI App Server", "Python 3.12/FastAPI", "Serves REST APIs, routing, and background tasks.")
-Container(rust_math, "Rust Core Engine", "Rust / PyO3", "Accelerates True Solar Time & Ephemeris math.")
-ContainerDb(faiss_db, "FAISS Vector Store", "FAISS / Nomic Embed", "Stores 3,132 classical metaphysics vector chunks.")
-ContainerDb(json_dbs, "Data Store Vault", "JSON DB Files", "Catalog, grayzone answers, and HITL review dataset.")
-
-Rel(web_ui, fastapi_app, "API Calls", "HTTP / REST")
-Rel(admin_ui, fastapi_app, "API Calls", "HTTP / REST")
-Rel(fastapi_app, rust_math, "Calls native bindings", "C-ABI / PyO3")
-Rel(fastapi_app, faiss_db, "Searches embeddings", "In-Memory Vector Search")
-Rel(fastapi_app, json_dbs, "Reads/Writes JSON", "File I/O")
-@enduml
-```
-
----
-
-### Level 3: Component Diagram (ส่วนประกอบภายในเซิร์ฟเวอร์)
-
-Detailed structural component view of `astrology_router`, calculation engines, SVG diagram generators, and LLM Routers.
-
-```mermaid
-graph LR
-    subgraph RoutingComponents["Routing & Orchestration Components"]
-        HR["HybridRouter<br/>(project/api_router.py)"]
-        PV["PredictionValidator<br/>(project/validator.py)"]
-    end
-
-    subgraph DisciplineEngines["10 Metaphysical Calculation Engines (project/core/*)"]
-        BaZi["BaZiEngine"]
-        ZiWei["ZiWeiEngine"]
-        QiMen["QiMenEngine"]
-        LiuRen["LiuRenEngine"]
-        IChing["IChingEngine"]
-        XuanKong["XuanKongEngine"]
-        ZeJi["ZeJiEngine"]
-        ThaiVedic["ThaiVedicEngine"]
-        Western["WesternUranianEngine"]
-        Numerology["NumerologyEngine"]
-    end
-
-    subgraph VisualizerComponents["SVG Vector Generator (project/core/svg_generator.py)"]
-        SVGGen["SVG Diagram Generator<br/>(11 Discipline SVG Renderers)"]
-    end
-
-    DisciplineEngines --> SVGGen
-    BaZi --> HR
-    HR --> PV
-```
-
-#### PlantUML Specification (Level 3 Components):
-```plantuml
-@startuml C4_Level3_Components
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-
-Container_Boundary(api_boundary, "FastAPI Core Services") {
-    Component(astro_router, "Astrology Router", "FastAPI APIRouter", "Handles calculation & interpretation endpoints.")
-    Component(bazi_comp, "BaZi Engine", "Python Core Module", "Calculates TST, 4 Pillars, and 5 Elements scores.")
-    Component(ziwei_comp, "Zi Wei Engine", "Python Core Module", "Calculates 12 Palaces, Stars, and Si Hua mutators.")
-    Component(qimen_comp, "Qi Men Engine", "Python Core Module", "Calculates 4-Plate grid (Stars, Doors, Spirits).")
-    Component(svg_comp, "SVG Generator", "svg_generator.py", "Generates high-aesthetic SVG vector charts.")
-    Component(hybrid_router, "Hybrid Router", "api_router.py", "Executes Ollama -> Gemini fallback chain.")
-}
-
-Rel(astro_router, bazi_comp, "Invokes calculation")
-Rel(astro_router, ziwei_comp, "Invokes calculation")
-Rel(astro_router, qimen_comp, "Invokes calculation")
-Rel(bazi_comp, svg_comp, "Requests SVG markup")
-Rel(ziwei_comp, svg_comp, "Requests SVG markup")
-Rel(astro_router, hybrid_router, "Requests LLM interpretation")
-@enduml
-```
-
----
-
-### Level 4: Code & Data Flow Diagrams (การไหลของข้อมูลและอัลกอริทึม)
-
-#### Flowchart 1: Main Chart Calculation & Multi-Agent Audit Data Flow
-
-```mermaid
-flowchart TD
-    Start([User Inputs DOB, Longitude, UTC Offset & Query]) --> TST[Calculate True Solar Time<br/>TST = LMT + EoT]
-    TST --> Pillars[Calculate 4 Pillars:<br/>Year, Month, Day, Hour Pillars]
-    Pillars --> Scores[Compute Five Elements Balance Scores<br/>Wood, Fire, Earth, Metal, Water %]
-    Scores --> SVG[Generate SVG Vector Chart Markup<br/>project/core/svg_generator.py]
-    
-    SVG --> CheckLLM{Is LLM Interpretation Requested?}
-    CheckLLM -- Yes --> Ollama[Call Primary Local Ollama<br/>qwen2.5:7b]
-    CheckLLM -- No --> FastReturn[Return Chart JSON + SVG]
-    
-    Ollama -- Success --> GeminiCheck{Validation Enabled?}
-    Ollama -- Timeout / 429 --> CloudFallback[Call Dual Gemini Cloud Fallback<br/>Gemini 2.0 Flash]
-    CloudFallback --> GeminiCheck
-    
-    GeminiCheck -- Yes --> GeminiVal[Gemini Prediction Validator Audit<br/>project/validator.py]
-    GeminiCheck -- No --> Combine[Combine Chart + Reading + SVG]
-    
-    GeminiVal --> Combine
-    Combine --> RenderUI[Render Dashboard UI Cards & SVG Visualizer]
-    FastReturn --> RenderUI
-    RenderUI --> End([Complete])
-```
-
-#### Sequence Diagram 1: BaZi True Solar Time & AI Interpretation Sequence
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Client UI
-    participant Server as FastAPI Server
-    participant BaZi as BaZi Engine
-    participant SVG as SVG Generator
-    participant LLM as Hybrid Router
-    participant Audit as Gemini Validator
-
-    User->>Server: POST /api/v1/bazi/interpret (DOB, Longitude, UTC, Query)
-    Server->>BaZi: calculate(dt, longitude, utc_offset_hours)
-    BaZi->>BaZi: Adjust TST = Local Time + LMT Offset + EoT
-    BaZi-->>Server: BaZiChart Object (Pillars, DayMaster, 5 Elements)
-    Server->>SVG: generate_bazi_svg(chart)
-    SVG-->>Server: SVG Vector String
-    Server->>LLM: generate(prompt, system_instruction)
-    LLM->>LLM: Try Local Ollama (qwen2.5:7b) -> Fallback Gemini 2.0
-    LLM-->>Server: Interpretation Text + Route Metadata
-    Server->>Audit: validate(chart, interpretation, query)
-    Audit-->>Server: Validation Report (Status, Peer Perspective, Score)
-    Server-->>User: HTTP 200 JSON (Chart, Interpretation, SVG, Audit Report)
-```
-
-#### Sequence Diagram 2: HITL Review Studio Fine-Tuning Pipeline Loop
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Expert as Astrologer Reviewer
-    participant HITLUI as HITL Review Studio
-    participant Router as HITL Router (/hitl/*)
-    participant DB as HITL JSON DB
-    participant Dataset as JSONL Dataset File
-
-    Expert->>HITLUI: Select Pending Item from Review Queue
-    HITLUI->>Router: GET /hitl/item/{item_id}
-    Router->>DB: Load item & confidence heatmap
-    DB-->>HITLUI: Return AI Output + Segments Confidence
-    Expert->>HITLUI: Edit Answer & Assign Quality Stars (1-5)
-    Expert->>HITLUI: Click 'Approve' or 'Edit & Save'
-    HITLUI->>Router: POST /hitl/review/{item_id} (decision, final_answer, rating)
-    Router->>DB: Save Review Record
-    Expert->>HITLUI: Click 'Export JSONL'
-    HITLUI->>Router: GET /hitl/export
-    Router->>Dataset: Export approved pairs to hitl_approved.jsonl
-    Router-->>HITLUI: Downloadable hitl_approved.jsonl
-```
-
----
-
-## ☯️ 10 Metaphysical Disciplines Overview
-
-The system implements 10 canonical computational metaphysics disciplines, each with dedicated math engines and high-aesthetic SVG vector diagram generators:
-
-1. **BaZi (四柱命理):** Four Pillars of Destiny, True Solar Time adjustment, Heavenly Stems, Earthly Branches, Hidden Stems, and Five Elements Percentage Scores.
-2. **Zi Wei Dou Shu (紫微斗數):** 12 Palaces (Ming Gong, Shen Gong), 14 Main Stars, and Si Hua Mutators (化祿, 化權, 化科, 化忌).
-3. **Qi Men Dun Jia (奇門遁甲):** 4-Plate Grid (Yang/Yin Dun 18 Ju, Nine Stars, Eight Doors, Eight Spirits).
-4. **Da Liu Ren (大六壬):** 3 Transmissions (初傳, 中傳, 末傳), 4 Lessons, and 12 Heavenly Generals.
-5. **I Ching & Liu Yao (易經六爻):** Primary & Transformed Hexagrams, 6 Lines, 6 Animals, and 5 Relatives setup.
-6. **Xuan Kong Flying Stars (玄空風水):** Period 9 9-Grid Flying Stars (Base Star, Sitting Star, Facing Star).
-7. **Ze Ji Date Selection (擇吉คำนวณฤกษ์):** 12 Duty Officers (建除十二神), Day Clash analysis, and Activity Suitability matrix.
-8. **Thai Suriyayart & Vedic (โหราศาสตร์ไทย & ภารตวิทยา):** Thai Suriyayart 10 Lagna, Maha Thaksa 8 Angels, 27 Vedic Nakshatras & Vimshottari Dasha.
-9. **Western Tropical & Uranian (โหราศาสตร์สากล & ยูเรเนียน):** Tropical Planetary Longitudes, 8 Uranian Transneptunian Planets (TNPs), and Midpoint Formulas.
-10. **Numerology & Satta-Lek (สัตตเลข 7 ฐาน & เลขศาสตร์):** Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring.
-
----
-
-## ⚡ Quick Start & Development Setup
+## ⚡ Quick Start
 
 ### 1. Requirements & Prerequisites
+
 - Python 3.12+
 - Node.js & npm (optional, for Playwright visual tests)
 - Local Ollama (`qwen2.5:7b` installed via `ollama pull qwen2.5:7b`)
@@ -451,84 +85,203 @@ pip install -r requirements.txt
 python3 -m uvicorn project.main:app --reload --port 8000
 ```
 
-Access Interactive UI Dashboards & Metrics:
-- **Main Dashboard:** `http://localhost:8000/`
-- **Admin Panel:** `http://localhost:8000/admin` (Authorized Emails: `pansakorn@gmail.com`, `kimlenglim.work@gmail.com`)
-- **HITL Review Studio:** `http://localhost:8000/hitl-studio`
-- **Interactive Swagger Docs:** `http://localhost:8000/docs`
-- **Prometheus Metrics Endpoint:** `http://localhost:8000/metrics`
-- **Synthetic Monitoring Health Alias:** `http://localhost:8000/api/health`
+### 4. Access Endpoints
 
-### Horo Lite Annual Timing & Remediated Behavioral Contracts
+| Endpoint | URL |
+|---|---|
+| **Main Dashboard** | `http://localhost:8000/` |
+| **Admin Panel** | `http://localhost:8000/admin` |
+| **HITL Review Studio** | `http://localhost:8000/hitl-studio` |
+| **Swagger Docs** | `http://localhost:8000/docs` |
+| **Prometheus Metrics** | `http://localhost:8000/metrics` |
+| **Health Check** | `http://localhost:8000/api/health` |
 
-Horo Lite annual timing and unified reading responses (`/api/v1/reading/unified`) implement deterministic governance metadata (`consensus_metadata`, `hitl_flags`, and `hitl_routing`) and adhere to five remediated behavioral contracts:
+### 5. Essential Commands
 
-#### 1. Unified Reading API & Edge Case Handling
-- **Unknown Hour Semantics (`unknown_hour=True`)**:
-  - When `unknown_hour=True` is provided (or when `birth_time` is omitted/null), the calculation strictly restricts analysis to valid Day, Month, and Year factors, ignoring any hour pillar or supplied birth time (omits BaZi Hour Pillar and Thai Lagna).
-  - Rather than substituting arbitrary midpoints or guessing, uncertainty bounds are propagated as explicit score ranges (`career_score_range`, `finance_score_range`, `love_score_range`) and overall confidence is tagged as `ESTIMATED` (or `LOW`), preventing false precision and eliminating HTTP 500 crashes.
-- **Child Birth Date & Young Person Handling**:
-  - Birth dates with insufficient past history (e.g., young children under age 8, or target years too close to birth year) return `HTTP 200 OK` with an empty past pattern candidate list (`past_patterns: []`) and an explicit `insufficient_history_reason` string (e.g. `"Subject is a child with insufficient past adult event history"`), avoiding HTTP 500 errors and preventing invented childhood events.
-  - Nonsensical combinations (such as `birth_date` in the future relative to `target_year` or `target_year < birth_date.year`) are rejected upfront via schema validation.
-- **12 Distinct Evidence-Grounded Topic Guidances**:
-  - Responses include exactly 12 canonical topic modules in immutable sequential order (`CANONICAL_TOPIC_IDS`: `personal_overview_strengths`, `past_pattern_calibration`, `annual_overview`, `career_business`, `finance`, `love_relationships`, `health_wellbeing`, `family_surrounding_people`, `opportunities_caution_periods`, `twelve_month_roadmap`, `top_priorities_cautions`, `export_sharing_actions`).
-  - Every topic produces distinct, non-generic summary and guidance text grounded in domain scores (career, finance, love) and citations pointing to deterministic `evidence_refs`.
+```bash
+# Run full test suite
+python3 -m pytest project/tests -v
 
-#### 2. HITL Review Queue Persistence & Fail-Closed Contract
-- **Persistence-Guaranteed Review Status**:
-  - `hitl_routing.status` reports `QUEUED_FOR_HUMAN_REVIEW` **ONLY** after the item has been successfully and persistently saved to the review database (`upsert_external_hitl_item`).
-- **Fail-Closed Enqueue Failure Reporting**:
-  - If database persistence fails (e.g. storage error, disk failure), the router does not crash with an unhandled 500, but immediately reports fail-closed routing status:
-    ```json
-    {
-      "status": "HITL_ENQUEUE_FAILED",
-      "reason": "hitl_persistence_failed",
-      "queued": false
-    }
-    ```
-  - An audit failure warning is logged, notifying monitoring systems that human review could not be secured.
-- **Idempotency**:
-  - HITL enqueue is idempotent, keyed by deterministic `request_id`, so repeated client requests upsert the existing review item instead of creating duplicate records.
+# Sync AI agent ecosystem
+python3 scripts/sync_ai_agent_ecosystem.py --sync
 
-#### 3. Calibration & Feedback Dynamics
-- **Explanation Emphasis Adaptation**:
-  - Selecting feedback on past pattern candidates (`ตรง`, `ตรงบางส่วน`, `ไม่ตรง`, `จำไม่ได้`) dynamically updates explanatory emphasis in the UI (via `.pattern-feedback-emphasis` and `updateExplanationEmphasis`), adapting narrative focus without altering astrological computations.
-- **Fact & Score Immutability**:
-  - User calibration feedback strictly preserves underlying scores (`monthly_scores`), dates (`birth_date`), and astrological facts. Presentation layers and LLMs may not mutate deterministic calculations.
-- **Consent Precedes Persistence**:
-  - User feedback is stored in browser `localStorage` **ONLY** after explicit user consent is confirmed via `#feedback-consent`.
-- **Withdrawal Clears Storage**:
-  - Withdrawing or unchecking consent immediately executes `enforceNoPersistenceWithoutConsent()`, purging `FEEDBACK_STORAGE_KEY` and clearing stored feedback. Feedback states remain strictly isolated per pattern ID (`state.feedbackByPattern[patternId]`).
+# Run MCP Server
+python3 project/mcp_server.py
 
-#### 4. Consensus Matrix Independence
-- **Proxy Claim Isolation**:
-  - Default placeholder claims generated for multi-tradition arbitration (`thai_suriyayart`, `bazi_liu_yue`, `zi_wei`) are explicitly marked with `proxy: True`.
-  - Synthetic proxy claims derived from a single lineage are strictly excluded from independent corroboration counts.
-- **Neutral Agreement on Insufficient Evidence**:
-  - If fewer than 2 non-proxy numeric scores are present for a domain, the consensus engine flags missing evidence and returns a neutral agreement score of `0.5` (below the `0.75` HITL threshold), resulting in an aggregate status of `ARBITRATED_WITH_CONFLICTS` with `conflict_detected: true`.
-  - Manufactured proxy claims can never simulate artificial 1.0 consensus.
+# Pre-deployment code review
+python3 project/core/code_reviewer.py --review
+```
 
-#### 5. Annual Timing & Planetary Proxy Semantics
-- **Deterministic Proxy Semantics (`thai_suriyayart_proxy`)**:
-  - Planetary transit house values (Jupiter, Saturn, Rahu) derived via modulo arithmetic are explicitly typed and returned as deterministic proxies rather than astronomical ephemeris observations:
-    ```json
-    "thai_suriyayart_proxy": {
-      "jupiter_house": 1,
-      "saturn_house": 5,
-      "rahu_house": 9,
-      "precision": "deterministic proxy house estimate",
-      "verified": false,
-      "uncertainty": "Proxy estimate only; not a verified astronomical transit."
-    }
-    ```
-- **Explicit Uncertainty Disclaimers**:
-  - Consumer-facing explanation text and `reasons` arrays explicitly disclose that modulo calculations represent honest heuristic proxies and are not verified astronomical transits, preventing misleading claims of scientific precision while preserving deterministic reproducibility.
+---
+
+## 📚 Documentation Index
+
+All technical documentation lives in the [`docs/`](docs/) directory. Below is a complete pointer reference to every document, organized by category.
+
+### 📋 Summary & Guidelines
+
+| Document | Description |
+|---|---|
+| [`docs/SUMMARY.md`](docs/SUMMARY.md) | GitBook sidebar navigation index — master document listing |
+| [`docs/repository-guidelines.md`](docs/repository-guidelines.md) | Repository documentation rules, file placement, GitBook integration |
+
+### 🏛️ Architecture & Design
+
+| Document | Description |
+|---|---|
+| [`docs/c4_hermes_9router_architecture.md`](docs/c4_hermes_9router_architecture.md) | C4 Model architecture — Hermes & 9router integration (Level 1-4 diagrams) |
+| [`docs/architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md`](docs/architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md) | Multi-Agent Parity design specification (Approach C, feature-flagged) |
+| [`docs/architecture/agy-terminal-supervisor.md`](docs/architecture/agy-terminal-supervisor.md) | AGY terminal supervisor — proposed execution boundary (design-only) |
+| [`docs/architecture/external-dispatch-platform-contract.md`](docs/architecture/external-dispatch-platform-contract.md) | External dispatch platform evidence contract — Spark safety, release gates, circuit breakers |
+
+### 🤖 Multi-Agent Control Plane (C0 Architecture)
+
+| Document | Description |
+|---|---|
+| [`docs/architecture/multiagent-control-plane/README.md`](docs/architecture/multiagent-control-plane/README.md) | C0 architecture freeze — master index for MAREF-000..057 refactor |
+| [`docs/architecture/multiagent-control-plane/adr-001-canonical-authority.md`](docs/architecture/multiagent-control-plane/adr-001-canonical-authority.md) | ADR-001 — Canonical authority and persistence stores |
+| [`docs/architecture/multiagent-control-plane/adr-002-transition-and-lease.md`](docs/architecture/multiagent-control-plane/adr-002-transition-and-lease.md) | ADR-002 — Transitions, attempts, leases, and fencing |
+| [`docs/architecture/multiagent-control-plane/adr-003-transports-and-openai-websocket.md`](docs/architecture/multiagent-control-plane/adr-003-transports-and-openai-websocket.md) | ADR-003 — REST/SSE and provider WebSocket boundaries |
+| [`docs/architecture/multiagent-control-plane/adr-004-session-scoped-approval.md`](docs/architecture/multiagent-control-plane/adr-004-session-scoped-approval.md) | ADR-004 — Session-scoped parent and child grants |
+| [`docs/architecture/multiagent-control-plane/adr-005-event-ledger-boundary.md`](docs/architecture/multiagent-control-plane/adr-005-event-ledger-boundary.md) | ADR-005 — Frozen v3 ledger reuse boundary |
+| [`docs/architecture/multiagent-control-plane/adr-006-hitl-effect-saga.md`](docs/architecture/multiagent-control-plane/adr-006-hitl-effect-saga.md) | ADR-006 — HITL governance and effect Saga |
+| [`docs/architecture/multiagent-control-plane/adr-007-compatibility-and-migration.md`](docs/architecture/multiagent-control-plane/adr-007-compatibility-and-migration.md) | ADR-007 — Legacy compatibility and migration |
+| [`docs/architecture/multiagent-control-plane/adr-008-service-boundary.md`](docs/architecture/multiagent-control-plane/adr-008-service-boundary.md) | ADR-008 — Service and deployment boundary |
+| [`docs/architecture/multiagent-control-plane/adr-cap-001-control-agent-plane.md`](docs/architecture/multiagent-control-plane/adr-cap-001-control-agent-plane.md) | ADR-CAP-001 — Authority plane and read/notification plane |
+| [`docs/architecture/multiagent-control-plane/contracts/lifecycle-v1.md`](docs/architecture/multiagent-control-plane/contracts/lifecycle-v1.md) | Lifecycle Contract v1 — normative state machine for control plane |
+| [`docs/architecture/multiagent-control-plane/sprint-dag.md`](docs/architecture/multiagent-control-plane/sprint-dag.md) | Checkpoint DAG and scheduling gate for C0 release |
+| [`docs/architecture/multiagent-control-plane/platform-capability-matrix.md`](docs/architecture/multiagent-control-plane/platform-capability-matrix.md) | Active-platform capability matrix |
+| [`docs/architecture/multiagent-control-plane/grill-report.md`](docs/architecture/multiagent-control-plane/grill-report.md) | Requirement Grill report for C0 intake |
+| [`docs/architecture/multiagent-control-plane/tickets/c0.md`](docs/architecture/multiagent-control-plane/tickets/c0.md) | Ticket C0 — documentation freeze evidence |
+| [`docs/architecture/multiagent-control-plane/tickets/c1.md`](docs/architecture/multiagent-control-plane/tickets/c1.md) | Ticket C1 — canonical authority implementation |
+| [`docs/architecture/multiagent-control-plane/tickets/c2.md`](docs/architecture/multiagent-control-plane/tickets/c2.md) | Ticket C2 — transition and lease implementation |
+| [`docs/architecture/multiagent-control-plane/tickets/c3.md`](docs/architecture/multiagent-control-plane/tickets/c3.md) | Ticket C3 — transport and WebSocket implementation |
+| [`docs/architecture/multiagent-control-plane/tickets/c4.md`](docs/architecture/multiagent-control-plane/tickets/c4.md) | Ticket C4 — session-scoped approval implementation |
+| [`docs/architecture/multiagent-control-plane/tickets/c5.md`](docs/architecture/multiagent-control-plane/tickets/c5.md) | Ticket C5 — event ledger boundary implementation |
+
+### 📡 API & Protocols
+
+| Document | Description |
+|---|---|
+| [`docs/v3_api_specification.md`](docs/v3_api_specification.md) | v3.0 OpenAPI 3.1 specification — REST API + gRPC Proto3 architecture |
+
+### 🔍 Audit & Quality
+
+| Document | Description |
+|---|---|
+| [`docs/audit_discrepancies.md`](docs/audit_discrepancies.md) | Documentation vs implementation discrepancy audit (model names, endpoints) |
+
+### 📋 Jira Integration
+
+| Document | Description |
+|---|---|
+| [`docs/jira_sync_protocol.md`](docs/jira_sync_protocol.md) | Jira sync protocol — parallel markdown + Atlassian Cloud tracking |
+| [`docs/jira/capacity_tracking.md`](docs/jira/capacity_tracking.md) | AI agent effort tracking via labels (effort-N workaround) |
+| [`docs/jira/dashboard_config.md`](docs/jira/dashboard_config.md) | Jira dashboard config — HoroConsultant Audit Monitor (KAN-38) |
+
+### 🚀 Release & Deployment
+
+| Document | Description |
+|---|---|
+| [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md) | Release notes — v3 visual-integrity production release history |
+| [`docs/RELEASE_HANDOFF_CHECKLIST.md`](docs/RELEASE_HANDOFF_CHECKLIST.md) | Release handoff checklist — fail-closed production gate verification |
+| [`docs/RELEASE_ROLLBACK_RUNBOOK.md`](docs/RELEASE_ROLLBACK_RUNBOOK.md) | Release and rollback runbook — emergency circuit breakers, evidence ledger |
+| [`docs/branch_migration_action_priority_runbook.md`](docs/branch_migration_action_priority_runbook.md) | Branch migration action priority runbook |
+
+### 🤖 AI Agent Governance
+
+| Document | Description |
+|---|---|
+| [`docs/AI_AGENT_ECOSYSTEM_SYNC.md`](docs/AI_AGENT_ECOSYSTEM_SYNC.md) | AI agent ecosystem sync — Claude, Codex, AGY, Hermes, thClaws coordination |
+| [`docs/CLAUDE_CODE_COMMAND_GOVERNANCE.md`](docs/CLAUDE_CODE_COMMAND_GOVERNANCE.md) | Claude Code command governance and sub-agent delegation |
+| [`docs/HITL_OPERATING_GUIDE.md`](docs/HITL_OPERATING_GUIDE.md) | Human-in-the-Loop operating guide — review queue, production gate |
+
+### 📜 Contracts
+
+| Document | Description |
+|---|---|
+| [`docs/contracts/agy_bucket_admission_v1.md`](docs/contracts/agy_bucket_admission_v1.md) | AGY Bucket Admission v1 — test-first HITL approval protocol |
+| [`docs/contracts/inter_root_dispatch_contract.md`](docs/contracts/inter_root_dispatch_contract.md) | Inter-root RootA → RootB dispatch contract — wire boundary |
+
+### 🔧 Templates & Patterns
+
+| Document | Description |
+|---|---|
+| [`docs/templates/MULTIAGENT_PROMPT_COMMAND.md`](docs/templates/MULTIAGENT_PROMPT_COMMAND.md) | Reusable multi-agent PromptCommand template — ownership-scoped routing |
+
+### 📊 Strategy & Tradeoffs
+
+| Document | Description |
+|---|---|
+| [`docs/kaggle_hybrid_tradeoff_matrix.md`](docs/kaggle_hybrid_tradeoff_matrix.md) | Kaggle hybrid strategy tradeoff matrix — production path vs research-only |
+| [`docs/lessons_learned_v3_visual_integrity_2026-08-24.md`](docs/lessons_learned_v3_visual_integrity_2026-08-24.md) | v3.0 production visual integrity lessons learned |
+
+### 📝 Superpowers — Plans
+
+| Document | Description |
+|---|---|
+| [`docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-registry-resolver.md`](docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-registry-resolver.md) | Atomic dynamic cross-provider context registry resolver plan |
+| [`docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md`](docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md) | Horo Lite consensus reading plan |
+| [`docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context.md`](docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context.md) | Atomic dynamic cross-provider context plan |
+| [`docs/superpowers/plans/2026-08-09-codex-agent-compatibility.md`](docs/superpowers/plans/2026-08-09-codex-agent-compatibility.md) | Codex agent compatibility plan |
+| [`docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-provider-runtime.md`](docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-provider-runtime.md) | Cross-provider context provider runtime plan |
+| [`docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-skill-migration.md`](docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-skill-migration.md) | Cross-provider context skill migration plan |
+| [`docs/superpowers/plans/2026-08-09-default-orchestrator-router.md`](docs/superpowers/plans/2026-08-09-default-orchestrator-router.md) | Default orchestrator router plan |
+| [`docs/superpowers/plans/2026-09-05-codex-remote-plugin-budget.md`](docs/superpowers/plans/2026-09-05-codex-remote-plugin-budget.md) | Codex remote plugin budget plan |
+| [`docs/superpowers/plans/2026-08-10-rust-first-azure-v1.md`](docs/superpowers/plans/2026-08-10-rust-first-azure-v1.md) | Rust-first Azure v1 plan |
+| [`docs/superpowers/plans/2026-09-05-release-qa-remediation-triage.md`](docs/superpowers/plans/2026-09-05-release-qa-remediation-triage.md) | Release QA remediation triage plan |
+
+### 📝 Superpowers — Specs
+
+| Document | Description |
+|---|---|
+| [`docs/superpowers/specs/2026-09-05-release-qa-remediation-design.md`](docs/superpowers/specs/2026-09-05-release-qa-remediation-design.md) | Release QA remediation design spec |
+| [`docs/superpowers/specs/2026-08-09-codex-agent-compatibility-design.md`](docs/superpowers/specs/2026-08-09-codex-agent-compatibility-design.md) | Codex agent compatibility design spec |
+| [`docs/superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md`](docs/superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md) | Cross-provider context design spec |
+| [`docs/superpowers/specs/2026-08-10-rust-first-azure-v1-design.md`](docs/superpowers/specs/2026-08-10-rust-first-azure-v1-design.md) | Rust-first Azure v1 design spec |
+| [`docs/superpowers/specs/2026-08-09-default-orchestrator-router-design.md`](docs/superpowers/specs/2026-08-09-default-orchestrator-router-design.md) | Default orchestrator router design spec |
+
+---
+
+## 🏛️ Architecture Overview
+
+### C4 Model Summary
+
+HoroConsultant follows the C4 Model for software architecture visualization:
+
+- **Level 1 (System Context):** End-users, admins, and external AI services interact with the engine
+- **Level 2 (Containers):** Web UI, FastAPI server, Rust core, FAISS RAG, JSON data stores
+- **Level 3 (Components):** Astrology router, 16 discipline engines, SVG generator, hybrid LLM router
+- **Level 4 (Code & Data Flow):** Calculation pipelines, multi-agent audit sequences, HITL review loops
+
+> 📖 **Full diagrams:** [`docs/c4_hermes_9router_architecture.md`](docs/c4_hermes_9router_architecture.md)
+
+### Multi-Agent Control Plane
+
+The C0 architecture freeze governs the MAREF-000..057 refactor with 9 ADRs, lifecycle contracts, and a checkpoint DAG.
+
+> 📖 **Control plane docs:** [`docs/architecture/multiagent-control-plane/README.md`](docs/architecture/multiagent-control-plane/README.md)
+
+---
+
+## ☯️ 16 Metaphysical Disciplines Overview
+
+The system implements 16 canonical computational metaphysics disciplines, each with dedicated math engines and high-aesthetic SVG vector diagram generators:
+
+1. **BaZi (四柱命理):** Four Pillars of Destiny, True Solar Time adjustment, Heavenly Stems, Earthly Branches, Hidden Stems, and Five Elements Percentage Scores.
+2. **Zi Wei Dou Shu (紫微斗數):** 12 Palaces (Ming Gong, Shen Gong), 14 Main Stars, and Si Hua Mutators (化祿, 化權, 化科, 化忌).
+3. **Qi Men Dun Jia (奇門遁甲):** 4-Plate Grid (Yang/Yin Dun 18 Ju, Nine Stars, Eight Doors, Eight Spirits).
+4. **Da Liu Ren (大六壬):** 3 Transmissions (初傳, 中傳, 末傳), 4 Lessons, and 12 Heavenly Generals.
+5. **I Ching & Liu Yao (易經六爻):** Primary & Transformed Hexagrams, 6 Lines, 6 Animals, and 5 Relatives setup.
+6. **Xuan Kong Flying Stars (玄空風水):** Period 9 9-Grid Flying Stars (Base Star, Sitting Star, Facing Star).
+7. **Ze Ji Date Selection (擇吉คำนวณฤกษ์):** 12 Duty Officers (建除十二神), Day Clash analysis, and Activity Suitability matrix.
+8. **Thai Suriyayart & Vedic (โหราศาสตร์ไทย & ภารตวิทยา):** Thai Suriyayart 10 Lagna, Maha Thaksa 8 Angels, 27 Vedic Nakshatras & Vimshottari Dasha.
+9. **Western Tropical & Uranian (โหราศาสตร์สากล & ยูเรเนียน):** Tropical Planetary Longitudes, 8 Uranian Transneptunian Planets (TNPs), and Midpoint Formulas.
+10. **Numerology & Satta-Lek (สัตตเลข 7 ฐาน & เลขศาสตร์):** Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring.
 
 ---
 
 ## 🧪 Testing & Quality Assurance
-
-### Run Pytest Test Suite
 
 ```bash
 # Full test suite (93 unit/integration/button regression tests)
@@ -536,17 +289,13 @@ python3 -m pytest project/tests -v
 
 # Run UI Button Regression suite specifically
 python3 -m pytest project/tests/test_button_regression.py -v
-```
 
-### Run Playwright E2E Visual Screenshot Suite
-
-```bash
-# Installs playwright binaries and executes E2E screen captures
+# Playwright E2E Visual Screenshot Suite
 python3 -m playwright install
 python3 scripts/run_e2e_screenshots.py
 ```
 
-Captured screenshots are saved in `project/tests/screenshots/`.
+> 📖 **Audit report:** [`docs/audit_discrepancies.md`](docs/audit_discrepancies.md)
 
 ---
 
@@ -563,7 +312,7 @@ python3 project/mcp_server.py
 - `bazi_calculate`: Returns structured 4 Pillars JSON & Five Elements percentages.
 - `render_bazi_svg`: Generates BaZi SVG chart and saves to `project/static/charts/bazi_chart.svg`.
 - `render_zodiac_svg`: Generates 12 Zodiac Wheel SVG and saves to `project/static/charts/zodiac_wheel.svg`.
-- `rag_search`: Searches 3,132 FAISS vector chunks from classical classical texts.
+- `rag_search`: Searches 3,132 FAISS vector chunks from classical texts.
 
 ---
 
@@ -571,27 +320,10 @@ python3 project/mcp_server.py
 
 Production uses two fail-closed targets:
 
-1. **Vercel UI and lightweight gateway** —
-   `https://horo-consultant-psi.vercel.app`. The project must define the
-   non-secret production config
-   `HF_BACKEND_URL=https://pphothidaen-horoconsultant-core-backend.hf.space`.
-   The gateway rejects a missing or non-canonical origin with HTTP 503; it does
-   not substitute a local/static calculation.
-2. **Hugging Face Docker backend** —
-   `pphothidaen/horoconsultant-core-backend` (`sdk: docker`) runs FastAPI,
-   PyO3/Rust math, FAISS/RAG, and the canonical calculation APIs.
+1. **Vercel UI and lightweight gateway** — `https://horo-consultant-psi.vercel.app`
+2. **Hugging Face Docker backend** — `pphothidaen/horoconsultant-core-backend`
 
-Static deployment to the backend Space, public Azure, and Fly are retired
-release lanes. Local development remains available at `http://localhost:8000`.
-
-```bash
-# Immutable Docker payload audit; no upload
-python3 scripts/publish_space_hf.py \
-  --space-id pphothidaen/horoconsultant-core-backend \
-  --sdk docker \
-  --dry-run
-
-   HF Static releases are governed by [Rule 16](.agents/rules/16-hf-static-release-verification.md) and the [`hf-static-release-verification` skill](.agents/skills/hf-static-release-verification/SKILL.md). Before `READY_FOR_PROD`, publisher tests, payload dry-run, Static health, exact live version, five-viewport visual audit, combined regression, governance contract, secret/safety review, and agent-ecosystem sync must all be green. An automated `indeterminate` result blocks release unless a named manual reviewer records the current artifact, timestamp, review basis, and explicit pass/fail sign-off. Earlier `6c351ba`/publisher/viewport results are historical-only: the current live target/version mismatch requires fresh release verification.
+> 📖 **Release docs:** [`docs/RELEASE_HANDOFF_CHECKLIST.md`](docs/RELEASE_HANDOFF_CHECKLIST.md) · [`docs/RELEASE_ROLLBACK_RUNBOOK.md`](docs/RELEASE_ROLLBACK_RUNBOOK.md) · [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md)
 
 ---
 
@@ -600,7 +332,8 @@ python3 scripts/publish_space_hf.py \
 When making changes to this codebase:
 - [ ] Maintain deterministic math verification in `project/core/` before calling LLMs.
 - [ ] **ALWAYS update this `README.md` document to accurately reflect any new architecture, route changes, or newly added metaphysical engines.**
-- [ ] **ALWAYS update the Central Atomic Ticket Registry [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) with new tickets, status changes, and completion evidence — this file is the single source of truth for all project work tracking.**
+- [ ] **ALWAYS update the Central Atomic Ticket Registry [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) with new tickets, status changes, and completion evidence.**
+- [ ] **ALWAYS update [`docs/INDEX.md`](docs/INDEX.md) when adding, removing, or renaming documentation files.**
 
 ---
 
@@ -610,10 +343,8 @@ The **single source of truth for all project tasks, tickets, sprint tracking, an
 
 👉 **[`ATOMIC_TICKET.md`](ATOMIC_TICKET.md)** — Atomic Ticket Registry & Status Board
 
-This file contains:
-- **TASK BOARD (KANBAN)** — Done/Doing/TODO column overview
-- **Ticket Table** — All tickets with ID, assigned agent, summary, status, and dependencies
-- **Ticket Detail Sections** — Full detailed instructions and acceptance criteria per ticket
-- **Quick-Start Commands** — Essential dev/CI commands for the next engineer or AI assistant
+---
 
-All new work, bug fixes, feature requests, and operational items **must** be tracked here. Do not create separate task lists, kanban boards, or tracking files elsewhere in the repo — keep everything centralized in `ATOMIC_TICKET.md`.
+## 📄 License
+
+Proprietary — All rights reserved.

@@ -1,5 +1,5 @@
 {
-  "last_sync_timestamp": "2026-09-07T08:40:00.422384",
+  "last_sync_timestamp": "2026-09-14T23:27:08.519569",
   "total_files_in_vault": 48,
   "pdf_count": 38,
   "md_count": 10,
@@ -59,5 +59,5 @@
       "success": true
     }
   ],
-  "ingestion_triggered": true
+  "ingestion_triggered": false
 }

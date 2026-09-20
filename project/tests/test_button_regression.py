@@ -110,13 +110,24 @@ class TestIndexHTMLButtons:
             "route": "ollama_primary",
             "latency_ms": 150
         }
-        with patch("project.main.router.generate", return_value=mock_ai):
+        fake_report = {
+            "validation_status": "PASSED",
+            "confidence_score": 0.93,
+            "peer_perspective": "Audited via mocked Gemini Validator",
+            "element_logic_audit": "ok",
+            "refined_interpretation": "refined interpretation",
+        }
+        with patch("project.main.router.generate", return_value=mock_ai), \
+             patch("project.routers.debate.validator.validate",
+                   return_value=fake_report) as mock_validate:
             res = client.post("/api/v1/bazi/interpret", json=payload)
             assert res.status_code == 200
             data = res.json()
             assert "chart" in data
             assert "interpretation" in data
             assert data["chart"]["day_master"]["stem"] == "庚"
+            assert data["validation_report"] == fake_report
+            mock_validate.assert_called_once()
 
     def test_button_actions_5_branch_metaphysics(self):
         """Test backend endpoints for all 9 branch buttons on the dashboard."""

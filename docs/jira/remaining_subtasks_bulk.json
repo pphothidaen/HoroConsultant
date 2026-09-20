@@ -1,0 +1,450 @@
+[
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-39"
+      },
+      "summary": "A3: README C4 diagram \u2014 qwen2.5-coder:7b model reference update",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-a",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-A3"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-39"
+      },
+      "summary": "A4: README model table \u2014 qwen2.5-coder:7b alignment",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-a",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-A4"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-39"
+      },
+      "summary": "A5: README env var docs \u2014 model name alignment",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-a",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-A5"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-39"
+      },
+      "summary": "A7: api_router.py \u2014 model default name in docstring",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-a",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex2",
+        "effort-5",
+        "lane-codex2",
+        "finding-A7"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B1: validator.py \u2014 model default name alignment",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-B1"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B2: v3_engine_adapter.py \u2014 qwen2.5-coder model reference",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-B2"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B3: solar_time.py \u2014 model documentation update",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-B3"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B5: config.py \u2014 qwen2.5-coder model default precision",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-B5"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B6: debate.py \u2014 model default in docstring",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex2",
+        "effort-5",
+        "lane-codex2",
+        "finding-B6"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B7: README \u2014 model defaults table update",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-5",
+        "lane-codex1",
+        "finding-B7"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B8: .env.example \u2014 model name consistency",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-agy1",
+        "effort-5",
+        "lane-agy1",
+        "finding-B8"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B9: test files \u2014 model reference alignment",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-codex3",
+        "effort-5",
+        "lane-codex3",
+        "finding-B9"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-40"
+      },
+      "summary": "B10: Dockerfile \u2014 model env var update",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Medium"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-b",
+        "audit-remediation",
+        "audit-medium",
+        "tdd-complete",
+        "agent-code_reviewer",
+        "effort-5",
+        "lane-code_reviewer",
+        "finding-B10"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-41"
+      },
+      "summary": "C2: config.py \u2014 float\u2192Decimal for LMT precision",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Low"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-c",
+        "audit-remediation",
+        "audit-low",
+        "tdd-complete",
+        "agent-codex1",
+        "effort-3",
+        "lane-codex1",
+        "finding-C2"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-41"
+      },
+      "summary": "C3: README \u2014 documentation formatting fix",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Low"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-c",
+        "audit-remediation",
+        "audit-low",
+        "tdd-complete",
+        "agent-lead_ba",
+        "effort-3",
+        "lane-lead_ba",
+        "finding-C3"
+      ]
+    }
+  },
+  {
+    "fields": {
+      "project": {
+        "key": "KAN"
+      },
+      "parent": {
+        "key": "KAN-41"
+      },
+      "summary": "C4: .env.example \u2014 unused env var cleanup",
+      "issuetype": {
+        "name": "Sub-task"
+      },
+      "priority": {
+        "name": "Low"
+      },
+      "duedate": "2026-09-20",
+      "labels": [
+        "sprint-c",
+        "audit-remediation",
+        "audit-low",
+        "tdd-complete",
+        "agent-agy1",
+        "effort-3",
+        "lane-agy1",
+        "finding-C4"
+      ]
+    }
+  }
+]

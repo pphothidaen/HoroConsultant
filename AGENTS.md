@@ -45,6 +45,14 @@ The ecosystem enforces a maximum 6-lane concurrency architecture divided into tw
    - All concurrent lanes must have mutually disjoint writable paths.
    - Fail-closed locking: if tasks share files across lane boundaries, execution falls back to sequential execution.
 
+## Documentation & Architecture Guidelines
+
+### File Placement Rules
+- **Root README (`/README.md`)**: สงวนไว้เฉพาะภาพรวมระดับสูงของโปรเจกต์ (High-level overview), วิธีติดตั้งเบื้องต้น (Quick Start), และลิงก์ชี้ไปยังคู่มือฉบับเต็มเท่านั้น ห้ามใส่เนื้อหาทางเทคนิคละเอียดไว้ที่ Root
+- **Detailed Docs (`./docs/`)**: เอกสารทางเทคนิคทั้งหมด, รายละเอียดสถาปัตยกรรม (Architecture), และคู่มือ API ต้องสร้างและจัดหมวดหมู่อยู่ภายใต้โฟลเดอร์ `./docs/` ทั้งหมด
+- **Sidebar Index (`/SUMMARY.md` หรือ `./docs/SUMMARY.md`)**: เมื่อสร้างไฟล์เอกสารใหม่ ให้เพิ่มลิงก์เข้าสารบัญนี้เสมอ เพื่อให้โครงสร้างเมนูบน GitBook ซิงก์แสดงผลถูกต้อง
+- **Naming Convention**: โฟลเดอร์และไฟล์ Markdown ย่อยทั้งหมดต้องใช้รูปแบบ `kebab-case` (เช่น `./docs/api-guide/user-auth.md`)
+
 ## Project safeguards
 
 - Apply the relevant `.agents/rules/` documents and skills for the task at hand.

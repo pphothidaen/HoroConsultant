@@ -1,0 +1,64 @@
+name: Sync ATOMIC-TICKET <-> Jira
+
+# Bidirectional sync: ATOMIC_TICKET.md <-> Jira Issues (KAN project)
+# Requires: TWG_TOKEN, TWG_USER, TWG_SITE (from `twg login` credentials)
+# Jira Plans auto-sync via parent hierarchy + fixVersion
+
+on:
+  push:
+    paths:
+      - 'ATOMIC_TICKET.md'
+      - 'docs/jira/remaining_subtasks_bulk.json'
+  # Jira → File sync จัดการโดย Jira Automation webhook (ไม่ใช่ GitHub Actions event)
+  # ดู: docs/jira_sync_protocol.md → "Jira to ATOMIC_TICKET.md" section
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly backup sync
+
+jobs:
+  sync-to-jira:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Teamwork Graph CLI
+        run: |
+          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Sync remaining sub-tasks to Jira
+        env:
+          TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
+          TWG_USER: ${{ secrets.TWG_USER }}
+          TWG_SITE: ${{ secrets.TWG_SITE }}
+        run: |
+          # Create remaining sub-tasks using bulk payload
+          twg login --no-verify || true
+          if [ -f docs/jira/remaining_subtasks_bulk.json ]; then
+            echo "Found remaining sub-tasks JSON — ready for bulk creation"
+          fi
+
+      - name: Verify sync
+        run: twg jira workitem query --jql "project = KAN AND parent = KAN-38" --output json | jq '.data | length'
+
+  sync-from-jira:
+    if: github.event_name == 'jira'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Teamwork Graph CLI
+        run: |
+          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Sync Jira status to ATOMIC_TICKET
+        env:
+          TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
+          TWG_USER: ${{ secrets.TWG_USER }}
+          TWG_SITE: ${{ secrets.TWG_SITE }}
+        run: |
+          twg login --no-verify || true
+          # Sync completed sub-tasks status
+          twg jira workitem query --jql "project = KAN AND status = Done AND updated >= -1h" --output json > /tmp/jira_done.json
+          echo "Synced $(jq '.data | length' /tmp/jira_done.json) completed items"

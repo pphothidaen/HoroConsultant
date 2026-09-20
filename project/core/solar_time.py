@@ -10,6 +10,7 @@ Reference: NOAA Solar Calculator algorithm
 
 import math
 from dataclasses import asdict, dataclass
+from decimal import Decimal, getcontext
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -88,12 +89,12 @@ def calculate_true_solar_time(
     -------
     SolarTimeResult  : Full breakdown + TST datetime string
     """
-    Λ_std   = utc_offset_hours * 15.0              # standard meridian (deg)
-    δλ_min  = (longitude - Λ_std) * 4.0            # longitude correction (min)
+    Λ_std   = float(Decimal(str(utc_offset_hours)) * Decimal('15'))   # standard meridian (deg)
+    δλ_min  = float((Decimal(str(longitude)) - Decimal(str(Λ_std))) * Decimal('4'))  # longitude correction (min)
     eot     = calculate_equation_of_time(dt)        # EoT (min)
 
-    lmt_dt  = dt + timedelta(minutes=δλ_min)
-    tst_dt  = dt + timedelta(minutes=δλ_min + eot)
+    lmt_dt  = dt + timedelta(minutes=round(δλ_min, 6))
+    tst_dt  = dt + timedelta(minutes=round(δλ_min + eot, 6))
 
     return SolarTimeResult(
         input_datetime           = dt.strftime("%Y-%m-%d %H:%M:%S"),
