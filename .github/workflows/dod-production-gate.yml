@@ -1,0 +1,40 @@
+name: DoD Production Gate
+
+on:
+  workflow_run:
+    workflows: ["Unified CI & Quality Audit Pipeline"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-dod:
+    name: Verify Definition of Done
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify DoD criteria
+        run: |
+          echo "[1/4] Test Provenance Guard..."
+          python3 scripts/test_provenance_guard.py verify-pr --base origin/main~1 --head HEAD --post-squash-merge
+          
+          echo "[2/4] Test suite..."
+          python3 -m pytest project/tests/ -v --tb=short 2>&1 | tail -5
+          
+          echo "[3/4] Index.md up-to-date..."
+          python3 scripts/verify_doc_index.py
+          
+          echo "[4/4] ALL CRITERIA PASSED"

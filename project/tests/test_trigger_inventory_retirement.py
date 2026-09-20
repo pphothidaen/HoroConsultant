@@ -29,6 +29,11 @@ EXPECTED_ACTIVE = (
     "notebooklm_cookie_heartbeat.yml",
     "production_monitor.yml",
     "scheduled_distill_finetune.yml",
+    "deploy-vercel.yml",
+    "orchestrator-dispatch.yml",
+    "dod-production-gate.yml",
+    "sync-jira.yml",
+    "update-index.yml",
 )
 EXPECTED_RETIRED = (
     "azure_cost_guard.yml",
@@ -88,7 +93,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 11
+    assert len(configured_active) == len(set(configured_active)) == 16
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
@@ -219,9 +224,9 @@ def test_main_dispatches_exactly_eleven_active_workflows_with_ascii_output(
     output = capsys.readouterr().out
 
     assert tuple(item[0] for item in dispatches) == EXPECTED_ACTIVE
-    assert len(dispatches) == 11
+    assert len(dispatches) == 16
     assert not {item[0] for item in dispatches} & set(EXPECTED_RETIRED)
-    assert "Total Active Workflows to Trigger: 11" in output
+    assert "Total Active Workflows to Trigger: 16" in output
     assert "\\u2014 \\U0001f680" in output
     assert output.isascii()
 

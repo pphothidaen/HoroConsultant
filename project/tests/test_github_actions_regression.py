@@ -30,7 +30,9 @@ EXPECTED_WORKFLOW_FILES = [
     "azure_cost_guard.yml",
     "azure_deploy.yml",
     "ci.yml",
+    "deploy-vercel.yml",
     "deploy.yml",
+    "dod-production-gate.yml",
     "fly_deploy.yml",
     "hf_backend_deploy.yml",
     "kaggle_dataset_auto_sync.yml",
@@ -38,9 +40,12 @@ EXPECTED_WORKFLOW_FILES = [
     "kaggle_sync.yml",
     "lint.yml",
     "notebooklm_cookie_heartbeat.yml",
+    "orchestrator-dispatch.yml",
     "production_monitor.yml",
     "scheduled_distill_finetune.yml",
+    "sync-jira.yml",
     "test_provenance.yml",
+    "update-index.yml",
 ]
 
 FROZEN_RELEASE_WORKFLOWS = (
