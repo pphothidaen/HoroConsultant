@@ -10,18 +10,19 @@ Active workflows:
  2. ai_cicd.yml (AI Safety Audit)
  3. ci.yml (Unified CI & Quality Audit Pipeline)
  4. hf_backend_deploy.yml (Hugging Face Docker Backend - Production Deployment)
- 5. kaggle_dataset_auto_sync.yml (Kaggle Dataset Automated Inspection & Sync Schedule)
- 6. kaggle_finetune.yml (HoroConsultant Kaggle Fine-Tuning Pipeline)
- 7. kaggle_sync.yml (Kaggle Output Sync Workflow)
- 8. lint.yml (Lint & Security Check)
- 9. notebooklm_cookie_heartbeat.yml (NotebookLM Cookie Health Heartbeat)
-10. production_monitor.yml (Production Synthetic Monitoring)
-11. scheduled_distill_finetune.yml (Scheduled Autonomous Knowledge Distillation & Fine-Tuning)
-12. deploy-vercel.yml (Vercel Production Deploy)
-13. orchestrator-dispatch.yml (Orchestrator Dispatch - Jira -> Subagent)
-14. dod-production-gate.yml (DoD Production Gate)
-15. sync-jira.yml (Sync ATOMIC-TICKET <-> Jira)
-16. update-index.yml (Update Documentation Index)
+ 5. deploy-render.yml (Render Docker Backend - Production Deployment)
+ 6. kaggle_dataset_auto_sync.yml (Kaggle Dataset Automated Inspection & Sync Schedule)
+ 7. kaggle_finetune.yml (HoroConsultant Kaggle Fine-Tuning Pipeline)
+ 8. kaggle_sync.yml (Kaggle Output Sync Workflow)
+ 9. lint.yml (Lint & Security Check)
+10. notebooklm_cookie_heartbeat.yml (NotebookLM Cookie Health Heartbeat)
+11. production_monitor.yml (Production Synthetic Monitoring)
+12. scheduled_distill_finetune.yml (Scheduled Autonomous Knowledge Distillation & Fine-Tuning)
+13. deploy-vercel.yml (Vercel Production Deploy)
+14. orchestrator-dispatch.yml (Orchestrator Dispatch - Jira -> Subagent)
+15. dod-production-gate.yml (DoD Production Gate)
+16. sync-jira.yml (Sync ATOMIC-TICKET <-> Jira)
+17. update-index.yml (Update Documentation Index)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
@@ -66,6 +67,11 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     (
         "hf_backend_deploy.yml",
         "Hugging Face Docker Backend - Production Deployment",
+        {},
+    ),
+    (
+        "deploy-render.yml",
+        "Render Docker Backend - Production Deployment",
         {},
     ),
     (

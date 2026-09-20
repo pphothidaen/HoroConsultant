@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RENDER-PRIMARY-BACKEND-01",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6e340916418d46083433914d5d6546661eb9f4ec",
+  "test_files": [
+    {
+      "path": "tests/api_index_render_failover_contract.test.mjs",
+      "sha256": "3f7042ea80370dbb6655a994e3aa3adbeba6769584922fd2a004598142bd816d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/api_index_render_failover_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test file absent at baseline; import of configuredRenderBackendOrigin fails (Render primary routing not implemented)"
+    }
+  ],
+  "allowed_source_paths": [
+    "api/index.js",
+    "api/gateway.js",
+    "Dockerfile.render",
+    "render.yaml",
+    ".github/workflows/deploy-render.yml",
+    "scripts/sync-render-secrets.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Failover contract tests freeze Render-primary/HF-fallback gateway routing behavior before enabling the Render production deployment path."
+}

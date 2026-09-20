@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RENDER-PRIMARY-BACKEND-02",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6b1e23f5fda249b62e0c338a3fc62d9274032f2f",
+  "test_files": [
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "e0631e1d6fb00fcc21f31d2ae868433d3e6139e737cbb1a86455c74944c143c8"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "project/tests/test_github_actions_regression.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_no_orphan_or_empty_workflows: workflow inventory mismatch after adding deploy-render.yml"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/deploy-render.yml",
+    "Dockerfile.render",
+    "render.yaml",
+    "scripts/sync-render-secrets.sh",
+    "api/index.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": "6b1e23f5fda249b62e0c338a3fc62d9274032f2f",
+  "correction_reason": "Supersedes TICKET-RENDER-PRIMARY-BACKEND-01 baseline: the governed workflow inventory test must include deploy-render.yml added by this ticket.",
+  "rationale": "GitHub Actions workflow regression asserts exact workflow inventory; deploy-render.yml is a governed production deploy lane and must be registered."
+}

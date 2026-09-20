@@ -1,0 +1,14 @@
+# Render Blueprint for the HoroConsultant core backend.
+# Primary production backend; the HF Space remains the fallback origin.
+services:
+  - type: web
+    name: horoconsultant-core-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    repo: https://github.com/pphothidaen/HoroConsultant
+    branch: main
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    numInstances: 1

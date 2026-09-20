@@ -1,0 +1,103 @@
+name: Render Docker Backend - Production Deployment
+
+# Production publication is CI-gated, mirroring the HF backend workflow. A
+# direct push never publishes; the successful CI workflow supplies the
+# immutable source commit. Render builds the Docker image itself from the
+# connected repository (Dockerfile.render), so this workflow only triggers,
+# tracks, and verifies the deployment.
+on:
+  workflow_run:
+    workflows:
+      - Unified CI & Quality Audit Pipeline
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: "Optional full commit SHA to publish; defaults to the dispatch commit"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: render-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-verify:
+    name: Trigger Render deploy and verify Vercel-to-Render production path
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main'
+        )
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL || 'https://horoconsultant-core-backend.onrender.com' }}
+    steps:
+      - name: Trigger Render deploy
+        id: deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          set -euo pipefail
+          commit="${{ github.event.workflow_run.head_sha || github.event.inputs.source_sha || github.sha }}"
+          response=$(curl -sS -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"commitId\": \"${commit}\"}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys")
+          deploy_id=$(printf '%s' "$response" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
+          echo "deploy_id=${deploy_id}" >> "$GITHUB_OUTPUT"
+          echo "Render deploy ${deploy_id} triggered for commit ${commit}"
+
+      - name: Wait for Render deploy to finish
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            status=$(curl -sS \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${DEPLOY_ID}" \
+              | python3 -c "import json,sys; print(json.load(sys.stdin)['status'])")
+            echo "attempt ${attempt}: ${status}"
+            case "${status}" in
+              live) exit 0 ;;
+              build_failed|update_failed|pre_deploy_failed|canceled|deactivated)
+                echo "Render deploy reached terminal failure state: ${status}"; exit 1 ;;
+            esac
+            sleep 15
+          done
+          echo "Timed out waiting for Render deploy"; exit 1
+
+      - name: Health check Render backend
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${RENDER_BACKEND_URL}/health" || true)
+            echo "attempt ${attempt}: /health -> ${code}"
+            [ "${code}" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "Render backend health check failed"; exit 1
+
+      - name: Smoke test Vercel gateway to Render primary
+        env:
+          VERCEL_STATIC_URL: ${{ secrets.VERCEL_STATIC_URL || 'https://horo-consultant-psi.vercel.app' }}
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${VERCEL_STATIC_URL}/health" || true)
+          echo "Vercel /health -> ${code}"
+          [ "${code}" = "200" ] || { echo "Vercel gateway health check failed"; exit 1; }
