@@ -1,5 +1,42 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Gemini Web Bridge MCP Toggle — 2026-09-21 (revision 1)
+
+GOAL: Toggle routes consultation questions to `gemini-web-bridge` MCP tool
+`horo_consult` (Cloudflare Worker, notebook scope
+`notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0`) instead of the local/fine-tuned
+BaZi model; fail-closed fallback to the existing chain; PDF/temp-link artifact
+support. Approved plan recorded in session; contracts frozen below.
+
+Shared interface contract [FROZEN]: env names
+`GEMINI_WEB_BRIDGE_ENABLED|URL|TOKEN|SCOPE|TOOL|TIMEOUT_S`; tool name
+`horo_consult`; MCP `tools/call` result = `content[0].text` (answer) +
+`structuredContent.pdf_url` (optional); client module
+`project/core/gemini_bridge_client.py` exposes `is_gemini_bridge_enabled()` and
+`call_bridge_tool(query, *, tool=None, birth_context=None,
+response_format="text", scope=None, timeout_s=None) -> (dict|None, reason)`.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition |
+|---|---|---|---|
+| `TICKET-GEMINI-BRIDGE-20260921-B-WORKER` | `DONE` (`commit a6fea26` + red-team `e3de188`, branch `feat/horo-consult-tool`); developer (external repo lane) | Sole editor of `/Users/kimlenglim/Project/gemini-web-bridge/cloudflare-worker/**` (+ repo `.gitignore`d files untouched): add `horo_consult` MCP tool (tools array ~L839-929, `knownSdlcTools` ~L1211, prompt branch ~L1259-1268), default scope notebook id, `pdf-lib` dep, `ARTIFACT_KV` KV binding in `wrangler.toml` (id `9620c1ac40ab481c83f9687b7d63a5ce`), `GET /artifacts/{key}` TTL-3600 route, tests in `cloudflare-worker/tests/mcp-protocol.test.mjs`. | No predecessor (parallel with A1/A2). Acceptance MET: `node --check` clean; 7 new tests green; CI bridge main GREEN after stale `CLIENT_API_TOKEN` GitHub secret rotated (redteam job 35416957551 rerun PASS); no extension/ change; no secret commit. |
+| `TICKET-GEMINI-BRIDGE-20260921-A1-CORE-ROUTER` | `DONE` (VERIFIED_LOCAL, uncommitted — staged for Z3); developer | Sole editor of `project/core/gemini_bridge_client.py` (new), `project/api_router.py`, `project/core/chat_assistant_engine.py`: MCP JSON-RPC client per frozen contract; `_build_routes()` prepend `{"type":"gemini_mcp"}` when enabled; dispatch `elif` in `generate()`; bridge health in `health_check()`; chat consult/stream use bridge text when enabled with byte-identical template fallback. Plus orchestrator hardening: `pdf_url` http(s) scheme allow-list + bounded recursion + parse try/except (clears GB-RT-001/GB-RT-002). | Acceptance MET: py_compile clean; pytest suite 71 passed / 0 failed (incl. red-team). |
+| `TICKET-GEMINI-BRIDGE-20260921-A2-DOCS-ENV` | `DONE`; business_analyst | Sole editor of `.env.example`, `docs/gemini-bridge-mcp-toggle.md` (new, kebab-case), `docs/SUMMARY.md` (append link only): env var documentation with placeholders, full protocol/architecture spec (usable as standalone handoff spec), toggle/failover semantics. NO `.env` writes (orchestrator owns secrets), NO code, NO tests. | Acceptance MET: doc covers env table, MCP request/response JSON, tool schema, PDF artifact flow, Doppler/Render sync note; `SUMMARY.md` link added; no real secrets in tracked files. |
+| `TICKET-GEMINI-BRIDGE-20260921-A3-SECRETS-DOPPLER` | `DONE` (prd) / `PARTIAL` (dev — service token scoped to prd only); orchestrator | `.env` (untracked) GEMINI_WEB_BRIDGE_* values; Doppler upsert project `horo-consultant` config `prd` via REST API (`/v3/configs/config/secrets` POST). | Acceptance MET for prd: all six `GEMINI_WEB_BRIDGE_*` secrets verified (`ENABLED=true`); `.env` gitignored. Follow-up: upsert dev config needs a dev-scoped service token. |
+| `TICKET-GEMINI-BRIDGE-20260921-A4-QA-PROVENANCE` | `DONE` (`VERIFIED`, RED 27→GREEN 32); qa_tester | TDD: RED baseline recorded (`QA_FORCE_BRIDGE_TOGGLE_OFF=1` → 27 failed / 5 passed), then GREEN 32 passed with byte-identical test files (sha256 match). Sole editor of `project/tests/test_gemini_bridge_client.py`, `project/tests/test_gemini_bridge_toggle.py`, `plans/test_provenance/ticket-gemini-bridge-20260921-qa.json` (`test-provenance-v1`, `baseline_parent 22b362bb`). | Acceptance MET: manifest schema-valid; regressions green (17 passed). |
+| `TICKET-GEMINI-BRIDGE-20260921-A5-BLUE-RED-TEAM` | `DONE` (`READY_FOR_PROD`, findings remediated); code_reviewer + qa_tester | BLUE: secret scan PASSED (0 leaks / 3,558 files); manual review verdict + findings in `plans/evidence/gemini-bridge-toggle-20260921/blue-red-team-verdict.json`. RED: `project/tests/test_gemini_bridge_redteam.py` (22 cases; GB-RT-001/002 strict-xfail tripwires later flipped to active PASS after orchestrator hardening) + bridge `red-team-adversarial.test.mjs` extension (7 new tests, commit `e3de188`). | Acceptance MET: 0 leaks; verdict READY_FOR_PROD; combined suite 71 passed / 0 failed / 0 xfail; no new bridge failures. |
+| `TICKET-GEMINI-BRIDGE-20260921-Z-INTEGRATION` | `BLOCKED_BY_A5`; devops + orchestrator | CI/CD + production: bridge repo — merge `feat/horo-consult-tool` → main, watch `ci.yml` (lint/tests/gitleaks/npm-audit/redteam) green, CI auto-deploys worker, verify live `/health` + `tools/call` `ping` + `horo_consult`. HoroConsultant — commit lanes on branch, push, open PR, watch required checks (`Unified CI & Quality Audit Pipeline`, `AI Safety Audit`, `Test Provenance`), then Render deploy with Doppler-synced `GEMINI_WEB_BRIDGE_*` (prd `ENABLED=true`), smoke toggle on/off in production. | Requires A5 PASS. Acceptance (DoD): all CI checks green on both repos; bridge worker live in production serving `horo_consult`; HoroConsultant production responds via bridge when toggle on and via legacy chain when off; Doppler prd is the toggle source of truth (`.env` mirrors locally). Stop on: 503/422 fail-fast without documented cause, CI red, identity mismatch. |
+
+**Definition of Done (sprint)**: (1) CI/CD green on both repos including provenance + AI-safety + gitleaks/red-team checks; (2) bridge worker + HoroConsultant backend deployed and verified in PRODUCTION; (3) blue team (secret scan + independent review) and red team (adversarial suites both repos) PASS; (4) TDD evidence: RED baselines recorded in `test-provenance-v1` manifest before GREEN; (5) toggle feature config lives at Doppler prd (source of truth) and local `.env` mirror, default `false` in code (fail-closed).
+
+Nine-dimension register: D1 planning+bounded lanes only; D2 frozen contract
+prevents parallel drift; D3 measurable acceptance per lane; D5 one editor per
+path (bridge repo / core+router+engine / docs+env.example disjoint); D7
+fail-closed fallback preserved (toggle off ⇒ byte-identical legacy behavior);
+D8 no secrets in tracked files or logs; D9 metaphysical calculation engines
+untouched (routing only).
+
+Authorized next phase: dispatch B, A1, A2 in parallel; A3/A4/Z dependency-blocked.
+
 ## Release-blocker remediation successor plan -- 2026-09-14 (revision 18)
 
 GRILL REPORT: APPROVED for planning and only the four bounded successor lanes

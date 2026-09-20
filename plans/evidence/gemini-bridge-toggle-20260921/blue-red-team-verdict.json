@@ -1,0 +1,97 @@
+{
+  "schema": "blue-red-team-verdict-v1",
+  "ticket": "TICKET-GEMINI-BRIDGE-20260921-A5-BLUE-RED-TEAM",
+  "timestamp": "2026-09-21T02:05:00+07:00",
+  "repo": "HoroConsultant",
+  "reviewer_role": "code_reviewer + qa_tester",
+  "scope": {
+    "files_reviewed": [
+      "project/core/gemini_bridge_client.py (new, full read)",
+      "project/api_router.py (git diff)",
+      "project/core/chat_assistant_engine.py (git diff)"
+    ],
+    "write_authorized": [
+      "plans/evidence/gemini-bridge-toggle-20260921/blue-red-team-verdict.json",
+      "project/tests/test_gemini_bridge_redteam.py"
+    ]
+  },
+  "commands_run": [
+    {
+      "command": "python3 project/core/code_reviewer.py --help",
+      "exit_code": 0,
+      "notes": "CLI supports --review, --scan-secrets, --audit-ast"
+    },
+    {
+      "command": "python3 project/core/code_reviewer.py --scan-secrets",
+      "exit_code": 0,
+      "result": "PASSED",
+      "scanned_files": 3558,
+      "secret_leaks_found": 0
+    },
+    {
+      "command": "python3 project/core/code_reviewer.py --review",
+      "exit_code": null,
+      "result": "ABORTED_AT_120S_CAP",
+      "notes": "Full review exceeded the 120s per-command cap from the ticket; stopped via task kill. Secret scan (--scan-secrets), which is the hard gate, PASSED with 0 leaks. Independent manual review performed below instead."
+    },
+    {
+      "command": "git diff project/api_router.py project/core/chat_assistant_engine.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m pytest project/tests/test_gemini_bridge_redteam.py project/tests/test_gemini_bridge_client.py project/tests/test_gemini_bridge_toggle.py -q",
+      "exit_code": 0,
+      "result": "46 passed, 8 xfailed in ~259s (wall time dominated by sandbox pytest startup; all individual tests <0.02s, no real network)"
+    },
+    {
+      "command": "python3 - <<EOF (direct _parse_bridge_result deep-nesting probe)",
+      "exit_code": 0,
+      "result": "RecursionError escapes parser (evidence for GB-RT-002)"
+    }
+  ],
+  "blue_team_assessment": {
+    "secret_handling": "PASS - token read from GEMINI_WEB_BRIDGE_TOKEN env only, no default, never logged (logs contain tool name/status/reason only), never committed (.env.example holds placeholder only), never echoed into reasons; token lives solely in the Authorization header.",
+    "injection_surface": "PASS - user query transported verbatim inside the JSON body via httpx json= kwarg; no subprocess/eval/exec/string-interpolation of user data anywhere in gemini_bridge_client.py; response parsed with res.json() into dicts, never eval'd.",
+    "circuit_breaker": "PASS - trips on timeout/http_429/http_503/error:* with 60s cooldown; does NOT trip on 4xx auth errors (correct: retryable config problems); state isolated per module global; covered by tests test_breaker_trips_after_http_503_blocks_next_call / test_breaker_resets_after_cooldown / test_breaker_not_tripped_on_http_401.",
+    "fail_closed_toggle": "PASS - call_bridge_tool returns (None, 'disabled') before any HTTP when GEMINI_WEB_BRIDGE_ENABLED is falsy; HybridRouter._build_routes adds the gemini_mcp route only when enabled; ChatAssistantEngine falls back byte-identically to legacy template synthesis on bridge failure (verified by test_engine_bridge_failure_output_byte_identical_to_toggle_off). No new outbound calls when disabled (health-probe GET only runs when enabled).",
+    "toggle_dynamics": "PASS - env read dynamically on every call (no import-time caching), so toggle flips without restart despite load_dotenv(override=True) at import."
+  },
+  "findings": [
+    {
+      "id": "GB-RT-001",
+      "severity": "MEDIUM",
+      "title": "pdf_url from bridge response is passed through without scheme validation",
+      "detail": "_find_pdf_url/_parse_bridge_result return any non-empty string found under 'pdf_url' (structuredContent or content-item JSON). A crafted javascript:/file:/data:/vbscript: value flows into meta['pdf_url'] of the consultation API response and can reach the browser UI. Producer is the token-authenticated first-party Cloudflare Worker, so exploitation requires bridge/extension compromise - defense-in-depth gap, not a direct unauthenticated vector.",
+      "evidence": "project/tests/test_gemini_bridge_redteam.py::test_crafted_pdf_url_non_http_scheme_never_returned (7 parametrized cases, xfail strict with finding reason)",
+      "disposition": "ACCEPTED_RISK_DOCUMENTED - recorded here per ticket instruction ('treat it as a FINDING with severity in the verdict, not a crash'); test marked xfail(strict=True) so remediation flips it to XPASS and fails CI until the xfail marker is removed. Recommended remediation: allow-list https:// (optionally http:// for localhost) and drop other schemes in _find_pdf_url."
+    },
+    {
+      "id": "GB-RT-002",
+      "severity": "LOW",
+      "title": "Pathologically nested structuredContent raises RecursionError that escapes call_bridge_tool",
+      "detail": "_parse_bridge_result (and its recursive _find_pdf_url) is invoked OUTSIDE the try/except in call_bridge_tool, so a ~sys.getrecursionlimit()-deep nested dict in structuredContent raises RecursionError to the caller instead of degrading to a (None, reason) tuple. Impact is a client-side DoS from a compromised/misbehaving bridge, not data exposure.",
+      "evidence": "Direct probe: gbc._parse_bridge_result with 20000-deep nesting -> RecursionError; project/tests/test_gemini_bridge_redteam.py::test_deeply_nested_structured_content_no_crash (xfail strict)",
+      "disposition": "ACCEPTED_RISK_DOCUMENTED - recommended remediation: wrap the _parse_bridge_result call in try/except Exception (or make _find_pdf_url iterative)."
+    },
+    {
+      "id": "GB-OBS-003",
+      "severity": "INFO",
+      "title": "Birth context (birth_datetime, longitude, utc_offset_hours) is transmitted to the remote bridge when profile is present",
+      "detail": "ChatAssistantEngine.generate_consultation_sync includes limited birth metadata in the bridge query/birth_context argument. This is by design for the feature (notebook-scope horo_consult) and is gated by the opt-in toggle, but operators should be aware PII-adjacent data leaves the process when the bridge is enabled.",
+      "disposition": "ACKNOWLEDGED - no action for this ticket."
+    }
+  ],
+  "test_counts": {
+    "red_team_file": "project/tests/test_gemini_bridge_redteam.py",
+    "red_team_tests": 22,
+    "combined_run": {
+      "command": "python3 -m pytest project/tests/test_gemini_bridge_redteam.py project/tests/test_gemini_bridge_client.py project/tests/test_gemini_bridge_toggle.py -q",
+      "passed": 46,
+      "xfailed": 8,
+      "failed": 0,
+      "xfail_note": "8 xfailed = 7 parametrized GB-RT-001 pdf_url scheme cases + 1 GB-RT-002 deep-nesting case, all strict with finding-ID reasons"
+    }
+  },
+  "final_verdict": "READY_FOR_PROD",
+  "verdict_rationale": "Secret scan PASSED (0 leaks across 3558 files). Toggle is fail-closed (zero HTTP when disabled), token hygiene verified (header-only, absent from body/logs/exceptions), prompt-injection transport is verbatim JSON with no interpolation surfaces, circuit breaker behaves per contract. Two defense-in-depth findings (GB-RT-001 MEDIUM, GB-RT-002 LOW) are documented as accepted risks with strict-xfail tripwires and recommended remediations; both require a compromised authenticated first-party endpoint to exploit and do not block the opt-in feature. Full --review CLI run aborted at the 120s ticket cap and was substituted by manual review."
+}
