@@ -30,6 +30,7 @@ EXPECTED_WORKFLOW_FILES = [
     "azure_cost_guard.yml",
     "azure_deploy.yml",
     "ci.yml",
+    "deploy-render.yml",
     "deploy-vercel.yml",
     "deploy.yml",
     "dod-production-gate.yml",
