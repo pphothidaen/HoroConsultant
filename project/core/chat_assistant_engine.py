@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
@@ -247,7 +248,61 @@ class ChatAssistantEngine:
         # Construct Master Consultant synthesis
         citation_text = "\n".join([f"- **[{c['id']}] {c['source']}**: {c['snippet']}" for c in citations])
 
-        content = (
+        meta: Dict[str, Any] = {
+            "model": "HoroConsultant-Metaphysics-Pro",
+            "rag_chunks_searched": 3132,
+            "citations_count": len(citations),
+            "privacy_mode": "ephemeral_client"
+        }
+
+        # --- Gemini Web Bridge (opt-in) live inference path -----------------
+        content: Optional[str] = None
+        try:
+            from project.core.gemini_bridge_client import call_bridge_tool, is_gemini_bridge_enabled
+
+            if is_gemini_bridge_enabled():
+                grounding_lines = [
+                    f"[{c['id']}] {c['source']}: {c['snippet']}" for c in citations
+                ]
+                bridge_query = (
+                    f"{query}\n\n"
+                    f"Birth chart context (deterministic engine output, do not recalculate):\n"
+                    f"- Day Master: {dm_stem} ({dm_elem}, {dm_str})\n"
+                    f"- Favorable elements: {fav_elems}\n"
+                    f"- Unfavorable elements: {unfav_elems}\n"
+                    f"Grounding citations from classical texts:\n"
+                    + "\n".join(grounding_lines)
+                )
+                birth_context: Dict[str, Any] = {}
+                if profile:
+                    for key in ("birth_datetime", "longitude", "utc_offset_hours"):
+                        if profile.get(key) is not None:
+                            birth_context[key] = profile[key]
+
+                res, reason = call_bridge_tool(
+                    bridge_query,
+                    birth_context=birth_context or None,
+                )
+                if res and res.get("text"):
+                    content = res["text"]
+                    bridge_tool = os.getenv("GEMINI_WEB_BRIDGE_TOOL", "horo_consult") or "horo_consult"
+                    meta["model"] = f"gemini-web-bridge:{bridge_tool}"
+                    meta["route"] = "gemini_mcp"
+                    if res.get("pdf_url"):
+                        meta["pdf_url"] = res["pdf_url"]
+                else:
+                    logger.warning(
+                        f"[WARNING] Gemini bridge unavailable (reason={reason}); "
+                        f"falling back to template synthesis."
+                    )
+        except Exception as exc:
+            logger.warning(
+                f"[WARNING] Gemini bridge dispatch failed: {exc}; "
+                f"falling back to template synthesis."
+            )
+
+        if content is None:
+            content = (
             f"### 🔮 คำชี้แนะจากซินแส AI (Grounded Master Synthesis)\n\n"
             f"จากพื้นดวงชะตาของท่าน แม่ธาตุประจำตัวคือ **{dm_stem}{dm_elem} ({dm_str})** "
             f"ซึ่งมีสภาวะต้องการพลังจากธาตุ **{fav_elems}** มาหล่อเลี้ยง และควรบริหารการรับพลังจากธาตุ **{unfav_elems}** อย่างระมัดระวัง\n\n"
@@ -270,12 +325,7 @@ class ChatAssistantEngine:
                 "unfavorable": unfav_elems,
                 "current_year": 2026
             },
-            "meta": {
-                "model": "HoroConsultant-Metaphysics-Pro",
-                "rag_chunks_searched": 3132,
-                "citations_count": len(citations),
-                "privacy_mode": "ephemeral_client"
-            }
+            "meta": meta
         }
 
     async def generate_consultation_stream(
