@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-GEMINI-BRIDGE-20260921-A4-QA-PROVENANCE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0c4cbbc7f5c40e614aa00c7e56785976ad8b9fb2",
+  "test_files": [
+    {
+      "path": "project/tests/test_gemini_bridge_client.py",
+      "sha256": "2f0fef9b8d6a7a5eafb0d5c1aed7107e24b694cbfc86aa1be4249564d91bc754"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_toggle.py",
+      "sha256": "67f667bd4fea03ba74f4768c20fcdc5223f65fe6aa32666a658d9241fcd5c004"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_redteam.py",
+      "sha256": "a8cbbc7719a8c67bbd90252dca218cf87886e395360bc427a6479412c984f8ad"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "QA_FORCE_BRIDGE_TOGGLE_OFF=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_gemini_bridge_client.py",
+        "project/tests/test_gemini_bridge_toggle.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "GEMINI_BRIDGE_TOGGLE_OFF_RED: 27 failed, 5 passed in 0.42s. All 27 failures are bridge-on (toggle-dependent) assertions with the toggle mocked OFF via the QA_FORCE_BRIDGE_TOGGLE_OFF=1 import-time switch inside the test modules (monkeypatch wins over api_router.py load_dotenv(override=True)). All HTTP mocked via unittest.mock.patch('httpx.Client'); no real network calls. Identical test-file digests are used for the RED and GREEN runs."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_gemini_bridge_client.py",
+    "project/tests/test_gemini_bridge_toggle.py",
+    "project/tests/test_gemini_bridge_redteam.py",
+    "plans/test_provenance/ticket-gemini-bridge-20260921-qa.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD RED->GREEN baseline for the Gemini Web Bridge MCP toggle (project/core/gemini_bridge_client.py, HybridRouter gemini_mcp route, ChatAssistantEngine bridge dispatch). RED run executed with the in-test QA_FORCE_BRIDGE_TOGGLE_OFF switch forcing the toggle off; the 27 bridge-on assertions failed against the uncommitted working-tree feature, then the identical files (same SHA-256 digests) passed 32/32 with the toggle mocked on and all HTTP mocked. GREEN evidence: python3 -m pytest -q on client+toggle tests -> 32 passed (regression test_chat_assistant.py + test_api_router_external.py -> 17 passed). red-team suite (test_gemini_bridge_redteam.py, ticket A5) initially 14 active + 8 strict-xfail tripwires for findings GB-RT-001/GB-RT-002; after the approved hardening (pdf_url http(s) scheme allow-list, bounded recursion, parse try/except) the tripwires were flipped to active and the combined suite passed 71/71. green_tests detail lives in plans/evidence/gemini-bridge-toggle-20260921/blue-red-team-verdict.json (schema reserves red_tests only); no source files were modified by the qa_tester lane."
+}
