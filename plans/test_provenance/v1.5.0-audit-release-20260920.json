@@ -1,0 +1,52 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-20260920",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0e77ec48e599bc64720be2a00da13f3a5385b838",
+  "test_files": [
+    {
+      "path": "project/tests/test_api_integration_suite.py",
+      "sha256": "f181bc5bab4fce72576a020dd4d06c6f30001781881738945be7d38237b04cb2"
+    },
+    {
+      "path": "project/tests/test_button_regression.py",
+      "sha256": "6b7cd2a21da8028cecd0858936439899fc6f24e4d520db14e505232d68d2efcd"
+    },
+    {
+      "path": "project/tests/test_prod_regression.py",
+      "sha256": "feb07432b4429fc6770be868ce6cfa6f0f5ab4fe6836e9cfc40d0d405f264eb8"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": "python3 -m pytest project/tests/test_api_integration_suite.py::TestAPIIntegration::test_api_v2_calculate_unified -v",
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: expected response status 200 but got 503"
+    },
+    {
+      "command": "python3 -m pytest project/tests/test_button_regression.py::TestIndexHTMLButtons::test_index_html_button_elements_exist -v",
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: expected button element not found in rendered HTML"
+    },
+    {
+      "command": "python3 -m pytest project/tests/test_prod_regression.py::test_vercel_handler_supports_preflight_cors -v",
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: expected CORS header not present in response"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/api_router.py",
+    "project/core/config.py",
+    "project/core/solar_time.py",
+    "project/core/v3_engine_adapter.py",
+    "project/routers/debate.py",
+    "project/validator.py",
+    "project/tests/"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Audit remediation release v1.5.0-audit: 25 findings, 91 tests, 137 effort points across 4 sprints A+B+C+D. Verified test-first provenance for API integration, button regression, and production regression test suites."
+}
