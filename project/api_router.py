@@ -31,9 +31,9 @@ logger = logging.getLogger("api_router")
 # ---------------------------------------------------------------------------
 
 OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
-SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
-TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
+PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5:7b")
+SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5-coder:7b")
+TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "llama3:8b")
 GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
 GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
@@ -48,9 +48,9 @@ DEFAULT_GEMINI_ROTATION = [
     "gemini-3.6-flash",
 ]
 
-GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-flash-latest")
-GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemma-4-26b-a4b-it")
-GEMINI_TERTIARY_MODEL   = os.getenv("TERTIARY_MODEL",  "gemma-4-31b-it")
+GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-2.5-flash")
+GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-1.5-pro")
+GEMINI_TERTIARY_MODEL   = os.getenv("TERTIARY_MODEL",  "gemini-2.0-flash")
 
 GEMINI_MODELS_ROTATION: list[str] = []
 for m in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL, GEMINI_TERTIARY_MODEL, *DEFAULT_GEMINI_ROTATION]:
@@ -484,14 +484,15 @@ class HybridRouter:
       LOCAL 1: qwen2.5:7b          (best Chinese/Thai/BaZi understanding)
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
-      CLOUD:   Gemini models x all keys (gemini-3.5-flash-lite -> gemini-flash-latest -> gemini-3.6-flash)
+      CLOUD:   Gemini models x all keys (gemini-2.5-flash -> gemini-1.5-pro -> gemini-2.0-flash -> gemini-flash-latest -> gemma-4-26b-a4b-it -> gemma-4-31b-it -> gemini-3.5-flash-lite -> gemini-3.6-flash)
       CLOUD:   Cloudflare AI and Gemini (zero-cost fallback chain)
     """
 
     def __init__(self, zero_cost_only: bool | None = None) -> None:
+        _env_key = "AI_ZERO_COST_ONLY"
         self.zero_cost_only: bool = (
             zero_cost_only if zero_cost_only is not None
-            else (os.getenv("AI_ZERO_COST_ONLY", "false").lower() == "true")
+            else (_env_key in os.environ and os.environ[_env_key].lower() == "true")
         )
 
     def _build_routes(self) -> list[dict[str, Any]]:

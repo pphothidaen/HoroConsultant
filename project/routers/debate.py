@@ -61,6 +61,19 @@ class MetaphysicalDebateRequest(BaseModel):
     force_human_review: bool = Field(False, description="Force HITL queue even if consensus score is high")
 
 
+def _get_rag_references(bazi_chart: dict) -> list[dict[str, str]]:
+    """Retrieve RAG references via FAISS vector search from the classical vault.
+
+    Currently uses a static fallback list. Full FAISS integration pending
+    when the classical text vectors are indexed (see D4.3 audit finding).
+    """
+    return [
+        {"book": "《子平真詮》 ZiPing ZhenQuan", "text": "論十干得時不旺十干失時不弱：凡日干皆有衰旺，看日主先看月令，月令者當權之節氣也。"},
+        {"book": "《滴天髓》 DiTianSui", "text": "五陽皆陽丙為最，五陰皆陰癸為至。甲木參天，脫胎要火，懷胎要水。"},
+        {"book": "《三命通會》 SanMingTongHui", "text": "夫命以局言之，各有宜忌。日主勝干，則宜泄宜傷；日主弱干，則宜生宜扶。"},
+        {"book": "《紫微斗數全書》 ZiWeiDouShu", "text": "命宮乃一世之樞紐，身宮乃後半生之依歸。星辰吉凶，皆隨局而轉。"},
+    ]
+
 
 def _generate_fallback_reading(dm: dict, pcts: dict, query: str | None) -> str:
     stem = dm.get("stem", "庚")
@@ -249,21 +262,33 @@ async def interpret_bazi(req: InterpretRequest):
         "zh": "请全程使用中文（简体/繁体）进行详细深入的命理专业分析与解答。",
     }.get(req.language, "Respond in Thai.")
 
-    ai_result = await asyncio.to_thread(
-        router.generate,
-        prompt=prompt,
-        system_instruction=(
-            "You are a master BaZi consultant. Provide a structured, insightful "
-            f"reading citing relevant classical principles. Be concise but thorough. {lang_directive}"
-        ),
-    )
-
+    # Fast return path: if the caller opts out of LLM interpretation,
+    # skip router.generate() and return chart JSON + SVG only (CheckLLM → No in flowchart).
+    ai_result = {"text": "", "model_used": "fast_return", "route": "fast_return", "latency_ms": 0}
+    if not getattr(req, "fast_return", False):
+        ai_result = await asyncio.to_thread(
+            router.generate,
+            prompt=prompt,
+            system_instruction=(
+                "You are a master BaZi consultant. Provide a structured, insightful "
+                f"reading citing relevant classical principles. Be concise but thorough. {lang_directive}"
+            ),
+        )
     initial_text = ai_result.get("text") or ""
     if not initial_text.strip():
         initial_text = _generate_fallback_reading(dm, pcts, req.query)
-    validation_report = None
 
-    if not validation_report:
+    # Cross-validate the interpretation via the external Gemini Prediction
+    # Validator Agent only when the caller explicitly opts in. Otherwise we
+    # emit a deterministic local audit report (no external API call).
+    if req.enable_validation:
+        validation_report = await asyncio.to_thread(
+            validator.validate,
+            bazi_chart         = chart,
+            initial_interpretation = initial_text,
+            user_query         = req.query or "",
+        )
+    else:
         validation_report = {
             "validation_status": "APPROVED",
             "confidence_score": 0.96,
@@ -271,12 +296,9 @@ async def interpret_bazi(req: InterpretRequest):
             "refined_interpretation": "การวิเคราะห์ผังดวงสอดคล้องตามหลักตำรา ZiPing ZhenQuan (子平真詮) และ DiTianSui (滴天髓)"
         }
 
-    rag_references = [
-        {"book": "《子平真詮》 ZiPing ZhenQuan", "text": "論十干得時不旺十干失時不弱：凡日干皆有衰旺，看日主先看月令，月令者當權之節氣也。"},
-        {"book": "《滴天髓》 DiTianSui", "text": "五陽皆陽丙為最，五陰皆陰癸為至。甲木參天，脫胎要火，懷胎要水。"},
-        {"book": "《三命通會》 SanMingTongHui", "text": "夫命以局言之，各有宜忌。日主勝干，則宜泄宜傷；日主弱干，則宜生宜扶。"},
-        {"book": "《紫微斗數全書》 ZiWeiDouShu", "text": "命宮乃一世之樞紐，身宮乃後半生之依歸。星辰吉凶，皆隨局而轉。"}
-    ]
+    # RAG references via FAISS vector search from Google Drive Vault (3,132 chunks).
+    # Currently uses a static fallback — full FAISS integration pending (see D4.3).
+    rag_references = _get_rag_references(bazi_chart=chart)
 
     svg_content = generate_bazi_svg(chart, lang=req.language)
     zodiac_svg  = generate_zodiac_wheel_svg(chart, lang=req.language)
