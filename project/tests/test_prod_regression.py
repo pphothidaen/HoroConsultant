@@ -170,13 +170,23 @@ def test_bazi_interpret_full_user_payload_regression():
         "route": "mock_route",
         "latency_ms": 15
     }
-    with patch("project.main.router.generate", return_value=mock_ai):
+    fake_report = {
+        "validation_status": "PASSED",
+        "confidence_score": 0.92,
+        "peer_perspective": "Gemini External Audit (mocked)",
+        "element_logic_audit": "ok",
+        "refined_interpretation": "refined interpretation",
+    }
+    with patch("project.main.router.generate", return_value=mock_ai), \
+         patch("project.routers.debate.validator.validate", return_value=fake_report) as mock_validate:
         res = client.post("/api/v1/bazi/interpret", json=payload, headers=headers)
         assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
         data = res.json()
         assert "chart" in data
         assert "interpretation" in data
         assert "day_master" in data["chart"] or "pillars" in data["chart"]
+        assert data["validation_report"] == fake_report
+        mock_validate.assert_called_once()
 
 
 def test_prod_button_regression_report_pass_rate():

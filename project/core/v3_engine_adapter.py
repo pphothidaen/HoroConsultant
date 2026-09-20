@@ -103,7 +103,10 @@ def _emit(
     session_id: str | None,
     materiality_weight: float = 0.9,
 ) -> dict[str, Any]:
-    calc_hash = _calc_hash(result)
+    calc_hash = compute_merkle_hash(
+        json.dumps(result, ensure_ascii=False, sort_keys=True, default=str),
+        [],
+    )
     claim = {
         "claim_id": _claim_id(node_id, rule_id, calc_hash),
         "materiality_weight": materiality_weight,

@@ -1,5 +1,90 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Remaining-work audit & release reconciliation -- 2026-09-17 (revision 19)
+
+Status: APPROVED for planning reconciliation and the derived HANDOFF refresh
+only (business_analyst lane). This section supersedes the operational-status
+wording of revision 17 and revision 18 where those name execution anchors;
+both remain historical evidence. No source, test, data, chart, release,
+credential, sync, commit, push, PR, or deployment authority is granted here.
+
+Current anchors [AUTO]: main `fcabff531e784b7855a3516659be091226ceb67e`
+(merge of PR #47). PR #46 (Linux backend plan availability) merged
+2026-09-14T18:49:46Z; PR #47 (plan-mode hardlink sha256 tolerance + HANDOFF
+ticket assertion fix) merged 2026-09-14T20:03:28Z. The revision-18 board
+anchor `b11183c2...` and baseline `a61b7497...` are merged history and are
+stale as execution anchors; every successor lane must cite the exact SHA it
+actually inspects.
+
+Verified receipts [AUTO]:
+
+- PR #47 branch head `ce8c9392...` hosted checks all SUCCESS: PyTest & Edge
+  Boundary, Pre-Deployment Code Review and Safety Audit, Code Quality &
+  Security (x2), Test Provenance (x2), Live Production Version & LuoPan E2E,
+  Rust PyO3 audit, cross-platform agent sync. `Workers Builds:
+  horoconsultant` FAILURE is non-required and untriaged. Merge is
+  integration, not deployment proof.
+- No full CI run has executed on `fcabff53` itself yet; the latest 20 runs
+  on main are all `Production Synthetic Monitoring` failures at step
+  `Verify HF Docker backend and Vercel UI`.
+- Production probes 2026-09-16T17:55Z: HF backend `/health` HTTP 503
+  (cpu-basic requested 1 / limit 0 per prior receipt; quota blocker
+  persists); Vercel root HTTP 200; Vercel `/api/health` HTTP 503
+  (backend-dependent); `/version` and `/api/version` both HTTP 404, so a
+  canonical version endpoint must be established before the identity gate.
+- Working tree dirty paths at audit: `project/data/distillation_checklist.json`,
+  `project/data/hitl_reviews.json` (lane-excluded), `project/data/vault_sync_status.json`,
+  `project/static/charts/bazi_chart.svg` (lane-excluded). Runtime churn; no
+  lane may fold these into release commits.
+- Revision-18 evidence directory
+  `plans/evidence/horo-lite-review-remediation-20260907/` contains only the
+  two Sept-8 AGY dispatch decisions; lanes A, B, and C have no evidence.
+
+### Remaining atomic gates (execution order)
+
+All abbreviated lane ids use the `TICKET-HLITE-REVIEW-REMEDIATION-20260907-`
+prefix. Revision-18 lane contracts (actions, exclusions, evidence, typed
+stops) remain binding; only anchors are re-pointed.
+
+| # | Atomic lane (owner) | Gate / acceptance | State |
+|---|---|---|---|
+| 1 | `-BOARD-REANCHOR-20260917` (business_analyst) | Register the revision-19 board in `ATOMIC_TICKET.md` re-anchored to `fcabff53`, keeping rev18 A/B/C contracts otherwise unchanged. | PENDING |
+| 2 | `-DOCKER-CANDIDATE-VALIDATE` (devops) | Rev18 contract at the current anchor: detached worktree `publish_space_hf.py --dry-run`, sanitized evidence file, guaranteed cleanup receipt. | READY (no evidence yet) |
+| 3 | `-CODEX2-CONFIG-DIAGNOSE` (devops) | Read-only canonical codex2 profile inventory; exact intended two-skill/six-plugin set; idempotent intended diff; sanitized evidence. May run parallel with lane 2. | READY (no evidence yet) |
+| 4 | `-CODEX2-CONFIG-SYNC` (devops) | Apply only the reviewed diff after DIAGNOSE PASS; pre/post `sync_ai_agent_ecosystem.py --check` PASS; second diff empty; budget evidence. | BLOCKED by 3 |
+| 5 | `-EXACT-SHA-REVIEW` (code_reviewer) | Rev18 bounded read-only review re-anchored from stale `b11183c2` to the then-current head: HEAD equality, zero secrets, `READY_FOR_PROD`. | BLOCKED by 2+4 |
+| 6 | Release preparation / protected PR (devops) | Eight static-mirror stamps; protected PR; exact-SHA full CI + safety green on the final merged head (green at PR head `ce8c9392` alone does not satisfy the main-head gate). | BLOCKED by 5 |
+| 7 | HF production unblock (owner HITL; devops executes) | HF Space PAUSED with cpu-basic limit 0 is an external billing decision; no agent may change quotas. After owner decision: redeploy, `/health` 200, identity equality across HF/Vercel via one canonical version endpoint. | BLOCKED (external) |
+| 8 | Five viewport audit + rollback (qa_tester / ui_visual_tester) | Widths 360/375/390/768/1440 receipts against healthy production; rollback anchor receipts. | BLOCKED by 7 |
+| 9 | Rule 22 closeout (business_analyst + devops) | Archive `plans/active/horo-lite-*` and the stale top-level `plans/sprint_*.md` files; compile ReleaseNotes.md (supersede the conditional Sept-6 note); reconcile tag `v1.4.6-prod` local/origin; final protected closeout. | BLOCKED by 6-8 |
+| 10 | `-HANDOFF-REFRESH-20260917` (business_analyst) | Derived capsule regenerated from this revision; schema-valid; `clear_ready=false`. | DONE |
+
+### Improvement & enhancement backlog (admission-gated, not release-blocking)
+
+1. Rule 24 context chunking for `plans/plan.md`: this file is a 260KB+
+   monolith mixing 18+ historical GRILL reports with active state. Migrate
+   history to `plans/archive/` indexes and keep an active-state header, via
+   one separately admitted single-editor lane (PLANNING-ARTIFACT path set).
+   The hashed `CONTEXT-OPT-001-20260905` marker section must stay
+   byte-identical during any migration.
+2. `plans/` hygiene: three top-level `plans/sprint_*.md` files bypass the
+   archive layout; fold into the archive index during Rule 22 closeout.
+3. Synthetic-monitoring noise: the main-branch monitor fails every run
+   while HF is quota-paused, drowning actionable signals. Gate it behind
+   backend health or annotate expected-failure until gate 7 resolves.
+4. Version endpoint standardization: define one canonical version route on
+   both HF and Vercel targets so the identity-equality gate is automatable.
+5. `Workers Builds: horoconsultant` (Cloudflare) fails on recent PRs;
+   triage or formally mark it non-required to restore board signal quality.
+6. Dirty runtime churn policy: `project/data/*.json` and
+   `project/static/charts/*.svg` reappear dirty every session; document a
+   restore/commit policy or ignore-and-regen flow so release diffs stay
+   clean.
+
+Waivers: NONE. Next question: owner HITL decision on the HF cpu-basic quota
+(gate 7). Nothing in this revision authorizes quota, credential, provider,
+push, deploy, or archive actions.
+
 ## Release-blocker remediation successor plan -- 2026-09-14 (revision 18)
 
 Status: APPROVED for successor-lane planning only. Current source anchor is

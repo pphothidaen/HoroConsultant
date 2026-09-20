@@ -26,7 +26,7 @@ load_dotenv()
 logger = logging.getLogger("prediction_validator")
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-VALIDATOR_MODEL = os.getenv("VALIDATOR_MODEL", "gemini-2.0-flash")
+VALIDATOR_MODEL = os.getenv("VALIDATOR_MODEL", "gemini-2.5-flash")
 
 VALIDATOR_SYSTEM_PROMPT = """คุณคือ "Prediction Validator & Computational Metaphysics Auditor"
 หน้าที่ของคุณคือการตรวจสอบและประเมินคำพยากรณ์โหราศาสตร์จีน (BaZi / 四柱命理) ที่ถูกสร้างขึ้นจากระบบ
@@ -131,7 +131,7 @@ class PredictionValidator:
         }
 
         candidate_models = [self.model_name]
-        for alt in ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-1.5-pro"]:
+        for alt in ["gemini-2.5-flash", "gemini-1.5-pro", "gemini-3.5-flash-lite", "gemini-3.6-flash"]:
             if alt not in candidate_models:
                 candidate_models.append(alt)
 

@@ -15,7 +15,7 @@ Horo Architecture v3.0 is a deterministic, multi-disciplinary computational meta
 
 Every consultation traverses seven rigorously isolated layers to ensure reproducibility, auditability, and epistemological compliance:
 
-1. **L1 — Astro Kernel Engine ([`astro_kernel_service.proto`](file:///Users/kimlenglim/Project/HoroConsultant/TDD-HORO-v3.0/01_DATA_CONTRACTS/proto/astro_kernel_service.proto))**: Calculates true solar time, equation of time, Julian day ephemeris, and planetary coordinates.
+1. **L1 — Astronomical Calculation Layer ([`project/core/bazi_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/bazi_engine.py))**: Computes true solar time (TST), equation of time (EoT), Julian day ephemeris, and planetary coordinates via `true_solar_time()` within BaZiEngine. (No separate gRPC/Proto3 service — TST is computed in-process.)
 2. **L2 — Deterministic Tradition Engines ([`project/core`](file:///Users/kimlenglim/Project/HoroConsultant/project/core))**: Executes 10 isolated metaphysics calculation engines (BaZi, ZiWei, QiMen, ZeJi, XuanKong, DaLiuRen, LiuYao, TaiYi, QiZheng, MianXiang).
 3. **L3/L4 — Claim Adapters & Domain Firewalls ([`project/core/v3_engine_adapter.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/v3_engine_adapter.py))**: Normalizes engine outputs into structured atomic interpretive claims conforming to [claim_emission_v3.0.json](file:///Users/kimlenglim/Project/HoroConsultant/TDD-HORO-v3.0/01_DATA_CONTRACTS/schemas/claim_emission_v3.0.json).
 4. **L5 — Multi-Agent Consensus & Dynamic Arbitration ([`runtimes/consensus_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/TDD-HORO-v3.0/05_AGENT_PROMPTS_AND_RUNTIMES/runtimes/consensus_engine.py))**: Evaluates Tier H2 hard exclusion vetoes, applies intent-based priority hierarchies (`ARB-01`), and resolves cross-domain contradictions with confidence vector tiebreaking (`ARB-02`).
@@ -25,7 +25,7 @@ Every consultation traverses seven rigorously isolated layers to ensure reproduc
 
 ```mermaid
 flowchart TD
-    Client["Client / Application Gateway"] -->|POST /api/v3/calculate| L1["L1: Astro Kernel Engine\n(True Solar Time & Ephemeris)"]
+    Client["Client / Application Gateway"] -->|POST /api/v3/calculate| L1["L1: Astronomical Calc<br/>(TST & Ephemeris)"]
     L1 -->|AstroState + Hash| L2["L2: 10 Deterministic Calculation Engines\n(BaZi, ZiWei, QiMen, ZeJi, XuanKong, DaLiuRen, etc.)"]
     L2 -->|Engine State Matrices| L3["L3/L4: v3 Claim Adapters\n(claim_emission_v3.0.json)"]
     L3 -->|Claim Emissions Array| L5["L5: Consensus Engine & Dynamic Arbitration\n(Intent Hierarchy & Veto Filter)"]
@@ -242,6 +242,7 @@ Executes the full multi-tradition computation, claim adaptation, consensus arbit
 | `400 Bad Request` | `Invalid birth_datetime; use ISO 8601 or Unix timestamp` | Malformed datetime or out-of-range numeric timestamp |
 | `422 Unprocessable Entity` | `Cannot compose report: Audit failed with verdict 'AUDIT_FAIL_ESCALATE'` | L6 Audit failed quality gate; composition blocked |
 | `500 Internal Server Error` | `Engine calculation failure` | Unhandled runtime exception in underlying tradition engine |
+| `503 Service Unavailable` | `Runtime engine unavailable` | GPU memory exhausted or engine service not loaded |
 
 ---
 

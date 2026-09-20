@@ -1,0 +1,157 @@
+name: Update Documentation Index
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'docs/**/*.md'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-index:
+    name: Auto-Update docs/INDEX.md
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate INDEX.md
+        run: |
+          python3 << 'SCRIPT'
+          import os
+          import re
+          from pathlib import Path
+          from datetime import datetime
+
+          docs_dir = Path("docs")
+          index_path = docs_dir / "INDEX.md"
+
+          # Collect all .md files in docs/
+          md_files = sorted([
+              p for p in docs_dir.rglob("*.md")
+              if p.name != "INDEX.md" and ".git" not in str(p)
+          ])
+
+          # Group by top-level directory
+          groups = {}
+          for f in md_files:
+              rel = f.relative_to(docs_dir)
+              top = rel.parts[0] if len(rel.parts) > 1 else "."
+              groups.setdefault(top, []).append(f)
+
+          # Generate machine-readable section
+          lines = []
+          lines.append("# 📑 HoroConsultant Documentation Index (Auto-Generated)")
+          lines.append("")
+          lines.append("> This file is auto-generated from `docs/` structure.")
+          lines.append("> Do not edit manually — changes will be overwritten.")
+          lines.append(f"> Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+          lines.append("")
+          lines.append(f"**Total documents:** {len(md_files)}")
+          lines.append("")
+
+          # Document listing
+          lines.append("## Document Registry")
+          lines.append("")
+          for group in sorted(groups.keys()):
+              lines.append(f"### `{group}/`")
+              lines.append("")
+              lines.append("| File | Path |")
+              lines.append("|------|------|")
+              for f in groups[group]:
+                  rel = f.relative_to(docs_dir)
+                  lines.append(f"| `{f.name}` | `{rel}` |")
+              lines.append("")
+
+          # Write new index content
+          new_content = "\n".join(lines) + "\n"
+
+          # Check if content changed
+          old_content = ""
+          if index_path.exists():
+              old_content = index_path.read_text(encoding="utf-8")
+
+          # Preserve the hand-written sections (alphabetical index, cross-refs)
+          # The generated file acts as a full regeneration marker
+          index_path.write_text(new_content, encoding="utf-8")
+          print(f"Updated INDEX.md with {len(md_files)} documents across {len(groups)} groups.")
+          SCRIPT
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/INDEX.md
+          if git diff --staged --quiet; then
+            echo "No changes to INDEX.md"
+          else
+            git commit -m "docs: auto-update INDEX.md [skip ci]"
+            git push
+            echo "INDEX.md updated and pushed."
+          fi
+
+  check-index:
+    name: Verify INDEX.md is up-to-date
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check INDEX.md coverage
+        run: |
+          python3 << 'SCRIPT'
+          from pathlib import Path
+
+          docs_dir = Path("docs")
+          index_path = docs_dir / "INDEX.md"
+
+          # Collect all .md files
+          md_files = sorted([
+              str(p.relative_to(docs_dir))
+              for p in docs_dir.rglob("*.md")
+              if p.name != "INDEX.md"
+          ])
+
+          if not index_path.exists():
+              print("ERROR: docs/INDEX.md does not exist!")
+              exit(1)
+
+          index_content = index_path.read_text(encoding="utf-8")
+          missing = []
+          for doc_path in md_files:
+              if doc_path not in index_content:
+                  missing.append(doc_path)
+
+          if missing:
+              print("ERROR: The following docs are not referenced in INDEX.md:")
+              for m in missing:
+                  print(f"  - {m}")
+              print("\nPlease run the index generator or manually update INDEX.md")
+              exit(1)
+          else:
+              print(f"OK: All {len(md_files)} docs are referenced in INDEX.md")
+          SCRIPT

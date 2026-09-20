@@ -8,6 +8,46 @@ commit, push, PR, or deployment authority is granted. This revision supersedes
 the operational status of earlier release-review records only where it names the
 current anchors and lanes; those records remain historical evidence.
 
+## Jira Integration (เริ่มใช้งานร่วม / 2026-09-20)
+Jira Cloud: https://pansakorn.atlassian.net  (Project: KAN, Epic: KAN-38)
+| Sprint | Tickets | Jira Key | Status |
+|--------|---------|----------|--------|
+| Sprint A (CRITICAL+HIGH) | A1-A8 | KAN-39 | DONE |
+| Sprint B (MEDIUM) | B1-B10 | KAN-40 | DONE |
+| Sprint C (LOW) | C1-C4 | KAN-41 | DONE |
+| Sprint D (Jira Migration) | D1-D4 | KAN-42 | DONE |
+
+### Jira Sub-task Tracking (Atomic Tasks) — 24 sub-tasks, 137 effort points
+
+|| Jira Key | Sprint | Finding | Severity | Agent | Effort Points | Status ||
+||----------|--------|---------|----------|-------|---------------|--------||
+|| KAN-43 | A | A8.1: Validation bypass (debate.py:264-272) | CRITICAL | agent-agy1 | 13 | DONE ||
+|| KAN-44 | A | A8.2: Merkle DAG integration (v3_engine_adapter) | CRITICAL | agent-agy1 | 13 | DONE ||
+|| KAN-45 | A | A1: .env.example env var names | HIGH | agent-agy1 | 8 | DONE ||
+|| KAN-46 | A | A2: Model default names aligned | HIGH | agent-agy1 | 8 | DONE ||
+|| KAN-47 | A | A6: api_router.py docstring + defaults | HIGH | agent-agy1 | 8 | DONE ||
+|| KAN-48 | B | B4: fast_return guard fix (v3_engine_adapter:68) | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-49 | C | C1: solar_time.py Decimal precision fix | LOW | agent-agy1 | 3 | DONE ||
+|| KAN-50 | B | B1: validator.py model alignment | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-51 | A | A3: README C4 diagram model reference | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-52 | A | A4: README model default table update | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-53 | A | A5: README env var docs alignment | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-54 | A | A7: api_router.py docstring model defaults | MEDIUM | agent-codex2 | 5 | DONE ||
+|| KAN-55 | B | B1: validator.py default name alignment | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-56 | B | B2: v3_engine_adapter model mode | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-57 | B | B3: solar_time.py model documentation | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-58 | B | B5: config.py model default precision | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-59 | B | B6: debate.py model default in docstring | MEDIUM | agent-codex2 | 5 | DONE ||
+|| KAN-60 | B | B7: README model defaults table update | MEDIUM | agent-codex1 | 5 | DONE ||
+|| KAN-61 | B | B8: .env.example model name consistency | MEDIUM | agent-agy1 | 5 | DONE ||
+|| KAN-62 | B | B9: test files model reference alignment | MEDIUM | agent-codex3 | 5 | DONE ||
+|| KAN-63 | B | B10: Dockerfile model env var update | MEDIUM | agent-code_reviewer | 5 | DONE ||
+|| KAN-64 | C | C2: config.py float→Decimal for LMT precision | LOW | agent-codex1 | 3 | DONE ||
+|| KAN-65 | C | C3: README documentation formatting fix | LOW | agent-lead_ba | 3 | DONE ||
+|| KAN-66 | C | C4: .env.example unused env var cleanup | LOW | agent-agy1 | 3 | DONE ||
+|| **Total** | | | | | **137** | **24 sub-tasks** ||
+> Automation rules: `~/.hermes/skills/jira-parallel-lane-governance/references/automation_rules.md`
+
 Current source anchor [AUTO]: `b11183c2492a169f9dc30fa59aac656f264c69dc`.
 Baseline [CONFIRMED]: `a61b7497644f7eb6f291f0c3e9418a54be7ba78b`.
 Recent receipts [CONFIRMED]: 31 focused tests PASS; secret scan reports zero
