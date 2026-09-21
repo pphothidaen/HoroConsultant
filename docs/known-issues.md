@@ -53,3 +53,33 @@ delegate_task(action="spawn", tasks=[{
 - Either reconfigure Render service to use `Dockerfile.render` (Python-only)
 - OR update `render.yaml` to specify `dockerfilePath: ./Dockerfile` (Rust gateway)
 - The contract test ensures routing correctness regardless of which Dockerfile is used
+
+---
+
+## Flaky Test: `test_non_release_hermes_qa_and_sync_orchestration_remains_callable`
+
+**Status**: Active — Pre-existing race condition, not related to route-sync changes
+
+**Symptom** (CI only, ~intermittent):
+```
+AssertionError: assert ['', 'CALL pytest'] == ['CALL pytest', 'CALL tee']
+```
+
+**Location**: `project/tests/test_local_release_runner_contract.py:322`
+
+**Root cause**:
+- The QA phase runs `python3 -m pytest ... | tee /tmp/hermes_pytest_output.txt` (a 2-process pipeline)
+- The mock `python3` writes its log entry with multiple `printf` calls (label, then each arg, then newline)
+- The mock `tee` writes `CALL tee\n` in a single write
+- Both processes append to the same `COMMAND_LOG` concurrently — when the writes interleave
+  (`"CALL pytest"` + `"CALL tee\n"` + `"\t-m..."`), the log gets a line starting with `\t`,
+  which `split("\t", 1)[0]` reads as an empty label
+- Local runs pass 20/20; only CI scheduling exposes the race
+
+**Workaround**: Re-run failed jobs (passes on retry)
+
+**Permanent fix (follow-up ticket)**:
+- Make the mock `python3` write each log entry with a single atomic `printf` call, or
+- Write to per-process temp files and merge deterministically in the test
+
+**First observed**: 2026-09-21 (CI run 35594882927)
