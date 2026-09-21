@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RUST-ROUTE-SYNC-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b4bdb14c5c2ef67efbb9a4dbe55f804f200ca987",
+  "test_files": [
+    {
+      "path": "tests/test_route_sync.py",
+      "sha256": "b426f3dad888d2f1cc0c89fcb7733d971b2367bb6bd0bac35ac9bb6663a600a4"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_route_sync.py::TestRustRouteCoverage::test_admin_provider_pools_is_routed",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: /admin/provider-pools is missing from the Rust routing table"
+    },
+    {
+      "command": [
+        "pytest",
+        "tests/test_route_sync.py::TestRustRouteCoverage::test_all_openapi_paths_have_rust_entry",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "40 routes in Python OpenAPI are NOT in the Rust gateway routing table"
+    }
+  ],
+  "allowed_source_paths": [
+    "rust_core/src/server.rs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract test prevents route drift between Rust gateway (route_kind allowlist) and Python FastAPI (OpenAPI). Root cause of production 404 on /admin/provider-pools was a closed routing allowlist that was never updated after route additions in Python."
+}

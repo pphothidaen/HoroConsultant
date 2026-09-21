@@ -115,6 +115,23 @@ jobs:
           done
           echo "Render backend health check failed"; exit 1
 
+      - name: Smoke test Render backend routes (post-deploy regression)
+        run: |
+          set -euo pipefail
+          echo "[1/3] /admin/provider-pools must return 401 (not 404)..."
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${RENDER_BACKEND_URL}/admin/provider-pools" || true)
+          echo "  /admin/provider-pools -> ${code}"
+          [ "${code}" = "401" ] || { echo "::error::Expected 401, got ${code} — Rust routing table not updated"; exit 1; }
+          echo "[2/3] /api/v2/health must not return 404..."
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${RENDER_BACKEND_URL}/api/v2/health" || true)
+          echo "  /api/v2/health -> ${code}"
+          [ "${code}" = "404" ] && { echo "::error::/api/v2/health still returns 404"; exit 1; }
+          echo "[3/3] /health must return 200..."
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${RENDER_BACKEND_URL}/health" || true)
+          echo "  /health -> ${code}"
+          [ "${code}" = "200" ] || { echo "::error::/health returned ${code}"; exit 1; }
+          echo "All post-deploy route checks passed"
+
       - name: Smoke test Vercel gateway to Render primary
         env:
           VERCEL_STATIC_URL: ${{ secrets.VERCEL_STATIC_URL || 'https://horo-consultant-psi.vercel.app' }}

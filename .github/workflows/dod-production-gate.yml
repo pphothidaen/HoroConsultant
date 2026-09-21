@@ -28,13 +28,21 @@ jobs:
 
       - name: Verify DoD criteria
         run: |
-          echo "[1/4] Test Provenance Guard..."
+          echo "[1/5] Test Provenance Guard..."
           python3 scripts/test_provenance_guard.py verify-pr --base origin/main~1 --head HEAD --post-squash-merge
           
-          echo "[2/4] Test suite..."
+          echo "[2/5] Test suite..."
           python3 -m pytest project/tests/ -v --tb=short 2>&1 | tail -5
           
-          echo "[3/4] Index.md up-to-date..."
+          echo "[3/5] Index.md up-to-date..."
           python3 scripts/verify_doc_index.py
           
-          echo "[4/4] ALL CRITERIA PASSED"
+          echo "[4/5] Rust↔Python route sync contract..."
+          python3 -c "
+          import json
+          from project.main import app
+          with open('/tmp/oa.json', 'w') as f:
+              json.dump(app.openapi(), f)
+          " && python3 -m pytest tests/test_route_sync.py -v -m contract --tb=short
+          
+          echo "[5/5] ALL CRITERIA PASSED"

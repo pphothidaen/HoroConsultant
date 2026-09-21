@@ -5,8 +5,12 @@
 * [Repository Guidelines](repository-guidelines.md)
 * [HOWTO](../HOWTO.md)
 
+## Known Issues
+* [Known Issues](known-issues.md)
+
 ## Architecture
 * [C4 Hermes 9router Architecture](c4_hermes_9router_architecture.md)
+* [Rust Gateway Deployment Rail](architecture/deployment-rail.md)
 * [Architecture Design Spec](architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md)
 * [AGY Terminal Supervisor](architecture/agy-terminal-supervisor.md)
 * [External Dispatch Platform Contract](architecture/external-dispatch-platform-contract.md)
