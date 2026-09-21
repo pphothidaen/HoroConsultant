@@ -238,6 +238,50 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         | (&Method::GET, "/admin/finetune/download")
         | (&Method::GET, "/admin/finetune/download-grayzone")
         | (&Method::GET, "/admin/code-review")
+        | (&Method::GET, "/admin/provider-pools")
+        // ── Routes added after initial gateway build (Aug 10) ──────────
+        // MUST be kept in sync with Python FastAPI routes. See
+        // tests/test_route_sync.py and docs/architecture/deployment-rail.md
+        // API v1 extensions
+        | (&Method::GET, "/api/charts/all")
+        | (&Method::GET, "/api/v1/calendar/month")
+        | (&Method::POST, "/api/v1/calendar/query-dates")
+        | (&Method::POST, "/api/v1/charts/bundle")
+        | (&Method::POST, "/api/v1/charts/export")
+        | (&Method::POST, "/api/v1/dream/interpret")
+        | (&Method::POST, "/api/v1/luopan/calculate")
+        | (&Method::POST, "/api/v1/metaphysical/debate")
+        | (&Method::GET, "/api/v1/mlops/checklist")
+        | (&Method::GET, "/api/v1/mlops/datasets")
+        | (&Method::POST, "/api/v1/mlops/distill")
+        | (&Method::GET, "/api/v1/mlops/hf_status")
+        | (&Method::GET, "/api/v1/mlops/status")
+        | (&Method::POST, "/api/v1/mlops/telegram/webhook")
+        | (&Method::POST, "/api/v1/mlops/train")
+        | (&Method::GET, "/api/v1/simulation/preset-scenarios")
+        | (&Method::POST, "/api/v1/simulation/simulate-scenarios")
+        | (&Method::POST, "/api/v1/synastry/analyze")
+        | (&Method::POST, "/api/v1/telegram/webhook")
+        // API v2 / v3 extensions
+        | (&Method::POST, "/api/v2/calculate/unified")
+        | (&Method::POST, "/api/v2/chat/anonymized-feedback")
+        | (&Method::POST, "/api/v2/chat/consult")
+        | (&Method::POST, "/api/v2/chat/prompt-pills")
+        | (&Method::POST, "/api/v2/chat/stream")
+        | (&Method::GET, "/api/v2/health")
+        | (&Method::POST, "/api/v2/interpret/focused")
+        | (&Method::GET, "/api/v2/llm/providers/status")
+        | (&Method::POST, "/api/v2/llm/route-test")
+        | (&Method::POST, "/api/v2/mian_xiang/analyze")
+        | (&Method::POST, "/api/v3/audit")
+        | (&Method::POST, "/api/v3/calculate")
+        | (&Method::GET, "/api/v3/health")
+        | (&Method::GET, "/api/v3/schema")
+        | (&Method::POST, "/api/v3/unified-reading")
+        // HITL extensions
+        | (&Method::GET, "/hitl/backoffice")
+        | (&Method::GET, "/hitl/scope-audit")
+        | (&Method::POST, "/hitl/trigger")
         | (&Method::GET, "/hitl/queue")
         | (&Method::GET, "/hitl/stats")
         | (&Method::GET, "/hitl/export")
@@ -287,6 +331,11 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         }
         (&Method::POST, dynamic) | (&Method::DELETE, dynamic)
             if one_segment_after(dynamic, "/hitl/review/") =>
+        {
+            Some(RouteKind::PythonProxy)
+        }
+        (&Method::GET, dynamic) | (&Method::POST, dynamic)
+            if one_segment_after(dynamic, "/api/visualize/") =>
         {
             Some(RouteKind::PythonProxy)
         }

@@ -65,6 +65,17 @@ jobs:
         run: |
           python3 -m pytest -v
 
+      - name: Generate OpenAPI snapshot & verify Rust↔Python route sync
+        run: |
+          python3 -c "
+          import json
+          from project.main import app
+          with open('/tmp/oa.json', 'w') as f:
+              json.dump(app.openapi(), f)
+          print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
+          "
+          python3 -m pytest tests/test_route_sync.py -v -m contract
+
       - name: Run LuoPan & Metaphysics Dynamic Regression Tests
         run: |
           python3 -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
