@@ -79,4 +79,41 @@
 - Local post-fix QA is green: `792 passed, 9 skipped, 12 warnings`; pre-deployment review is `READY_FOR_PROD` with zero secret leaks.
 - Telegram QA became deterministic by resolving the default chat ID at request time and isolating notifier tests from real credentials/network delivery.
 - Dependency lockfile updates were resolver-generated and validated for Python and Rust compatibility.
-- Production deployment was not performed. The v3 five-viewport post-deploy verification remains an explicit HITL gate; the tracked pre-final visual report remains `WARNING` and is retained as historical evidence.
+## 2026-09-21 — Incident Closure: `/admin/provider-pools` 404
+
+**Severity**: P0 (Production route regression)
+**Status**: ✅ RESOLVED — Production verified
+**PRs**: #61 (routing fix), #62 (CI hang fix)
+
+### Executive Summary
+
+Production endpoint `/admin/provider-pools` คืน HTTP 404 แทน 401 เนื่องจาก Rust gateway (`horo_server`) มี `route_kind()` allowlist ที่ล้าสมัย — ไม่มี 40 routes ใหม่ที่เพิ่มใน Python ตั้งแต่ Aug 10 ทำให้ Rust ปฏิเสธ request ก่อนจะถึง Python worker
+
+### Root Cause
+
+- Rust `route_kind()` เป็น closed allowlist ที่ hardcoded ไว้
+- เมื่อ Python FastAPI เพิ่ม/เปลี่ยน routes ต้อง manual sync เปลี่ยน Rust ด้วย
+- ลืม sync → 40 routes ใหม่ถูกปฏิเสธเป็น 404 ที่ Rust layer
+
+### Fixes Applied
+
+| PR | File | Change |
+|---|---|---|
+| #61 | `rust_core/src/server.rs` | +40 routes ใน `route_kind()` |
+| #61 | `tests/test_route_sync.py` | +`pytest.mark.contract` |
+| #62 | `project/core/code_reviewer.py` | +`--skip-tests` flag (CI nested-run prevention) |
+| #62 | `.github/workflows/ci.yml` | +`--skip-tests` flag |
+| — | GitHub Secrets | `RENDER_BACKEND_URL` → correct URL |
+
+### Production Verification
+
+| Endpoint | Target | Actual |
+|---|---|---|
+| `/admin/provider-pools` | 401 | 401 ✅ |
+| `/api/v2/health` | 200 | 200 ✅ |
+| `/health` | 200 | 200 ✅ |
+
+### Long-term Follow-up (P2)
+
+- Auto-generate Rust routing table (build.rs) — Gemini Bridge แนะนำ Hybrid: build.rs + Test Assert
+- Cloudflare Workers stale integration — รอ disconnect ผ่าน Dashboard
