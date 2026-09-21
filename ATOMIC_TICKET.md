@@ -47,12 +47,21 @@ current anchors and lanes; those records remain historical evidence.
 
 ## Jira Integration (เริ่มใช้งานร่วม / 2026-09-20)
 Jira Cloud: https://pansakorn.atlassian.net  (Project: KAN, Epic: KAN-38)
-| Sprint | Tickets | Jira Key | Status |
+|| Sprint | Tickets | Jira Key | Status |
 |--------|---------|----------|--------|
 | Sprint A (CRITICAL+HIGH) | A1-A8 | KAN-39 | DONE |
 | Sprint B (MEDIUM) | B1-B10 | KAN-40 | DONE |
 | Sprint C (LOW) | C1-C4 | KAN-41 | DONE |
 | Sprint D (Jira Migration) | D1-D4 | KAN-42 | DONE |
+| Sprint E (Incident Closure 2026-09-21) | E1-E6 | KAN-67 | IN_PROGRESS |
+
+| Jira Key | Summary | Status |
+|----------|---------|--------|
+| KAN-68 | Fix flaky COMMAND_LOG race | DONE (branch: fix/flaky-command-log-race) |
+| KAN-69 | Fix render.yaml Dockerfile path | DONE (branch: fix/render-yaml-dockerfile-path) |
+| KAN-70 | Investigate Cloudflare Workers stale integration | DONE (branch: fix/docs-workers-builds-investigation) |
+| KAN-71 | Design auto-generate Rust routing table (build.rs) | TODO |
+| KAN-72 | Release Notes — Incident closure 2026-09-21 | DONE (PR #63) |
 
 ### Jira Sub-task Tracking (Atomic Tasks) — 24 sub-tasks, 137 effort points
 
