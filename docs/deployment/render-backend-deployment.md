@@ -2,7 +2,7 @@
 
 Primary production backend architecture introduced in PR #53: the **Render web service** (`horoconsultant-core-backend`) becomes the primary backend origin, with the **Hugging Face Space** demoted to fallback origin. The Vercel gateway performs multi-origin failover between them.
 
-> Related files: [`render.yaml`](../../render.yaml), [`Dockerfile.render`](../../Dockerfile.render), [`.github/workflows/deploy-render.yml`](../../.github/workflows/deploy-render.yml), [`scripts/sync-render-secrets.sh`](../../scripts/sync-render-secrets.sh), [`api/index.js`](../../api/index.js)
+> Related files: [`render.yaml`](../../render.yaml), [`Dockerfile`](../../Dockerfile), [`.github/workflows/deploy-render.yml`](../../.github/workflows/deploy-render.yml), [`scripts/sync-render-secrets.sh`](../../scripts/sync-render-secrets.sh), [`api/index.js`](../../api/index.js)
 
 ---
 
@@ -17,7 +17,7 @@ Primary production backend architecture introduced in PR #53: the **Render web s
                 └──────────────────────────┘
 ```
 
-- **Render primary** — Docker web service built from `Dockerfile.render` (Ubuntu 22.04, Rust core compiled via maturin, uvicorn binds to Render's injected `PORT`, default 10000). Declared in `render.yaml` as a Blueprint: `runtime: docker`, `plan: free`, `region: singapore`, `autoDeploy: true`, `healthCheckPath: /health`.
+- **Render primary** — Docker web service built from `./Dockerfile` (Rust `horo_server` gateway + Python worker subprocess, multi-stage build with maturin). Declared in `render.yaml` as a Blueprint: `runtime: docker`, `plan: free`, `region: singapore`, `autoDeploy: true`, `healthCheckPath: /health`.
 - **HF Space fallback** — the previous primary (`pphothidaen/horoconsultant-core-backend`); remains deployed and is only used when Render fails.
 - **Fail-closed origin validation** — the gateway accepts only the exact canonical origins (`https://horoconsultant-core-backend.onrender.com` and `https://pphothidaen-horoconsultant-core-backend.hf.space`). Any other `RENDER_BACKEND_URL` / `HF_BACKEND_URL` value, or both being empty, results in `503 backend_not_configured` — never an arbitrary upstream.
 
@@ -42,8 +42,8 @@ The gateway resolves origins in order `[Render, HF Space]` and walks the list pe
 
 1. **Render account & billing** — Add a payment method at `https://dashboard.render.com/billing` (required to provision the web service, even on the free plan).
 2. **Create the Render web service** — Either:
-   - **Blueprint (recommended):** In the Render dashboard, choose *New → Blueprint* and point it at `https://github.com/pphothidaen/HoroConsultant` (branch `main`). Render reads `render.yaml` and provisions the `horoconsultant-core-backend` web service with `Dockerfile.render`, the `/health` health check, free plan, and auto-deploy already configured; **or**
-   - **Manual:** Create a *Web Service* with runtime **Docker**, Dockerfile path `./Dockerfile.render`, health check path `/health`, instance type **Free**, and region **Singapore**.
+   - **Blueprint (recommended):** In the Render dashboard, choose *New → Blueprint* and point it at `https://github.com/pphothidaen/HoroConsultant` (branch `main`). Render reads `render.yaml` and provisions the `horoconsultant-core-backend` web service with `./Dockerfile` (Rust gateway), the `/health` health check, free plan, and auto-deploy already configured; **or**
+   - **Manual:** Create a *Web Service* with runtime **Docker**, Dockerfile path `./Dockerfile`, health check path `/health`, instance type **Free**, and region **Singapore**.
 3. **Collect Render identifiers** — Note the **service id** (`srv-...`, from the service's URL/settings) and the canonical URL `https://horoconsultant-core-backend.onrender.com`.
 4. **Create a Render API key** — Dashboard → *Account Settings → API Keys*; used by CI and the secrets sync script.
 5. **GitHub repository secrets** (Settings → Secrets and variables → Actions):
@@ -116,7 +116,7 @@ Publication is **CI-gated**: a direct push never publishes. The successful "Unif
 
 1. **CI** — Push to `main` runs the *Unified CI & Quality Audit Pipeline*.
 2. **Trigger** — On CI success on `main`, `.github/workflows/deploy-render.yml` runs (`workflow_run` hook, `production` environment, concurrency group `render-backend-production`).
-3. **Render build** — The workflow POSTs the commit SHA to the Render API (`POST /v1/services/{RENDER_SERVICE_ID}/deploys`). Render builds the Docker image itself from `Dockerfile.render` on the connected repository.
+3. **Render build** — The workflow POSTs the commit SHA to the Render API (`POST /v1/services/{RENDER_SERVICE_ID}/deploys`). Render builds the Docker image itself from `./Dockerfile` (Rust gateway) on the connected repository.
 4. **Deploy tracking** — The workflow polls the deploy status every 15s (up to 60 attempts / ~15 min) until `live`, failing on any terminal state (`build_failed`, `update_failed`, `pre_deploy_failed`, `canceled`, `deactivated`).
 5. **Health check** — Polls `https://horoconsultant-core-backend.onrender.com/health` until HTTP `200` (up to 20 attempts, 10s apart).
 6. **Vercel smoke test** — Requests `{VERCEL_STATIC_URL}/health` (default `https://horo-consultant-psi.vercel.app`) and requires HTTP `200`, verifying the full Vercel → Render production path end-to-end.
