@@ -41,8 +41,15 @@ _TRUE_VALUES = ("true", "1", "yes")
 
 
 def _bridge_url() -> str:
-    """Resolve bridge base URL from env (dynamic read, default fallback)."""
-    return (os.getenv("GEMINI_WEB_BRIDGE_URL", "") or GEMINI_BRIDGE_DEFAULT_URL).strip()
+    """Resolve bridge base URL from env (dynamic read, default fallback).
+
+    An explicitly-set but empty (or whitespace-only) env var yields an empty
+    URL (no_config path), distinct from the var being unset (default fallback).
+    """
+    raw = os.getenv("GEMINI_WEB_BRIDGE_URL")
+    if raw is None:
+        return GEMINI_BRIDGE_DEFAULT_URL.strip()
+    return raw.strip()
 
 
 def _bridge_token() -> str:
@@ -111,6 +118,7 @@ def _maybe_trip_bridge_circuit(reason: str) -> None:
     """Trip the breaker only on hard failure reasons per contract."""
     if (
         reason == "timeout"
+        or reason.startswith("http_422")
         or reason.startswith("http_429")
         or reason.startswith("http_503")
         or reason.startswith("error:")
