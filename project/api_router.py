@@ -21,6 +21,11 @@ from typing import Any
 import httpx
 from dotenv import load_dotenv
 from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
+from project.core.gemini_bridge_client import (
+    GEMINI_BRIDGE_DEFAULT_URL,
+    call_bridge_tool,
+    is_gemini_bridge_enabled,
+)
 
 load_dotenv(override=True)
 
@@ -498,6 +503,16 @@ class HybridRouter:
     def _build_routes(self) -> list[dict[str, Any]]:
         routes: list[dict[str, Any]] = []
 
+        # Route 0: Gemini Web Bridge MCP (opt-in toggle, highest priority).
+        # Prepended FIRST in both cloud and local mode, before codex/gemini/
+        # cloudflare and before ollama.
+        if is_gemini_bridge_enabled():
+            routes.append({
+                "type": "gemini_mcp",
+                "model": f"gemini-mcp:{os.getenv('GEMINI_WEB_BRIDGE_TOOL', 'horo_consult')}",
+                "key": None,
+            })
+
         disable_local = os.getenv("DISABLE_LOCAL_OLLAMA", "").lower() in ("true", "1", "yes")
         ollama_url_lower = OLLAMA_BASE_URL.lower().strip()
         is_disabled_url = ollama_url_lower in ("disabled", "none", "false", "")
@@ -587,7 +602,17 @@ class HybridRouter:
                 continue
 
             t0 = time.monotonic()
-            if rtype == "ollama":
+            if rtype == "gemini_mcp":
+                # Gemini Web Bridge: system instruction is prepended into the
+                # single query argument (bridge client is single-argument).
+                bridge_query = (
+                    f"{system_instruction}\n\n{prompt}".strip()
+                    if system_instruction
+                    else prompt
+                )
+                res, reason = call_bridge_tool(bridge_query)
+                text = res["text"] if res else None
+            elif rtype == "ollama":
                 text, reason = _call_ollama(model, prompt, system_instruction)
             elif rtype == "codex_cli":
                 try:
@@ -694,6 +719,35 @@ class HybridRouter:
             "keys":       key_statuses,
             "models":     [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL],
         }
+
+        # Gemini Web Bridge reachability (opt-in toggle) - never raise
+        try:
+            bridge_enabled = is_gemini_bridge_enabled()
+            bridge_info: dict[str, Any] = {
+                "enabled": bridge_enabled,
+                "reachable": False,
+                "extension_status": None,
+            }
+            if bridge_enabled:
+                bridge_url = os.getenv(
+                    "GEMINI_WEB_BRIDGE_URL", GEMINI_BRIDGE_DEFAULT_URL
+                ).strip() or GEMINI_BRIDGE_DEFAULT_URL
+                with httpx.Client(timeout=5.0) as client:
+                    br = client.get(f"{bridge_url.rstrip('/')}/")
+                bridge_info["reachable"] = br.status_code == 200
+                try:
+                    bridge_info["extension_status"] = br.json().get("extension_status")
+                except Exception:
+                    bridge_info["extension_status"] = None
+            result["gemini_bridge"] = bridge_info
+        except Exception as e:
+            result["gemini_bridge"] = {
+                "enabled": False,
+                "reachable": False,
+                "extension_status": None,
+                "error": str(e),
+            }
+
         return result
 
 

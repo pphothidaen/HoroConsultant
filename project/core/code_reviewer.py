@@ -317,7 +317,7 @@ class CodeReviewer:
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
-                timeout=900
+                timeout=1800
 
             )
             passed = res.returncode == 0

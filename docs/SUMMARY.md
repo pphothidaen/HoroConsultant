@@ -10,6 +10,7 @@
 * [Architecture Design Spec](architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md)
 * [AGY Terminal Supervisor](architecture/agy-terminal-supervisor.md)
 * [External Dispatch Platform Contract](architecture/external-dispatch-platform-contract.md)
+* [Gemini Bridge MCP Toggle](gemini-bridge-mcp-toggle.md)
 
 ## API
 * [v3 API Specification](v3_api_specification.md)

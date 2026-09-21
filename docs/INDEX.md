@@ -22,6 +22,7 @@
 | `audit_discrepancies.md` | `audit_discrepancies.md` |
 | `branch_migration_action_priority_runbook.md` | `branch_migration_action_priority_runbook.md` |
 | `c4_hermes_9router_architecture.md` | `c4_hermes_9router_architecture.md` |
+| `gemini-bridge-mcp-toggle.md` | `gemini-bridge-mcp-toggle.md` |
 | `jira_sync_protocol.md` | `jira_sync_protocol.md` |
 | `kaggle_hybrid_tradeoff_matrix.md` | `kaggle_hybrid_tradeoff_matrix.md` |
 | `kan-audit-dashboard-2026-09-20.md` | `kan-audit-dashboard-2026-09-20.md` |

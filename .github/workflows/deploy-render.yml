@@ -51,19 +51,41 @@ jobs:
         run: |
           set -euo pipefail
           commit="${{ github.event.workflow_run.head_sha || github.event.inputs.source_sha || github.sha }}"
+
+          # Resolve the service id: explicit secret first, then discovery by
+          # blueprint name (render.yaml) so a missing RENDER_SERVICE_ID secret
+          # surfaces a concrete, actionable error instead of KeyError('id').
+          service_id="${RENDER_SERVICE_ID:-}"
+          if [ -z "$service_id" ]; then
+            echo "RENDER_SERVICE_ID not set - discovering service by name..."
+            listing=$(curl -sS -w $'\n%{http_code}' -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services?limit=100&name=horoconsultant-core-backend")
+            http_code=$(printf '%s' "$listing" | tail -n1)
+            body=$(printf '%s' "$listing" | sed '$d')
+            echo "Discovery HTTP ${http_code}"
+            service_id=$(printf '%s' "$body" | jq -r 'if type=="array" then (.[0].service.id // empty) else empty end' 2>/dev/null || true)
+            if [ -z "$service_id" ]; then
+              echo "::error::Service discovery failed (HTTP ${http_code}). Raw response:"
+              printf '%s' "$body" | head -c 600; echo
+              exit 1
+            fi
+            echo "Discovered service id: ${service_id}"
+          fi
+
           response=$(curl -sS -X POST \
             -H "Authorization: Bearer ${RENDER_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "{\"commitId\": \"${commit}\"}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys")
+            "https://api.render.com/v1/services/${service_id}/deploys")
           deploy_id=$(printf '%s' "$response" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
           echo "deploy_id=${deploy_id}" >> "$GITHUB_OUTPUT"
-          echo "Render deploy ${deploy_id} triggered for commit ${commit}"
+          echo "service_id=${service_id}" >> "$GITHUB_OUTPUT"
+          echo "Render deploy ${deploy_id} triggered for commit ${commit} (service ${service_id})"
 
       - name: Wait for Render deploy to finish
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_SERVICE_ID: ${{ steps.deploy.outputs.service_id || secrets.RENDER_SERVICE_ID }}
           DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
         run: |
           set -euo pipefail
