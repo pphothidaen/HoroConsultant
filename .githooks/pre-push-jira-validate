@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# .githooks/pre-push-jira-validate
+set -e
+
+echo "[Jira Pre-Push] Running final Jira integration checks..."
+
+# Reject if force-push is detected (Human Authority Boundary)
+if git push --force-with-lease --dry-run 2>/dev/null | grep -q 'force'; then
+  echo "[Jira Pre-Push] ❌ Force-push to shared branches is restricted — requires human approval."
+  exit 1
+fi
+
+echo "[Jira Pre-Push] ✅ No force-push detected. Proceed safe."
