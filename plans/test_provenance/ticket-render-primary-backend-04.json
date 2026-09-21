@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RENDER-PRIMARY-BACKEND-04",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "22b362bbce0a193877c6174aa730b0211367902c",
+  "test_files": [
+    {
+      "path": "tests/env_template_render_origin_contract.test.mjs",
+      "sha256": "f7d06f6bb88d79c727d46d0fc778edd3d40b5353c3e65da7e70ad70106ed0eb1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/env_template_render_origin_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "env template omits RENDER_BACKEND_URL: primary backend origin not advertised to contributors"
+    }
+  ],
+  "allowed_source_paths": [
+    ".env.example"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract test freezes the env template so the Render primary origin (RENDER_BACKEND_URL) is documented next to the HF fallback origin (HF_BACKEND_URL)."
+}
