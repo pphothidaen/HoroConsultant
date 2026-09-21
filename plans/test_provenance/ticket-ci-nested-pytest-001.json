@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CI-NESTED-PYTEST-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4ca4644656566a258566efe980f1c971124443e9",
+  "test_files": [
+    {
+      "path": "tests/test_code_reviewer_skip_tests.py",
+      "sha256": "3c515c6d9859454c92975567ceed4f77404e1ecac3b98718269b7ecf89f5e951"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_code_reviewer_skip_tests.py",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: --skip-tests flag not registered in argparse"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/code_reviewer.py",
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "CI on main failed (run 35600839519) because the Run Project Code Reviewer step re-ran the entire pytest suite nested inside the reviewer, which intermittently hangs until the 1800s subprocess timeout. The --skip-tests flag lets ci.yml skip the redundant nested run because it already executed the full suite in a prior step."
+}
