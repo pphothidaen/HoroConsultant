@@ -142,6 +142,9 @@ def openapi_path_methods(openapi_routes):
 
 # ── Tests ───────────────────────────────────────────────────────────────────
 
+pytestmark = [pytest.mark.contract]
+
+
 class TestRustRouteCoverage:
     """Every route in the Python OpenAPI must exist in the Rust allowlist."""
 

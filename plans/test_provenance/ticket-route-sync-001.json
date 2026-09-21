@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-RUST-ROUTE-SYNC-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "add8ae3f3f04b026fca804a0b75f2e5afd63c698",
+  "baseline_parent": "b4bdb14c5c2ef67efbb9a4dbe55f804f200ca987",
   "test_files": [
     {
       "path": "tests/test_route_sync.py",
-      "sha256": "16c9a2e52ebcae95b0273d6ab7ca91e5011cf973733a947aefbef6aae0f68199"
+      "sha256": "b426f3dad888d2f1cc0c89fcb7733d971b2367bb6bd0bac35ac9bb6663a600a4"
     }
   ],
   "red_tests": [
