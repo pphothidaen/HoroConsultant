@@ -58,24 +58,15 @@ jobs:
           service_id="${RENDER_SERVICE_ID:-}"
           if [ -z "$service_id" ]; then
             echo "RENDER_SERVICE_ID not set - discovering service by name..."
-            listing=$(curl -sS -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            listing=$(curl -sS -w $'\n%{http_code}' -H "Authorization: Bearer ${RENDER_API_KEY}" \
               "https://api.render.com/v1/services?limit=100&name=horoconsultant-core-backend")
-            service_id=$(printf '%s' "$listing" | python3 -c "
-import json,sys
-items=json.load(sys.stdin)
-if isinstance(items,list) and items:
-    print(items[0]['service']['id'])
-" || true)
+            http_code=$(printf '%s' "$listing" | tail -n1)
+            body=$(printf '%s' "$listing" | sed '$d')
+            echo "Discovery HTTP ${http_code}"
+            service_id=$(printf '%s' "$body" | jq -r 'if type=="array" then (.[0].service.id // empty) else empty end' 2>/dev/null || true)
             if [ -z "$service_id" ]; then
-              all=$(curl -sS -H "Authorization: Bearer ${RENDER_API_KEY}" \
-                "https://api.render.com/v1/services?limit=100")
-              echo "::error::No service named 'horoconsultant-core-backend' found for the RENDER_API_KEY workspace. Available services:"
-              printf '%s' "$all" | python3 -c "
-import json,sys
-items=json.load(sys.stdin)
-for it in items:
-    s=it.get('service',{})
-    print(f\"  {s.get('id')} | {s.get('name')}\")" || true
+              echo "::error::Service discovery failed (HTTP ${http_code}). Raw response:"
+              printf '%s' "$body" | head -c 600; echo
               exit 1
             fi
             echo "Discovered service id: ${service_id}"
