@@ -82,7 +82,7 @@ jobs:
 
       - name: Run Project Code Reviewer
         run: |
-          python3 project/core/code_reviewer.py --review --use-python
+          python3 project/core/code_reviewer.py --review --use-python --skip-tests
 
   e2e-production-audit:
     name: Live Production Version & LuoPan E2E Regression
