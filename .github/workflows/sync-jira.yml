@@ -23,7 +23,9 @@ jobs:
 
       - name: Install Teamwork Graph CLI
         run: |
+          export TWG_CONSENT=1
           curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          twg consent --source direct-public-installer --agree || true
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Sync remaining sub-tasks to Jira
@@ -49,7 +51,9 @@ jobs:
 
       - name: Install Teamwork Graph CLI
         run: |
+          export TWG_CONSENT=1
           curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          twg consent --source direct-public-installer --agree || true
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Sync Jira status to ATOMIC_TICKET
