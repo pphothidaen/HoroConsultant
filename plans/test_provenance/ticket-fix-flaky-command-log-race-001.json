@@ -1,0 +1,19 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FIX-FLAKY-COMMAND-LOG-RACE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "265213e1263f45bd85371ffdd56b5cb2ff3d9df4",
+  "test_files": [
+    {"path": "project/tests/test_local_release_runner_contract.py", "sha256": "8c46bf9dd6da1bc7174c7fa85994607c3cdf4020461c9441e0f1b827bd538aef"}
+  ],
+  "red_tests": [
+    {"command": [".venv/bin/python3", "-m", "pytest", "-q", "--tb=short", "-k", "test_command_log_no_empty_lines_after_parallel_writes"], "expected_exit": 1, "failure_fingerprint": "mock python3 record() race condition produces empty lines in COMMAND_LOG"}
+  ],
+  "allowed_source_paths": ["project/tests/test_local_release_runner_contract.py"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fix flaky test: mock python3 record() race condition in COMMAND_LOG writes — 20/20 passes (previously failed ~5% of CI runs)"
+}
