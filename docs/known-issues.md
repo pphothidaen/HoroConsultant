@@ -36,23 +36,22 @@ delegate_task(action="spawn", tasks=[{
 
 ## Render Bluefin Mismatch (INCIDENT-021)
 
-**Status**: Documented — fix applied to Rust routing table (root cause)
+**Status**: RESOLVED — fix applied 2026-09-21
 
 **Description**:
-- `render.yaml` specifies `dockerfilePath: ./Dockerfile.render` (Python uvicorn only)
-- Production Render service is running `./Dockerfile` (Rust gateway + Python worker subprocess)
-- The `render.yaml` was added in commit `6e340916` (Sep 20) but the Render service was
-  not reconfigured to use it
+- `render.yaml` previously specified `dockerfilePath: ./Dockerfile.render` (Python uvicorn only)
+- Production Render service was running `./Dockerfile` (Rust gateway + Python worker subprocess)
+- The mismatch was introduced in commit `6e340916` (Sep 20) when `render.yaml` was added but the Render service was not reconfigured to use it
 
-**Mitigation**:
-- Fixed by adding all 40 missing routes to the Rust `route_kind()` allowlist
-- Added contract test (`tests/test_route_sync.py`) to prevent future drift
-- Documentated in `docs/architecture/deployment-rail.md`
+**Resolution**:
+- Updated `render.yaml` to specify `dockerfilePath: ./Dockerfile` (Rust gateway) to match production reality
+- The Rust gateway (`horo_server`) is the actual entrypoint in production, confirmed by:
+  - `/admin/provider-pools` returning 401 from Python auth through Rust proxy
+  - `route_kind()` allowlist routing working correctly in production
+- The contract test (`tests/test_route_sync.py`) continues to ensure routing correctness
 
-**Recommendation**:
-- Either reconfigure Render service to use `Dockerfile.render` (Python-only)
-- OR update `render.yaml` to specify `dockerfilePath: ./Dockerfile` (Rust gateway)
-- The contract test ensures routing correctness regardless of which Dockerfile is used
+**Files changed**:
+- `render.yaml`: `dockerfilePath: ./Dockerfile.render` → `dockerfilePath: ./Dockerfile`
 
 ---
 
