@@ -59,3 +59,25 @@ The ecosystem enforces a maximum 6-lane concurrency architecture divided into tw
 - Kaggle synchronization, deployment, publishing, external messages, and secret operations are opt-in: perform them only when the user requests them or the current task requires them.
 - Before release claims, run the relevant tests and `python3 scripts/sync_ai_agent_ecosystem.py --check`.
 - Plan Completion, Archival & Release Notes Mandate (Core Rule 16 / Rule 22): Whenever all milestones or tickets in an active plan or sprint are executed and verified DONE, archive completed planning artifacts from `plans/` to `plans/archive/YYYY-MM-DD-<sprint-or-release>/`, maintain `/plans/` containing only active/upcoming specifications, and compile/publish `ReleaseNotes.md` with Executive Summary, Architectural Deliverables, Verification Matrix, Milestone Rollup (100% DONE), Live Production Endpoints, and Archived Plans list. Governed by `business_analyst` and `orchestrator`. See `.agents/rules/22-plan-completion-and-release-notes.md`.
+
+<!-- gitbook-agent-instructions:start -->
+
+## GitBook Documentation Editing
+
+This repository contains documentation synced with GitBook via Git Sync.
+
+Before editing GitBook-synced Markdown, YAML, or asset files, make sure the GitBook skill is available and up to date in your local agent environment. Prefer installing or updating it with:
+
+```bash
+npx skills add gitbookio/gitbook-skills
+```
+
+This command may add or update local agent skill files. Use them only as local agent instructions; do not commit those installed skill files or any tool-generated agent configuration unless the user explicitly asks for it.
+
+If `npx` is unavailable, load the skill from:
+
+https://gitbook.com/docs/skill.md
+
+When making changes, preserve GitBook sync metadata such as frontmatter, `SUMMARY.md`, `gitbook-docs.yaml`, `.gitbook/`, and asset links unless the requested edit explicitly requires changing them.
+
+<!-- gitbook-agent-instructions:end -->
