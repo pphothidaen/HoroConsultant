@@ -5,5 +5,71 @@
 > Primary authority resides in ATOMIC_TICKET.md and plans/plan.md.
 
 <!-- HANDOFF-SNAPSHOT-V1:START -->
-{"authority":{"current_state":"ATOMIC_TICKET.md","derived_handoff":"HANDOFF.md","implementation_plan":"plans/plan.md"},"clear_ready":false,"created_at":"2026-09-16T17:57:49Z","decisions":["Revision 19 (2026-09-17) in plans/plan.md reconciles remaining work: main fcabff531e784b7855a3516659be091226ceb67e merges PR46 and PR47; revision-18 anchors b11183c2/a61b7497 are stale merged history and every successor lane must cite the exact SHA it inspects.","PR47 head ce8c9392 hosted checks green across PyTest, Safety, Code Quality, Test Provenance, Live Production E2E, Rust and sync; Workers Builds failure is non-required and untriaged; no full CI run exists on fcabff53 yet; merge is not deployment proof.","Production probes 2026-09-16T17:55Z: HF /health HTTP503 with cpu-basic limit 0 (quota blocker persists); Vercel root HTTP200, /api/health HTTP503, /version and /api/version HTTP404 so identity equality is not yet automatable. HF quota change is an owner HITL decision; no paid change, credential, or gate bypass is authorized by this capsule.","Revision-18 lanes A (DOCKER-CANDIDATE-VALIDATE) and B-diagnose (CODEX2-CONFIG-DIAGNOSE) have no evidence files and remain READY in parallel; B-sync follows DIAGNOSE PASS; C (EXACT-SHA-REVIEW) must re-anchor to the current head before execution. All rev18 contracts, exclusions and typed stops remain binding.","Working-tree churn on project/data/*.json and project/static/charts/bazi_chart.svg is runtime-generated; hitl_reviews.json and charts stay lane-excluded and must not be folded into release commits.","Improvement backlog is admission-gated and not release-blocking: Rule24 plan.md chunking, plans/ hygiene, synthetic-monitoring gating, canonical version endpoint, Workers Builds triage, dirty-churn policy.","HANDOFF refresh 2026-09-17: derived from revision 19 only; HandoffSnapshotV1 schema validated; clear_ready=false retained; this capsule is not release or production proof."],"dirty_paths":[" M project/data/distillation_checklist.json"," M project/data/hitl_reviews.json"," M project/data/vault_sync_status.json"," M project/static/charts/bazi_chart.svg"," M plans/plan.md"],"lanes":[{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-13-LINUX-REPAIR-CHAIN","next_action":"None; chain closed by PR46/PR47. Successor release gates below.","owner":"developer+qa_tester","status":"DONE","summary":"Linux backend-plan repair integrated: PR46 (b11183c2, adfcc1de, 2195755e) and PR47 (afee9c7e, 53486e26, ce8c9392) merged into main fcabff53; hosted checks green at PR47 head ce8c9392."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-BOARD-REANCHOR-20260917","next_action":"Register revision-19 board in ATOMIC_TICKET.md re-anchored to fcabff53 via the lead_ba planning lane; keep rev18 A/B/C contracts unchanged.","owner":"business_analyst","status":"PENDING","summary":"Revision-18 board still anchors b11183c2 which is stale merged history; ATOMIC_TICKET.md needs a revision-19 re-anchor before lane dispatch."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-DOCKER-CANDIDATE-VALIDATE","next_action":"Run detached-worktree publish_space_hf.py --dry-run at the re-anchored head with sanitized evidence and guaranteed worktree cleanup receipt.","owner":"devops","status":"READY","summary":"Rev18 lane A contract stands; no evidence file exists in plans/evidence/horo-lite-review-remediation-20260907/ at audit."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-CODEX2-CONFIG-DIAGNOSE","next_action":"Read-only codex2 profile inventory; establish exact intended two-skill/six-plugin set and idempotent intended diff; sanitized evidence only.","owner":"devops","status":"READY","summary":"Rev18 lane B-diagnose contract stands; cardinality claim still unverified; may run parallel with DOCKER-CANDIDATE-VALIDATE."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-CODEX2-CONFIG-SYNC","next_action":"After DIAGNOSE PASS apply exactly the reviewed idempotent diff; pre/post sync_ai_agent_ecosystem.py --check PASS; second diff empty.","owner":"devops","status":"BLOCKED","summary":"Blocked by CODEX2-CONFIG-DIAGNOSE; no config mutation before reviewed diff."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-EXACT-SHA-REVIEW","next_action":"After lanes A and B-sync PASS, run the bounded read-only review re-anchored to the then-current head: HEAD equality, git diff --check, zero secrets, READY_FOR_PROD.","owner":"code_reviewer","status":"BLOCKED","summary":"Rev18 lane C contract stands but its b11183c2 anchor is stale; requires re-anchor and A/B receipts first."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CI-EXACT-SHA","next_action":"After protected PR, require exact-SHA full CI and independent safety green on the final merged head; do not substitute PR-head receipts.","owner":"qa_tester","status":"BLOCKED","summary":"Green checks exist only at PR47 head ce8c9392; no full CI run on fcabff53; latest 20 main runs are synthetic-monitoring failures at Verify HF Docker backend and Vercel UI."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PROD","next_action":"Owner HITL decision required on HF cpu-basic quota limit 0 (external billing; no agent authorization). Then redeploy, verify /health 200 and HF/Vercel identity equality via one canonical version endpoint, five widths 360/375/390/768/1440, rollback receipts.","owner":"devops","status":"BLOCKED","summary":"HF PAUSED /health 503 cpu-basic limit 0; Vercel root 200, /api/health 503, version endpoints 404 at 2026-09-16T17:55Z."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CLOSEOUT","next_action":"Only after production acceptance: Rule22 archive (plans/active/horo-lite-* plus top-level plans/sprint_*.md), ReleaseNotes.md superseding the conditional Sept-6 note, tag v1.4.6-prod local/origin reconciliation, final protected closeout.","owner":"business_analyst","status":"BLOCKED","summary":"Archive, release notes, tag and cleanup gates all unmet."},{"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-HANDOFF-REFRESH-20260917","next_action":"Refresh again only after board re-anchor or A/B outcomes; never treat this capsule as release proof.","owner":"business_analyst","status":"DONE","summary":"Derived snapshot regenerated from revision 19; schema and bounds checked; clear_ready=false retained."}],"next_action":"Recheck git status --short and git rev-parse HEAD. Dispatch BOARD-REANCHOR (lead_ba), then DOCKER-CANDIDATE-VALIDATE and CODEX2-CONFIG-DIAGNOSE in parallel with sanitized evidence; B-sync and re-anchored EXACT-SHA-REVIEW follow. Obtain the owner HITL decision on HF cpu-basic quota before any production verification; Rule22 closeout and tag remain gated.","objective":"Finish the Horo Lite release gates after the merged Linux plan repair: revision-18 successor lanes, re-anchored exact-SHA review and CI, owner-gated HF production unblock, viewport/rollback verification, and Rule 22 closeout.","reason":"remaining_work_audit_20260917_after_pr46_pr47","risks":["HF cpu-basic limit 0 keeps the backend HTTP503 and synthetic monitoring red; only an owner quota decision can unblock it; agents must not alter billing.","Full CI has not run on merged head fcabff53; green receipts exist only at PR47 head ce8c9392; the exact-SHA main-head gate is unmet.","Revision-18 board anchor b11183c2 is stale; dispatching lanes without re-anchoring would cite the wrong tree.","No canonical version endpoint (404 on both probed paths) so production identity equality is not automatable yet.","Dirty runtime files reappear in the working tree; folding them into release commits would violate lane exclusions."],"runtime":"codex","schema_version":"HandoffSnapshotV1","summary":"Main fcabff53 merges PR46/PR47 and closes the finding-13 Linux repair chain with green hosted checks at PR47 head ce8c9392 (Workers Builds failure non-required, untriaged). Revision-18 lanes A and B-diagnose remain READY with no evidence; B-sync and the re-anchored EXACT-SHA-REVIEW are dependency-blocked. No full CI on fcabff53 yet; synthetic monitoring fails on HF HTTP503 (cpu-basic limit 0, owner HITL required). Vercel root 200, /api/health 503, version endpoints 404. Production, viewport/rollback, Rule22 closeout and tag gates remain unmet. HANDOFF capsule refreshed from the revision-19 audit with clear_ready=false.","ticket_id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907"}
+{
+"authority":{
+"current_state":"ATOMIC_TICKET.md",
+"derived_handoff":"HANDOFF.md",
+"implementation_plan":"plans/plan.md"
+},
+"clear_ready":false,
+"created_at":"2026-09-21T02:20:55Z",
+"decisions":[
+"Revision 20 (2026-09-21) in plans/plan.md records the Render primary backend migration: PR #53 merged (gateway failover, Dockerfile.render, render.yaml, deploy-render.yml, sync-render-secrets.sh); PR #54 docs merged; PR #60 open with env template contract and sync-jira consent fix.",
+"Vercel gateway api/index.js now routes fail-closed multi-origin: RENDER_BACKEND_URL primary, HF_BACKEND_URL fallback; 5xx/network/timeout fail over, 4xx pass through. Provenance manifests TICKET-RENDER-PRIMARY-BACKEND-01..04 filed.",
+"Security: tracked .env.example was reverted before commit (leaked GEMINI/JIRA secrets never entered history); .gitignore covers .env*; root .env regenerated from Doppler and verified 100% in sync; Doppler prd now 98 secrets (AZURE_CREDENTIALS added, GOOGLE_AI_STUDIO_API_KEY2 updated).",
+"Render API service creation returns 402 payment-required; owner must add a card at dashboard.render.com/billing (free plan still requires it). No agent may alter billing.",
+"Pre-existing non-blocking failures: Workers Builds CI (wrangler.toml is a Pages config; worker horoconsultant lacks main), Update Documentation Index cannot push to protected main, Vercel preview checks canceled from dashboard. All unrelated to PR #53/#60.",
+"HF Space remains paused on cpu-basic quota (rev 19 gate 7): fallback path is best-effort until the owner quota decision."
+],
+"dirty_paths":[
+" M project/data/distillation_checklist.json",
+" M project/data/hitl_reviews.json",
+" M project/data/vault_sync_status.json",
+" M project/static/charts/bazi_chart.svg",
+" M plans/plan.md",
+" M ATOMIC_TICKET.md"
+],
+"lanes":[
+{
+"id":"TICKET-RENDER-PRIMARY-BACKEND",
+"next_action":"Merge PR #60 after checks green; Unified CI on main fires DoD Gate then Vercel Production Deploy with RENDER_BACKEND_URL active; verify Vercel /health 200.",
+"owner":"devops",
+"status":"IN PROGRESS",
+"summary":"PR #53 merged 2026-09-20T17:54Z with 31/31 gateway contract tests; PR #54 docs merged; PR #60 carries env-template contract (04) and sync-jira twg consent fix."
+},
+{
+"id":"TICKET-RENDER-PRIMARY-BACKEND-SERVICE-CREATE",
+"next_action":"Owner adds payment method at dashboard.render.com/billing; then create service via prepared API payload, set GitHub secret RENDER_SERVICE_ID, run scripts/sync-render-secrets.sh, deploy, verify /health 200.",
+"owner":"devops",
+"status":"BLOCKED (owner HITL: Render billing)",
+"summary":"Render POST /v1/services returns 402 payment-required despite free plan; all API payloads and secrets staged."
+},
+{
+"id":"TICKET-RENDER-PRIMARY-BACKEND-FAILOVER-DRILL",
+"next_action":"After Render live: unset RENDER_BACKEND_URL in Vercel, redeploy, POST /api/wake, verify HF fallback /health; then restore.",
+"owner":"qa_tester",
+"status":"PENDING",
+"summary":"Rollback drill per docs/deployment/render-backend-deployment.md runbook."
+},
+{
+"id":"TICKET-HLITE-REVIEW-REMEDIATION-20260907-*",
+"next_action":"Rev 19 gates remain: see plans/plan.md revision 19 table; HF quota decision still owner HITL.",
+"owner":"business_analyst",
+"status":"SUPERSEDED context",
+"summary":"Rev 19/18 history preserved; Render migration supersedes the HF unblock path as primary strategy."
+}
+],
+"next_action":"Finish PR #60 (checks + merge), then Render billing HITL, service creation + secrets sync + first deploy, end-to-end Vercel->Render /health verification, failover drill.",
+"objective":"Complete backend migration to Render as primary with HF fallback through the CI/CD production chain, with secrets governance and security fixes.",
+"reason":"render_backend_migration_20260921",
+"risks":[
+"Render 402 payment-required blocks service creation; owner must add a card (no agent authorization).",
+"Render free tier spin-down (~15 min idle) causes ~30s cold starts; HF fallback itself is paused on quota until owner decision.",
+"Workers Builds CI and Update-Documentation-Index push failures are pre-existing and non-required; do not treat as release blockers."
+],
+"runtime":"codex",
+"schema_version":"HandoffSnapshotV1",
+"summary":"Render primary backend migration executed: gateway failover, deploy assets, docs, secrets governance merged via PR #53/#54; PR #60 open. Service creation blocked on Render billing (owner HITL). HF Space still paused on quota.",
+"ticket_id":"TICKET-RENDER-PRIMARY-BACKEND"
+}
 <!-- HANDOFF-SNAPSHOT-V1:END -->

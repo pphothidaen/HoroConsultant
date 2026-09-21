@@ -1,5 +1,56 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+
+## Render primary backend migration & CI/CD reconciliation — 2026-09-21 (revision 20)
+
+Status: ACTIVE sprint — backend migration HF Space → Render (primary) with HF
+Space retained as fallback. This section records the executed work and the
+remaining gates. Revision-19 lane table remains historical evidence.
+
+### Delivered (merged to main)
+
+- PR #53 `feat/render-primary-backend` (merged 2026-09-20T17:54Z):
+  `Dockerfile.render` (Render-optimized image, dynamic PORT, /health),
+  `render.yaml` Blueprint, `.github/workflows/deploy-render.yml`
+  (CI-gated via workflow_run after Unified CI on main, deploy polling,
+  health + Vercel smoke tests), `scripts/sync-render-secrets.sh`
+  (Doppler prd → Render env upsert), and the Vercel gateway
+  (`api/index.js`) fail-closed multi-origin routing: `RENDER_BACKEND_URL`
+  primary (https://horoconsultant-core-backend.onrender.com) →
+  `HF_BACKEND_URL` fallback; 5xx/network/timeout fail over, 4xx passes
+  through. Contract tests: `tests/api_index_render_failover_contract.test.mjs`
+  (provenance TICKET-RENDER-PRIMARY-BACKEND-01..03), inventory tests updated
+  to 17 active workflows.
+- PR #54 docs: `docs/deployment/render-backend-deployment.md` + SUMMARY/INDEX.
+- PR #60 (this branch): `.env.example` documents `RENDER_BACKEND_URL`;
+  env-template contract test (TICKET-RENDER-PRIMARY-BACKEND-04);
+  sync-jira workflow non-interactive `twg consent` fix.
+
+### Environment state
+
+- Doppler `horo-consultant/prd`: 98 secrets; root `.env` regenerated and
+  verified 100% in sync (HF_TOKEN real value restored; AZURE_CREDENTIALS
+  resolved JSON added).
+- GitHub secrets added: `RENDER_API_KEY`, `RENDER_BACKEND_URL`.
+- Vercel project env: `RENDER_BACKEND_URL` (production, Secret).
+- Security: leaked secrets in tracked `.env.example` reverted before any
+  commit; `.gitignore` covers `.env*`.
+
+### Remaining gates (execution order)
+
+| # | Gate | State |
+|---|---|---|
+| 1 | Owner adds payment method at dashboard.render.com/billing (Render API returns 402; required even on free plan) | BLOCKED (owner HITL) |
+| 2 | Create Render web service (API payload prepared: docker runtime, Dockerfile.render, singapore, /health) then set GitHub secret `RENDER_SERVICE_ID` | BLOCKED by 1 |
+| 3 | Run `scripts/sync-render-secrets.sh` (Doppler → Render), first deploy, `/health` 200 | BLOCKED by 2 |
+| 4 | Merge PR #60; Unified CI on main → DoD Gate → Vercel Production Deploy with `RENDER_BACKEND_URL` active; verify Vercel `/health` 200 end-to-end | IN PROGRESS |
+| 5 | Rollback drill: unset `RENDER_BACKEND_URL` in Vercel, verify HF fallback path (`POST /api/wake` then `/health`) | PENDING 4 |
+| 6 | Pre-existing (non-blocking, backlog): Workers Builds CI failure (wrangler.toml is a Pages config, worker `horoconsultant` has no `main`); Update Documentation Index workflow cannot push to protected main; sync-jira consent fix in PR #60 | BACKLOG |
+
+Risks: Render free tier spins down after 15 min idle (cold start ~30s; the
+Vercel gateway fails over to HF but HF Space itself remains paused on quota).
+Fallback is therefore best-effort until HF quota decision (rev 19 gate 7).
+
 ## Remaining-work audit & release reconciliation -- 2026-09-17 (revision 19)
 
 Status: APPROVED for planning reconciliation and the derived HANDOFF refresh
