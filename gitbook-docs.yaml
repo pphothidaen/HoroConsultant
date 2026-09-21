@@ -1,3 +1,11 @@
-structure:
-  readme: README.md
-  summary: SUMMARY.md
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: Pphothidaen Docs
+  structure:
+    - type: space
+      key: space-1
+      title: Untitled
+      path: untitled
+      default: true
+      content:
+        directory: ./
