@@ -5,7 +5,7 @@
 Status: IN_PROGRESS (CI Blocker Remediation & Verification)
 Branch: `feat/gemini-bridge-mcp-toggle` | PR: #70 | Base: `c2a35113` (`origin/main`)
 Target Commit: `2b80777a` -> successor fix commit
-Tradeoff Analysis Reference: `plans/tradeoff.md`
+Tradeoff Analysis Reference: `docs/tradeoff.md`
 
 ### 1. Current State & Executive Summary
 - **Sprint F Gemini Bridge Scope (KAN-73 to KAN-85)**:
@@ -14,7 +14,7 @@ Tradeoff Analysis Reference: `plans/tradeoff.md`
   - Full CI check-runs audit performed on commit `2b80777a` (16 total checks inspected).
 
 ### 2. CI Blocker Triage & Remediation (Audit of Run 35682654846 / 35682654876)
-Four distinct root causes identified and mapped in `plans/tradeoff.md`:
+Four distinct root causes identified and mapped in `docs/tradeoff.md`:
 
 | Blocker | Component | Root Cause | Solution | Status |
 |---|---|---|---|---|
