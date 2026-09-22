@@ -14,6 +14,7 @@
     "project/core/gemini_bridge_client.py",
     "project/routers/",
     ".github/workflows/",
+    ".github/scripts/",
     "scripts/sync-render-secrets.sh"
   ],
   "test_owner_role": "agent-codex1",
