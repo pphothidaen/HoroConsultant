@@ -1,7 +1,8 @@
 # Cloudflare Workers configuration for horoconsultant
-# This is the MAIN entry point for Workers deployments
+# This is the MAIN entry point for Workers deployments (not Pages)
 name = "horoconsultant"
 main = "api/index.js"
+# account_id required for Workers deploy — NOT supported in Pages projects
 compatibility_date = "2026-09-22"
 compatibility_flags = ["nodejs_compat"]
 account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
@@ -28,15 +29,6 @@ crons = ["0 0 * * *", "0 */6 * * *"]
 
 [observability]
 enabled = true
-
-# Limits to prevent runaway executions
-[limits]
-cpu_ms = 50
-execution_timeout = 30
-
-# Placement mode for optimal routing
-[placement]
-mode = "smart"
 
 # Env variables synced from Doppler
 # DO NOT hardcode secrets here — use `doppler run -- wrangler deploy`
