@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "KAN-74",
+  "sequence": 1,
+  "provenance_status": "GREEN",
+  "baseline_commit": "b2cd1f29",
+  "test_files": [
+    "project/tests/test_gemini_bridge_disabled.py",
+    "project/tests/test_gemini_bridge_no_config.py",
+    "project/tests/test_gemini_bridge_circuit_breaker.py"
+  ],
+  "test_count": {
+    "total": 32,
+    "passed": 32,
+    "failed": 0
+  },
+  "fix_commits": [
+    "b2cd1f29 [KAN-69] fix: Gemini Bridge circuit-breaker trips on 422 + empty URL env yields no_config"
+  ],
+  "production_toggled_on": true,
+  "bridge_url": "https://gemini-web-bridge.pansakorn-pho.workers.dev",
+  "notebook_scope": "notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0",
+  "red_team_audit": {
+    "findings_count": 5,
+    "findings_addressed": 0,
+    "severity": "medium"
+  },
+  "verification_command": "cd /Users/kimlenglim/Project/HoroConsultant && python -m pytest project/tests/test_gemini_bridge_*.py -v",
+  "expected_output": "32 passed in 0.22s",
+  "production_deployment_hash": "27054c3ab95b6bec41acae420f99538d4b1e3a43",
+  "production_deployment_tag": "v1.4.5-prod",
+  "production_deployment_evidence": {
+    "source": "git tag v1.4.5-prod",
+    "deploy_workflow": ".github/workflows/deploy-render.yml",
+    "vercel_deploy_workflow": ".github/workflows/deploy-vercel.yml"
+  },
+  "post_deploy_tdd_workflow": ".github/workflows/post-deploy-tdd.yml",
+  "post_deploy_scripts_dir": ".github/scripts/",
+  "teamred_test_files": [
+    "project/tests/test_gemini_bridge_redteam.py"
+  ],
+  "teamblue_test_files": [
+    "project/tests/test_gemini_bridge_client.py",
+    "project/tests/test_gemini_bridge_toggle.py",
+    "project/tests/test_gemini_bridge_circuit_breaker.py",
+    "project/tests/test_gemini_bridge_disabled.py",
+    "project/tests/test_gemini_bridge_no_config.py"
+  ]
+}

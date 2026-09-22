@@ -1,0 +1,11 @@
+{
+  "suite": "teamblue",
+  "target": "http://localhost:8000",
+  "checks": 2,
+  "passed": 0,
+  "failed": 2,
+  "failures": [
+    "/health returned 0 (expected 200)",
+    "/admin/provider-pools returned 0 (expected 401)"
+  ]
+}

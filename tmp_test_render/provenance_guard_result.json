@@ -1,0 +1,25 @@
+{
+  "baseline_commit": "de43e46e91e5b3e4e0697e2745371258bf908a34",
+  "command": "verify",
+  "head_commit": "75ab37d0d191ebfb3c8d6b8c4b2f5b465a39af9b",
+  "issues": [
+    {
+      "code": "MANIFEST_CHANGED_AFTER_BASELINE",
+      "message": "the selected provenance manifest differs from its baseline object",
+      "path": "plans/test_provenance/ticket-gemini-bridge-20260921-qa.json"
+    },
+    {
+      "code": "SOURCE_COMMIT_MISSING_BASELINE_TRAILER",
+      "message": "commit b2cd1f29a8663af794ba69dfd6d08cd5c2ad1aee does not contain exact trailer Test-Baseline: de43e46e91e5b3e4e0697e2745371258bf908a34"
+    },
+    {
+      "code": "SOURCE_COMMIT_MISSING_BASELINE_TRAILER",
+      "message": "commit 9856e81dc5e46fc50cb138d306950ac8084fb9e2 does not contain exact trailer Test-Baseline: de43e46e91e5b3e4e0697e2745371258bf908a34"
+    }
+  ],
+  "notes": [],
+  "schema_version": "test-provenance-report-v1",
+  "status": "FAILED",
+  "test_files_verified": 3,
+  "ticket_id": "TICKET-GEMINI-BRIDGE-20260921-A4-QA-PROVENANCE"
+}

@@ -1,0 +1,159 @@
+{
+  "parent_ticket": {
+    "key": "KAN-73",
+    "summary": "[Sprint F] Gemini Bridge Integration — MCP toggle, circuit breaker, CI/CD",
+    "status": "Done",
+    "issuetype": "Task",
+    "labels": ["agent-lead_ba", "gemini-bridge", "notebooklm-scope", "sprint"]
+  },
+  "parent_epic": {
+    "key": "KAN-38",
+    "summary": "HOROC Audit Remediation — 25 Discrepancies Resolved"
+  },
+  "updated_tickets": [
+    {
+      "key": "KAN-74",
+      "summary": "[KAN-74] test: Gemini Bridge toggle E2E tests (TDD RED→GREEN)",
+      "issuetype": "Subtask",
+      "status": "Done",
+      "parent": "KAN-73",
+      "workstream": "test_gemini_bridge_toggle_e2e",
+      "labels_before": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-red"],
+      "labels_after": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"],
+      "action": "labels_updated (tdd-red → tdd-complete); traceability_comment_added",
+      "comment_id": "10008"
+    },
+    {
+      "key": "KAN-75",
+      "summary": "[KAN-75] test: Circuit breaker + failover chain verification",
+      "issuetype": "Subtask",
+      "status": "Done",
+      "parent": "KAN-73",
+      "workstream": "circuit_breaker_failover_verification",
+      "labels_before": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-red"],
+      "labels_after": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"],
+      "action": "labels_updated (tdd-red → tdd-complete); traceability_comment_added",
+      "comment_id": "10009"
+    },
+    {
+      "key": "KAN-76",
+      "summary": "[KAN-76] ci: Bridge CI/CD integration + provenance manifest",
+      "issuetype": "Subtask",
+      "status": "Done",
+      "parent": "KAN-73",
+      "workstream": "bridge_ci_cd_provenance",
+      "labels_before": ["agent-codex2", "gemini-bridge", "notebooklm-scope", "tdd-red"],
+      "labels_after": ["agent-codex2", "ci-cd-integration", "gemini-bridge", "notebooklm-scope", "tdd-complete"],
+      "action": "labels_updated (tdd-red → tdd-complete, added ci-cd-integration); traceability_comment_added",
+      "comment_id": "10010"
+    }
+  ],
+  "created_atomic_subtasks": [
+    {
+      "key": "KAN-77",
+      "summary": "KAN-74a: test_gemini_bridge_disabled.py — Bridge disabled scenario tests",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-74",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-78",
+      "summary": "KAN-74b: test_gemini_bridge_no_config.py — Missing config scenario tests",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-74",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-79",
+      "summary": "KAN-74c: test_gemini_bridge_circuit_breaker.py — Circuit breaker toggle tests",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-74",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-80",
+      "summary": "KAN-75a: Circuit breaker state machine verification (closed→open→half-open→closed)",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-75",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-81",
+      "summary": "KAN-75b: Failover chain verification (Gemini Bridge → Cloudflare AI → local model)",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-75",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-82",
+      "summary": "KAN-75c: Edge case integration tests (partial/slow/intermittent failures)",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-75",
+      "status": "Ready",
+      "priority": "Medium",
+      "labels": ["agent-codex1", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-83",
+      "summary": "KAN-76a: GitHub Actions workflow for Gemini Bridge integration tests",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-76",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex2", "ci-cd-integration", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-84",
+      "summary": "KAN-76b: Provenance manifest generation (SBOM, attestation, deployment audit)",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-76",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex2", "ci-cd-integration", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    },
+    {
+      "key": "KAN-85",
+      "summary": "KAN-76c: Environment configuration + production secrets for bridge toggle",
+      "issuetype": "Subtask",
+      "parent": "KAN-73",
+      "workstream": "KAN-76",
+      "status": "Ready",
+      "priority": "High",
+      "labels": ["agent-codex2", "ci-cd-integration", "gemini-bridge", "notebooklm-scope", "tdd-complete"]
+    }
+  ],
+  "summary": {
+    "total_tickets": 12,
+    "parent": "KAN-73",
+    "workstream_children": ["KAN-74", "KAN-75", "KAN-76"],
+    "atomic_subtasks_created": 9,
+    "tickets_updated": 3,
+    "hierarchy_note": "Atomic subtasks created under KAN-73 (Task type) not under KAN-74/75/76 (Subtask type) because Jira Cloud does not allow subtask-of-subtask. Workstream linkage preserved via KAN-XXa naming convention and traceability comments on parent subtasks.",
+    "label_mapping": {
+      "agent-codex1": "KAN-74, KAN-75 + all test/verification atomic subtasks (KAN-77–82)",
+      "agent-codex2": "KAN-76 + all CI/CD atomic subtasks (KAN-83–85)",
+      "gemini-bridge": "All 12 tickets",
+      "notebooklm-scope": "All 12 tickets",
+      "tdd-complete": "All 12 tickets (replaced tdd-red on KAN-74/75/76)",
+      "ci-cd-integration": "KAN-76 + KAN-83/84/85"
+    }
+  }
+}
