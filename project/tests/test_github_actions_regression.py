@@ -370,3 +370,6 @@ class TestSpecificWorkflowsIntegrity:
             "production-verification.json",
             "synthetic-health.json",
         }
+
+# CI fix (PR #70, run 2b80777a): registered gemini-bridge-tests.yml,
+# jira-governance.yml and post-deploy-tdd.yml in EXPECTED_WORKFLOW_FILES.
