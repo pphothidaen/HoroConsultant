@@ -314,10 +314,15 @@ def call_bridge_tool(
     except Exception as exc:
         logger.warning(f"[Bridge:{tool_name}] Response parse failure: {exc}")
         return None, f"error:parse_failure:{exc}"
+
     if parsed is None:
         logger.warning(f"[Bridge:{tool_name}] [FAIL] reason={reason} ({elapsed}ms)")
         _maybe_trip_bridge_circuit(reason)
         return None, reason
 
+    # Success — clear any prior trip so half-open -> closed transition works.
+    _BRIDGE_CIRCUIT_BREAKER.pop("bridge", None)
     logger.info(f"[Bridge:{tool_name}] [OK] ({elapsed}ms)")
     return parsed, "ok"
+
+
