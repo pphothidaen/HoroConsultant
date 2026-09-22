@@ -52,3 +52,13 @@ node_modules/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Additional large files/directories exceeding Vercel 100MB limit
+hermes/
+.hermes/
+plans/
+tmp_test_render/
+jira_*.py
+*.md
+!README.md
+!SUMMARY.md
