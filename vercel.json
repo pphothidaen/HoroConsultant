@@ -3,7 +3,8 @@
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "feat/gemini-bridge-mcp-toggle": true
     }
   },
   "rewrites": [
