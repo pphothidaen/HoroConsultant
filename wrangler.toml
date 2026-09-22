@@ -1,24 +1,41 @@
-name = "horoconsultant-pages"
-pages_build_output_dir = "project/static"
-compatibility_date = "2025-01-15"
+# Cloudflare Workers configuration for horoconsultant
+# This is the MAIN entry point for Workers deployments
+name = "horoconsultant"
+main = "api/index.js"
+compatibility_date = "2026-09-22"
 compatibility_flags = ["nodejs_compat"]
-# account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
+account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
 
 [vars]
 BACKEND_BASE_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 BACKEND_TIMEOUT_MS = "15000"
 CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com"
+ENVIRONMENT = "production"
 
 [[kv_namespaces]]
 binding = "CACHE"
 id = "07d1f31739eb418b944bf8d66f17a452"
 
-# [[r2_buckets]]
-# binding = "ARTIFACTS"
-# bucket_name = "horoconsultant-artifacts"
-
-# [triggers]
-# crons = ["0 0 * * *"]
+# Cron triggers for periodic tasks
+[triggers]
+crons = ["0 */6 * * *"]
 
 [observability]
 enabled = true
+
+# Limits to prevent runaway executions
+[limits]
+cpu_ms = 50
+execution_timeout = 30
+
+# Placement mode for optimal routing
+[placement]
+mode = "smart"
+
+# Env variables synced from Doppler
+# DO NOT hardcode secrets here — use `doppler run -- wrangler deploy`
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
