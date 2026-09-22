@@ -104,6 +104,10 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     ("dod-production-gate.yml", "DoD Production Gate", {}),
     ("sync-jira.yml", "Sync ATOMIC-TICKET <-> Jira", {}),
     ("update-index.yml", "Update Documentation Index", {}),
+    ("gemini-bridge-tests.yml", "Gemini Bridge MCP Integration Tests", {}),
+    ("jira-governance.yml", "Jira Issue Key Validation", {}),
+    ("post-deploy-tdd.yml", "Post-Deploy Team Red/Blue Testing", {}),
+    ("workers-builds.yml", "Cloudflare Workers Build Pipeline", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]
