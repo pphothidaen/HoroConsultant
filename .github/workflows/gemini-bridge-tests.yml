@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install httpx pytest anyio python-dotenv
+          pip install httpx pytest anyio python-dotenv fastapi uvicorn
 
       - name: Run bridge test suite
         id: run-bridge-tests
