@@ -45,6 +45,7 @@ jobs:
             project/tests/test_gemini_bridge_state_machine.py \
             project/tests/test_gemini_bridge_failover.py \
             project/tests/test_gemini_bridge_edge_cases.py \
+            project/tests/test_gemini_bridge_env_config.py \
             -v --tb=short --no-header 2>&1 | tee bridge-test-results.txt
         env:
           # Bridge tests use monkeypatched HTTP — no real tokens needed.
