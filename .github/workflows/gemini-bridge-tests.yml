@@ -52,6 +52,8 @@ jobs:
           # Bridge tests use monkeypatched HTTP — no real tokens needed.
           # Explicitly disable the bridge in CI to avoid any real calls.
           GEMINI_WEB_BRIDGE_ENABLED: "false"
+          # rust_core._native wheel is not built in CI; allow the pure-Python fallback.
+          HORO_ALLOW_PYTHON_FALLBACK: "1"
 
       - name: Parse test results
         id: parse_test_results
