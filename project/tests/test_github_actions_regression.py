@@ -373,3 +373,6 @@ class TestSpecificWorkflowsIntegrity:
 
 # CI fix (PR #70, run 2b80777a): registered gemini-bridge-tests.yml,
 # jira-governance.yml and post-deploy-tdd.yml in EXPECTED_WORKFLOW_FILES.
+
+# Baseline fix3 (PR #70): added hermes/ and wrangler.jsonc to provenance
+# coverage after 509a8989 introduced them into the PR diff.
