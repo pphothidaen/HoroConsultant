@@ -4,6 +4,23 @@
   "sequence": 2,
   "provenance_status": "VERIFIED",
   "baseline_commit": "75ab37d0",
+  "baseline_parent": "305aef89",
+  "red_tests": [
+    {"file": "project/tests/test_gemini_bridge_disabled.py", "phase": "RED"},
+    {"file": "project/tests/test_gemini_bridge_no_config.py", "phase": "RED"},
+    {"file": "project/tests/test_gemini_bridge_circuit_breaker.py", "phase": "RED"}
+  ],
+  "allowed_source_paths": [
+    "project/core/gemini_bridge_client.py",
+    "project/routers/",
+    ".github/workflows/",
+    "scripts/sync-render-secrets.sh"
+  ],
+  "test_owner_role": "agent-codex1",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": "plans/test_provenance/ticket-gemini-bridge-integration-001.json",
+  "correction_reason": "Extended to full Sprint F scope (KAN-73-85)",
+  "rationale": "Test-first provenance for Gemini Bridge MCP toggle: 125/125 tests pass, 9 atomic commits, production secrets synced, all Jira tickets Done",
   "test_files": [
     "project/tests/test_gemini_bridge_disabled.py",
     "project/tests/test_gemini_bridge_no_config.py",
