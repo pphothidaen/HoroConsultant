@@ -95,7 +95,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 17
+    assert len(configured_active) == len(set(configured_active)) == 18
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
