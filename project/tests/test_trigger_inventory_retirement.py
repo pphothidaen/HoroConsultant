@@ -35,6 +35,9 @@ EXPECTED_ACTIVE = (
     "dod-production-gate.yml",
     "sync-jira.yml",
     "update-index.yml",
+    "gemini-bridge-tests.yml",
+    "jira-governance.yml",
+    "post-deploy-tdd.yml",
     "workers-builds.yml",
 )
 EXPECTED_RETIRED = (
@@ -95,7 +98,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 18
+    assert len(configured_active) == len(set(configured_active)) == 21
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
