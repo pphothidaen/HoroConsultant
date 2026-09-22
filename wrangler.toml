@@ -21,7 +21,7 @@ id = "07d1f31739eb418b944bf8d66f17a452"
 # R2 bucket for artifact storage
 [[r2_buckets]]
 binding = "ARTIFACTS"
-bucket_name = "horo-consultant-artifacts"
+bucket_name = "horoconsultant-artifacts"
 
 # Cron triggers for periodic tasks
 [triggers]
