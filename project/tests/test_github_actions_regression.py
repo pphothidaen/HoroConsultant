@@ -50,6 +50,7 @@ EXPECTED_WORKFLOW_FILES = [
     "sync-jira.yml",
     "test_provenance.yml",
     "update-index.yml",
+    "workers-builds.yml",
 ]
 
 FROZEN_RELEASE_WORKFLOWS = (

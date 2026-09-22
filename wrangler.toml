@@ -18,7 +18,7 @@ id = "07d1f31739eb418b944bf8d66f17a452"
 
 # Cron triggers for periodic tasks
 [triggers]
-crons = ["0 */6 * * *"]
+crons = ["0 0 * * *", "0 */6 * * *"]
 
 [observability]
 enabled = true

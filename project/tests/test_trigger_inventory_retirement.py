@@ -35,6 +35,7 @@ EXPECTED_ACTIVE = (
     "dod-production-gate.yml",
     "sync-jira.yml",
     "update-index.yml",
+    "workers-builds.yml",
 )
 EXPECTED_RETIRED = (
     "azure_cost_guard.yml",
