@@ -23,6 +23,10 @@ Active workflows:
 15. dod-production-gate.yml (DoD Production Gate)
 16. sync-jira.yml (Sync ATOMIC-TICKET <-> Jira)
 17. update-index.yml (Update Documentation Index)
+18. gemini-bridge-tests.yml (Gemini Bridge MCP Integration Tests)
+19. jira-governance.yml (Jira Issue Key Validation)
+20. post-deploy-tdd.yml (Post-Deploy Team Red/Blue Testing)
+21. workers-builds.yml (Cloudflare Workers Build Pipeline)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
