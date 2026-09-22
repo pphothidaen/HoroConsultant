@@ -1,5 +1,37 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Sprint F Gemini Bridge Integration & CI Remediation -- 2026-09-22 (revision 20)
+
+Status: IN_PROGRESS (CI Blocker Remediation & Verification)
+Branch: `feat/gemini-bridge-mcp-toggle` | PR: #70 | Base: `c2a35113` (`origin/main`)
+Target Commit: `2b80777a` -> successor fix commit
+Tradeoff Analysis Reference: `plans/tradeoff.md`
+
+### 1. Current State & Executive Summary
+- **Sprint F Gemini Bridge Scope (KAN-73 to KAN-85)**:
+  - 125/125 tests PASS locally across 7 test suites (toggle, circuit-breaker, failover, edge cases, state machine, env config).
+  - Production secrets synced from Doppler; all 13 Jira tickets transitioned to DONE.
+  - Full CI check-runs audit performed on commit `2b80777a` (16 total checks inspected).
+
+### 2. CI Blocker Triage & Remediation (Audit of Run 35682654846 / 35682654876)
+Four distinct root causes identified and mapped in `plans/tradeoff.md`:
+
+| Blocker | Component | Root Cause | Solution | Status |
+|---|---|---|---|---|
+| **B1** | **Test Provenance Guard** | `PR_SOURCE_PATH_WITHOUT_BASELINE` on `gitbook-docs.yaml` | Add `"gitbook-docs.yaml"` to `DOC_FILES` in `scripts/test_provenance_guard.py` | ✅ Verified locally (`verify-pr` PASSED, 0 issues) |
+| **B2** | **Bridge Test Suite** (3.10-3.12) | `ModuleNotFoundError: No module named 'dotenv'` in `test_gemini_bridge_failover.py` | Add `python-dotenv` to `.github/workflows/gemini-bridge-tests.yml` + defensive import in `project/api_router.py` | ⏳ Ready to apply |
+| **B3** | **Workflow Inventory Regression** | `test_no_orphan_or_empty_workflows` flags unreviewed workflows: `gemini-bridge-tests.yml`, `jira-governance.yml`, `post-deploy-tdd.yml` | Register all 3 in `EXPECTED_WORKFLOW_FILES` in `project/tests/test_github_actions_regression.py` & `test_trigger_inventory_retirement.py` | ⏳ Ready to apply |
+| **B4** | **File Mode Contract** | `scripts/sync-render-secrets.sh` committed as `100755` instead of `100644` | Run `git update-index --chmod=-x scripts/sync-render-secrets.sh` | ⏳ Ready to apply |
+
+### 3. Immediate Action Plan
+1. Commit the `gitbook-docs.yaml` fix in `scripts/test_provenance_guard.py`.
+2. Apply `python-dotenv` fix to `gemini-bridge-tests.yml` and `project/api_router.py`.
+3. Register new workflows in `project/tests/test_github_actions_regression.py` and `test_trigger_inventory_retirement.py`.
+4. Fix mode on `scripts/sync-render-secrets.sh` to `100644`.
+5. Atomic push to `origin/feat/gemini-bridge-mcp-toggle` to trigger clean green CI run for PR #70 merge.
+
+---
+
 ## Remaining-work audit & release reconciliation -- 2026-09-17 (revision 19)
 
 Status: APPROVED for planning reconciliation and the derived HANDOFF refresh
