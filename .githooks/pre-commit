@@ -22,6 +22,26 @@ if [ -f "scripts/test_provenance_guard.py" ]; then
     fi
 fi
 
+# Jira agent-label governance gate (hook 2b): when the commit references a
+# KAN-XX ticket, verify that issue carries an agent-* label. Fail-closed on
+# governance violation, fail-open on network/credential unavailability so
+# offline work is never blocked.
+COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
+if [ -f "scripts/jira_label_gate.py" ] && [ -f "$COMMIT_MSG_FILE" ]; then
+    TICKET_KEY=$(head -n 20 "$COMMIT_MSG_FILE" | grep -oE 'KAN-[0-9]+' | head -1 || true)
+    if [ -n "$TICKET_KEY" ]; then
+        echo "[INFO] Pre-commit: checking Jira agent-label governance for $TICKET_KEY."
+        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY"
+        STATUS=$?
+        if [ "$STATUS" -eq 1 ]; then
+            echo "[ERROR] Pre-commit blocked: $TICKET_KEY violates agent-label governance (hook 2b)."
+            exit 1
+        elif [ "$STATUS" -eq 2 ]; then
+            echo "[WARN] Jira credentials unavailable - label governance check skipped."
+        fi
+    fi
+fi
+
 if [ -f "tests/test_notebook_syntax.py" ]; then
     echo "[INFO] Pre-commit: checking notebook syntax."
     "$PYTHON" -m pytest tests/test_notebook_syntax.py -q >/dev/null 2>&1
