@@ -26,6 +26,10 @@ fi
 # KAN-XX ticket, verify that issue carries an agent-* label. Fail-closed on
 # governance violation, fail-open on network/credential unavailability so
 # offline work is never blocked.
+# NOTE: in pre-commit, COMMIT_EDITMSG may still hold a PREVIOUS message
+# (with `git commit -m` the file is written after this hook runs). The
+# authoritative check lives in commit-msg; this one is best-effort for
+# editor-based commits where COMMIT_EDITMSG is already populated.
 COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
 if [ -f "scripts/jira_label_gate.py" ] && [ -f "$COMMIT_MSG_FILE" ]; then
     TICKET_KEY=$(head -n 20 "$COMMIT_MSG_FILE" | grep -oE 'KAN-[0-9]+' | head -1 || true)

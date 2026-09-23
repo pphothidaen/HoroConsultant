@@ -1,0 +1,36 @@
+#!/bin/sh
+# commit-msg hook: authoritative Jira agent-label governance gate (hook 2b).
+# Receives the REAL commit message file as $1 (unlike pre-commit, where
+# COMMIT_EDITMSG may hold a stale message with `git commit -m`).
+# Read-only gate: never edits the commit message or repository files.
+
+set -u
+
+if [ -x ".venv/bin/python3" ]; then
+    PYTHON=".venv/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON="python3"
+else
+    echo "[ERROR] commit-msg blocked: Python is required for repository gates."
+    exit 1
+fi
+
+MSG_FILE="$1"
+
+if [ -f "scripts/jira_label_gate.py" ]; then
+    TICKET_KEY=$(head -n 20 "$MSG_FILE" | grep -oE 'KAN-[0-9]+' | head -1 || true)
+    if [ -n "$TICKET_KEY" ]; then
+        echo "[INFO] commit-msg: checking Jira agent-label governance for $TICKET_KEY."
+        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY"
+        STATUS=$?
+        if [ "$STATUS" -eq 1 ]; then
+            echo "[ERROR] commit-msg blocked: $TICKET_KEY violates agent-label governance (hook 2b)."
+            echo "[INFO] Add an agent-* label (default: agent-hermes) to $TICKET_KEY before committing."
+            exit 1
+        elif [ "$STATUS" -eq 2 ]; then
+            echo "[WARN] Jira credentials unavailable - label governance check skipped."
+        fi
+    fi
+fi
+
+exit 0
