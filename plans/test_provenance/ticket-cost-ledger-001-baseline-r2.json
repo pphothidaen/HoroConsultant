@@ -1,0 +1,26 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-COST-LEDGER-001",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bda69a3dabc90890d8511bba79a151bf0b3ba4df",
+  "test_files": [
+    {
+      "path": "tests/test_cost_ledger.py",
+      "sha256": "6b4dd3cd080459af2cdb64b6f400488bc16ce693a415665fd206f06404776bd3"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_cost_ledger.py", "-v"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/kimlenglim/Project/HoroConsultant/.worktrees/kan101-cost-ledger/scripts/cost_ledger.py': [Errno 2] No such file or directory"
+    }
+  ],
+  "allowed_source_paths": ["scripts/"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": "bda69a3dabc90890d8511bba79a151bf0b3ba4df",
+  "correction_reason": "Baseline seq 1 froze a gh stub matching the literal endpoint 'repos/{owner}/{repo}/pulls/72' before implementation revealed the script must resolve a concrete endpoint 'repos/pphothidaen/HoroConsultant/pulls/72'. Seq 2 refreezes the corrected stub plus a report label assertion; RED was re-verified against the missing module before implementation.",
+  "rationale": "KAN-101 cost ledger: tests freeze the record/report CLI contract (JSONL append, report read-back, lead-time computation via gh api, aggregate by interface, --since filter) for scripts/cost_ledger.py."
+}

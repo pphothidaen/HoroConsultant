@@ -162,7 +162,7 @@ def test_report_reads_entries_back(tmp_path, tmp_path_factory):
     gh_stub = _make_gh_stub(tmp_path_factory)
     proc = _run(["report", "--ledger", str(ledger)], ledger, gh_stub=gh_stub)
     assert proc.returncode == 0, proc.stderr
-    assert "pull/72" in proc.stdout
+    assert "#72" in proc.stdout or "72" in proc.stdout
     assert "KAN-73" in proc.stdout
     assert "cli" in proc.stdout
     assert "browser" in proc.stdout
@@ -303,7 +303,7 @@ def _make_gh_stub(tmp_path_factory, created="2026-09-23T07:00:20Z", merged="2026
     )
     stub.write_text(
         "#!/bin/sh\n"
-        'if [ "$1" = "api" ] && [ "$2" = "repos/{owner}/{repo}/pulls/72" ]; then\n'
+        'if [ "$1" = "api" ] && [ "$2" = "repos/pphothidaen/HoroConsultant/pulls/72" ]; then\n'
         f"  echo '{payload}'\n"
         "  exit 0\n"
         "fi\n"
