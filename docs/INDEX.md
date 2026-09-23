@@ -4,7 +4,7 @@
 > Do not edit manually — changes will be overwritten.
 > Generated: 2026-09-21 06:30:00 UTC
 
-**Total documents:** 63
+**Total documents:** 64
 
 ## Document Registry
 
@@ -30,6 +30,7 @@
 || `known-issues.md` | `known-issues.md` |
 || `lessons_learned_v3_visual_integrity_2026-08-24.md` | `lessons_learned_v3_visual_integrity_2026-08-24.md` |
 | `repository-guidelines.md` | `repository-guidelines.md` |
+| `skill-audit-2026-09-23.md` | `skill-audit-2026-09-23.md` |
 | `v3_api_specification.md` | `v3_api_specification.md` |
 
 ### `architecture/`
