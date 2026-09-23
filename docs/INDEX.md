@@ -19,6 +19,7 @@
 | `RELEASE_NOTES.md` | `RELEASE_NOTES.md` |
 | `RELEASE_ROLLBACK_RUNBOOK.md` | `RELEASE_ROLLBACK_RUNBOOK.md` |
 | `SUMMARY.md` | `SUMMARY.md` |
+| `tradeoff.md` | `tradeoff.md` |
 | `audit_discrepancies.md` | `audit_discrepancies.md` |
 | `branch_migration_action_priority_runbook.md` | `branch_migration_action_priority_runbook.md` |
 | `c4_hermes_9router_architecture.md` | `c4_hermes_9router_architecture.md` |

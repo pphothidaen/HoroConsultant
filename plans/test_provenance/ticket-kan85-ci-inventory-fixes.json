@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN85-CI-INVENTORY-FIXES",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "12970c7b664f63951b765c7cce646547ff4a854a",
+  "test_files": [
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "0b3853ea445c887dfab34616958a1251ed251998010a90bb55362a9ede968650"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "project/tests/test_github_actions_regression.py::TestGitHubActionsWorkflowsInventory::test_no_orphan_or_empty_workflows",
+        "-x",
+        "--tb=short"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: {'gemini-bridge-tests.yml'"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/",
+    "scripts/",
+    "plans/",
+    "project/tests/"
+  ],
+  "test_owner_role": "agent-codex1",
+  "reviewer_role": "agent-code_reviewer",
+  "rationale": "Register gemini-bridge-tests.yml, jira-governance.yml and post-deploy-tdd.yml in EXPECTED_WORKFLOW_FILES to fix test_no_orphan_or_empty_workflows failure on PR #70 CI run 2b80777a. 89 tests pass locally.",
+  "supersedes": "b653e9ecc2bf074e994a122dbcfac215d11e2ebd",
+  "correction_reason": "Supersedes the baseline of ticket-kan85-provenance-repair (b653e9ec) to cover the CI inventory fix for PR #70 run 2b80777a: EXPECTED_WORKFLOW_FILES must include gemini-bridge-tests.yml, jira-governance.yml and post-deploy-tdd.yml."
+}

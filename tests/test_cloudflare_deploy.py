@@ -11,7 +11,7 @@ def read_wrangler():
 
 
 class TestDeploymentReadiness:
-    """Test that wrangler.toml is ready for deployment."""
+    """Test that wrangler.toml is ready for Workers deployment."""
 
     def test_account_id_is_set(self):
         """wrangler.toml must have account_id set (not placeholder)."""
@@ -27,18 +27,20 @@ class TestDeploymentReadiness:
         assert match, "account_id must be a 32-character hex string"
 
     def test_project_name_set(self):
-        """wrangler.toml must have project name."""
+        """wrangler.toml must have Workers project name (not Pages)."""
         content = read_wrangler()
-        assert 'name = "horoconsultant-pages"' in content
+        assert 'name = "horoconsultant"' in content, \
+            "Expected Workers name = \"horoconsultant\""
 
-    def test_build_output_dir_set(self):
-        """wrangler.toml must specify pages_build_output_dir."""
+    def test_main_entry_point_set(self):
+        """wrangler.toml must specify main entry point (not Pages output dir)."""
         content = read_wrangler()
-        assert 'pages_build_output_dir = "project/static"' in content
+        assert 'main = "api/index.js"' in content, \
+            "Missing main entry point for Workers"
 
 
 class TestWranglerConfigIntegrity:
-    """Test that wrangler.toml has all required sections."""
+    """Test that wrangler.toml has all required sections for Workers."""
 
     def test_kv_namespaces_configured(self):
         """wrangler.toml must have KV namespace binding."""
@@ -56,7 +58,7 @@ class TestWranglerConfigIntegrity:
         """wrangler.toml must have triggers section."""
         content = read_wrangler()
         assert "[triggers]" in content
-        assert 'crons' in content
+        assert "crons" in content
 
     def test_observability_configured(self):
         """wrangler.toml must have observability enabled."""

@@ -1,0 +1,83 @@
+# KAN-83: Gemini Bridge CI test workflow.
+# Runs the bridge toggle + circuit breaker + failover test suite on PRs
+# targeting feature/gemini-bridge-mcp-toggle and on push to main.
+name: Gemini Bridge Tests
+
+on:
+  push:
+    branches: [main, 'feature/gemini-bridge-mcp-toggle']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bridge-tests:
+    name: Bridge Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest anyio
+
+      - name: Run bridge test suite
+        id: run-bridge-tests
+        run: |
+          python -m pytest \
+            project/tests/test_gemini_bridge_disabled.py \
+            project/tests/test_gemini_bridge_no_config.py \
+            project/tests/test_gemini_bridge_circuit_breaker.py \
+            project/tests/test_gemini_bridge_state_machine.py \
+            project/tests/test_gemini_bridge_failover.py \
+            project/tests/test_gemini_bridge_edge_cases.py \
+            project/tests/test_gemini_bridge_env_config.py \
+            -v --tb=short --no-header 2>&1 | tee bridge-test-results.txt
+        env:
+          # Bridge tests use monkeypatched HTTP — no real tokens needed.
+          # Explicitly disable the bridge in CI to avoid any real calls.
+          GEMINI_WEB_BRIDGE_ENABLED: "false"
+          # rust_core._native wheel is not built in CI; allow the pure-Python fallback.
+          HORO_ALLOW_PYTHON_FALLBACK: "1"
+
+      - name: Parse test results
+        id: parse_test_results
+        if: always()
+        run: |
+          # Extract pytest summary line and produce structured output
+          TOTAL=$(grep -oE '[0-9]+ passed' bridge-test-results.txt | grep -oE '[0-9]+' || echo "0")
+          FAILED=$(grep -oE '[0-9]+ failed' bridge-test-results.txt | grep -oE '[0-9]+' || echo "0")
+          ERRORS=$(grep -oE '[0-9]+ error' bridge-test-results.txt | grep -oE '[0-9]+' || echo "0")
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bridge-test-results-py${{ matrix.python-version }}
+          path: bridge-test-results.txt
+          retention-days: 7
+
+      - name: Fail job if tests failed
+        if: failure() || steps.parse-test-results.outputs.failed != '0' || steps.parse-test-results.outputs.errors != '0'
+        run: |
+          echo "Bridge tests FAILED for Python ${{ matrix.python-version }}"
+          cat bridge-test-results.txt || true
+          exit 1

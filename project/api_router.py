@@ -602,34 +602,39 @@ class HybridRouter:
                 continue
 
             t0 = time.monotonic()
-            if rtype == "gemini_mcp":
-                # Gemini Web Bridge: system instruction is prepended into the
-                # single query argument (bridge client is single-argument).
-                bridge_query = (
-                    f"{system_instruction}\n\n{prompt}".strip()
-                    if system_instruction
-                    else prompt
-                )
-                res, reason = call_bridge_tool(bridge_query)
-                text = res["text"] if res else None
-            elif rtype == "ollama":
-                text, reason = _call_ollama(model, prompt, system_instruction)
-            elif rtype == "codex_cli":
-                try:
-                    text = call_codex_cli(prompt, system_instruction=system_instruction, model=model)
-                    reason = "ok"
-                except Exception:
-                    text, reason = None, "error"
-            elif rtype == "gemini":
-                text, reason = _call_gemini(model, key, prompt, system_instruction)
-            elif rtype == "vertex_ai":
-                proj_id = route.get("project_id", "")
-                text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
-            elif rtype == "cloudflare_ai":
-                account_id = route.get("account_id", "")
-                text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
-            else:
-                text, reason = None, "unknown_route"
+            text, reason = None, "exception"
+            try:
+                if rtype == "gemini_mcp":
+                    # Gemini Web Bridge: system instruction is prepended into the
+                    # single query argument (bridge client is single-argument).
+                    bridge_query = (
+                        f"{system_instruction}\n\n{prompt}".strip()
+                        if system_instruction
+                        else prompt
+                    )
+                    res, reason = call_bridge_tool(bridge_query)
+                    text = res["text"] if res else None
+                elif rtype == "ollama":
+                    text, reason = _call_ollama(model, prompt, system_instruction)
+                elif rtype == "codex_cli":
+                    try:
+                        text = call_codex_cli(prompt, system_instruction=system_instruction, model=model)
+                        reason = "ok"
+                    except Exception:
+                        text, reason = None, "error"
+                elif rtype == "gemini":
+                    text, reason = _call_gemini(model, key, prompt, system_instruction)
+                elif rtype == "vertex_ai":
+                    proj_id = route.get("project_id", "")
+                    text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
+                elif rtype == "cloudflare_ai":
+                    account_id = route.get("account_id", "")
+                    text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
+                else:
+                    text, reason = None, "unknown_route"
+            except Exception as exc:
+                logger.warning(f"[Router] [EXC] {label} -> {exc}")
+                text, reason = None, "exception"
             latency_ms = round((time.monotonic() - t0) * 1000)
 
             # Record Observability LLM telemetry
