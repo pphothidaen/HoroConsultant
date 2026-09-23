@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-101-MODEL-ROUTING-LEDGER-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "d9ea25be1283af837fb89a466b31e1797cc4af23",
+  "test_files": [
+    {
+      "path": "tests/test_model_routing_ledger.py",
+      "sha256": "950de1e5b4b209478348247d66419a46d5a286cd0f3c86178c4b299db02a0f67"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_model_routing_ledger.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "[ERROR] cannot import golden_tasks: No module named 'tests'"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/model_routing_ledger.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-101 Sprint J P3 sequence 2: model routing cost ledger CLI (record/report/golden). Red fingerprint captured from cmd_golden import failure before implementation fix."
+}
