@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-URL-RESTORE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "099d9cd5a329528444efd55242b0326373bcd868",
+  "test_files": [
+    {
+      "path": "project/tests/test_prod_version_regression.py",
+      "sha256": "2be6b7210f4b27fdcf4b72681c0f5e395f47c1942b88d156393856c36d6d9db0"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_prod_version_regression.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "5 failed; live production regression suite hit an expired preview deployment URL that 302-redirects to the Vercel SSO login page instead of serving /version.json"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_prod_version_regression.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Restore the canonical production URL in the live regression suite after commit 0efe2dff accidentally pointed PROD_BASE_URL at an expired preview deployment whose SSO redirect broke all five live checks."
+}
