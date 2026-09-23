@@ -2222,6 +2222,18 @@
       "confidence_score": 0.95,
       "highlights": [],
       "model_used": "mock-llm"
+    },
+    "unified-reading-148aa00932431efba47a": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "unified-reading-c17344e029ef33af650f": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
     }
   },
   "stats": {
@@ -2230,7 +2242,7 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-09-14T23:25:30.542114",
+  "last_updated": "2026-09-23T13:26:04.374417",
   "automation": {
     "threshold": 50,
     "step": 50,
@@ -2258,7 +2270,7 @@
       "hitl_routing": {
         "status": "QUEUED_FOR_HUMAN_REVIEW",
         "reason": "conflict_detected",
-        "review_queue_id": "hitl_rev_1789403130",
+        "review_queue_id": "hitl_rev_1790144400",
         "required_human_review": true,
         "conflict_detected": true,
         "conflicting_domains": [
@@ -2301,7 +2313,170 @@
       },
       "notes": null,
       "created_at": "2026-08-31T22:12:16.022865",
-      "updated_at": "2026-09-14T23:25:30.542075",
+      "updated_at": "2026-09-23T13:20:00.693330",
+      "status": "pending",
+      "review": null
+    },
+    "unified-reading-148aa00932431efba47a": {
+      "item_id": "unified-reading-148aa00932431efba47a",
+      "source_domain": "horo-lite-unified-reading",
+      "source_id": "unified-reading-148aa00932431efba47a",
+      "source_title": "Unified Reading 2026",
+      "category": "unified_reading_review",
+      "question": "Unified reading for target year 2026, birth 2020-05-15, place Bangkok, Thailand. HITL triggers: low_consensus, tradition_conflict, conflict_detected.",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [],
+      "consensus_score": 0.5,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "hitl_triggered",
+        "trigger_reasons": [
+          "low_consensus",
+          "tradition_conflict",
+          "conflict_detected"
+        ],
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [],
+        "consensus_score": 0.5,
+        "routing_key": "horo_v3_consensus_2026_175290_0"
+      },
+      "synthesis_snapshot": {},
+      "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
+      "created_at": "2026-09-23T13:14:49.814929",
+      "updated_at": "2026-09-23T13:21:50.368115",
+      "status": "pending",
+      "review": null
+    },
+    "unified-reading-c17344e029ef33af650f": {
+      "item_id": "unified-reading-c17344e029ef33af650f",
+      "source_domain": "horo-lite-unified-reading",
+      "source_id": "unified-reading-c17344e029ef33af650f",
+      "source_title": "Unified Reading 2026",
+      "category": "unified_reading_review",
+      "question": "Unified reading for target year 2026, birth 1990-05-15, place Bangkok, Thailand. HITL triggers: low_consensus, tradition_conflict, conflict_detected.",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [],
+      "consensus_score": 0.5,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "hitl_triggered",
+        "trigger_reasons": [
+          "low_consensus",
+          "tradition_conflict",
+          "conflict_detected"
+        ],
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [],
+        "consensus_score": 0.5,
+        "routing_key": "horo_v3_consensus_2026_174482_0"
+      },
+      "synthesis_snapshot": {},
+      "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
+      "created_at": "2026-09-23T13:15:22.784821",
+      "updated_at": "2026-09-23T13:22:24.277145",
+      "status": "pending",
+      "review": null
+    },
+    "unified-reading-5ff41d4ab250fb7f90e6": {
+      "item_id": "unified-reading-5ff41d4ab250fb7f90e6",
+      "source_domain": "horo-lite-unified-reading",
+      "source_id": "unified-reading-5ff41d4ab250fb7f90e6",
+      "source_title": "Unified Reading 2026",
+      "category": "unified_reading_review",
+      "question": "Unified reading for target year 2026, birth 1990-06-15, place Bangkok. HITL triggers: low_consensus, tradition_conflict, conflict_detected, uncertain_birth_time.",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [],
+      "consensus_score": 0.5,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "hitl_triggered",
+        "trigger_reasons": [
+          "low_consensus",
+          "tradition_conflict",
+          "conflict_detected",
+          "uncertain_birth_time"
+        ],
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [],
+        "consensus_score": 0.5,
+        "routing_key": "horo_v3_consensus_2026_173850_0"
+      },
+      "synthesis_snapshot": {},
+      "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected', 'uncertain_birth_time']",
+      "created_at": "2026-09-23T13:26:04.350211",
+      "updated_at": "2026-09-23T13:26:04.371713",
+      "status": "pending",
+      "review": null
+    },
+    "unified-reading-81f648d8fc7fe4ce444a": {
+      "item_id": "unified-reading-81f648d8fc7fe4ce444a",
+      "source_domain": "horo-lite-unified-reading",
+      "source_id": "unified-reading-81f648d8fc7fe4ce444a",
+      "source_title": "Unified Reading 2026",
+      "category": "unified_reading_review",
+      "question": "Unified reading for target year 2026, birth 2020-01-01, place Bangkok. HITL triggers: low_consensus, tradition_conflict, conflict_detected, uncertain_birth_time.",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [],
+      "consensus_score": 0.5,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "hitl_triggered",
+        "trigger_reasons": [
+          "low_consensus",
+          "tradition_conflict",
+          "conflict_detected",
+          "uncertain_birth_time"
+        ],
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [],
+        "consensus_score": 0.5,
+        "routing_key": "horo_v3_consensus_2026_174153_0"
+      },
+      "synthesis_snapshot": {},
+      "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected', 'uncertain_birth_time']",
+      "created_at": "2026-09-23T13:26:04.365908",
+      "updated_at": "2026-09-23T13:26:04.365908",
+      "status": "pending",
+      "review": null
+    },
+    "unified-reading-1fc258e210a81b76d473": {
+      "item_id": "unified-reading-1fc258e210a81b76d473",
+      "source_domain": "horo-lite-unified-reading",
+      "source_id": "unified-reading-1fc258e210a81b76d473",
+      "source_title": "Unified Reading 2026",
+      "category": "unified_reading_review",
+      "question": "Unified reading for target year 2026, birth 1985-01-01, place Bangkok. HITL triggers: low_consensus, tradition_conflict, conflict_detected, uncertain_birth_time.",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [],
+      "consensus_score": 0.5,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "hitl_triggered",
+        "trigger_reasons": [
+          "low_consensus",
+          "tradition_conflict",
+          "conflict_detected",
+          "uncertain_birth_time"
+        ],
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [],
+        "consensus_score": 0.5,
+        "routing_key": "horo_v3_consensus_2026_172858_0"
+      },
+      "synthesis_snapshot": {},
+      "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected', 'uncertain_birth_time']",
+      "created_at": "2026-09-23T13:26:04.374408",
+      "updated_at": "2026-09-23T13:26:04.374408",
       "status": "pending",
       "review": null
     }

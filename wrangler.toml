@@ -13,15 +13,7 @@ BACKEND_TIMEOUT_MS = "15000"
 CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com"
 ENVIRONMENT = "production"
 
-# KV namespace for caching
-[[kv_namespaces]]
-binding = "CACHE"
-id = "07d1f31739eb418b944bf8d66f17a452"
 
-# R2 bucket for artifact storage
-[[r2_buckets]]
-binding = "ARTIFACTS"
-bucket_name = "horoconsultant-artifacts"
 
 # Cron triggers for periodic tasks
 [triggers]
