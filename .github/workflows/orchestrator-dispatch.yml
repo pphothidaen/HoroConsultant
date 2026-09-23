@@ -9,6 +9,10 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
+concurrency:
+  group: orchestrator-dispatch
+  cancel-in-progress: true
+
 env:
   JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
   JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
@@ -38,7 +42,7 @@ jobs:
         run: |
           curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-          twg login --no-verify || true
+          twg login --no-verify --yes || true
 
       - name: Poll Jira for Ready tickets
         id: poll
