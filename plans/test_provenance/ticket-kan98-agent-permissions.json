@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-98-AGENT-PERMISSIONS",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5087d730296446cb7264eea8df4dbe1d0b639e2e",
+  "test_files": [
+    {
+      "path": "tests/test_agent_token_scope.py",
+      "sha256": "a53dec0c4cd4f3df91e08748b62cde0d719ad0ff26b9284c5027c75520fa5e4b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_agent_token_scope.py::TestAgentScopedTokenExists::test_agent_token_is_configured"],
+      "expected_exit": 1,
+      "failure_fingerprint": "GH_AGENT_TOKEN not set - owner must create fine-grained PAT per docs/agent-permission-policy.md section 5"
+    }
+  ],
+  "allowed_source_paths": [
+    "docs/agent-permission-policy.md"
+  ],
+  "test_owner_role": "agent-codex2",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD RED for KAN-98 agent permission segmentation. Negative-control tests (branch protection, rulesets, secrets, deploy keys, collaborators, repo deletion, user SSH keys) fail until owner creates fine-grained PAT and sets GH_AGENT_TOKEN. Positive controls verify agent token retains contents:write and pull_requests:write. Policy document tests verify governance-as-code exists and is complete."
+}
