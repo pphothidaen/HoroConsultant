@@ -1,0 +1,15 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RENDER-YAML-DOCKERFILE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0454f7b5",
+  "test_files": [],
+  "red_tests": [],
+  "allowed_source_paths": ["render.yaml", "docs/known-issues.md", "docs/deployment/render-backend-deployment.md"],
+  "test_owner_role": "devops",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Align render.yaml dockerfilePath with production reality. Render service runs ./Dockerfile (Rust gateway + Python worker). Fix verified via production smoke test: /admin/provider-pools returns 401 (not 404), confirming Rust gateway routes through to Python auth."
+}

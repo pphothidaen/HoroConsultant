@@ -1,0 +1,191 @@
+{
+  "schema_version": "blueteam-v1",
+  "timestamp": "2026-09-22T02:33:08.197627+00:00",
+  "summary": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "test_cases": [
+    {
+      "id": "test_fa_001",
+      "name": "GET /health returns 200 with healthy status.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_002",
+      "name": "GET /api/health returns 200 with healthy status.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_003",
+      "name": "GET /api/v2/health returns 200 with status=healthy and discipline catalog.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_004",
+      "name": "GET /api/v3/health returns 200 with status=HEALTHY.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_005",
+      "name": "POST /api/v2/calculate/unified with BaZi returns success with chart data.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_006",
+      "name": "GET /api/v2/llm/providers/status returns 200 with provider list.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_007",
+      "name": "POST /api/v2/llm/route-test returns 200 with deterministic fallback.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_008",
+      "name": "GET /api/v3/schema returns 200 with claim schema.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_009",
+      "name": "GET /admin/provider-pools returns 401 (requires auth).",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_010",
+      "name": "POST /api/v2/calculate/unified with multiple disciplines returns charts.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_011",
+      "name": "POST /api/v2/calculate/unified with invalid datetime returns 400.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fa_012",
+      "name": "GET /openapi.json returns valid OpenAPI schema with expected paths.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_001",
+      "name": "OpenAPI schema contains all critical public routes (FastAPI-managed).",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_002",
+      "name": "All expected HTTP methods are registered for key endpoints.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_003",
+      "name": "No unexpected admin routes leak into public schema without auth.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_004",
+      "name": "CORS headers are present on API responses.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_005",
+      "name": "Rate limiting middleware returns 429 on excessive requests.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_sm_006",
+      "name": "All provider status endpoints expose expected fields without secrets.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_001",
+      "name": "LLMGateway routes to first available provider in priority order.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_002",
+      "name": "LLMGateway rolls to second provider when first fails.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_003",
+      "name": "LLMGateway rolls through all providers to deterministic safe net.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_004",
+      "name": "LLMGateway preferred_provider overrides default priority order.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_005",
+      "name": "AIProviderRouter call_ai: primary provider succeeds -> returns result.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_006",
+      "name": "AIProviderRouter call_ai: primary fails -> reasoning proxy -> gemini -> deterministic.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_007",
+      "name": "AIProviderRouter call_ai: all cloud tiers fail -> deterministic safe net.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_008",
+      "name": "HybridRouter.generate: first successful route wins, returns attempted_routes.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_009",
+      "name": "HybridRouter.generate: all routes fail -> exhausted with attempted_routes.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_010",
+      "name": "LLMGateway records provider health metrics after each call.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_011",
+      "name": "LLMGateway provider health: 3 consecutive failures trip circuit.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fo_012",
+      "name": "AIProviderRouter prefer_reasoning flag tries reasoning proxy first.",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

@@ -63,11 +63,11 @@ def _mock_command_path(tmp_path: Path) -> tuple[Path, Path]:
 record() {
     label="$1"
     shift
-    printf '%s' "$label" >> "$COMMAND_LOG"
+    full_line="$label"
     for arg in "$@"; do
-        printf '\t%s' "$arg" >> "$COMMAND_LOG"
+        full_line="$full_line\t$arg"
     done
-    printf '\n' >> "$COMMAND_LOG"
+    printf '%s\n' "$full_line" >> "$COMMAND_LOG"
 }
 
 case "${1:-}" in

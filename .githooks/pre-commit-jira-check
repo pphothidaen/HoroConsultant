@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit-jira-check
+set -e
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Branch naming validation
+if ! echo "$BRANCH" | grep -qE '^(feat|fix|docs|chore)/KAN-[0-9]+-.+$'; then
+  echo "[Jira Check] ❌ Branch name must be feat/KAN-NN-description or fix/KAN-NN-description"
+  exit 1
+fi
+
+echo "[Jira Check] ✅ Branch format validated."

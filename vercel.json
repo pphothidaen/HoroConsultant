@@ -1,83 +1,28 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": {
-      "*": false,
-      "main": true
-    }
-  },
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": "public",
+  "installCommand": "",
   "rewrites": [
-    {
-      "source": "/health",
-      "destination": "/api/index?path=/health"
-    },
-    {
-      "source": "/api/wake",
-      "destination": "/api/index?path=/api/wake"
-    },
-    {
-      "source": "/api/v1/:path*",
-      "destination": "/api/index?path=/api/v1/:path*"
-    },
-    {
-      "source": "/api/v2/:path*",
-      "destination": "/api/index?path=/api/v2/:path*"
-    },
-    {
-      "source": "/api/v3/:path*",
-      "destination": "/api/index?path=/api/v3/:path*"
-    },
-    {
-      "source": "/docs",
-      "destination": "/api/index?path=/docs"
-    },
-    {
-      "source": "/openapi.json",
-      "destination": "/api/index?path=/openapi.json"
-    },
-    {
-      "source": "/admin/auth/config",
-      "destination": "/api/index?path=/admin/auth/config"
-    },
-    {
-      "source": "/admin/auth/google",
-      "destination": "/api/index?path=/admin/auth/google"
-    },
-    {
-      "source": "/admin/catalog/summary",
-      "destination": "/api/index?path=/admin/catalog/summary"
-    },
-    {
-      "source": "/admin/catalog",
-      "destination": "/api/index?path=/admin/catalog"
-    },
-    {
-      "source": "/admin/catalog/source/:source_id",
-      "destination": "/api/index?path=/admin/catalog/source/:source_id"
-    },
-    {
-      "source": "/admin/grayzone",
-      "destination": "/api/index?path=/admin/grayzone"
-    },
-    {
-      "source": "/admin/finetune/status",
-      "destination": "/api/index?path=/admin/finetune/status"
-    },
-    {
-      "source": "/admin/finetune/download",
-      "destination": "/api/index?path=/admin/finetune/download"
-    },
-    {
-      "source": "/admin/finetune/download-grayzone",
-      "destination": "/api/index?path=/admin/finetune/download-grayzone"
-    },
-    {
-      "source": "/admin/provider-pools",
-      "destination": "/api/index?path=/admin/provider-pools"
-    },
-    {
-      "source": "/hitl/stats",
-      "destination": "/api/index?path=/hitl/stats"
-    }
-  ]
+    {"source": "/health", "destination": "/api/index?path=/health"},
+    {"source": "/api/wake", "destination": "/api/index?path=/api/wake"},
+    {"source": "/api/v1/:path*", "destination": "/api/index?path=/api/v1/:path*"},
+    {"source": "/api/v2/:path*", "destination": "/api/index?path=/api/v2/:path*"},
+    {"source": "/api/v3/:path*", "destination": "/api/index?path=/api/v3/:path*"},
+    {"source": "/docs", "destination": "/api/index?path=/docs"},
+    {"source": "/openapi.json", "destination": "/api/index?path=/openapi.json"},
+    {"source": "/admin/auth/config", "destination": "/api/index?path=/admin/auth/config"},
+    {"source": "/admin/auth/google", "destination": "/api/index?path=/admin/auth/google"},
+    {"source": "/admin/catalog/summary", "destination": "/api/index?path=/admin/catalog/summary"},
+    {"source": "/admin/catalog", "destination": "/api/index?path=/admin/catalog"},
+    {"source": "/admin/catalog/source/:source_id", "destination": "/api/index?path=/admin/catalog/source/:source_id"},
+    {"source": "/admin/grayzone", "destination": "/api/index?path=/admin/grayzone"},
+    {"source": "/admin/finetune/status", "destination": "/api/index?path=/admin/finetune/status"},
+    {"source": "/admin/finetune/download", "destination": "/api/index?path=/admin/finetune/download"},
+    {"source": "/admin/finetune/download-grayzone", "destination": "/api/index?path=/admin/finetune/download-grayzone"},
+    {"source": "/admin/provider-pools", "destination": "/api/index?path=/admin/provider-pools"},
+    {"source": "/hitl/stats", "destination": "/api/index?path=/hitl/stats"}
+  ],
+  "github": {"silent": true, "autoAlias": false}
 }

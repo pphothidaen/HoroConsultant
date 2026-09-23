@@ -1,0 +1,61 @@
+name: Workers Builds
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wrangler.toml"
+      - "api/index.js"
+      - "project/routers/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "wrangler.toml"
+      - "api/index.js"
+      - "project/routers/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  workers-build:
+    name: Workers Builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Validate configuration
+        run: |
+          if [ ! -f wrangler.toml ]; then
+            echo "::error::wrangler.toml not found"
+            exit 1
+          fi
+          npx wrangler whoami
+
+      - name: Dry-run deploy
+        run: npx wrangler deploy --dry-run
+
+      - name: Deploy to Workers
+        if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+        run: npx wrangler deploy --outdir /tmp/wrangler-deploy
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        continue-on-error: true

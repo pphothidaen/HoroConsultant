@@ -825,13 +825,24 @@ class AIProviderRouter:
                     return r_res
 
         if self.primary_provider == "codex_chatgpt":
-            res = self.invoke_codex_chatgpt(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                timeout_seconds=timeout_seconds,
-            )
-            if res["status"] == "success":
-                return res
+            # Pre-check circuit breaker: skip Codex entirely when tripped (0ms bypass)
+            if not self.circuit_breakers["codex_chatgpt"].is_open():
+                res = self.invoke_codex_chatgpt(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    timeout_seconds=timeout_seconds,
+                )
+                if res["status"] == "success":
+                    return res
+            else:
+                res = {
+                    "status": "error",
+                    "provider": "CODEX_CHATGPT",
+                    "content": "",
+                    "error_message": "Circuit breaker OPEN: Codex rate limit cooldown active.",
+                    "error_type": "circuit_breaker_open",
+                    "route_used": "codex_chatgpt",
+                }
 
             # Try Tier 3 Reasoning Proxy if configured before Gemini fallback
             if self.reasoning_base_url and not self.circuit_breakers["reasoning_proxy"].is_open():

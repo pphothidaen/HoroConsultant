@@ -1,0 +1,100 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "KAN-73",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "parent_ticket": {
+    "key": "KAN-73",
+    "summary": "[Sprint F] Gemini Bridge Integration — MCP toggle, circuit breaker, CI/CD"
+  },
+  "atomic_subtasks": [
+    "KAN-77", "KAN-78", "KAN-79", "KAN-80",
+    "KAN-81", "KAN-82", "KAN-83", "KAN-84", "KAN-85"
+  ],
+  "test_files": [
+    {
+      "path": "project/tests/test_gemini_bridge_disabled.py",
+      "sha256": "2137a9c592ca01daa8020ec3e91630c714992a727c4d69b8a23791a365e8228f",
+      "ticket": "KAN-77",
+      "description": "Bridge disabled scenario tests (toggle off, zero HTTP)"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_no_config.py",
+      "sha256": "df86a6ea5a60feff7e101fd0e42ab9941cda0f2e7790b8a761ede8338f20adfa",
+      "ticket": "KAN-78",
+      "description": "Missing config scenario tests (no token, no URL, whitespace)"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_circuit_breaker.py",
+      "sha256": "ec0160ce381130ad5477b11f9cc48f993dcceb8270601e335751a45b8e843f10",
+      "ticket": "KAN-79",
+      "description": "Circuit breaker tests (trip on 503/422/429/timeout, not 401/403/404)"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_state_machine.py",
+      "sha256": "fca488ff2733c3e2ee3f6e0238409193980248d321334e517444e678f1be79f1",
+      "ticket": "KAN-80",
+      "description": "Circuit breaker state machine (CLOSED → OPEN → HALF_OPEN → CLOSED)"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_failover.py",
+      "sha256": "4a2ac3d34f8e5e28a1783706f526dc18a07d35dc170d3609c927b3cc461a4ec3",
+      "ticket": "KAN-81",
+      "description": "Failover chain tests (Bridge → Ollama → Cloudflare AI → exhausted)"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_edge_cases.py",
+      "sha256": "a52842db435daa797dc80b75535197d00ebfd4055b53067b8114bbd68e22351e",
+      "ticket": "KAN-82",
+      "description": "Edge cases (intermittent, timeout, malformed JSON-RPC, PDF URL, toggle flip, boundary)"
+    }
+  ],
+  "fix_commits": [
+    "9856e81d [KAN-80] fix: circuit breaker half-open -> closed transition + state-machine TDD (7 tests GREEN)"
+  ],
+  "test_count": {
+    "total": 112,
+    "passed": 112,
+    "failed": 0,
+    "breakdown": {
+      "KAN-77_disabled": 12,
+      "KAN-78_no_config": 8,
+      "KAN-79_circuit_breaker": 12,
+      "KAN-80_state_machine": 7,
+      "KAN-81_failover": 7,
+      "KAN-82_edge_cases": 12,
+      "legacy_client": 27,
+      "legacy_toggle": 5,
+      "legacy_redteam": 22
+    }
+  },
+  "bug_fixes": [
+    {
+      "ticket": "KAN-80",
+      "description": "Circuit breaker success path left stale 'bridge' key in _BRIDGE_CIRCUIT_BREAKER dict, preventing half-open -> closed transition.",
+      "fix": "_BRIDGE_CIRCUIT_BREAKER.pop('bridge', None) on successful response in call_bridge_tool().",
+      "commit": "9856e81d"
+    }
+  ],
+  "ci_workflow": {
+    "path": ".github/workflows/gemini-bridge-tests.yml",
+    "ticket": "KAN-83",
+    "description": "GitHub Actions matrix (py3.10/3.11/3.12) running the full bridge suite on push/PR"
+  },
+  "production_toggled_on": true,
+  "bridge_url": "https://gemini-web-bridge.pansakorn-pho.workers.dev",
+  "notebook_scope": "notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0",
+  "verification_command": "cd /Users/kimlenglim/Project/HoroConsultant && .venv/bin/python -m pytest project/tests/test_gemini_bridge_*.py -v",
+  "expected_output": "112 passed in ~0.5s",
+  "red_team_audit": {
+    "findings_count": 5,
+    "findings_addressed": 5,
+    "severity": "medium",
+    "notes": "All red-team findings addressed in KAN-80 hardening; security tripwires active in test_gemini_bridge_redteam.py"
+  },
+  "deployment_evidence": {
+    "doppler_project": "horo-consultant",
+    "render_service": "horo-consultant-prod",
+    "bridge_worker": "gemini-web-bridge"
+  }
+}

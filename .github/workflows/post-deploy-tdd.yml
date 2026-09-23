@@ -1,0 +1,80 @@
+# Owner: developer_api lane (API Gateway & routing).
+# Writable paths under owner: project/routers/**, api/index.js, vercel.json.
+#
+# Post-Deploy TDD
+# --------------
+# Runs Team Red (attack simulation) and Team Blue (validation) in parallel
+# immediately after deploy.yml completes. The run is also bound to the
+# jira-governance.yml validation workflow: this workflow triggers on the
+# completion of both deploy.yml and jira-governance.yml, so post-deploy TDD
+# only fires once the deploy and its Jira governance pass are both settled.
+#
+# On any failure in a team job, a Jira issue is auto-created and the job is
+# marked failed. No secrets are referenced anywhere in this workflow; all Jira
+# configuration is read from the runner environment only when present.
+name: Post-Deploy TDD (Team Red + Team Blue)
+
+on:
+  workflow_run:
+    workflows: ['deploy.yml', 'jira-governance.yml']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  teamred:
+    name: Team Red Attack Simulation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run teamred attack simulation
+        id: teamred_attack
+        run: |
+          python .github/scripts/redteam_attack.py
+
+      - name: Auto-create Jira issue on failure
+        if: failure()
+        run: |
+          python .github/scripts/auto_create_jira.py --team teamred
+
+      - name: Fail job
+        if: failure()
+        run: exit 1
+
+  teamblue:
+    name: Team Blue Validation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run teamblue validation
+        id: teamblue_validate
+        run: |
+          python .github/scripts/blueteam_validate.py
+
+      - name: Auto-create Jira issue on failure
+        if: failure()
+        run: |
+          python .github/scripts/auto_create_jira.py --team teamblue
+
+      - name: Fail job
+        if: failure()
+        run: exit 1

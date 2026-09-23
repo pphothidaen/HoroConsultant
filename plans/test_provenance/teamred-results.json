@@ -1,0 +1,155 @@
+{
+  "schema_version": "redteam-v1",
+  "timestamp": "2026-09-22T02:32:53.436523+00:00",
+  "summary": {
+    "total": 24,
+    "passed": 24,
+    "failed": 0
+  },
+  "test_cases": [
+    {
+      "id": "test_cb_001",
+      "name": "CircuitBreakerState trips to OPEN on 429 rate-limit failure.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_002",
+      "name": "is_open() returns True immediately after tripping (0ms instant bypass).",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_003",
+      "name": "Rapid repeated is_open() checks do not reset or close the circuit.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_004",
+      "name": "Circuit cooldown expiry transitions OPEN -> HALF_OPEN -> CLOSED.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_005",
+      "name": "LLMGateway trips circuit after 3 failures and bypasses on the 4th call.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_006",
+      "name": "AIProviderRouter skips an open-tier provider entirely (0ms bypass).",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_007",
+      "name": "HybridRouter circuit breaker skips tripped route on subsequent generate().",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_cb_008",
+      "name": "Circuit breaker is per-provider: tripping one does not block others.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_001",
+      "name": "All providers return 503 -> system fails closed to deterministic safe net.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_002",
+      "name": "All providers return 429 -> circuit breakers trip, deterministic fallback.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_003",
+      "name": "All providers timeout -> system fails closed to deterministic safe net.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_004",
+      "name": "503 from primary does not leak upstream response content into output.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_005",
+      "name": "429 from primary does not leak upstream error details into output.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_006",
+      "name": "Timeout from primary does not leak internal error messages.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_007",
+      "name": "Deterministic safe net always returns non-empty content (absolute guarantee).",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_fc_008",
+      "name": "AIProviderRouter fails closed: all tiers exhausted -> deterministic safe net.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_001",
+      "name": "providers/status response contains no API keys or secret patterns.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_002",
+      "name": "providers/status response contains no tokens, passwords, or credentials.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_003",
+      "name": "API error responses do not contain secret patterns.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_004",
+      "name": "HybridRouter attempted_routes do not expose full API key values.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_005",
+      "name": "OpenAPI schema does not contain secret values.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_006",
+      "name": "No response body across all standard endpoints contains known secret formats.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_007",
+      "name": "AIProviderRouter.get_provider_health() does not expose credentials.",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "test_ns_008",
+      "name": "CircuitBreakerState and ProviderState do not store or expose secrets.",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

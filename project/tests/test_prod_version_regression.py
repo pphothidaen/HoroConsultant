@@ -23,7 +23,7 @@ import urllib.request
 import pytest
 from pathlib import Path
 
-PROD_BASE_URL = "https://horo-consultant-psi.vercel.app"
+PROD_BASE_URL = "https://horo-consultant-4asht1tqs-facebook-scraper-ai.vercel.app"
 TIMEOUT_SECONDS = 30
 
 

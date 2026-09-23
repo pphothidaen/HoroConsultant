@@ -44,6 +44,7 @@ DOC_FILES = {
     "scripts/test_provenance_guard.py",
     "scripts/sync_ai_agent_ecosystem.py",
     "ReleaseNotes.md",
+    "gitbook-docs.yaml",
 }
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40,64}$")

@@ -1,0 +1,20 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-JIRA-GOVERNANCE-SETUP",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "305aef89",
+  "test_files": [],
+  "red_tests": [],
+  "allowed_source_paths": [
+    ".github/workflows/jira-governance.yml",
+    ".agents/policies/hermes-agent-team-governance.md",
+    ".githooks/pre-commit-jira-check",
+    ".githooks/pre-push-jira-validate"
+  ],
+  "test_owner_role": "devops",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Jira PR governance workflow + agent team policy + git hooks for Sprint E incident closure. Enforces [KAN-NN] prefix on PR titles, validates branch naming, and blocks force-push to shared branches."
+}
