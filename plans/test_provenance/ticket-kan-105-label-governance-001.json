@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-105-LABEL-GOVERNANCE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f4b40fa13791db245f1efb5ce8650159fab7ef91",
+  "test_files": [
+    {
+      "path": "tests/test_jira_label_gate.py",
+      "sha256": "e7765dc9247c4ff0a0d28b345e9c56fff56813aa24e5672fd29222839af514ef"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_jira_label_gate.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "FileNotFoundError: [Errno 2] No such file or directory: '/Users/kimlenglim/Project/HoroConsultant/scripts/jira_label_gate.py'"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/jira_label_gate.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Agent-label governance gate validates every commit contains agent-* label. Tests cover pattern matching, bypass rules, and hook execution."
+}
