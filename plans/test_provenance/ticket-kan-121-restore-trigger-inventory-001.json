@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-121-RESTORE-TRIGGER-INVENTORY-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "9fc15a900c7b1fa261d28d3a19ddf6d7f8a05a5c",
+  "baseline_parent": "1a91474f678e8a92421134306ffba0c06f49f346",
   "test_files": [
     {
       "path": "project/tests/test_trigger_inventory_retirement.py",
