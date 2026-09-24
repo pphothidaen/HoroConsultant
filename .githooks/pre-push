@@ -10,7 +10,7 @@ ISSUE_KEY=$(echo "$COMMIT_MSG" | grep -oE "KAN-[0-9]+" | head -1)
 if [ -n "$ISSUE_KEY" ]; then
     echo "🔍 Pre-push Gate: Checking TDD governance and provenance for $ISSUE_KEY..."
     if [ -f "scripts/tdd_gate.py" ]; then
-        python3 scripts/tdd_gate.py --current "TDD RED" --target "TDD GREEN" --issue "$ISSUE_KEY" || {
+        python3 scripts/tdd_gate.py --current "TDD RED" --target "TDD GREEN" --issue "$ISSUE_KEY" --test-target "tests/test_tdd_gate.py" || {
             echo "❌ Pre-push rejected: TDD transition verification failed for $ISSUE_KEY" >&2
             exit 1
         }
