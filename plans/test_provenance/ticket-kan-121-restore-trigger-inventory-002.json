@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-121-RESTORE-TRIGGER-INVENTORY-002",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7b96fd01897886567209ae37a716554c687ce1f7",
+  "test_files": [
+    {
+      "path": "tests/test_kan121_restore_trigger_inventory.py",
+      "sha256": "a67d6ffa0141813b53383f10c4d2987502066949c0625aab737623e11be1b44b"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "b05a5c9a6c997545829254f6e1da47590f415f0c3f3f0c3eaf930ed8004a898d"
+    }
+  ],
+  "red_tests": [],
+  "allowed_source_paths": [
+    "scripts/trigger_all_github_actions.py",
+    "project/tests/test_trigger_inventory_retirement.py",
+    "tests/test_kan121_restore_trigger_inventory.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-121: Restore code-review.yml in trigger inventory and update provenance for modified test."
+}
