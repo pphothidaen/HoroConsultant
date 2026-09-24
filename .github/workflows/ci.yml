@@ -8,9 +8,44 @@ on:
   workflow_dispatch:
 
 jobs:
+  classify-changes:
+    name: Classify Change Tier (Path-Based Ruleset)
+    runs-on: ubuntu-latest
+    outputs:
+      tier: ${{ steps.classifier.outputs.tier }}
+      has_source_changes: ${{ steps.classifier.outputs.has_source_changes }}
+      run_rust_audit: ${{ steps.classifier.outputs.run_rust_audit }}
+      run_heavy_pytest: ${{ steps.classifier.outputs.run_heavy_pytest }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Classify paths
+        id: classifier
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python3 scripts/path_ruleset_classifier.py \
+              --base "origin/${{ github.base_ref }}" \
+              --head "HEAD" \
+              --github-output
+          else
+            echo "tier=STRICT" >> "$GITHUB_OUTPUT"
+            echo "has_source_changes=true" >> "$GITHUB_OUTPUT"
+            echo "run_rust_audit=true" >> "$GITHUB_OUTPUT"
+            echo "run_heavy_pytest=true" >> "$GITHUB_OUTPUT"
+          fi
+
   pytest-suite:
     name: PyTest & Edge Boundary Testing
-    needs: rust-core-audit
+    needs: [rust-core-audit, classify-changes]
+    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_heavy_pytest == 'true'
     runs-on: ubuntu-latest
     env:
       HORO_ALLOW_PYTHON_FALLBACK: "0"
@@ -63,7 +98,7 @@ jobs:
 
       - name: Run Pytest Test Suite
         run: |
-          python3 -m pytest -v
+          python3 -m pytest -v -m "not network"
 
       - name: Generate OpenAPI snapshot & verify Rust↔Python route sync
         run: |
@@ -86,6 +121,8 @@ jobs:
 
   e2e-production-audit:
     name: Live Production Version & LuoPan E2E Regression
+    needs: classify-changes
+    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.has_source_changes == 'true'
     runs-on: ubuntu-latest
     env:
       HORO_ALLOW_PYTHON_FALLBACK: "1"
@@ -164,6 +201,8 @@ jobs:
 
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
+    needs: classify-changes
+    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_rust_audit == 'true'
     runs-on: ubuntu-latest
     env:
       PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"

@@ -30,12 +30,13 @@ def get_jira_credentials() -> tuple[str, str, str]:
         with open(".env", "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                if line.startswith("JIRA_USER_EMAIL=") and not email:
+                if (line.startswith("JIRA_USER_EMAIL=") or line.startswith("JIRA_EMAIL=")) and not email:
                     email = line.split("=", 1)[1].strip().strip('"').strip("'")
                 elif line.startswith("JIRA_API_TOKEN=") and not token:
                     token = line.split("=", 1)[1].strip().strip('"').strip("'")
-                elif line.startswith("JIRA_DOMAIN=") and not domain:
-                    domain = line.split("=", 1)[1].strip().strip('"').strip("'")
+                elif (line.startswith("JIRA_DOMAIN=") or line.startswith("JIRA_BASE_URL=")) and not domain:
+                    raw_domain = line.split("=", 1)[1].strip().strip('"').strip("'")
+                    domain = raw_domain.replace("https://", "").replace("http://", "").strip("/")
 
     return domain, email, token
 
@@ -51,7 +52,7 @@ def get_available_transitions(issue_key: str) -> List[Dict[str, Any]]:
         url,
         auth=(email, token),
         headers={"Accept": "application/json"},
-        timeout=15,
+        timeout=30,
     )
     if resp.status_code == 404:
         raise ValueError(f"Issue '{issue_key}' not found.")
@@ -93,7 +94,7 @@ def transition_issue(issue_key: str, target_status: str) -> bool:
         auth=(email, token),
         json=payload,
         headers={"Accept": "application/json", "Content-Type": "application/json"},
-        timeout=15,
+        timeout=30,
     )
     if resp.status_code in (200, 204):
         print(f"✅ Issue {issue_key} successfully transitioned to '{target_status}'.")
