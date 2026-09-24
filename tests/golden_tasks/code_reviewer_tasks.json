@@ -1,0 +1,60 @@
+{
+  "role": "code_reviewer",
+  "tasks": [
+    {
+      "id": "rev-01",
+      "name": "Review PR with missing Test-Baseline trailer",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 4,
+      "tool_calls_max": 8,
+      "expected_outcome": "violation caught and reported",
+      "pass_criterion": "review output names SOURCE_COMMIT_MISSING_BASELINE_TRAILER",
+      "measures": "provenance review"
+    },
+    {
+      "id": "rev-02",
+      "name": "Review manifest with invalid supersedes field",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 4,
+      "tool_calls_max": 8,
+      "expected_outcome": "schema error caught",
+      "pass_criterion": "review output names MANIFEST_SUPERSEDES_INVALID or MANIFEST_CORRECTION_REQUIRED",
+      "measures": "manifest schema compliance"
+    },
+    {
+      "id": "rev-03",
+      "name": "Review PR mixing test and source files in one commit",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 4,
+      "tool_calls_max": 8,
+      "expected_outcome": "STAGED_COMMIT_MIXES_SOURCE_AND_TEST caught",
+      "pass_criterion": "review output identifies the mixed paths",
+      "measures": "commit hygiene"
+    },
+    {
+      "id": "rev-04",
+      "name": "Verify RED fingerprint matches real failure",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 6,
+      "tool_calls_max": 12,
+      "expected_outcome": "fabricated fingerprint rejected",
+      "pass_criterion": "review output flags fingerprint that does not appear in actual test output",
+      "measures": "honesty check"
+    },
+    {
+      "id": "rev-05",
+      "name": "Review report for metric-gaming (Goodhart)",
+      "interface": "browser",
+      "model_tier": "frontier-multimodal",
+      "tool_calls_min": 25,
+      "tool_calls_max": 50,
+      "expected_outcome": "aggregate manipulation caught",
+      "pass_criterion": "review output notes the gaming (e.g. cherry-picked date window, dropped failures) and suggests unbiased alternative",
+      "measures": "red-team review"
+    }
+  ]
+}

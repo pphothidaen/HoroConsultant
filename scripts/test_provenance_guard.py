@@ -41,6 +41,8 @@ DOC_FILES = {
     ".agents/AGENTS.md",
     ".agents/LESSONS_LEARNED.md",
     "vercel.json",
+    "requirements.txt",
+    "pyproject.toml",
     "scripts/test_provenance_guard.py",
     "scripts/sync_ai_agent_ecosystem.py",
     "ReleaseNotes.md",
