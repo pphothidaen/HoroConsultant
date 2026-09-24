@@ -52,8 +52,8 @@ jobs:
       - name: Approve Pull Request via agent-code_reviewer
         uses: actions/github-script@v7
         with:
-          # Use built-in GITHUB_TOKEN (has pull-requests:write permission)
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Use GH_REVIEWER_TOKEN from kimlenglim.work (separate identity)
+          github-token: ${{ secrets.GH_REVIEWER_TOKEN }}
           script: |
             try {
               if (context.payload.pull_request) {
