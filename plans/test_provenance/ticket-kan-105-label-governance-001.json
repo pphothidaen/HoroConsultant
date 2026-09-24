@@ -18,7 +18,8 @@
     }
   ],
   "allowed_source_paths": [
-    "scripts/jira_label_gate.py"
+    "scripts/jira_label_gate.py",
+    ".githooks/commit-msg"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
