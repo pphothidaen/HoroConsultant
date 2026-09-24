@@ -21,8 +21,9 @@ DEFAULT_DOMAIN = "pansakorn.atlassian.net"
 
 def get_jira_credentials() -> tuple[str, str, str]:
     """Retrieve Jira Cloud domain, user email, and API token."""
-    domain = os.environ.get("JIRA_DOMAIN", DEFAULT_DOMAIN).strip()
-    email = os.environ.get("JIRA_USER_EMAIL", "").strip()
+    domain = (os.environ.get("JIRA_DOMAIN") or os.environ.get("JIRA_BASE_URL") or DEFAULT_DOMAIN).strip()
+    domain = domain.replace("https://", "").replace("http://", "").strip("/")
+    email = (os.environ.get("JIRA_USER_EMAIL") or os.environ.get("JIRA_EMAIL") or "").strip()
     token = os.environ.get("JIRA_API_TOKEN", "").strip()
 
     # Fallback to local .env if missing in environment
