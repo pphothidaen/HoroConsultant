@@ -1,0 +1,66 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-KAN-101-MODEL-ROUTING-LEDGER-001",
+  "revision": 1,
+  "ticket_sha256": "950de1e5b4b209478348247d66419a46d5a286cd0f3c86178c4b299db02a0f67",
+  "plan_sha256": "d9ea25be1283af837fb89a466b31e1797cc4af23",
+  "lanes": [
+    {
+      "lane_id": "TICKET-KAN-101-MODEL-ROUTING-LEDGER-001-DEV",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/model_routing_ledger.py"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "single-import-path-fix"
+      ],
+      "allowed_child_command_class": "source-remediation",
+      "exclusions": [
+        "no-commit",
+        "no-deploy",
+        "no-push",
+        "no-secret-operation",
+        "no-test-edit",
+        "no-whole-file-restore"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-KAN-101-MODEL-ROUTING-LEDGER-001-QA",
+      "role": "qa_tester",
+      "phase": "verification",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "plans/test_provenance/ticket-kan-101-model-routing-ledger-001.json",
+        "tests/test_model_routing_ledger.py"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "provenance-metadata-compatibility"
+      ],
+      "allowed_child_command_class": "verification",
+      "exclusions": [
+        "no-commit",
+        "no-deploy",
+        "no-push",
+        "no-secret-operation",
+        "no-source-edit"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}
