@@ -31,6 +31,7 @@ Active workflows:
 23. jira-sync.yml (Jira Sync & TDD Governance)
 24. workflow-auto-disable.yml (Workflow Auto-Disable Policy)
 25. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
+26. code-review.yml (Auto Code Review by agent-code_reviewer)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
@@ -120,6 +121,7 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     ("jira-sync.yml", "Jira Sync & TDD Governance", {}),
     ("workflow-auto-disable.yml", "Workflow Auto-Disable Policy", {}),
     ("workflow-mttr-monitor.yml", "Workflow MTTR SLO Monitor", {}),
+    ("code-review.yml", "Auto Code Review by agent-code_reviewer", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]
