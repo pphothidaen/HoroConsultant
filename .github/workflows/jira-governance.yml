@@ -41,8 +41,8 @@ jobs:
             -d '{
               "event": "CI_FAILURE",
               "repository": "${{ github.repository }}",
-              "pr_number": ${{ github.event.pull_request.number || "null" }},
-              "branch": "${{ github.event.pull_request.head.ref || github.ref_name }}",
+              "pr_number": ${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'null' }},
+              "branch": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}",
               "commit_sha": "${{ github.sha }}",
               "run_id": "${{ github.run_id }}"
             }'
