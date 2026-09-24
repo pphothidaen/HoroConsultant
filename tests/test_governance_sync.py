@@ -4,6 +4,7 @@ Covers the offline core of the governance sync tool: volatile-key stripping,
 recursive drift comparison, apply payload construction, declaration loading,
 step-summary rendering, and structural invariants of governance/*.json.
 No network access is required.
+# Sequence 2 baseline: re-anchored for KAN-97.
 """
 
 from __future__ import annotations
