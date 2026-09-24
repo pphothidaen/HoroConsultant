@@ -1,0 +1,60 @@
+{
+  "role": "orchestrator",
+  "tasks": [
+    {
+      "id": "orc-01",
+      "name": "Route task to correct specialist agent",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 3,
+      "tool_calls_max": 8,
+      "expected_outcome": "task reaches the right specialist",
+      "pass_criterion": "delegation message contains the correct agent label (agent-qa_tester for QA, agent-devops for infra, etc.)",
+      "measures": "routing accuracy"
+    },
+    {
+      "id": "orc-02",
+      "name": "Detect stuck subagent via Fibonacci jitter monitoring",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 5,
+      "tool_calls_max": 10,
+      "expected_outcome": "stuck detection alert fired",
+      "pass_criterion": "alert names the subagent and elapsed time exceeding the jitter threshold",
+      "measures": "health monitoring"
+    },
+    {
+      "id": "orc-03",
+      "name": "Resolve agent merge conflict (3-way reconciliation)",
+      "interface": "browser",
+      "model_tier": "frontier-multimodal",
+      "tool_calls_min": 30,
+      "tool_calls_max": 60,
+      "expected_outcome": "conflicting branches merged without losing either change",
+      "pass_criterion": "git merge completes; both feature diffs present in final tree",
+      "measures": "merge reconciliation"
+    },
+    {
+      "id": "orc-04",
+      "name": "Generate dashboard summary from Jira KQL result",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 6,
+      "tool_calls_max": 12,
+      "expected_outcome": "ASCII table with ticket counts per status",
+      "pass_criterion": "summary contains all status columns; ticket count matches JQL result total",
+      "measures": "data synthesis"
+    },
+    {
+      "id": "orc-05",
+      "name": "Enforce governance gate on unauthorized commit",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 4,
+      "tool_calls_max": 8,
+      "expected_outcome": "commit blocked, agent prompted to assign Jira label",
+      "pass_criterion": "pre-commit hook exits non-zero; commit message references a KAN ticket",
+      "measures": "governance enforcement"
+    }
+  ]
+}

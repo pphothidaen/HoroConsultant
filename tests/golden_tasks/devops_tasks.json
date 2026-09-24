@@ -1,0 +1,60 @@
+{
+  "role": "devops",
+  "tasks": [
+    {
+      "id": "dev-01",
+      "name": "Add workflow file without breaking frozen inventory",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 8,
+      "tool_calls_max": 16,
+      "expected_outcome": "all 3 inventory files updated, CI green",
+      "pass_criterion": "test_trigger_inventory_retirement, test_github_actions_regression, and trigger_all_github_actions.py all contain the new workflow entry",
+      "measures": "repo-specific hygiene"
+    },
+    {
+      "id": "dev-02",
+      "name": "Diagnose failed deployment from log tail",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 6,
+      "tool_calls_max": 12,
+      "expected_outcome": "correct blocking check identified",
+      "pass_criterion": "named gate matches the actual failing step in CI",
+      "measures": "triage accuracy"
+    },
+    {
+      "id": "dev-03",
+      "name": "Recover branch after squash-merge broke verify-pr ancestry",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 10,
+      "tool_calls_max": 20,
+      "expected_outcome": "verify-pr PASSED post-recovery",
+      "pass_criterion": "python3 scripts/test_provenance_guard.py verify-pr --post-squash-merge exits 0 after recovery pattern",
+      "measures": "recovery pattern"
+    },
+    {
+      "id": "dev-04",
+      "name": "Write stdlib-only ASCII CLI script per scripts/AGENTS.md",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 8,
+      "tool_calls_max": 14,
+      "expected_outcome": "script passes lint + ASCII constraints",
+      "pass_criterion": "script uses no third-party imports; stdout is pure ASCII; idempotent on re-run",
+      "measures": "portability discipline"
+    },
+    {
+      "id": "dev-05",
+      "name": "Roll back bad release using stamped version anchor",
+      "interface": "browser",
+      "model_tier": "frontier-multimodal",
+      "tool_calls_min": 30,
+      "tool_calls_max": 70,
+      "expected_outcome": "correct SHA restored",
+      "pass_criterion": "git checkout <sha> lands on the SHA recorded in project/static/version.json release_source_revision",
+      "measures": "release safety"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Git pre-push hook: Enforce TDD State Gate & Provenance — KAN-95/KAN-105
+
+set -e
+
+# Read the latest commit message
+COMMIT_MSG=$(git log -1 --pretty=%B)
+ISSUE_KEY=$(echo "$COMMIT_MSG" | grep -oE "KAN-[0-9]+" | head -1)
+
+if [ -n "$ISSUE_KEY" ]; then
+    echo "🔍 Pre-push Gate: Checking TDD governance and provenance for $ISSUE_KEY..."
+    if [ -f "scripts/tdd_gate.py" ]; then
+        python3 scripts/tdd_gate.py --current "TDD RED" --target "TDD GREEN" --issue "$ISSUE_KEY" --test-target "tests/test_tdd_gate.py" || {
+            echo "❌ Pre-push rejected: TDD transition verification failed for $ISSUE_KEY" >&2
+            exit 1
+        }
+        echo "✅ Pre-push Gate: Passed for $ISSUE_KEY"
+    fi
+fi
+
+exit 0

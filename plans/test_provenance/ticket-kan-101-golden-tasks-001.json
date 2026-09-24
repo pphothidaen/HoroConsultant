@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-101-GOLDEN-TASKS-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "917f96754d9fd45660bf7f60a67c14e6ec19bd6a",
+  "test_files": [
+    {
+      "path": "tests/test_golden_tasks.py",
+      "sha256": "09aed681b7318a960a192cfa6c96f3198d7e99d62c273bdfc3b2f04d1ec751a4"
+    },
+    {
+      "path": "tests/golden_tasks/__init__.py",
+      "sha256": "fa527d6d642edba83f9627ea54a59172a99871c56c8cc1e1bb1d6e7124010146"
+    },
+    {
+      "path": "tests/golden_tasks/qa_tester_tasks.json",
+      "sha256": "b409c4d1696098d1165f748a6a2705205d14e0c5bf4d71e570023638075270f7"
+    },
+    {
+      "path": "tests/golden_tasks/devops_tasks.json",
+      "sha256": "96ae118e35fc2d674ca4d7f4d02de273b6d69d26d1e3bdb91280edb66996fefe"
+    },
+    {
+      "path": "tests/golden_tasks/code_reviewer_tasks.json",
+      "sha256": "84097093726ce45c1519c83d77c85e64f50ad1bac16d2ba732b0b8936771c13e"
+    },
+    {
+      "path": "tests/golden_tasks/orchestrator_tasks.json",
+      "sha256": "1c19d19c395fd8ff8a672f7be2fe2d07a3f59345260f652c04251d8ff4d5d18f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_golden_tasks.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "FileNotFoundError: [Errno 2] No such file or directory: '/Users/kimlenglim/Project/HoroConsultant/tests/golden_tasks/__init__.py'"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/model_routing_ledger.py",
+    "tests/golden_tasks/__init__.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-101 Sprint J P3: golden task set (20 tasks x 4 roles) + loader/validator module. Source: scripts/model_routing_ledger.py generates ledger reports showing token/PR for last 5+ PRs."
+}

@@ -1,0 +1,60 @@
+{
+  "role": "qa_tester",
+  "tasks": [
+    {
+      "id": "qa-01",
+      "name": "Write RED test for new subcommand",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 8,
+      "tool_calls_max": 14,
+      "expected_outcome": "test fails with expected fingerprint",
+      "pass_criterion": "pytest exits 1 with the expected AssertionError or missing module",
+      "measures": "test-first discipline"
+    },
+    {
+      "id": "qa-02",
+      "name": "Freeze provenance manifest for baseline",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 10,
+      "tool_calls_max": 18,
+      "expected_outcome": "verify-pr PASSED on the baseline",
+      "pass_criterion": "python3 scripts/test_provenance_guard.py staged exits 0",
+      "measures": "governance fluency"
+    },
+    {
+      "id": "qa-03",
+      "name": "Reproduce known CI failure from logs",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 6,
+      "tool_calls_max": 12,
+      "expected_outcome": "correct root-cause error code named",
+      "pass_criterion": "error code matches the documented failure code (e.g. STAGED_COMMIT_MIXES_SOURCE_AND_TEST)",
+      "measures": "diagnosis accuracy"
+    },
+    {
+      "id": "qa-04",
+      "name": "Convert narrative claim into measurable assertion",
+      "interface": "cli",
+      "model_tier": "reasoning",
+      "tool_calls_min": 5,
+      "tool_calls_max": 10,
+      "expected_outcome": "assertion exists and passes",
+      "pass_criterion": "the new test contains a numeric/assertion check, not a string-contains check",
+      "measures": "metric thinking"
+    },
+    {
+      "id": "qa-05",
+      "name": "Review diff for test/source separation violations",
+      "interface": "browser",
+      "model_tier": "frontier-multimodal",
+      "tool_calls_min": 40,
+      "tool_calls_max": 80,
+      "expected_outcome": "all violations caught, no false positives",
+      "pass_criterion": "every flagged path is in allowed_source_paths of the committed manifest; no unflagged paths violate separation",
+      "measures": "review precision"
+    }
+  ]
+}
