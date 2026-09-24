@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-122-JIRA-GRACEFUL-FAILURE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0233b48894ee41aa947c48042ecff5199ab84c9c",
+  "test_files": [
+    {
+      "path": "tests/test_kan122_jira_graceful_failure.py",
+      "sha256": "8b791092baabeb59a493cc1f4b5cad4dd35faf26d233787172cc6b56af1029a5"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_kan122_jira_graceful_failure.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: 404 should return empty transitions"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/jira_api_helper.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-122: Jira API helper must handle 401/403/404 gracefully (non-blocking) to prevent workflow failure when Jira ticket is not found or credentials are invalid."
+}
