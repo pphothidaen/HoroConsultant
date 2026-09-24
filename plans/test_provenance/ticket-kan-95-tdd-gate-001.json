@@ -12,15 +12,9 @@
   ],
   "red_tests": [
     {
-      "command": [
-        "python3",
-        "-m",
-        "pytest",
-        "-q",
-        "tests/test_tdd_gate.py"
-      ],
-      "expected_exit": 1,
-      "failure_fingerprint": "assert not ok"
+      "command": "pytest tests/test_tdd_gate.py -k test_verify_transition_invalid_jump",
+      "exit_code": 1,
+      "fingerprint": "Invalid transition"
     }
   ],
   "allowed_source_paths": [
