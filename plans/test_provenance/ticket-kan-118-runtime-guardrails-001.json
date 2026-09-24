@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-118-RUNTIME-GUARDRAILS-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5a0d8d189ce5f44f85bd92092862159425a196c5",
+  "test_files": [
+    {
+      "path": "tests/test_runtime_guardrails_gate.py",
+      "sha256": "a828e3f426ac970fc00dce1f59bcc3a9169310ce043e31dc57be2deca9d5c96c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_runtime_guardrails_gate.py"],
+      "expected_exit": 2,
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'runtime_guardrails_gate'"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/runtime_guardrails_gate.py",
+    ".hermes/hooks/pre_dispatch.py",
+    ".hermes/hooks/pre_tool_use.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-118 GOV-002: TDD unit tests for runtime execution guardrails, synthetic/mock command prevention, and Jira ticket/agent label validation before state mutation."
+}
