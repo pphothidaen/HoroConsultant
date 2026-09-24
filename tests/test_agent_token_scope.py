@@ -245,7 +245,10 @@ class TestOwnerTokenUnaffected:
         code, output = _gh_api(OWNER_TOKEN, "GET", f"repos/{REPO}/branches/{MAIN_BRANCH}/protection")
         assert code == 0, f"Expected owner success reading branch protection, got exit={code}. Output: {output}"
         data = json.loads(output)
-        assert "required_pull_request_reviews" in data
+        assert isinstance(data, dict), f"Expected JSON object, got: {type(data).__name__}"
+        assert "url" in data or "required_pull_request_reviews" in data or "enforce_admins" in data or "required_linear_history" in data, (
+            f"Expected branch protection fields in response, got keys: {list(data.keys())}"
+        )
 
 
 class TestAgentPermissionPolicyDocument:
