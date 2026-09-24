@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-120-DEFAULT-PAGE-HORO-LITE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "dee7796c917b430762fa455f301d23fbcd9d7cbe",
+  "test_files": [
+    {
+      "path": "tests/test_kan120_default_page_horo_lite.py",
+      "sha256": "1b033b2bf5ce44f803b823cb853ef56abefd3fcd8a27ed199aedb0662968d20b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_kan120_default_page_horo_lite.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "vercel.json missing rewrite for '/' -> '/lite.html'"
+    }
+  ],
+  "allowed_source_paths": [
+    "vercel.json",
+    "public/lite.html",
+    "public/lite.css",
+    "public/index.html",
+    "project/static/index.html",
+    "project/main.py",
+    "scripts/stamp_version.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-120: TDD contract tests for Horo Lite as default landing page, /advanced rewrite, bidirectional mode switch buttons, version synchronization, and backward compatibility."
+}
