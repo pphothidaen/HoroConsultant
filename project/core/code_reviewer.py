@@ -309,11 +309,19 @@ class CodeReviewer:
         }
 
     @staticmethod
-    def run_tests() -> dict[str, Any]:
-        """Run quick pytest suite to ensure zero regressions."""
+    def run_tests(test_paths: list[str] | None = None, timeout: int = 1800) -> dict[str, Any]:
+        """Run quick pytest suite to ensure zero regressions.
+
+        If ``test_paths`` is provided, only those files/globs are tested
+        (TIER_MEDIUM targeted execution). Otherwise the full suite is run.
+        """
+        if test_paths:
+            cmd = [sys.executable, "-m", "pytest", "-v", "-m", "not network"] + test_paths
+        else:
+            cmd = [sys.executable, "-m", "pytest", "-q", "-m", "not network", "--ignore=project/kaggle_kernel"]
         try:
             res = subprocess.run(
-                [sys.executable, "-m", "pytest", "-q", "-m", "not network", "--ignore=project/kaggle_kernel"],
+                cmd,
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -434,6 +442,7 @@ class CodeReviewer:
         test_baseline: str | None = None,
         test_manifest: str | None = None,
         skip_tests: bool = False,
+        test_globs: list[str] | None = None,
     ) -> dict[str, Any]:
         """Execute comprehensive pre-deployment review with strict fail-closed stop conditions."""
         log.info("Running Pre-Deployment Code Review & Safety Audit...")
@@ -454,7 +463,7 @@ class CodeReviewer:
             }
             log.info("Test suite execution skipped via --skip-tests.")
         else:
-            test_report = CodeReviewer.run_tests()
+            test_report = CodeReviewer.run_tests(test_paths=test_globs)
         provenance_report = CodeReviewer.audit_test_provenance(
             ticket,
             test_baseline,
@@ -532,6 +541,12 @@ def main():
         action="store_true",
         help="Skip the nested pytest run (use when CI already ran the suite in a prior step)",
     )
+    parser.add_argument(
+        "--test-globs",
+        nargs="*",
+        default=None,
+        help="Run only the specified test paths/globs instead of full suite (TIER_MEDIUM).",
+    )
     args = parser.parse_args()
 
     rust_binary = ROOT / "rust_core" / "target" / "release" / "code_reviewer"
@@ -557,6 +572,7 @@ def main():
         test_baseline=args.test_baseline,
         test_manifest=args.test_manifest,
         skip_tests=args.skip_tests,
+        test_globs=args.test_globs,
     )
     print(json.dumps(report, indent=2, ensure_ascii=True))
     sys.exit(0 if report["overall_status"] == "READY_FOR_PROD" else 1)
