@@ -327,7 +327,7 @@ async def serve_ui():
     return JSONResponse(content={"status": "ok", "service": "Computational Metaphysics Engine"})
 
 
-@app.get("/advanced", response_class=FileResponse, tags=["UI"])
+@app.get("/advanced", response_class=FileResponse, include_in_schema=False)
 async def serve_advanced():
     index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_path):
