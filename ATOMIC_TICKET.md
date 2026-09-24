@@ -53,6 +53,32 @@ Jira Cloud: https://pansakorn.atlassian.net  (Project: KAN, Epic: KAN-38)
 | Sprint B (MEDIUM) | B1-B10 | KAN-40 | DONE |
 | Sprint C (LOW) | C1-C4 | KAN-41 | DONE |
 | Sprint D (Jira Migration) | D1-D4 | KAN-42 | DONE |
+| Sprint J (Governance & TDD) | KAN-95..KAN-101, KAN-105, KAN-118 | KAN-95..KAN-118 | DONE |
+
+### Sprint J Sub-task Tracking (Governance & TDD Lifecycles) — 18 tasks, 100% DONE
+
+|| Jira Key | Sprint | Focus | Severity | PR | Status ||
+||----------|--------|-------|----------|----|--------||
+|| KAN-95 | J | Workflow firefight: raise dep floors, close 7 Dependabot CVEs, workflow auto-disable | P0 | commit 5a0d8d18 | DONE ||
+|| KAN-96 | J | Codify CLI golden paths: provenance/PR/worktree skills | P1 | commit 5a0d8d18 | DONE ||
+|| KAN-97 | J | Ruleset-as-code: declarative JSON + sync/validate + daily drift detection | P1 | PR #75 | DONE ||
+|| KAN-98 | J | Segment agent permissions: fine-grained PAT policy + token scope TDD suite | P2 | PR #73 | DONE ||
+|| KAN-100 | J | Path-based rulesets: CI tiering engine, skip heavy Rust/PyTest on docs, network exclusion | P2 | PR #81 | DONE ||
+|| KAN-101 | J | Cost ledger + eval harness for model routing | P3 | PR #77 | DONE ||
+|| KAN-105 | J | GOV-001: Jira ticket validation in pre-dispatch & tool hooks | GOV | PR #78 | DONE ||
+|| KAN-118 | J | GOV-002: Runtime execution guardrails gate & Hermes hooks | GOV | PR #80 | DONE ||
+|| KAN-106 | J | Remove stale model references (local-llama, node5a) from skills | I1a | verified | DONE ||
+|| KAN-107 | J | Execute stale model ref removal (KAN-106) | EXEC | verified | DONE ||
+|| KAN-108 | J | Clean 28 scaffolded skills with broken placeholder references | FIX | verified | DONE ||
+|| KAN-109 | J | Trim skill descriptions to <=60 chars across all active skills | FIX | verified | DONE ||
+|| KAN-110 | J | Verify config.yaml duplicate model aliases removed | FIX | verified | DONE ||
+|| KAN-111 | J | DONE: Remove duplicate aliases from config.yaml (KAN-110) | DONE | verified | DONE ||
+|| KAN-112 | J | DONE: ดับไฟ workflows + สร้าง auto-disable policy (KAN-95) | DONE | verified | DONE ||
+|| KAN-113 | J | DONE: ruleset-as-code + drift detection (KAN-97) | DONE | verified | DONE ||
+|| KAN-114 | J | DONE: horoconsultant-cli-golden-paths skill (KAN-96) | DONE | verified | DONE ||
+|| KAN-115 | J | DONE: Agent permissions segmented — PR #73, 22 tests (KAN-98) | DONE | verified | DONE ||
+|| KAN-116 | J | DONE: Path-based rulesets replace two-tier (KAN-100) | DONE | verified | DONE ||
+|| KAN-117 | J | DONE: Cost ledger + eval harness (KAN-101) | DONE | verified | DONE ||
 
 ### Jira Sub-task Tracking (Atomic Tasks) — 24 sub-tasks, 137 effort points
 

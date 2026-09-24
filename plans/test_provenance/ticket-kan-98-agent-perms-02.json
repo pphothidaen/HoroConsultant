@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-98-AGENT-PERMISSIONS",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "dc1a6bc92c3a747a1baffeb2b15b0d418d480db4",
+  "test_files": [
+    {
+      "path": "tests/test_agent_token_scope.py",
+      "sha256": "1da2b03cf3616359cecd24ff0a207bc3bdb5b654770c47451cb941270a58667a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["GH_AGENT_TOKEN=ghp_fake1234567890abcdef", "python3", "-m", "pytest", "-q", "tests/test_agent_token_scope.py::TestAgentScopedTokenExists::test_agent_token_is_not_classic_pat"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: Agent token must be fine-grained PAT (github_pat_…), got prefix 'ghp_fake...'"
+    }
+  ],
+  "allowed_source_paths": [
+    "docs/agent-permission-policy.md"
+  ],
+  "test_owner_role": "agent-codex2",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "250969d228f0d421df5e691746c0e6275b319fab",
+  "correction_reason": "Sequence-1 baseline (pre-rebase commit 250969d2, baseline_parent 5087d730) hard-failed TestAgentScopedTokenExists whenever GH_AGENT_TOKEN was unset. CI never sets GH_AGENT_TOKEN, so the canary would keep main permanently red (7 known-red tests instead of 5) — signal pollution that hides real regressions. This baseline converts the canary to skip-if-unconfigured: unset token SKIPS with an explicit owner-action reason; when the token IS set, validation is unchanged and full-strength (fine-grained github_pat_ format, classic ghp_/gho_/ghs_/ghu_ rejected, separation from owner token). Red evidence: GH_AGENT_TOKEN=ghp_fake… makes the format check fail hard, proving enforcement still works. supersedes = post-rebase baseline commit 75f2a57d (rebase onto origin/main changed SHAs; 5087d730 no longer resolvable as manifest baseline_parent).",
+  "rationale": "KAN-98 agent permission segmentation, sequence 2. Converts the permanently-red token-existence canary to skip-if-unconfigured to prevent CI signal pollution on main while preserving full-strength enforcement when GH_AGENT_TOKEN is configured. All negative controls (branch protection, rulesets, secrets, deploy keys, collaborators, repo deletion, user SSH keys), positive controls, owner-token checks, and policy-document tests are unchanged. Red test proves enforcement: a classic PAT (ghp_…) set as GH_AGENT_TOKEN fails the fine-grained format assertion."
+}

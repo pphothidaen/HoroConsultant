@@ -2,9 +2,9 @@
 
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
-> Generated: 2026-09-21 06:30:00 UTC
+> Generated: 2026-09-23 07:48:26 UTC
 
-**Total documents:** 63
+**Total documents:** 66
 
 ## Document Registry
 
@@ -19,17 +19,21 @@
 | `RELEASE_NOTES.md` | `RELEASE_NOTES.md` |
 | `RELEASE_ROLLBACK_RUNBOOK.md` | `RELEASE_ROLLBACK_RUNBOOK.md` |
 | `SUMMARY.md` | `SUMMARY.md` |
-| `tradeoff.md` | `tradeoff.md` |
+| `agent-permission-policy.md` | `agent-permission-policy.md` |
 | `audit_discrepancies.md` | `audit_discrepancies.md` |
 | `branch_migration_action_priority_runbook.md` | `branch_migration_action_priority_runbook.md` |
 | `c4_hermes_9router_architecture.md` | `c4_hermes_9router_architecture.md` |
 | `gemini-bridge-mcp-toggle.md` | `gemini-bridge-mcp-toggle.md` |
+| `governance-as-code.md` | `governance-as-code.md` |
+| `path-based-governance.md` | `path-based-governance.md` |
 | `jira_sync_protocol.md` | `jira_sync_protocol.md` |
-|| `kaggle_hybrid_tradeoff_matrix.md` | `kaggle_hybrid_tradeoff_matrix.md` |
-|| `kan-audit-dashboard-2026-09-20.md` | `kan-audit-dashboard-2026-09-20.md` |
-|| `known-issues.md` | `known-issues.md` |
-|| `lessons_learned_v3_visual_integrity_2026-08-24.md` | `lessons_learned_v3_visual_integrity_2026-08-24.md` |
+| `kaggle_hybrid_tradeoff_matrix.md` | `kaggle_hybrid_tradeoff_matrix.md` |
+| `kan-audit-dashboard-2026-09-20.md` | `kan-audit-dashboard-2026-09-20.md` |
+| `known-issues.md` | `known-issues.md` |
+| `lessons_learned_v3_visual_integrity_2026-08-24.md` | `lessons_learned_v3_visual_integrity_2026-08-24.md` |
 | `repository-guidelines.md` | `repository-guidelines.md` |
+| `skill-audit-2026-09-23.md` | `skill-audit-2026-09-23.md` |
+| `tradeoff.md` | `tradeoff.md` |
 | `v3_api_specification.md` | `v3_api_specification.md` |
 
 ### `architecture/`
@@ -37,9 +41,9 @@
 | File | Path |
 |------|------|
 | `DESIGN_SPEC_MULTI_AGENT_PARITY.md` | `architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md` |
-|| `agy-terminal-supervisor.md` | `architecture/agy-terminal-supervisor.md` |
-|| `deployment-rail.md` | `architecture/deployment-rail.md` |
-|| `external-dispatch-platform-contract.md` | `architecture/external-dispatch-platform-contract.md` |
+| `agy-terminal-supervisor.md` | `architecture/agy-terminal-supervisor.md` |
+| `deployment-rail.md` | `architecture/deployment-rail.md` |
+| `external-dispatch-platform-contract.md` | `architecture/external-dispatch-platform-contract.md` |
 | `README.md` | `architecture/multiagent-control-plane/README.md` |
 | `adr-001-canonical-authority.md` | `architecture/multiagent-control-plane/adr-001-canonical-authority.md` |
 | `adr-002-transition-and-lease.md` | `architecture/multiagent-control-plane/adr-002-transition-and-lease.md` |

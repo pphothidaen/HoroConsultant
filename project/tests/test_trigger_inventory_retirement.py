@@ -39,6 +39,10 @@ EXPECTED_ACTIVE = (
     "jira-governance.yml",
     "post-deploy-tdd.yml",
     "workers-builds.yml",
+    "governance-drift.yml",
+    "jira-sync.yml",
+    "workflow-auto-disable.yml",
+    "workflow-mttr-monitor.yml",
 )
 EXPECTED_RETIRED = (
     "azure_cost_guard.yml",
@@ -98,7 +102,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 21
+    assert len(configured_active) == len(set(configured_active)) == 25
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED

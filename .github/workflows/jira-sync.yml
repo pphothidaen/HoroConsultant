@@ -1,0 +1,52 @@
+name: Jira Sync & TDD Governance
+
+on:
+  pull_request:
+    types: [opened, reopened, closed, synchronize]
+  workflow_dispatch:
+
+jobs:
+  jira-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests
+
+      - name: Extract Jira Issue Key
+        id: jira_key
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          BRANCH_NAME="${{ github.head_ref }}"
+          KEY=$(echo "$PR_TITLE $BRANCH_NAME" | grep -oE "KAN-[0-9]+" | head -1 || true)
+          echo "key=$KEY" >> $GITHUB_OUTPUT
+          echo "Detected Jira Key: $KEY"
+
+      - name: Transition to Review on PR Open
+        if: steps.jira_key.outputs.key != '' && (github.event.action == 'opened' || github.event.action == 'reopened')
+        env:
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL || secrets.JIRA_EMAIL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || secrets.JIRA_BASE_URL || 'pansakorn.atlassian.net' }}
+        run: |
+          python3 scripts/jira_api_helper.py --issue "${{ steps.jira_key.outputs.key }}" --status "Review"
+
+      - name: Transition to Done on PR Merge
+        if: steps.jira_key.outputs.key != '' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        env:
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL || secrets.JIRA_EMAIL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || secrets.JIRA_BASE_URL || 'pansakorn.atlassian.net' }}
+        run: |
+          python3 scripts/jira_api_helper.py --issue "${{ steps.jira_key.outputs.key }}" --status "Done"

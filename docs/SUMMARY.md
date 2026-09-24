@@ -38,6 +38,9 @@
 ## Governance
 * [AI Agent Ecosystem Sync](AI_AGENT_ECOSYSTEM_SYNC.md)
 * [Claude Code Command Governance](CLAUDE_CODE_COMMAND_GOVERNANCE.md)
+* [Governance as Code](governance-as-code.md)
+* [Path-Based Governance](path-based-governance.md)
+* [Agent Permission Policy](agent-permission-policy.md)
 * [HITL Operating Guide](HITL_OPERATING_GUIDE.md)
 
 ## Contracts

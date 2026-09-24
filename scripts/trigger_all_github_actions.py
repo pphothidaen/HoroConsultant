@@ -27,6 +27,10 @@ Active workflows:
 19. jira-governance.yml (Jira Issue Key Validation)
 20. post-deploy-tdd.yml (Post-Deploy Team Red/Blue Testing)
 21. workers-builds.yml (Cloudflare Workers Build Pipeline)
+22. governance-drift.yml (Governance Drift Detection)
+23. jira-sync.yml (Jira Sync & TDD Governance)
+24. workflow-auto-disable.yml (Workflow Auto-Disable Policy)
+25. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
@@ -112,6 +116,10 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     ("jira-governance.yml", "Jira Issue Key Validation", {}),
     ("post-deploy-tdd.yml", "Post-Deploy Team Red/Blue Testing", {}),
     ("workers-builds.yml", "Cloudflare Workers Build Pipeline", {}),
+    ("governance-drift.yml", "Governance Drift Detection", {}),
+    ("jira-sync.yml", "Jira Sync & TDD Governance", {}),
+    ("workflow-auto-disable.yml", "Workflow Auto-Disable Policy", {}),
+    ("workflow-mttr-monitor.yml", "Workflow MTTR SLO Monitor", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]

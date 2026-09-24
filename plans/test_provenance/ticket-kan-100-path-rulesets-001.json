@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-100-PATH-RULESETS-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f808b3ef5d6989b6ff0d7ea8f1efb92c4d88e26f",
+  "test_files": [
+    {
+      "path": "tests/test_path_based_rulesets.py",
+      "sha256": "f3d97481db08a6691b5de49c81826b3b27e6cb4ceefb0b9c721836eff533f737"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_path_based_rulesets.py"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "ImportError: cannot import name 'path_ruleset_classifier' from 'scripts'"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/path_ruleset_classifier.py",
+    "scripts/jira_api_helper.py",
+    ".github/workflows/ci.yml",
+    "governance/",
+    "docs/path-based-governance.md",
+    "docs/INDEX.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test-first provenance baseline for KAN-100 path-based rulesets and CI tiering. Freezes classification logic for TIER_LIGHT (docs, workflows, metadata) vs TIER_STRICT (source, scripts, dependencies), fail-closed security invariants (secret audit and test provenance on all paths), heavy test skipping (Rust audit and heavy PyTest suite for docs-only PRs), and network test exclusion for live-prod tests. RED run verified by checking collection failure (ImportError, exit 2) before source module implementation."
+}

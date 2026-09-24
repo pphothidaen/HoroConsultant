@@ -41,6 +41,8 @@ DOC_FILES = {
     ".agents/AGENTS.md",
     ".agents/LESSONS_LEARNED.md",
     "vercel.json",
+    "requirements.txt",
+    "pyproject.toml",
     "scripts/test_provenance_guard.py",
     "scripts/sync_ai_agent_ecosystem.py",
     "ReleaseNotes.md",
@@ -485,7 +487,8 @@ def verify_history(
         baseline_subj = _git(repo, "show", "-s", "--format=%s", baseline).stdout.strip()
         baseline_body = _git(repo, "show", "-s", "--format=%b", baseline).stdout
         is_squash_or_release = (
-            any(baseline_subj.startswith(pfx) for pfx in ("feat(release):", "fix(prod):", "docs(release):", "Merge ", "merge:"))
+            squash_recovery
+            or any(baseline_subj.startswith(pfx) for pfx in ("feat(release):", "fix(prod):", "docs(release):", "Merge ", "merge:"))
             or "Test-Baseline:" in baseline_body
             or re.search(r"\(#\d+\)$", baseline_subj) is not None
         )

@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-97-GOVERNANCE-02",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "32f747dc0e2a73dad653a8ae12100360baa35cf6",
+  "test_files": [
+    {
+      "path": "tests/test_governance_sync.py",
+      "sha256": "e07cc5ed89bd9f18337603c21e23dc1a2a7c26edaa77ff22430373423e072244"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_governance_sync.py"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "ImportError: cannot import name 'governance_sync' from 'scripts' (unknown location)"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/governance_sync.py",
+    "governance/",
+    ".github/workflows/governance-drift.yml",
+    "docs/governance-as-code.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "9582fb4294eed69735d45c811720083070eb656e",
+  "correction_reason": "Sequence-2 baseline re-anchored to HEAD commit 32f747dc, superseding sequence-1 baseline 9582fb42.",
+  "rationale": "Test-first provenance baseline for KAN-97 governance-as-code. Freezes the offline contract of scripts/governance_sync.py: volatile-key stripping, recursive drift comparison, apply payload construction (including strict bool validation for flag sections), declaration loading, slug validation, fail-closed exit codes, step-summary rendering, and structural invariants of the committed governance/*.json declaration files. RED run verified by removing scripts/governance_sync.py (collection ImportError, exit 2) before the source commit."
+}
