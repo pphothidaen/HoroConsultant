@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-95-TDD-GATE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8b684584808e743244a2c19bcbfbb2ad76c84787",
+  "test_files": [
+    {
+      "path": "tests/test_tdd_gate.py",
+      "sha256": "40afc718e2cb3cf1f9ea92c9b044c7a6ca239839103c2db08091e4108f8a3739"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_tdd_gate.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert not ok"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/tdd_gate.py",
+    "scripts/jira_api_helper.py",
+    ".github/workflows/jira-sync.yml",
+    ".githooks/pre-push"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Unit tests verifying TDD state transition rules, illegal jumps, and provenance manifest presence."
+}
