@@ -329,6 +329,11 @@ def stamp_index_html(path: Path, version: str, commit: str, *, dry_run: bool = F
         f'\\g<1>{version}',
         text,
     )
+    text = re.sub(
+        r'(HoroConsultant v)[\d.]+[a-f0-9]*',
+        f'\\g<1>{version}',
+        text,
+    )
 
     # Cache-busting: update ?v= query params on static assets
     for asset in ["style.css", "i18n.js", "voice_engine.js", "app.js"]:
@@ -408,6 +413,7 @@ def main():
         "index.html": [
             ROOT / "project" / "static" / "index.html",
             ROOT / "public" / "index.html",
+            ROOT / "public" / "lite.html",
         ],
     }
 

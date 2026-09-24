@@ -673,3 +673,49 @@ textarea:invalid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.mode-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.mode-switch-btn:hover {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-bg);
+}
+
+.lite-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.lite-footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.lite-footer a:hover {
+  text-decoration: underline;
+}

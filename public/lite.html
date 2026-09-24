@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Horo Lite | HoroConsultant</title>
+    <script>window.CURRENT_PAGE_VERSION = "1.0.0.e003b5b";</script>
     <link rel="stylesheet" href="lite.css">
     <link rel="stylesheet" href="export_modal.css">
   </head>
@@ -15,12 +16,15 @@
           <h1 id="page-title">กรอกข้อมูลครั้งเดียว รับผังดวงและคำตีความ AI</h1>
           <p class="subtitle">12 โมดูล ชัดเจนสำหรับการตัดสินใจรายเดือน โดยใช้การคำนวณร่วมโหมด Thai Suriyayart + BaZi consensus</p>
         </div>
-        <div class="element-strip" aria-label="Five Elements palette">
-          <span data-element="wood">ไม้</span>
-          <span data-element="fire">ไฟ</span>
-          <span data-element="earth">ดิน</span>
-          <span data-element="metal">ทอง</span>
-          <span data-element="water">น้ำ</span>
+        <div class="header-actions">
+          <div class="element-strip" aria-label="Five Elements palette">
+            <span data-element="wood">ไม้</span>
+            <span data-element="fire">ไฟ</span>
+            <span data-element="earth">ดิน</span>
+            <span data-element="metal">ทอง</span>
+            <span data-element="water">น้ำ</span>
+          </div>
+          <a href="/advanced" id="mode-switch-advanced" class="mode-switch-btn" title="สลับไปยังแดชบอร์ด 16 ศาสตร์ขั้นสูง">⚙️ แดชบอร์ดขั้นสูง (Advanced Dashboard) &rarr;</a>
         </div>
       </header>
 
@@ -178,6 +182,9 @@
           <pre id="technical-basis" aria-label="Technical basis details"></pre>
         </details>
       </section>
+      <footer class="lite-footer">
+        <p><span id="footer-version-text">HoroConsultant v1.0.0.e003b5b</span> &bull; <a href="/advanced">Advanced Dashboard</a> &bull; <a href="/admin">Admin Panel</a> &bull; <a href="/hitl-studio">HITL Review Studio</a></p>
+      </footer>
     </main>
 
     <script src="export_engine.js" defer></script>
