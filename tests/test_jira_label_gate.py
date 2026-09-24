@@ -109,14 +109,17 @@ class TestCommitMsgHook:
         assert os.path.exists(GATE_PATH)
 
     def test_hook_executable(self):
-        assert os.access(GATE_PATH, os.R_OK)
+        # KAN-119: scripts/jira_label_gate.py is a library imported by the
+        # real hook (.githooks/commit-msg, 100755) and must stay 100644 to
+        # satisfy the HF release payload mode contract. The executable bit
+        # belongs to the hook, not the gate module.
         hook_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             ".githooks",
             "commit-msg",
         )
-        if os.path.exists(hook_path):
-            assert os.access(hook_path, os.X_OK)
+        assert os.access(hook_path, os.X_OK)
+        assert not os.access(GATE_PATH, os.X_OK)
 
     def test_hook_accepts_valid_message(self):
         """Test with a valid commit message file."""

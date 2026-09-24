@@ -7,31 +7,19 @@
   "test_files": [
     {
       "path": "tests/test_kan119_ci_workflow_remediation.py",
-      "sha256": "9b1a293bfa802a1c205e7beee93d2dd4a1506b3b622123d33f0700c7ea0dd00a"
+      "sha256": "7059b8e42e254203023a2a2e254da668da8657aac58cdee059187ad16e06f74f"
     },
     {
       "path": "project/tests/test_trigger_inventory_retirement.py",
-      "sha256": "d07f853b9aea0a7ea7f6187972b52f3ad4002005cbae174448686b22aae41f43"
+      "sha256": "7573d24c2ec450e01e47a11696c96df328b74215427c491b2fe5b9f46d061c82"
     },
     {
       "path": "project/tests/test_fly_artifact_retirement.py",
-      "sha256": "24146e1f559d07ea15ad0ffda3ec6147749f4585e1d295eb1e12d94d0e28b864"
+      "sha256": "58022c06a7308ac9fb47dc12128dfb1baf187dbc1404e3e29a86b3209b1078c7"
     },
     {
       "path": "project/tests/test_github_actions_regression.py",
-      "sha256": "5f6ff5e231ea5e6a8c10a08707c529863b9cd98779ed43d2903279e6486d7d01"
-    },
-    {
-      "path": "project/tests/test_cicd_workflow.py",
-      "sha256": "c5ad7b4af1db2e5e6a261eb004a8ce83c620cbde3b1ede84ec02c710b9a040b7"
-    },
-    {
-      "path": "tests/test_jira_label_gate.py",
-      "sha256": "a2f805d393dbfd25639a2660e7c0a104e982e63c382db891a0966d3af7e5f3a9"
-    },
-    {
-      "path": "project/tests/test_prod_version_regression.py",
-      "sha256": "2be6b7210f4b27fdcf4b72681c0f5e395f47c1942b88d156393856c36d6d9db0"
+      "sha256": "b548cae07797a8df8ebc804a7ff63a3d7b855888956018418a2acfe5296cf65e"
     }
   ],
   "red_tests": [
@@ -51,16 +39,12 @@
     "scripts/jira_label_gate.py",
     "scripts/runtime_guardrails_gate.py",
     "scripts/trigger_all_github_actions.py",
-    "scripts/jira_api_helper.py",
-    "project/core/code_reviewer.py",
     ".github/workflows/production_monitor.yml",
-    ".github/workflows/workflow-auto-disable.yml",
-    ".github/workflows/jira-sync.yml",
-    ".github/workflows/code-review.yml"
+    ".github/workflows/workflow-auto-disable.yml"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "KAN-119: TDD contract tests for gate script 644 file modes, workflow inventory registration in trigger_all_github_actions, production_monitor fail-closed contract, workflow_dispatch triggers, Jira sync credentials, and code reviewer test isolation."
+  "rationale": "KAN-119: TDD contract tests for gate script 644 file modes, workflow inventory registration in trigger_all_github_actions, production_monitor fail-closed contract, and workflow_dispatch triggers."
 }

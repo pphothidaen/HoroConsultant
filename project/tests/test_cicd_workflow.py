@@ -50,10 +50,10 @@ def test_full_pytest_uses_the_linux_wheel_with_fallback_disabled():
 
     assert "actions/upload-artifact@v4" in workflow
     assert "actions/download-artifact@v4" in workflow
-    parsed = yaml.safe_load(workflow)
-    pytest_needs = parsed["jobs"]["pytest-suite"]["needs"]
-    needs_list = pytest_needs if isinstance(pytest_needs, list) else [pytest_needs]
-    assert "rust-core-audit" in needs_list
+    # KAN-100 path-based rulesets: pytest-suite now waits for BOTH the native
+    # wheel (rust-core-audit) and the change-tier classifier (classify-changes).
+    # The list form still guarantees the wheel is installed before pytest runs.
+    assert "needs: [rust-core-audit, classify-changes]" in workflow
     assert "pip install --force-reinstall --no-deps wheelhouse/*.whl" in workflow
     assert "rust_core.__native_origin__" in workflow
     assert "shutil.copy2(native_origin, target)" in workflow
