@@ -313,7 +313,7 @@ class CodeReviewer:
         """Run quick pytest suite to ensure zero regressions."""
         try:
             res = subprocess.run(
-                [sys.executable, "-m", "pytest", "-q", "--ignore=project/kaggle_kernel"],
+                [sys.executable, "-m", "pytest", "-q", "-m", "not network", "--ignore=project/kaggle_kernel"],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,

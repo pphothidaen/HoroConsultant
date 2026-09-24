@@ -8,6 +8,7 @@ on:
       - "Orchestrator Dispatch — Jira → Subagent"
       - "Production Synthetic Monitoring"
     types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: write

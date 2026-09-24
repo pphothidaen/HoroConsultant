@@ -34,17 +34,19 @@ jobs:
       - name: Transition to Review on PR Open
         if: steps.jira_key.outputs.key != '' && (github.event.action == 'opened' || github.event.action == 'reopened')
         env:
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL || secrets.JIRA_EMAIL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || 'pansakorn.atlassian.net' }}
+          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || secrets.JIRA_BASE_URL || 'pansakorn.atlassian.net' }}
         run: |
           python3 scripts/jira_api_helper.py --issue "${{ steps.jira_key.outputs.key }}" --status "Review"
 
       - name: Transition to Done on PR Merge
         if: steps.jira_key.outputs.key != '' && github.event.action == 'closed' && github.event.pull_request.merged == true
         env:
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL || secrets.JIRA_EMAIL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || 'pansakorn.atlassian.net' }}
+          JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN || secrets.JIRA_BASE_URL || 'pansakorn.atlassian.net' }}
         run: |
           python3 scripts/jira_api_helper.py --issue "${{ steps.jira_key.outputs.key }}" --status "Done"
