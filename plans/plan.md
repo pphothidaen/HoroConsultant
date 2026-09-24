@@ -1,5 +1,29 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Sprint J Governance & TDD Lifecycles -- 2026-09-24 (revision 21)
+
+Status: DONE (100% Verified, All PRs Merged to Main)
+Primary PRs: #73 (KAN-98), #75 (KAN-97), #77 (KAN-101), #78 (KAN-105), #80 (KAN-118), #81 (KAN-100)
+Main Target Commit: `e0ff15b1` (`origin/main`)
+
+### 1. Executive Summary & Sprint Goal
+Reconciled, unblocked, implemented, and merged all Sprint J governance, runtime guardrails, agent permissions, cost ledger, and path-based CI rulesets using strict Test-Driven Development (RED-GREEN-REFACTOR) and fail-closed test provenance guard manifests (`test-provenance-v1`).
+
+### 2. Deliverables & PR Manifest Matrix
+
+| Ticket | Scope | Deliverables & Manifest | PR / Commit | Status |
+|---|---|---|---|---|
+| **KAN-95** | Workflow Firefight | Auto-disable policy, dependency floor upgrades closing 7 Dependabot CVEs | `5a0d8d18` | DONE |
+| **KAN-96** | CLI Golden Paths | Codify CLI workflows into Hermes skills | `5a0d8d18` | DONE |
+| **KAN-97** | Ruleset-as-Code | `governance/rulesets.json`, `scripts/governance_sync.py`, `.github/workflows/governance-drift.yml`, `plans/test_provenance/ticket-kan-97-governance-02.json` | PR #75 (`846869b0`) | DONE |
+| **KAN-98** | Agent Permissions | Fine-grained PAT blast radius policy, `docs/agent-permission-policy.md`, `tests/test_agent_token_scope.py`, `plans/test_provenance/ticket-kan-98-agent-perms-02.json` | PR #73 (`1fcce207`) | DONE |
+| **KAN-100** | Path-Based Rulesets | CI tiering classifier (`scripts/path_ruleset_classifier.py`), network test exclusion, `.github/workflows/ci.yml`, `docs/path-based-governance.md`, `plans/test_provenance/ticket-kan-100-path-rulesets-001.json` | PR #81 (`e0ff15b1`) | DONE |
+| **KAN-101** | Cost Ledger | Model routing cost ledger & eval harness | PR #77 (`535a85fc`) | DONE |
+| **KAN-105** | Jira Validation | `scripts/jira_api_helper.py`, `.hermes/hooks/pre_dispatch.py` | PR #78 (`f32d5ff1`) | DONE |
+| **KAN-118** | Runtime Guardrails | `scripts/runtime_guardrails_gate.py`, `.hermes/hooks/pre_tool_use.py`, `plans/test_provenance/ticket-kan-118-runtime-guardrails-001.json` | PR #80 (`f808b3ef`) | DONE |
+
+---
+
 ## Sprint F Gemini Bridge Integration & CI Remediation -- 2026-09-22 (revision 20)
 
 Status: IN_PROGRESS (CI Blocker Remediation & Verification)
