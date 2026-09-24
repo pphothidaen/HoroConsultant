@@ -1,0 +1,39 @@
+name: Governance Drift Detection
+
+on:
+  schedule:
+    # Daily at 01:00 UTC (08:00 Asia/Bangkok).
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  governance-drift:
+    name: Governance Drift Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate governance files against live GitHub state
+        env:
+          # Reading classic branch protection requires an administration-scoped
+          # token; the default GITHUB_TOKEN cannot read it, so validation uses
+          # the GH_TOKEN secret (PAT of a repo admin). When the secret is
+          # missing or lacks admin scope, gh api returns 404 and the job
+          # fails closed.
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python3 scripts/governance_sync.py validate --repo-root .
+
+      - name: Report drift
+        if: failure()
+        run: |
+          echo "[ERROR] Governance drift detected - see the step summary table and job log above."
+          echo "[INFO] Fix: open a PR updating governance/*.json, or run 'export' after an approved change."
