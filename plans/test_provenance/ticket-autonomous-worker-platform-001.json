@@ -1,0 +1,125 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-AUTONOMOUS-WORKER-PLATFORM-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c0540f15b5263b5f2f9ba691cee6a34ed3f32ba5",
+  "test_files": [
+    {
+      "path": "tests/fixtures/evidence/failed_tests.json",
+      "sha256": "80803b2042f1f100a15d36f17cf30e75bac2c6590e54dcc2634022b1ac49f205"
+    },
+    {
+      "path": "tests/fixtures/evidence/invalid_artifact_hash.json",
+      "sha256": "44be4a0c22487e623e16fb29b8a5f71644c2859978666d56a2c0d453b3c8fb42"
+    },
+    {
+      "path": "tests/fixtures/evidence/missing_git_sha.json",
+      "sha256": "66f4669fda5740a8b77e3875b636cb5c87a9f16cccdd07a197581044545ae1fa"
+    },
+    {
+      "path": "tests/fixtures/evidence/stale_session.json",
+      "sha256": "b7843703fcb455832ddd5684f2a69369aaed9213d5fc9e343f19b56f9984cfdd"
+    },
+    {
+      "path": "tests/fixtures/evidence/valid.json",
+      "sha256": "58a40af2f4c7faa5487064310714aa67a90f8da57fc3c53e56d2251b564719f1"
+    },
+    {
+      "path": "tests/fixtures/evidence/wrong_attempt.json",
+      "sha256": "0e32d66f37efb5d66a23eac5fe43375220eac07f0997bbe498b03e4a31fe9a23"
+    },
+    {
+      "path": "tests/fixtures/evidence/wrong_fencing_token.json",
+      "sha256": "e65d5411a649349ea794b3f79e0f741c12362825cf08e7d4b645861a13e7650b"
+    },
+    {
+      "path": "tests/test_autonomous_e2e_matrix.py",
+      "sha256": "d1f293c13178bb664b085f3d11bec4bf4f0fda48efce95aa468a6bb5f26729bc"
+    },
+    {
+      "path": "tests/test_evidence_schema.py",
+      "sha256": "fb8de6ec27239dc6558c014a5f01335fc9bfb8048e758ba6d7b191c8e3ac0ff6"
+    },
+    {
+      "path": "tests/test_execution_identity.py",
+      "sha256": "0e9ec45a48116bb4e5b01cf760ab544e265366a63af1fb53ef1bd626faf7778f"
+    },
+    {
+      "path": "tests/test_fencing_token_guard.py",
+      "sha256": "2453aaa8af5ffa1b4e25875c778ab3cf87177891791e331cc4a012d88e3f8b8d"
+    },
+    {
+      "path": "tests/test_jira_sanitizer.py",
+      "sha256": "1f754835fa1c5ea272814ae3cac65d347ee0d07637342a8dc8d9105c8ccbe6a2"
+    },
+    {
+      "path": "tests/test_jira_state_machine.py",
+      "sha256": "a95f0a5d0454d3416c759cbee156b4fc1602e9516227f8e58bfdbc7ee2edf06b"
+    },
+    {
+      "path": "tests/test_lease_manager.py",
+      "sha256": "a19827d2af6d19a712d8c6b945e7cbd73113183a3e425d18366e9e93f9d0a109"
+    },
+    {
+      "path": "tests/test_reconciler.py",
+      "sha256": "deb6bc2b2591e35ad28d95e6786e9080aeb61a99f89141e7d8bee5e6e453b391"
+    },
+    {
+      "path": "tests/test_risk_tier_gate.py",
+      "sha256": "56550b7bfd5c7abcca613fa0dbfc7838db9b9e402573457300ab1a41c98dbec2"
+    },
+    {
+      "path": "tests/test_runtime_herdr.py",
+      "sha256": "486b7474a33b5fb53dcb43ada358b9d5479ef3bd94a2098dc2ad6dd3d56e21c0"
+    },
+    {
+      "path": "tests/test_runtime_selector.py",
+      "sha256": "2478c166a7f5b1fd9ca087466ea97b1907bfa73483696b300d47024293b36817"
+    },
+    {
+      "path": "tests/test_runtime_tmux.py",
+      "sha256": "775356725f8bc442e679aeaa2b042dbbbb667c5f8a51a0f94225a21a0e4a1ca0"
+    },
+    {
+      "path": "tests/test_webhook_dedup.py",
+      "sha256": "a67c167cb8ccd18ea7a92379b7ed18650384ce3b100c053f7892565687830caf"
+    },
+    {
+      "path": "tests/test_worker_evidence_validator.py",
+      "sha256": "1096cbc015c412ae8b5d5826f0c9e77a8ea56e66d984c4efaf80664468754fdc"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_autonomous_e2e_matrix.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Sprint K Autonomous Worker Platform test baseline verification"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/worker_runtime.py",
+    "project/core/execution_identity.py",
+    "project/core/runtime_herdr.py",
+    "project/core/runtime_tmux.py",
+    "project/core/runtime_selector.py",
+    "project/core/evidence_models.py",
+    "project/core/evidence_validator.py",
+    "project/core/lease_manager.py",
+    "project/core/fencing_token_guard.py",
+    "project/core/jira_state_machine.py",
+    "project/core/reconciler.py",
+    "project/core/webhook_dedup.py",
+    "project/core/risk_tier_gate.py",
+    "project/core/jira_sanitizer.py",
+    "schemas/worker_evidence_v1.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test provenance baseline manifest for Sprint K Autonomous Worker Platform (57/57 tests passing across 14 test suites)."
+}
