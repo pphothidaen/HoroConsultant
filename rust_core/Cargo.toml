@@ -14,7 +14,7 @@ python-extension = ["python", "pyo3/extension-module"]
 server = ["dep:tokio", "dep:axum", "dep:reqwest"]
 
 [dependencies]
-pyo3       = { version = "0.21", optional = true, features = ["abi3-py310"] }
+pyo3       = { version = "0.29", optional = true, features = ["abi3-py310"] }
 rayon      = "1.10"       # parallel iterators (multi-core)
 ndarray    = "0.15"       # array ops
 regex      = "1.10"
