@@ -50,10 +50,10 @@ def test_full_pytest_uses_the_linux_wheel_with_fallback_disabled():
 
     assert "actions/upload-artifact@v4" in workflow
     assert "actions/download-artifact@v4" in workflow
-    parsed = yaml.safe_load(workflow)
-    pytest_needs = parsed["jobs"]["pytest-suite"]["needs"]
-    needs_list = pytest_needs if isinstance(pytest_needs, list) else [pytest_needs]
-    assert "rust-core-audit" in needs_list
+    # KAN-100 path-based rulesets: pytest-suite now waits for BOTH the native
+    # wheel (rust-core-audit) and the change-tier classifier (classify-changes).
+    # The list form still guarantees the wheel is installed before pytest runs.
+    assert "needs: [rust-core-audit, classify-changes]" in workflow
     assert "pip install --force-reinstall --no-deps wheelhouse/*.whl" in workflow
     assert "rust_core.__native_origin__" in workflow
     assert "shutil.copy2(native_origin, target)" in workflow
@@ -81,6 +81,28 @@ def test_release_auditor_runs_only_after_the_native_wheel_is_installed():
         if step["name"] == "Run Project Code Reviewer"
     )
     assert "--review --use-python" in review_step["run"]
+    assert "--skip-tests" in review_step["run"]
+
+
+def test_release_audit_skip_tests_flag_prevents_double_pytest():
+    """When CI already ran PyTest in a prior step, the safety auditor must
+    skip the nested full-suite run to avoid exceeding the 30m timeout (KAN-121)."""
+    parsed = yaml.load(
+        (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    review_step = next(
+        step
+        for step in parsed["jobs"]["pytest-suite"]["steps"]
+        if step["name"] == "Run Project Code Reviewer"
+    )
+    assert "--skip-tests" in review_step["run"]
+
+
+def test_source_only_auditor_aicd_passes_skip_tests():
+    """The source-only safety auditor in ai_cicd.yml must also pass --skip-tests."""
+    workflow = (ROOT / ".github" / "workflows" / "ai_cicd.yml").read_text(encoding="utf-8")
+    assert "project/core/code_reviewer.py --review --use-python --skip-tests" in workflow
 
 
 def test_rust_ci_enforces_format_and_clippy_before_packaging():

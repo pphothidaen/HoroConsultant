@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-121-RESTORE-TRIGGER-INVENTORY-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1a91474f678e8a92421134306ffba0c06f49f346",
+  "test_files": [
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "08419c61f879b45e83eaaef4e43cce4ae42ec373cb3fedb74a67e5fdb7fddf6d"
+    },
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "24146e1f559d07ea15ad0ffda3ec6147749f4585e1d295eb1e12d94d0e28b864"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_trigger_inventory_retirement.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "workflow inventory/filesystem mismatch (unreviewed=['code-review.yml'])"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/trigger_all_github_actions.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-121: Restore code-review.yml in the active workflow inventory (trigger_all_github_actions.py WORKFLOWS tuple + docstring, 25->26) and align the two affected test suites (test_trigger_inventory_retirement.py and test_fly_artifact_retirement.py) so CI's Pre-Deployment Code Review and PyTest gates pass."
+}

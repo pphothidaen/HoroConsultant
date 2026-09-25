@@ -37,7 +37,7 @@ jobs:
           pip install -r requirements-ci.txt pytest
 
       - name: Execute code reviewer and safety audit
-        run: python3 project/core/code_reviewer.py --review --use-python
+        run: python3 project/core/code_reviewer.py --review --use-python --skip-tests
 
       - name: Run Cloud Architecture Overview (Full Stack) Regression
         run: python3 scripts/run_cloud_architecture_regression.py

@@ -210,7 +210,7 @@ def test_filesystem_inventory_drift_fails_closed(
         trigger_module.active_workflows()
 
 
-def test_main_dispatches_exactly_eleven_active_workflows_with_ascii_output(
+def test_main_dispatches_exactly_twenty_six_active_workflows_with_ascii_output(
     trigger_module,
     monkeypatch,
     capsys,

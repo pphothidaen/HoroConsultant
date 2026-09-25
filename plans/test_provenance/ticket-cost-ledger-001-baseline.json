@@ -1,0 +1,26 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-COST-LEDGER-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "917f96754d9fd45660bf7f60a67c14e6ec19bd6a",
+  "test_files": [
+    {
+      "path": "tests/test_cost_ledger.py",
+      "sha256": "0d5deac9e16d54b439fdcb54744cab9dd2b83e3933f7bccf4c07d82677caaa38"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_cost_ledger.py", "-v"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/kimlenglim/Project/HoroConsultant/.worktrees/kan101-cost-ledger/scripts/cost_ledger.py': [Errno 2] No such file or directory"
+    }
+  ],
+  "allowed_source_paths": ["scripts/"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-101 cost ledger: tests freeze the record/report CLI contract (JSONL append, report table, lead-time computation via gh api, aggregate by interface, --since filter) before scripts/cost_ledger.py is implemented. RED phase verified: all 6 tests fail because the module does not exist yet."
+}

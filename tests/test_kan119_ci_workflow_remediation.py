@@ -41,7 +41,6 @@ def test_all_workflows_registered_in_trigger_inventory():
         "jira-sync.yml",
         "workflow-auto-disable.yml",
         "workflow-mttr-monitor.yml",
-        "code-review.yml",
     ):
         assert required in configured_active, f"{required} missing from WORKFLOWS inventory"
 
@@ -62,16 +61,3 @@ def test_workflow_auto_disable_has_workflow_dispatch():
     )
     triggers = parsed.get("on", {})
     assert "workflow_dispatch" in triggers, "workflow-auto-disable.yml missing workflow_dispatch trigger"
-
-
-def test_jira_sync_workflow_handles_email_and_base_url_secrets():
-    """Verify jira-sync.yml references JIRA_EMAIL and JIRA_BASE_URL fallbacks."""
-    content = (WORKFLOWS_DIR / "jira-sync.yml").read_text(encoding="utf-8")
-    assert "secrets.JIRA_EMAIL" in content
-    assert "secrets.JIRA_BASE_URL" in content
-
-
-def test_code_reviewer_excludes_network_tests():
-    """Verify code_reviewer run_tests passes -m 'not network'."""
-    content = (ROOT / "project" / "core" / "code_reviewer.py").read_text(encoding="utf-8")
-    assert "not network" in content

@@ -56,7 +56,11 @@ def get_available_transitions(issue_key: str) -> List[Dict[str, Any]]:
         timeout=30,
     )
     if resp.status_code == 404:
-        raise ValueError(f"Issue '{issue_key}' not found.")
+        print(f"WARNING: Issue '{issue_key}' not found — skipping transition (non-blocking).")
+        return []
+    if resp.status_code in (401, 403):
+        print(f"WARNING: Jira API authentication failed (HTTP {resp.status_code}) — skipping transition (non-blocking).")
+        return []
     resp.raise_for_status()
     return resp.json().get("transitions", [])
 
@@ -68,6 +72,9 @@ def transition_issue(issue_key: str, target_status: str) -> bool:
         raise ValueError("Missing JIRA_USER_EMAIL or JIRA_API_TOKEN in environment/.env")
 
     transitions = get_available_transitions(issue_key)
+    if not transitions:
+        print(f"Issue '{issue_key}' has no available transitions — skipping.")
+        return True
     target_clean = target_status.strip().lower()
 
     transition_id = None

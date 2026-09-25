@@ -30,8 +30,8 @@ Active workflows:
 22. governance-drift.yml (Governance Drift Detection)
 23. jira-sync.yml (Jira Sync & TDD Governance)
 24. workflow-auto-disable.yml (Workflow Auto-Disable Policy)
- 25. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
- 26. code-review.yml (Auto Code Review by agent-code_reviewer)
+25. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
+26. code-review.yml (Auto Code Review by agent-code_reviewer)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
