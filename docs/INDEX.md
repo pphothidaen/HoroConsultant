@@ -2,9 +2,9 @@
 
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
-> Generated: 2026-09-23 07:48:26 UTC
+> Generated: 2026-09-25 16:57:13 UTC
 
-**Total documents:** 66
+**Total documents:** 69
 
 ## Document Registry
 
@@ -25,12 +25,12 @@
 | `c4_hermes_9router_architecture.md` | `c4_hermes_9router_architecture.md` |
 | `gemini-bridge-mcp-toggle.md` | `gemini-bridge-mcp-toggle.md` |
 | `governance-as-code.md` | `governance-as-code.md` |
-| `path-based-governance.md` | `path-based-governance.md` |
 | `jira_sync_protocol.md` | `jira_sync_protocol.md` |
 | `kaggle_hybrid_tradeoff_matrix.md` | `kaggle_hybrid_tradeoff_matrix.md` |
 | `kan-audit-dashboard-2026-09-20.md` | `kan-audit-dashboard-2026-09-20.md` |
 | `known-issues.md` | `known-issues.md` |
 | `lessons_learned_v3_visual_integrity_2026-08-24.md` | `lessons_learned_v3_visual_integrity_2026-08-24.md` |
+| `path-based-governance.md` | `path-based-governance.md` |
 | `repository-guidelines.md` | `repository-guidelines.md` |
 | `skill-audit-2026-09-23.md` | `skill-audit-2026-09-23.md` |
 | `tradeoff.md` | `tradeoff.md` |
@@ -42,6 +42,7 @@
 |------|------|
 | `DESIGN_SPEC_MULTI_AGENT_PARITY.md` | `architecture/DESIGN_SPEC_MULTI_AGENT_PARITY.md` |
 | `agy-terminal-supervisor.md` | `architecture/agy-terminal-supervisor.md` |
+| `autonomous-worker-platform.md` | `architecture/autonomous-worker-platform.md` |
 | `deployment-rail.md` | `architecture/deployment-rail.md` |
 | `external-dispatch-platform-contract.md` | `architecture/external-dispatch-platform-contract.md` |
 | `README.md` | `architecture/multiagent-control-plane/README.md` |

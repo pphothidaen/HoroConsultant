@@ -110,7 +110,7 @@ pub fn run_rust_security_audit(
     root_path: &str,
 ) -> PyResult<(bool, usize, Vec<String>)> {
     let root_path_owned = root_path.to_owned();
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         scan_directory_secrets_rust(&root_path_owned).unwrap_or((
             false,
             0,

@@ -115,7 +115,9 @@
     "project/core/webhook_dedup.py",
     "project/core/risk_tier_gate.py",
     "project/core/jira_sanitizer.py",
-    "schemas/worker_evidence_v1.json"
+    "schemas/worker_evidence_v1.json",
+    "rust_core/Cargo.lock",
+    "rust_core/Cargo.toml"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "orchestrator",

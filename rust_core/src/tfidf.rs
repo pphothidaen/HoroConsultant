@@ -11,7 +11,7 @@ use rayon::prelude::*;
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn cosine_similarity(py: Python<'_>, a: Vec<f32>, b: Vec<f32>) -> PyResult<f32> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         if a.len() != b.len() || a.is_empty() {
             return 0.0;
         }
@@ -40,7 +40,7 @@ pub fn batch_cosine_search(
     top_k: usize,
     threshold: f32,
 ) -> PyResult<Vec<(usize, f32)>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         if query_vec.is_empty() || doc_matrix.is_empty() {
             return Vec::new();
         }
@@ -73,7 +73,7 @@ pub fn batch_cosine_search(
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_tfidf_vector(py: Python<'_>, text: String, vocab: Vec<String>) -> PyResult<Vec<f32>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut vec = vec![0.0f32; vocab.len()];
         let chars: Vec<char> = text.chars().collect();
         if chars.is_empty() {
@@ -104,7 +104,7 @@ pub fn build_tfidf_matrix(
     texts: Vec<String>,
     vocab: Vec<String>,
 ) -> PyResult<Vec<Vec<f32>>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let matrix: Vec<Vec<f32>> = texts
             .par_iter()
             .map(|text| {

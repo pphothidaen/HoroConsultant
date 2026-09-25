@@ -94,8 +94,8 @@ pub fn dense_vector_search(
     top_k: usize,
     threshold: f32,
 ) -> PyResult<Vec<(usize, f32)>> {
-    let result = py
-        .allow_threads(move || dense_vector_search_rust(&query_vec, &doc_matrix, top_k, threshold));
+    let result =
+        py.detach(move || dense_vector_search_rust(&query_vec, &doc_matrix, top_k, threshold));
     Ok(result)
 }
 
@@ -109,7 +109,7 @@ pub fn dense_vector_search_l2(
     top_k: usize,
     max_distance: f32,
 ) -> PyResult<Vec<(usize, f32)>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         if query_vec.is_empty() || doc_matrix.is_empty() {
             return Vec::new();
         }

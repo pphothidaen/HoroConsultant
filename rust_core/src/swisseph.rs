@@ -115,7 +115,7 @@ pub fn compute_ephemeris_sun_moon(
     day: i32,
     hour: f64,
 ) -> PyResult<(f64, String, f64, String)> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let jd = calculate_julian_day_utc(year, month, day, hour);
         let sun = calculate_sun_position_rust(jd);
         let moon = calculate_moon_position_rust(jd);

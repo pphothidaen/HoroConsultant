@@ -271,8 +271,7 @@ pub fn calculate_ming_shen_gong(
     lunar_month: i32,
     hour_branch_idx: usize,
 ) -> PyResult<(usize, usize)> {
-    let result =
-        py.allow_threads(move || calculate_ming_shen_gong_rust(lunar_month, hour_branch_idx));
+    let result = py.detach(move || calculate_ming_shen_gong_rust(lunar_month, hour_branch_idx));
     Ok(result)
 }
 
@@ -284,7 +283,7 @@ pub fn calculate_zi_wei_star_branch(
     bureau_number: i32,
     lunar_day: i32,
 ) -> PyResult<usize> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         if bureau_number <= 0 {
             return 2usize;
         }
@@ -315,7 +314,7 @@ pub fn calculate_14_main_stars(
     py: Python<'_>,
     zi_wei_idx: usize,
 ) -> PyResult<Vec<(usize, Vec<String>)>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let tian_fu_idx = (4 + 12 - (zi_wei_idx % 12)) % 12;
 
         let zi_wei_stars = [

@@ -123,7 +123,7 @@ pub fn calculate_zeji_duty_officer(
 ) -> PyResult<String> {
     let month_branch = month_branch.to_owned();
     let day_branch = day_branch.to_owned();
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let month_idx = BRANCHES
             .iter()
             .position(|&b| b == month_branch)
@@ -141,7 +141,7 @@ pub fn calculate_zeji_duty_officer(
 pub fn check_branch_clash(py: Python<'_>, day_branch: &str, target_branch: &str) -> PyResult<bool> {
     let day_branch = day_branch.to_owned();
     let target_branch = target_branch.to_owned();
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let day_idx = BRANCHES.iter().position(|&b| b == day_branch).unwrap_or(0);
         let target_idx = BRANCHES
             .iter()

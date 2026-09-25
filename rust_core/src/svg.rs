@@ -297,7 +297,7 @@ pub fn build_bazi_svg_rust(
     month_pillar: (String, String),
     year_pillar: (String, String),
 ) -> PyResult<String> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut svg = String::with_capacity(8192);
 
         svg.push_str(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">"##);
@@ -405,7 +405,7 @@ static ZODIAC_THAI_SHORT: &[&str] = &[
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_zodiac_svg_rust(py: Python<'_>, title: String) -> PyResult<String> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut svg = String::with_capacity(4096);
 
         svg.push_str(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">"##);
@@ -458,7 +458,7 @@ pub fn build_ziwei_svg_rust(
     ming_branch: String,
     shen_branch: String,
 ) -> PyResult<String> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut svg = String::with_capacity(6144);
 
         svg.push_str(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">"##);
@@ -495,7 +495,7 @@ pub fn build_qimen_svg_rust(
     dun_type: String,
     ju_num: i32,
 ) -> PyResult<String> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut svg = String::with_capacity(4096);
 
         svg.push_str(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">"##);
@@ -548,7 +548,7 @@ pub fn build_xuankong_svg_rust(
     facing_degree: f32,
     period: i32,
 ) -> PyResult<String> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut svg = String::with_capacity(4096);
 
         svg.push_str(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">"##);

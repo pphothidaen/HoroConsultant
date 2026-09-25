@@ -58,7 +58,7 @@ const STAR_NAMES: [&str; 9] = [
     "九紫右弼星 (火)",
 ];
 
-// ─── Private inner functions (callable inside py.allow_threads) ──────────────
+// ─── Private inner functions (callable inside py.detach) ─────────────────────
 
 fn resolve_mountain_inner(degree: f64) -> (String, String, String) {
     let mut deg = degree % 360.0;
@@ -192,7 +192,7 @@ pub fn calculate_xuankong_chart_rust(
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn resolve_mountain(py: Python<'_>, degree: f32) -> PyResult<(String, String, String)> {
-    let result = py.allow_threads(move || resolve_mountain_inner(f64::from(degree)));
+    let result = py.detach(move || resolve_mountain_inner(f64::from(degree)));
     Ok(result)
 }
 
@@ -201,7 +201,7 @@ pub fn resolve_mountain(py: Python<'_>, degree: f32) -> PyResult<(String, String
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn fly_stars(py: Python<'_>, center_star: i32, is_forward: bool) -> PyResult<Vec<(i32, i32)>> {
-    let result = py.allow_threads(move || fly_stars_inner(center_star, is_forward));
+    let result = py.detach(move || fly_stars_inner(center_star, is_forward));
     Ok(result)
 }
 
@@ -214,6 +214,6 @@ pub fn xuankong_9grid_matrix(
     facing_degree: f32,
     period: i32,
 ) -> PyResult<Vec<(i32, i32, i32, i32)>> {
-    let result = py.allow_threads(move || xuankong_9grid_impl(f64::from(facing_degree), period));
+    let result = py.detach(move || xuankong_9grid_impl(f64::from(facing_degree), period));
     Ok(result)
 }
