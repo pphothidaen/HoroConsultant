@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-JIRA-WEBHOOK-ROUTER-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "09f3f627338d61b0f1a536e7da397a22649d19f9",
+  "test_files": [
+    {
+      "path": "tests/test_jira_webhook_router.py",
+      "sha256": "4cdc0f2fba180ab9185df23ffd2c4828a4040360163c2e2f3f14e9dab914fd5f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_jira_webhook_router.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Jira webhook router integration test baseline"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/jira.py",
+    "project/main.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test provenance baseline manifest for Jira Webhook Endpoint & Router (/api/jira/webhook, /api/jira/tickets/{ticket_id}, and manual lease release)."
+}
