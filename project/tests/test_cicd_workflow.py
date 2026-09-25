@@ -81,6 +81,28 @@ def test_release_auditor_runs_only_after_the_native_wheel_is_installed():
         if step["name"] == "Run Project Code Reviewer"
     )
     assert "--review --use-python" in review_step["run"]
+    assert "--skip-tests" in review_step["run"]
+
+
+def test_release_audit_skip_tests_flag_prevents_double_pytest():
+    """When CI already ran PyTest in a prior step, the safety auditor must
+    skip the nested full-suite run to avoid exceeding the 30m timeout (KAN-121)."""
+    parsed = yaml.load(
+        (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    review_step = next(
+        step
+        for step in parsed["jobs"]["pytest-suite"]["steps"]
+        if step["name"] == "Run Project Code Reviewer"
+    )
+    assert "--skip-tests" in review_step["run"]
+
+
+def test_source_only_auditor_aicd_passes_skip_tests():
+    """The source-only safety auditor in ai_cicd.yml must also pass --skip-tests."""
+    workflow = (ROOT / ".github" / "workflows" / "ai_cicd.yml").read_text(encoding="utf-8")
+    assert "project/core/code_reviewer.py --review --use-python --skip-tests" in workflow
 
 
 def test_rust_ci_enforces_format_and_clippy_before_packaging():

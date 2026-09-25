@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-121-CODE-REVIEWER-SKIP-TESTS-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "af4177dc32ed28c5df0b62a557e084cfcf2ad109",
+  "test_files": [
+    {
+      "path": "project/tests/test_cicd_workflow.py",
+      "sha256": "2edc581ee1bb912c07eb2a1d7b5dfa30ca15706219f3a15f3b257c8f0760fca7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "-m", "not network", "project/tests/test_cicd_workflow.py::test_source_only_auditor_aicd_passes_skip_tests"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Failed: assert 'project/core/code_reviewer.py --review --use-python --skip-tests' not found in ai_cicd.yml"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/code_reviewer.py",
+    ".github/workflows/ai_cicd.yml",
+    ".github/workflows/jira-governance.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-121 Fix #2: Prevent the 30-minute pytest timeout in Pre-Deployment Code Review by adding --skip-tests and --test-globs to code_reviewer.py, and passing --skip-tests in ai_cicd.yml's source-only audit step. TDD: test_cicd_workflow.py asserts both ci.yml and ai_cicd.yml pass the --skip-tests flag."
+}
