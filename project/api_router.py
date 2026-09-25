@@ -19,15 +19,18 @@ import time
 from typing import Any
 
 import httpx
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+except ImportError:
+    pass
+
 from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
 from project.core.gemini_bridge_client import (
     GEMINI_BRIDGE_DEFAULT_URL,
     call_bridge_tool,
     is_gemini_bridge_enabled,
 )
-
-load_dotenv(override=True)
 
 logger = logging.getLogger("api_router")
 
