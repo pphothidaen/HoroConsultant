@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-120-DEFAULT-PAGE-HORO-LITE-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "dee7796c917b430762fa455f301d23fbcd9d7cbe",
+  "baseline_parent": "032b133f5387917abbfc319476ea86d6e66c4e06",
   "test_files": [
     {
       "path": "tests/test_kan120_default_page_horo_lite.py",
