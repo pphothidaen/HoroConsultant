@@ -52,6 +52,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 23. **`metaphysical-request-router`**: Route metaphysical inquiries to deterministic calculation engines and tools with `source_domain=metaphysical-domain-engine`.
 24. **`metaphysical-hitl-scope-gate`**: Enforce fail-closed human-in-the-loop review for boundary hour, chart conflict, and low consensus conditions (`source_domain=metaphysical-domain-engine`).
 25. **`metaphysical-finetune-handoff`**: Curate verified, redacted metaphysical consultation datasets for fine-tuning handoff (`source_domain=metaphysical-domain-engine`).
+26. **`terminal-session-management`**: Manage persistent terminal sessions with herdr (primary) and tmux fallback on Mac.
 
 ### Claude Code Governance Map
 

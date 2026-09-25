@@ -1,5 +1,55 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Sprint K: Jira + Hermes Control Plane & Decoupled WorkerRuntime — 2026-09-25 (revision 2)
+
+Status: READY (Phase 1 Atomic Tickets Registered & Approved)
+Intake Reference: `plans/intake/sprint-jira-hermes-automation.md`
+
+### 1. Executive Summary & Goal
+Build a production-grade, fail-closed Autonomous Agent Execution Platform combining Jira Cloud (SSOT / Workflow Audit), Hermes Agent (Control Plane & Durable Session State), Unified WorkerRuntime (Hybrid herdr on macOS / tmux on Linux/CI), Monotonic Fencing Tokens + Renewable Leases, and Deterministic Evidence Gate v1.0.
+
+### 2. Core Execution Invariants [FROZEN]
+- **`INVARIANT-01`**: One Jira ticket may have only one active execution lease.
+- **`INVARIANT-02`**: Only the current fencing token may mutate execution state.
+- **`INVARIANT-03`**: `DONE` requires validated deterministic evidence.
+- **`INVARIANT-04`**: Worker LLM output/prose alone can never authorize `DONE`.
+- **`INVARIANT-05`**: An expired lease does not automatically imply successful completion.
+- **`INVARIANT-06`**: Runtime backend is selected before spawn and is immutable for that execution.
+- **`INVARIANT-07`**: All Jira content (title, description, comments, attachments) is untrusted input.
+- **`INVARIANT-08`**: Every execution is recoverable, renewable, or explicitly `BLOCKED`.
+
+### 3. Execution Dependency Graph & Waves
+- **Wave 1 (Parallel Foundation)**:
+  - `AT-01`: Runtime Interface & `ExecutionIdentity` Contract (serialize / deserialize / compare + error semantics: `INVALID_IDENTITY`, `STALE_FENCING_TOKEN`, `LEASE_MISMATCH`, `TICKET_MISMATCH`).
+  - `AT-05`: Evidence Schema v1.0 & Shared Test Fixtures (`tests/fixtures/evidence/`).
+- **Wave 2 (Adapters & Deterministic Validator)**:
+  - `AT-02`: `herdr` Adapter (macOS agent-aware).
+  - `AT-03`: `tmux` Adapter (Linux/CI & fallback).
+  - `AT-06`: Deterministic Evidence Validator consuming shared fixtures.
+- **Wave 3 (Selector & Lifecycle Locking)**:
+  - `AT-04`: Pre-spawn Runtime Selector & Immutable Lifecycle Lock.
+
+### 4. Sprint K Deliverables Matrix (100% DONE)
+
+| Ticket | Phase & Lane | Deliverables & Artifacts | Status |
+|---|---|---|---|
+| **AT-01** | Phase 1 (`developer_core`) | `project/core/worker_runtime.py`, `project/core/execution_identity.py` (`RuntimeBackend` ABC + `ExecutionIdentity` composite validation + error semantics) | DONE (5/5 tests PASS) |
+| **AT-05** | Phase 1 (`qa_tester`) | `schemas/worker_evidence_v1.json`, `project/core/evidence_models.py`, `tests/fixtures/evidence/*.json` (Evidence Schema v1.0 + shared fixtures) | DONE (6/6 tests PASS) |
+| **AT-02** | Phase 1 (`developer_core`) | `project/core/runtime_herdr.py` (`HerdrRuntimeAdapter` on macOS with agent-aware state tracking) | DONE (5/5 tests PASS) |
+| **AT-03** | Phase 1 (`developer_core`) | `project/core/runtime_tmux.py` (`TmuxRuntimeAdapter` with bounded capture <= 30 lines) | DONE (5/5 tests PASS) |
+| **AT-06** | Phase 1 (`qa_tester`) | `project/core/evidence_validator.py`, `tests/test_worker_evidence_validator.py` (Deterministic gate validator against shared fixtures) | DONE (6/6 tests PASS) |
+| **AT-04** | Phase 1 (`developer_core`) | `project/core/runtime_selector.py` (Platform-aware pre-spawn backend selection & immutable locking) | DONE (5/5 tests PASS) |
+| **AT-07** | Phase 2 (`developer_core`) | `project/core/lease_manager.py`, `tests/test_lease_manager.py` (Renewable Lease Manager + Monotonic Tokens) | DONE (4/4 tests PASS) |
+| **AT-08** | Phase 2 (`developer_core`) | `project/core/fencing_token_guard.py`, `tests/test_fencing_token_guard.py` (Monotonic Fencing Token Guard) | DONE (2/2 tests PASS) |
+| **AT-09** | Phase 2 (`developer_core`) | `project/core/jira_state_machine.py`, `tests/test_jira_state_machine.py` (Event-Driven State Machine with Gates) | DONE (3/3 tests PASS) |
+| **AT-10** | Phase 2 (`developer_core`) | `project/core/reconciler.py`, `tests/test_reconciler.py` (Background Reconciler & Orphan Reaper) | DONE (3/3 tests PASS) |
+| **AT-11** | Phase 3 (`developer_core`) | `project/core/webhook_dedup.py`, `tests/test_webhook_dedup.py` (Webhook Deduplication & Coalescing) | DONE (3/3 tests PASS) |
+| **AT-12** | Phase 3 (`qa_tester`) | `project/core/risk_tier_gate.py`, `tests/test_risk_tier_gate.py` (Risk-Tiered Approval Gate) | DONE (4/4 tests PASS) |
+| **AT-13** | Phase 3 (`code_reviewer`) | `project/core/jira_sanitizer.py`, `tests/test_jira_sanitizer.py` (Jira Untrusted Content Sanitizer) | DONE (3/3 tests PASS) |
+| **AT-14** | Phase 3 (`qa_tester`) | `tests/test_autonomous_e2e_matrix.py` (Full Lifecycle Integration & Chaos Test Matrix) | DONE (3/3 tests PASS) |
+
+---
+
 ## Sprint J Governance & TDD Lifecycles -- 2026-09-24 (revision 21)
 
 Status: DONE (100% Verified, All PRs Merged to Main)

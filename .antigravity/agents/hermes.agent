@@ -154,4 +154,5 @@ tools:
 - metaphysical-request-router
 - metaphysical-hitl-scope-gate
 - metaphysical-finetune-handoff
+- terminal-session-management
 fallback_agent: orchestrator

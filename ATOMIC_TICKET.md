@@ -1,5 +1,38 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint K: Jira + Hermes Control Plane & Decoupled WorkerRuntime — 2026-09-25 (revision 3)
+
+GOAL: Implement a production-grade, fail-closed Autonomous Agent Execution Platform combining Jira Cloud (SSOT / Workflow Audit), Hermes Agent (Control Plane & Durable Session State), Unified WorkerRuntime (Hybrid herdr on macOS / tmux on Linux/CI), Monotonic Fencing Tokens + Renewable Leases, and Deterministic Evidence Gate v1.0.
+
+Shared interface contract [FROZEN]:
+- Invariants: INVARIANT-01 to INVARIANT-08 active.
+- Composite Execution Identity: `{execution_id, ticket_id, attempt, lease_id, fencing_token, session_id, worker_id}`.
+- Error Semantics: `INVALID_IDENTITY`, `STALE_FENCING_TOKEN`, `LEASE_MISMATCH`, `TICKET_MISMATCH`.
+- Bounded Output: max 30 lines via `herdr pane read` / `tmux capture-pane`.
+- Shared Fixtures: `tests/fixtures/evidence/` (`valid.json`, `missing_git_sha.json`, `failed_tests.json`, `wrong_fencing_token.json`, `wrong_attempt.json`, `stale_session.json`, `invalid_artifact_hash.json`).
+- Security Boundary: All Jira content is treated as untrusted input.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-AUTONOMOUS-AT-01-RUNTIME-IFACE` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/worker_runtime.py`, `project/core/execution_identity.py`: Define `RuntimeBackend` ABC (`detect`, `health`, `spawn`, `attach`, `send`, `read`, `status`, `terminate`, `collect_metadata`) and `ExecutionIdentity` dataclass/composite key validation (serialize/deserialize/compare + error semantics). | Wave 1 foundation. Acceptance MET: Pure ASCII, type annotated, deterministic serialization/validation tests passing (5/5 passed), zero Jira dependency in runtime layer. | `sdlc-aisdlc-workflow`, `terminal-session-management` |
+| `TICKET-AUTONOMOUS-AT-05-EVIDENCE-SCHEMA` | `DONE` (100% tests PASS); qa_tester | Sole editor of `schemas/worker_evidence_v1.json`, `project/core/evidence_models.py`, `tests/fixtures/evidence/*.json`: Formalize Evidence Schema v1.0 JSON Schema matching contract with shared test fixture suite. | Wave 1 foundation. Acceptance MET: Strict JSON Schema validation tests pass against positive & negative shared fixtures (6/6 passed). | `qa-regression-provenance`, `qa-e2e-testing` |
+| `TICKET-AUTONOMOUS-AT-02-HERDR-ADAPTER` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/runtime_herdr.py`: Implement `HerdrRuntimeAdapter` connecting to local `herdr` binary with agent-aware state tracking (`working`, `idle`, `blocked`, `done`). | Wave 2. Acceptance MET: macOS integration tests pass (5/5 passed), bounded capture (`--lines 30`), clean error handling on binary missing. | `terminal-session-management` |
+| `TICKET-AUTONOMOUS-AT-03-TMUX-ADAPTER` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/runtime_tmux.py`: Implement `TmuxRuntimeAdapter` using `tmux` session/pane lifecycle with bounded capture (`-S -30`). | Wave 2. Acceptance MET: Linux/CI and fallback tests pass (5/5 passed), session clean-up on terminate. | `terminal-session-management` |
+| `TICKET-AUTONOMOUS-AT-06-EVIDENCE-VALIDATOR` | `DONE` (100% tests PASS); qa_tester | Sole editor of `project/core/evidence_validator.py`, `tests/test_worker_evidence_validator.py`: Implement deterministic gate validator consuming shared fixtures (`tests/fixtures/evidence/`). | Wave 2. Acceptance MET: 100% test coverage on valid/invalid/tampered evidence hashes and fencing token mismatches (6/6 passed). | `qa-regression-provenance`, `qa-e2e-testing` |
+| `TICKET-AUTONOMOUS-AT-04-RUNTIME-SELECTOR` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/runtime_selector.py`: Implement platform-aware pre-spawn backend selection (macOS: herdr -> tmux fallback; Linux/CI: tmux) with immutable lifecycle locking. | Wave 3. Acceptance MET: Pre-spawn immutable lock verified (5/5 passed); zero mid-lifecycle backend swapping. | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-07-LEASE-MANAGER` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/lease_manager.py`: Renewable lease manager with monotonic attempt & fencing tokens, TTL expiry, and INVARIANT-01 enforcement. | Phase 2. Acceptance MET: Unit tests passing (4/4 passed). | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-08-FENCING-GUARD` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/fencing_token_guard.py`: Monotonic fencing token validation blocking zombie/stale worker mutations (INVARIANT-02). | Phase 2. Acceptance MET: Unit tests passing (2/2 passed). | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-09-JIRA-STATE-MACHINE` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/jira_state_machine.py`: Event-driven state machine (TODO -> DOR -> CLAIMED -> IN_PROGRESS -> VERIFYING -> DONE/BLOCKED). | Phase 2. Acceptance MET: Unit tests passing (3/3 passed). | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-10-RECONCILER` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/reconciler.py`: Background reconciler for orphan worker reaping and auto-renewal. | Phase 2. Acceptance MET: Unit tests passing (3/3 passed). | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-11-WEBHOOK-DEDUP` | `DONE` (100% tests PASS); developer_core | Sole editor of `project/core/webhook_dedup.py`: Webhook delivery ID deduplication & burst event coalescing. | Phase 3. Acceptance MET: Unit tests passing (3/3 passed). | `sdlc-aisdlc-workflow` |
+| `TICKET-AUTONOMOUS-AT-12-RISK-TIER-GATE` | `DONE` (100% tests PASS); qa_tester | Sole editor of `project/core/risk_tier_gate.py`: Risk-tiered approval gate (LOW/MEDIUM auto-DONE, HIGH/PROD human sign-off). | Phase 3. Acceptance MET: Unit tests passing (4/4 passed). | `qa-e2e-testing` |
+| `TICKET-AUTONOMOUS-AT-13-JIRA-SANITIZER` | `DONE` (100% tests PASS); code_reviewer | Sole editor of `project/core/jira_sanitizer.py`: Untrusted Jira input sanitization and prompt injection neutralization (INVARIANT-07). | Phase 3. Acceptance MET: Unit tests passing (3/3 passed). | `qa-e2e-testing` |
+| `TICKET-AUTONOMOUS-AT-14-E2E-CHAOS-MATRIX` | `DONE` (100% tests PASS); qa_tester | Sole editor of `tests/test_autonomous_e2e_matrix.py`: Full lifecycle integration & chaos matrix (zombie rejection, tampered hash, happy path). | Phase 3. Acceptance MET: E2E matrix passing (3/3 passed). | `qa-regression-provenance`, `qa-e2e-testing` |
+
+**Definition of Done (Sprint K)**: (1) All 14 tickets fully implemented across Phase 1, Phase 2, and Phase 3; (2) 57/57 unit, integration, and chaos tests PASS; (3) All 8 Invariants programmatically enforced and verified; (4) Ecosystem sync 100% validated.
+
+**Definition of Done (Phase 1)**: (1) WorkerRuntime abstraction and adapters pass unit + integration test baselines; (2) Evidence Schema v1.0 passes strict JSON Schema validation; (3) Immutable pre-spawn selection verified without runtime leakage; (4) Zero Jira knowledge in WorkerRuntime layer.
+
 ## Sprint: Gemini Web Bridge MCP Toggle — 2026-09-21 (revision 1)
 
 GOAL: Toggle routes consultation questions to `gemini-web-bridge` MCP tool

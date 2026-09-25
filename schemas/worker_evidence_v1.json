@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HermesWorkerEvidenceV1",
+  "description": "Deterministic evidence manifest contract for autonomous worker execution v1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "execution_id",
+    "ticket_id",
+    "attempt",
+    "lease_id",
+    "fencing_token",
+    "session_id",
+    "worker_id",
+    "git_sha",
+    "environment",
+    "tests",
+    "acceptance_checks",
+    "command_receipts",
+    "timestamp",
+    "evidence_hash"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "execution_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ticket_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "lease_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fencing_token": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "worker_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "git_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{7,40}$"
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tests": {
+      "type": "object",
+      "required": ["total", "passed", "failed", "skipped"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "skipped": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "acceptance_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["check_id", "status", "detail"],
+        "properties": {
+          "check_id": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["passed", "failed", "waived"]},
+          "detail": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "command_receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "exit_code", "stdout_hash"],
+        "properties": {
+          "command": {"type": "string"},
+          "exit_code": {"type": "integer"},
+          "stdout_hash": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
+    }
+  },
+  "additionalProperties": false
+}
