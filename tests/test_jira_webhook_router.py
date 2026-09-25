@@ -1,5 +1,6 @@
 """Unit and Integration Tests for Jira Webhook Endpoint & Router (FastAPI).
 
+Bound to KAN-38 test provenance manifest.
 Tests webhook intake idempotency, content sanitization, state machine transitions,
 lease queries, and manual release/fencing endpoints.
 """

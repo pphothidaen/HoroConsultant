@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-38-AUTONOMOUS-WORKER-PLATFORM-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "925939a2826cde7685a14b3e5e7a6fa8a153a769",
+  "test_files": [
+    {
+      "path": "tests/test_jira_webhook_router.py",
+      "sha256": "b85589b2c032691c5eb74b1e47990c3a66186c61bb257511cbbad9fd31c6da9c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_jira_webhook_router.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Jira webhook router integration test baseline"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/jira.py",
+    "project/main.py",
+    "project/core/worker_runtime.py",
+    "project/core/lease_manager.py",
+    "project/core/jira_state_machine.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test provenance baseline manifest for KAN-38 Autonomous Worker Platform and Jira Webhook Router."
+}
