@@ -327,6 +327,18 @@ async def serve_ui():
     return JSONResponse(content={"status": "ok", "service": "Computational Metaphysics Engine"})
 
 
+@app.get("/advanced", response_class=FileResponse, include_in_schema=False)
+async def serve_advanced():
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return _serve_frontend_asset(
+        "index.html",
+        {"status": "error", "message": "Advanced Dashboard not found"},
+        status_code=404,
+    )
+
+
 @app.get("/lite", include_in_schema=False)
 @app.get("/lite/", include_in_schema=False)
 async def serve_lite():
