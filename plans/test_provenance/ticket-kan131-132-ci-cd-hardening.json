@@ -1,0 +1,43 @@
+{
+    "schema_version": "test-provenance-v1",
+    "ticket_id": "TICKET-KAN131-KAN132-CI-CD-HARDENING",
+    "sequence": 3,
+    "provenance_status": "VERIFIED",
+    "baseline_parent": "0eefc29c26488e99fcdc00f63a5e84824edfae86",
+    "test_files": [
+        {
+            "path": "tests/test_render_deploy_contract.py",
+            "sha256": "11f11ee9d8d10d8b8976e95292e667f07a1d5ea0b9357d1369a9b2a2ed4ca159"
+        },
+        {
+            "path": "tests/test_monitoring_migration_contract.py",
+            "sha256": "2ba903e75c27eed80f6e88226aad721e9bb1b9c2e7b7a9b50039f4bf6050f42f"
+        },
+        {
+            "path": "tests/test_gitbook_workflow_contract.py",
+            "sha256": "7fe0885fbe9fbf2357d05ec445024143349328b10fc8cf4adc0638a59c1c39e8"
+        }
+    ],
+    "red_tests": [
+        {
+            "command": ["grep", "-q", "RENDER_BACKEND_URL", "scripts/synthetic_health_monitor.py"],
+            "expected_exit": 1,
+            "failure_fingerprint": "RENDER_BACKEND_URL not present — script still uses deprecated HF_BACKEND_URL"
+        }
+    ],
+    "allowed_source_paths": [
+        ".github/workflows/deploy-render.yml",
+        ".github/workflows/production_monitor.yml",
+        ".github/workflows/gitbook-webhook-pr.yml",
+        "gitbook-docs.yaml",
+        "scripts/synthetic_health_monitor.py",
+        "scripts/run_live_health_verification.py",
+        "README.md",
+        "docs/repository-guidelines.md"
+    ],
+    "test_owner_role": "qa_tester",
+    "reviewer_role": "code_reviewer",
+    "supersedes": null,
+    "correction_reason": null,
+    "rationale": "TDD contract tests for CI/CD issue resolution: (1) Render deploy workflow hardening with Doppler secret sync + failure diagnostics [KAN-131]; (2) Monitoring migration HF→Render [KAN-131]; (3) GitBook webhook-to-PR workflow + docs restore [KAN-132]. 35 contract tests verify workflow structure, monitoring script env-var precedence, and GitBook sync restoration."
+}
