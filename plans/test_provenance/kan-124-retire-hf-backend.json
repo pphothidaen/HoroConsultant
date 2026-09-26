@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-124",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "d4848c713201641c7618b286063071393bec542e",
+  "test_files": [
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "3b69bf5f6517ed8609ec4b6526998f0c4f0d42dc184cea742558f8053300b5de"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "6c117ed3478677376d9ea22115af941cdd5476711b489055ab4e335f2ac1a3c5"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_trigger_inventory_retirement.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "FAILED project/tests/test_trigger_inventory_retirement.py::test_exact_inventory_matches_documentation_and_workflow_filesystem"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/hf_backend_deploy.yml",
+    "scripts/trigger_all_github_actions.py",
+    "project/tests/test_trigger_inventory_retirement.py",
+    "project/tests/test_github_actions_regression.py",
+    "plans/test_provenance/kan-124-retire-hf-backend.json"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Retire unmaintainable Hugging Face Docker Space backend deployment in favor of the active Render primary backend, following established tombstone precedent."
+}
