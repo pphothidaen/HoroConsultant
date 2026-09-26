@@ -377,3 +377,24 @@ class TestSpecificWorkflowsIntegrity:
 
 # Baseline fix3 (PR #70): added hermes/ and wrangler.jsonc to provenance
 # coverage after 509a8989 introduced them into the PR diff.
+
+
+def test_dockerfiles_include_schemas_directory():
+    dockerfile = (ROOT_DIR / "Dockerfile").read_text(encoding="utf-8")
+    assert "COPY schemas ./schemas" in dockerfile or "COPY schemas" in dockerfile
+    dockerfile_render = (ROOT_DIR / "Dockerfile.render").read_text(encoding="utf-8")
+    assert "schemas" in dockerfile_render
+
+
+def test_sync_jira_workflow_uses_non_interactive_twg_login():
+    workflow = (ROOT_DIR / ".github" / "workflows" / "sync-jira.yml").read_text(encoding="utf-8")
+    login_lines = [
+        line.strip()
+        for line in workflow.splitlines()
+        if "twg login" in line and not line.strip().startswith("#")
+    ]
+    assert len(login_lines) >= 2, "Expected at least 2 twg login commands in sync-jira.yml"
+    for line in login_lines:
+        assert "--yes" in line, f"Expected --yes in twg login command: {line}"
+
+
