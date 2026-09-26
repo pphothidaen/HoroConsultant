@@ -206,33 +206,24 @@ def _workflow(name):
     return yaml.load((ROOT / ".github/workflows" / name).read_text(), Loader=yaml.BaseLoader)
 
 
-@pytest.mark.parametrize("event", ["workflow_run", "workflow_dispatch"])
-def test_both_release_entry_paths_gate_exact_source_before_publication(event):
+def test_hf_backend_deploy_is_retired_tombstone():
+    """Hugging Face Space backend is permanently retired in favor of Render primary backend."""
     workflow = _workflow("hf_backend_deploy.yml")
+    assert set(workflow["on"]) == {"workflow_dispatch"}
+    assert set(workflow["jobs"]) == {"retired"}
+    job = workflow["jobs"]["retired"]
+    assert job["if"] == "${{ false }}"
+
+
+@pytest.mark.parametrize("event", ["workflow_run", "workflow_dispatch"])
+def test_render_release_entry_paths_gate_production_deployment(event):
+    """Render backend deployment gates publication to main branch events."""
+    workflow = _workflow("deploy-render.yml")
     assert event in workflow["on"]
-    job = workflow["jobs"]["publish-and-verify"]
-    steps = job["steps"]
-    gates = [(i, step) for i, step in enumerate(steps) if "scripts/verify_release_ci_gates.py" in step.get("run", "")]
-    assert gates, "both release entry paths require checked-in CI gate"
-    publish = next(i for i, step in enumerate(steps) if "scripts/publish_space_hf.py" in step.get("run", "") and "--dry-run" not in step["run"])
-    assert any(i < publish for i, _ in gates)
-    for i, step in gates:
-        assert not step.get("if"), "gate must cover both event paths unconditionally"
-        assert step.get("continue-on-error", "false") == "false"
-        run = step["run"]
-        assert "--repository" in run and "--source-sha" in run
-        assert "github.repository" in json.dumps(step)
-        assert "steps.source.outputs.sha" in json.dumps(step)
-        assert "GH_TOKEN" in step.get("env", {})
-        assert "|| true" not in run
-    # Revalidate close to mutation, after preparation, not only at job startup.
-    assert "scripts/verify_release_ci_gates.py" in steps[publish].get("run", "") or (
-        publish > 0 and "scripts/verify_release_ci_gates.py" in steps[publish - 1].get("run", "")
-    )
-    permissions = dict(workflow.get("permissions", {}))
-    permissions.update(job.get("permissions", {}))
-    assert permissions.get("actions") == "read"
-    assert all(value in ("read", "none") for value in permissions.values())
+    job = workflow["jobs"]["deploy-and-verify"]
+    assert "github.ref == 'refs/heads/main'" in job["if"]
+    assert "github.event.workflow_run.conclusion == 'success'" in job["if"]
+
 
 
 def test_ai_safety_push_always_runs_on_main_for_required_gate():
