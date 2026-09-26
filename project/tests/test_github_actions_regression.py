@@ -268,6 +268,12 @@ class TestSpecificWorkflowsIntegrity:
         assert "permanently retired" in content
         assert "runs-on: ubuntu-latest" in content
 
+    def test_update_index_workflow_is_deterministic(self):
+        """update-index.yml must not use non-deterministic datetime timestamps."""
+        content = (WORKFLOWS_DIR / "update-index.yml").read_text(encoding="utf-8")
+        assert "datetime.utcnow()" not in content
+
+
     def test_kaggle_finetune_workflow(self):
         """kaggle_finetune.yml must trigger scripts/kaggle_notebook_manager.py --push."""
         content = (WORKFLOWS_DIR / "kaggle_finetune.yml").read_text(encoding="utf-8")

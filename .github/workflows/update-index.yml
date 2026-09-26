@@ -62,7 +62,6 @@ jobs:
           lines.append("")
           lines.append("> This file is auto-generated from `docs/` structure.")
           lines.append("> Do not edit manually — changes will be overwritten.")
-          lines.append(f"> Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
           lines.append("")
           lines.append(f"**Total documents:** {len(md_files)}")
           lines.append("")
