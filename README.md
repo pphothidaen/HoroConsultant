@@ -458,7 +458,7 @@ python3 project/mcp_server.py
 Production uses two fail-closed targets:
 
 1. **Vercel UI and lightweight gateway** — `https://horo-consultant-psi.vercel.app`
-2. **Hugging Face Docker backend** — `pphothidaen/horoconsultant-core-backend`
+2. **Render Docker backend** — `https://horoconsultant-core-backend.onrender.com`
 
 > 📖 **Release docs:** [`docs/RELEASE_HANDOFF_CHECKLIST.md`](docs/RELEASE_HANDOFF_CHECKLIST.md) · [`docs/RELEASE_ROLLBACK_RUNBOOK.md`](docs/RELEASE_ROLLBACK_RUNBOOK.md) · [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md)
 

@@ -14,14 +14,12 @@ concurrency:
 
 jobs:
   monitor:
-    name: Verify HF Docker backend and Vercel UI
+    name: Verify Render backend and Vercel UI
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
-      HF_BACKEND_SPACE_ID: pphothidaen/horoconsultant-core-backend
-      HF_BACKEND_URL: https://pphothidaen-horoconsultant-core-backend.hf.space
+      RENDER_BACKEND_URL: https://horoconsultant-core-backend.onrender.com
       VERCEL_STATIC_URL: https://horo-consultant-psi.vercel.app
-      HF_STATIC_SPACE_ID: ""
 
     steps:
       - name: Checkout monitored source
@@ -43,22 +41,17 @@ jobs:
           from urllib.parse import urlsplit
 
           canonical_space = "pphothidaen/horoconsultant-core-backend"
-          canonical_backend = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+          canonical_backend = "https://horoconsultant-core-backend.onrender.com"
           canonical_ui = "https://horo-consultant-psi.vercel.app"
 
-          actual_space = os.environ.get("HF_BACKEND_SPACE_ID", "").strip()
-          actual_backend = os.environ.get("HF_BACKEND_URL", "").strip().rstrip("/")
+          actual_backend = os.environ.get("RENDER_BACKEND_URL", "").strip().rstrip("/")
           actual_ui = os.environ.get("VERCEL_STATIC_URL", "").strip().rstrip("/")
-          static_space = os.environ.get("HF_STATIC_SPACE_ID", "").strip()
 
-          if actual_space != canonical_space or actual_backend != canonical_backend:
-              print("[ERROR] HF Docker backend target is not the canonical production target.")
+          if actual_backend != canonical_backend:
+              print("[ERROR] Render backend target is not the canonical production target.")
               raise SystemExit(1)
           if actual_ui != canonical_ui:
               print("[ERROR] Vercel UI target is not the canonical production target.")
-              raise SystemExit(1)
-          if static_space:
-              print("[ERROR] A legacy HF Static target is configured.")
               raise SystemExit(1)
           if actual_backend == actual_ui:
               print("[ERROR] Backend and UI targets must be distinct.")
@@ -69,22 +62,22 @@ jobs:
               if (
                   parsed.scheme != "https"
                   or not parsed.hostname
-                  or parsed.username
-                  or parsed.password
+                  or parsed.username is not None
+                  or parsed.password is not None
                   or parsed.query
                   or parsed.fragment
               ):
                   print(f"[ERROR] Canonical {label} URL is malformed.")
                   raise SystemExit(1)
 
-          if urlsplit(actual_backend).hostname != "pphothidaen-horoconsultant-core-backend.hf.space":
-              print("[ERROR] Backend URL is not the canonical HF Docker host.")
+          if urlsplit(actual_backend).hostname != "horoconsultant-core-backend.onrender.com":
+              print("[ERROR] Backend URL is not the canonical Render host.")
               raise SystemExit(1)
           if urlsplit(actual_ui).hostname != "horo-consultant-psi.vercel.app":
               print("[ERROR] UI URL is not the canonical Vercel host.")
               raise SystemExit(1)
 
-          print("[OK] Canonical HF Docker backend and Vercel UI targets are separated.")
+          print("[OK] Canonical Render backend and Vercel UI targets are separated.")
           PY
 
       - name: Resolve monitor targets without network
@@ -109,7 +102,7 @@ jobs:
           report = {
               "schema_version": "production-version-monitor-v1",
               "checked_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-              "backend_target": os.environ["HF_BACKEND_SPACE_ID"],
+              "backend_target": os.environ["RENDER_BACKEND_URL"],
               "backend_sdk": "docker",
               "vercel_ui_target": os.environ["VERCEL_STATIC_URL"],
               "success": False,
@@ -221,7 +214,7 @@ jobs:
               )
 
               surfaces = (
-                  ("hf_docker_backend", os.environ["HF_BACKEND_URL"].rstrip("/") + "/version.json"),
+                  ("render_backend", os.environ["RENDER_BACKEND_URL"].rstrip("/") + "/version.json"),
                   ("vercel_ui", os.environ["VERCEL_STATIC_URL"].rstrip("/") + "/version.json"),
               )
               for label, url in surfaces:
@@ -259,7 +252,7 @@ jobs:
               if len(report["surfaces"]) != 2:
                   raise ContractError("required identity surface cardinality is not exact")
               report["success"] = True
-              print("[OK] Exact release identity matches HF Docker backend and Vercel UI.")
+              print("[OK] Exact release identity matches Render backend and Vercel UI.")
           except Exception as error:
               report["error_class"] = type(error).__name__
               print(f"[ERROR] Exact release identity verification failed: {type(error).__name__}.")

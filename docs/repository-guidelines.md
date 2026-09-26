@@ -15,14 +15,16 @@
 ## GitBook Integration
 
 ### Git Sync Status
-- **Repository**: `pphothidaen/HoroConsultant` (branch: `main`)
-- **GitBook Space**: Pphothidaen Docs
-- **Current State**: ⚠️ Sync failing — GitHub branch protection requires `test provenance` status check to pass before pushes. GitBook's automated sync does not trigger CI.
-- **Resolution Options**:
-  1. Add GitBook's bot/service account to the branch protection bypass list (recommended).
-  2. Exclude docs paths from branch protection rules.
-  3. Use GitBook's native editor instead of Git Sync (no automation).
-  4. Set up a GitHub Action that listens for GitBook webhook events and creates PRs instead of direct pushes.
+|- **Repository**: `pphothidaen/HoroConsultant` (branch: `main`)
+|- **GitBook Space**: Pphothidaen Docs
+|- **Current State**: ⚠️ Sync failing — GitHub branch protection requires `test provenance` status check to pass before pushes. GitBook's automated sync does not trigger CI.
+|- **Resolution Applied**: (1) Restored `gitbook-docs.yaml` at repository root (was deleted in `b653e9ec`); (2) Added `.github/workflows/gitbook-webhook-pr.yml` that listens for GitBook webhook events via `workflow_dispatch` and creates formal PRs so CI provenance gates run automatically; (3) The `gitbook-docs.yaml` config is registered in `DOC_FILES` at `scripts/test_provenance_guard.py:49`.
+|- **Owner Action Still Required**: Add GitBook's service account/bot to the GitHub branch protection bypass list (Settings → Branches → Branch protection rules), OR exclude `docs/**` paths from the `test-provenance` required status check. Configure GitBook's webhook to fire `repository_dispatch` events that trigger `gitbook-webhook-pr.yml`.
+|- **Resolution Options** (from original docs):
+| 1. Add GitBook's bot/service account to the branch protection bypass list (recommended).
+| 2. Exclude docs paths from branch protection rules.
+| 3. Use GitBook's native editor instead of Git Sync (no automation).
+| 4. ✅ **IMPLEMENTED**: Set up a GitHub Action (`gitbook-webhook-pr.yml`) that listens for GitBook webhook events and creates PRs instead of direct pushes.
 
 ### Webhooks
 - GitBook Webhook integration: `https://app.gitbook.com/integrations/webhook`

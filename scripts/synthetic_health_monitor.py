@@ -3,7 +3,7 @@
 
 The monitor is intentionally dependency-light so it can run in GitHub Actions,
 a container, or a long-running host. It checks Vercel static UI assets and
-release metadata separately from the Hugging Face Docker backend.
+release metadata separately from the Render Docker backend.
 
 Usage:
     python3 scripts/synthetic_health_monitor.py --once
@@ -33,7 +33,8 @@ from typing import Any, Mapping
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_VERCEL_STATIC_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+DEFAULT_RENDER_BACKEND_URL = "https://horoconsultant-core-backend.onrender.com"
+DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"  # deprecated fallback
 DEFAULT_PING_INTERVAL_SECONDS = 300
 DEFAULT_MAX_LATENCY_MS = float(os.getenv("MAX_LATENCY_THRESHOLD_MS", "5000.0"))
 
@@ -47,13 +48,15 @@ def _base_url(value: str) -> str:
 
 
 def _backend_url(env: Mapping[str, str]) -> str:
-    """Resolve the Docker backend, respecting an explicit local blank value."""
-    configured = _base_url(env.get("HF_BACKEND_URL", ""))
+    """Resolve the Docker backend, respecting an explicit local blank value.
+    Prefers RENDER_BACKEND_URL; falls back to HF_BACKEND_URL for legacy compat.
+    """
+    configured = _base_url(env.get("RENDER_BACKEND_URL", env.get("HF_BACKEND_URL", "")))
     if configured:
         return configured
-    if "HF_BACKEND_URL" in env:
+    if "RENDER_BACKEND_URL" in env or "HF_BACKEND_URL" in env:
         return ""
-    return DEFAULT_HF_BACKEND_URL
+    return DEFAULT_RENDER_BACKEND_URL
 
 
 def _vercel_static_url(env: Mapping[str, str]) -> str:
@@ -76,7 +79,7 @@ def _assert_separated_targets(env: Mapping[str, str], static_url: str, backend_u
             raise ValueError("HF_STATIC_SPACE_ID must not equal HF_BACKEND_SPACE_ID; Vercel owns static UI")
         raise ValueError("HF_STATIC_SPACE_ID is retired; configure VERCEL_STATIC_URL for the public UI")
     if backend_url and static_url == backend_url:
-        raise ValueError("VERCEL_STATIC_URL must not equal HF_BACKEND_URL")
+        raise ValueError("VERCEL_STATIC_URL must not equal backend URL")
 
 
 def build_health_targets(
@@ -87,7 +90,7 @@ def build_health_targets(
     """Build the active production targets after environment loading.
 
     Azure ingress is unavailable, so the public FastAPI backend is deployed to
-    a dedicated Hugging Face Docker Space and is required in production.
+    a dedicated Render Docker service and is required in production.
     """
     env = os.environ if environment is None else environment
     backend_url = _backend_url(env)
@@ -96,7 +99,7 @@ def build_health_targets(
     if not static_url:
         raise ValueError("VERCEL_STATIC_URL must not be empty")
     if require_backend and not backend_url:
-        raise ValueError("HF_BACKEND_URL is required for this monitor run")
+        raise ValueError("RENDER_BACKEND_URL is required for this monitor run")
     _assert_separated_targets(env, static_url, backend_url)
 
     static_candidates = [
@@ -130,7 +133,7 @@ def build_health_targets(
     if backend_url:
         targets.append(
             {
-                "name": "Hugging Face Docker Backend /health",
+                "name": "Render backend /health",
                 "url": f"{backend_url}/health",
                 "critical": True,
             }
@@ -466,7 +469,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--interval", type=int, default=DEFAULT_PING_INTERVAL_SECONDS, help="Seconds between daemon cycles")
     parser.add_argument("--timeout", type=int, default=15, help="Per-target HTTP timeout in seconds (default 15)")
     parser.add_argument("--max-latency-ms", type=float, default=DEFAULT_MAX_LATENCY_MS, help="Max latency SLA threshold in ms before warning (default 5000)")
-    parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require HF_BACKEND_URL")
+    parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require RENDER_BACKEND_URL")
     parser.add_argument("--json-output", type=Path, help="Write the latest health report as JSON")
     parser.add_argument("--dry-run", action="store_true", help="Print resolved targets without network requests")
     return parser
