@@ -2,9 +2,8 @@
 
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
-> Generated: 2026-09-25 16:57:13 UTC
 
-**Total documents:** 69
+**Total documents:** 70
 
 ## Document Registry
 
@@ -35,6 +34,12 @@
 | `skill-audit-2026-09-23.md` | `skill-audit-2026-09-23.md` |
 | `tradeoff.md` | `tradeoff.md` |
 | `v3_api_specification.md` | `v3_api_specification.md` |
+
+### `api-guide/`
+
+| File | Path |
+|------|------|
+| `jira-webhook-integration.md` | `api-guide/jira-webhook-integration.md` |
 
 ### `architecture/`
 
@@ -105,12 +110,6 @@
 | `2026-08-10-rust-first-azure-v1-design.md` | `superpowers/specs/2026-08-10-rust-first-azure-v1-design.md` |
 | `2026-09-05-atomic-dynamic-cross-provider-context-design.md` | `superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md` |
 | `2026-09-05-release-qa-remediation-design.md` | `superpowers/specs/2026-09-05-release-qa-remediation-design.md` |
-
-### `api-guide/`
-
-|| File | Path |
-||------|------|
-|| `jira-webhook-integration.md` | `api-guide/jira-webhook-integration.md` |
 
 ### `templates/`
 
