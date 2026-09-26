@@ -33,7 +33,7 @@ jobs:
           TWG_SITE: ${{ secrets.TWG_SITE }}
         run: |
           # Create remaining sub-tasks using bulk payload
-          twg login --no-verify || true
+          twg login --no-verify --yes || true
           if [ -f docs/jira/remaining_subtasks_bulk.json ]; then
             echo "Found remaining sub-tasks JSON — ready for bulk creation"
           fi
@@ -58,7 +58,7 @@ jobs:
           TWG_USER: ${{ secrets.TWG_USER }}
           TWG_SITE: ${{ secrets.TWG_SITE }}
         run: |
-          twg login --no-verify || true
+          twg login --no-verify --yes || true
           # Sync completed sub-tasks status
           twg jira workitem query --jql "project = KAN AND status = Done AND updated >= -1h" --output json > /tmp/jira_done.json
           echo "Synced $(jq '.data | length' /tmp/jira_done.json) completed items"

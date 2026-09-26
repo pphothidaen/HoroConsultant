@@ -56,8 +56,10 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
 COPY project ./project
 COPY TDD-HORO-v3.0 ./TDD-HORO-v3.0
 COPY scripts ./scripts
+COPY schemas ./schemas
 COPY --from=rust-builder /src/rust_core/target/release/horo_server /app/horo_server
 RUN chown --recursive appuser:appuser /app \
+
     && chmod 0555 /app/horo_server
 
 USER appuser

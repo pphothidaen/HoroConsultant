@@ -22,7 +22,22 @@ from project.core.execution_identity import (
     TicketMismatchError,
 )
 
-DEFAULT_SCHEMA_PATH = Path(__file__).parent.parent.parent / "schemas" / "worker_evidence_v1.json"
+def _resolve_default_schema_path() -> Path:
+    candidates = [
+        Path(__file__).resolve().parent.parent.parent / "schemas" / "worker_evidence_v1.json",
+        Path(__file__).resolve().parent.parent / "schemas" / "worker_evidence_v1.json",
+        Path.cwd() / "schemas" / "worker_evidence_v1.json",
+        Path("/app/schemas/worker_evidence_v1.json"),
+        Path("/code/schemas/worker_evidence_v1.json"),
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return candidates[0]
+
+
+DEFAULT_SCHEMA_PATH = _resolve_default_schema_path()
+
 
 
 @dataclass(frozen=True)
