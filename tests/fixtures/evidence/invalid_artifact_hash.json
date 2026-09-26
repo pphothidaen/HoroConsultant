@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "execution_id": "exec-20260925-001",
+  "ticket_id": "KAN-142",
+  "attempt": 1,
+  "lease_id": "L-8f21",
+  "fencing_token": "fence-100",
+  "session_id": "session-20260925-abc",
+  "worker_id": "worker-herdr-01",
+  "git_sha": "e0ff15b1a8b321c846869b01fcce2075a0d8d18e",
+  "environment": "macos-arm64-darwin24",
+  "tests": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0
+  },
+  "acceptance_checks": [
+    {
+      "check_id": "AC-01",
+      "status": "passed",
+      "detail": "WorkerRuntime ABC defined without Jira dependency"
+    }
+  ],
+  "command_receipts": [
+    {
+      "command": "pytest tests/test_execution_identity.py",
+      "exit_code": 0,
+      "stdout_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "dist/bundle.tar.gz",
+      "sha256": "NOT-A-VALID-HEX-DIGEST"
+    }
+  ],
+  "timestamp": "2026-09-25T15:00:00Z",
+  "evidence_hash": "1f1e3e9b0263dfbd7a252db12ce9936d9ff2dc9a68eab575f4057e9152468f64"
+}

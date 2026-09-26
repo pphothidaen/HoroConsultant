@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-123",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "78c2a0aea151de9036d8d728a945e526829c77f6",
+  "test_files": [
+    {
+      "path": "project/tests/test_gemini_bridge_circuit_breaker.py",
+      "sha256": "07de4cf01b0a2e72aceecb56392d5534ea318e84a340bd52a81cb21475d7259d"
+    },
+    {
+      "path": "project/tests/test_gemini_bridge_state_machine.py",
+      "sha256": "dfe751234b8cde6fc38e6892ed7caeec35c9abdf790106ef8fdb3f10160b28d1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3", "-m", "pytest", "-v",
+        "project/tests/test_gemini_bridge_circuit_breaker.py::test_no_http_when_circuit_already_open",
+        "project/tests/test_gemini_bridge_state_machine.py::test_open_state_blocks_all_calls_without_http"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert {'text': 'recovered answer', 'pdf_url': None} is None / AssertionError: assert 'ok' == 'circuit_open'"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_gemini_bridge_circuit_breaker.py",
+    "project/tests/test_gemini_bridge_state_machine.py",
+    "plans/test_provenance/kan123-circuit-breaker-sentinel-fix.json"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Replace hardcoded absolute sentinel 999999.0 with relative time.monotonic()+86400 so circuit breaker tests remain valid regardless of system uptime. This is a pure test-fix: no production code changed."
+}

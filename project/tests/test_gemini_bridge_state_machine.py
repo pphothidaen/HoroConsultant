@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import httpx
 import pytest
+import time
 
 import project.core.gemini_bridge_client as gbc
 from project.core.gemini_bridge_client import (
@@ -112,7 +113,7 @@ def test_closed_to_open_transition_on_hard_failure(monkeypatch):
 def test_open_state_blocks_all_calls_without_http(monkeypatch):
     """OPEN: repeated calls all return circuit_open, zero HTTP."""
     # Force circuit open far into the future
-    gbc._BRIDGE_CIRCUIT_BREAKER["bridge"] = 999999.0
+    gbc._BRIDGE_CIRCUIT_BREAKER["bridge"] = time.monotonic() + 86400  # KAN-123: relative sentinel
 
     post_called = {"flag": False}
 

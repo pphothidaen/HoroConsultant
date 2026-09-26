@@ -15,6 +15,7 @@ tools:
 - devops-deployment
 - hf-static-release-verification
 - multi-account-agent-orchestration
+- terminal-session-management
 thinking: false
 fallback_agent: orchestrator
 ---

@@ -945,7 +945,7 @@ pub fn compute_element_scores(
     stems: Vec<String>,
     branches: Vec<String>,
 ) -> PyResult<HashMap<String, f32>> {
-    Ok(py.allow_threads(move || compute_element_scores_inner(&stems, &branches)))
+    Ok(py.detach(move || compute_element_scores_inner(&stems, &branches)))
 }
 
 #[cfg(feature = "python")]
@@ -955,7 +955,7 @@ pub fn compute_probabilistic_matrix(
     base_stems: Vec<String>,
     base_branches: Vec<String>,
 ) -> PyResult<Vec<HashMap<String, f32>>> {
-    Ok(py.allow_threads(move || {
+    Ok(py.detach(move || {
         (0..12)
             .map(|hour_branch| {
                 let mut stems = base_stems.clone();
@@ -973,5 +973,5 @@ pub fn compute_probabilistic_matrix(
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn julian_day_number(py: Python<'_>, year: i32, month: i32, day: i32) -> PyResult<f64> {
-    Ok(py.allow_threads(move || julian_day_number_rust(year, month, day)))
+    Ok(py.detach(move || julian_day_number_rust(year, month, day)))
 }

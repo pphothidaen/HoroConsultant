@@ -316,6 +316,8 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         | (&Method::GET, "/metrics")
         | (&Method::GET, "/metrics/seed-dummy")
         | (&Method::POST, "/metrics/seed-dummy")
+        // Jira webhook router routes (G3)
+        | (&Method::POST, "/api/jira/webhook")
         | (&Method::GET, "/api/health") => Some(RouteKind::PythonProxy),
         (&Method::GET, dynamic) | (&Method::HEAD, dynamic) if dynamic.starts_with("/static/") => {
             Some(RouteKind::PythonProxy)
@@ -336,6 +338,12 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         }
         (&Method::GET, dynamic) | (&Method::POST, dynamic)
             if one_segment_after(dynamic, "/api/visualize/") =>
+        {
+            Some(RouteKind::PythonProxy)
+        }
+        // Jira ticket routes with path params (G3)
+        (&Method::GET, dynamic) | (&Method::POST, dynamic)
+            if dynamic.starts_with("/api/jira/tickets/") =>
         {
             Some(RouteKind::PythonProxy)
         }

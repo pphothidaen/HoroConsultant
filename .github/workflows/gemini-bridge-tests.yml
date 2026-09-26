@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest anyio
+          pip install pytest anyio python-dotenv
 
       - name: Run bridge test suite
         id: run-bridge-tests

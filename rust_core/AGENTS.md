@@ -17,7 +17,7 @@
 ## Rayon Multithreading & Concurrency
 - Accelerate heavy calculations (ephemeris batches, matrix transformations) using `rayon::prelude::*`.
 - Ensure all closure captures and shared state conform to `Send + Sync`.
-- Release the Python GIL using `Python::allow_threads` during compute-intensive multithreaded iterations.
+- Release the Python GIL using `Python::detach` during compute-intensive multithreaded iterations.
 - Balance iterator batch sizing to avoid thread contention or thread pool starvation.
 - Ensure parallel loops remain pure, deterministic, and free of side effects.
 - Respect host CPU constraints and configure thread pools gracefully for CI environments.

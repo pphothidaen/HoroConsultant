@@ -1,0 +1,73 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-AUTONOMOUS-WORKER-PLATFORM-002",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "11cffed712f5910294201d497b1ebe73648d6235",
+  "test_files": [
+    {
+      "path": "project/tests/goldens/openapi.json",
+      "sha256": "db61694641213dcf7cb4c4bea76e954a903e7fc4fa99d68039a1a23076c069db"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_autonomous_e2e_matrix.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Sprint K Autonomous Worker Platform test baseline verification"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/worker_runtime.py",
+    "project/core/execution_identity.py",
+    "project/core/runtime_herdr.py",
+    "project/core/runtime_tmux.py",
+    "project/core/runtime_selector.py",
+    "project/core/evidence_models.py",
+    "project/core/evidence_validator.py",
+    "project/core/lease_manager.py",
+    "project/core/fencing_token_guard.py",
+    "project/core/jira_state_machine.py",
+    "project/core/reconciler.py",
+    "project/core/webhook_dedup.py",
+    "project/core/risk_tier_gate.py",
+    "project/core/jira_sanitizer.py",
+    "schemas/worker_evidence_v1.json",
+    "rust_core/Cargo.lock",
+    "rust_core/Cargo.toml",
+    "rust_core/src/astrological_audit.rs",
+    "rust_core/src/bazi.rs",
+    "rust_core/src/chunker.rs",
+    "rust_core/src/fengshui.rs",
+    "rust_core/src/iching.rs",
+    "rust_core/src/lib.rs",
+    "rust_core/src/liu_yao.rs",
+    "rust_core/src/liuren.rs",
+    "rust_core/src/meihua.rs",
+    "rust_core/src/numerology.rs",
+    "rust_core/src/observability.rs",
+    "rust_core/src/qimen.rs",
+    "rust_core/src/sanhe.rs",
+    "rust_core/src/security_audit.rs",
+    "rust_core/src/server.rs",
+    "rust_core/src/solar.rs",
+    "rust_core/src/svg.rs",
+    "rust_core/src/swisseph.rs",
+    "rust_core/src/tai_yi.rs",
+    "rust_core/src/tfidf.rs",
+    "rust_core/src/thai_vedic.rs",
+    "rust_core/src/uranian.rs",
+    "rust_core/src/v3_merkle_dag.rs",
+    "rust_core/src/vector_search.rs",
+    "rust_core/src/zeji.rs",
+    "rust_core/src/ziwei.rs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "orchestrator",
+  "supersedes": "5c8a9403b6eaea6a67d406da05a4c6817869788e",
+  "correction_reason": "Regenerated golden OpenAPI spec (project/tests/goldens/openapi.json) to include Jira Cloud webhook router endpoints added in PR #95. New manifest supersedes prior baseline to capture the regenerated frozen test fixture hash.",
+  "rationale": "Test provenance baseline manifest for Jira webhook OpenAPI golden file regeneration. Supersedes TICKET-AUTONOMOUS-WORKER-PLATFORM-001 to freeze the updated golden fixture."
+}

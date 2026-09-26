@@ -32,6 +32,7 @@ from project.routers.calendar import calendar_router
 from project.routers.luopan_dream import luopan_dream_router
 from project.routers.simulation import simulation_router
 from project.routers.chat import router as chat_router
+from project.routers.jira import jira_router
 
 
 try:
@@ -279,6 +280,7 @@ app.include_router(luopan_dream_router)
 app.include_router(simulation_router)
 app.include_router(chat_router)
 app.include_router(visual_router)
+app.include_router(jira_router)
 
 
 

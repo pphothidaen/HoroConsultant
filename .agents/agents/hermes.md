@@ -14,6 +14,7 @@ tools:
 - metaphysical-request-router
 - metaphysical-hitl-scope-gate
 - metaphysical-finetune-handoff
+- terminal-session-management
 thinking: false
 fallback_agent: orchestrator
 ---

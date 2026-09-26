@@ -92,6 +92,43 @@ class WebhookNotifier:
         )
         return self._send_all(title, body, status="ERROR")
 
+    def notify_jira_webhook_event(
+        self,
+        event_type: str,
+        ticket_id: str,
+        summary: str = "",
+        details: str = "",
+    ) -> bool:
+        """Send notification for Jira webhook lifecycle events.
+
+        Event types: CLAIM, RELEASED, FENCED, SUSPICIOUS, BLOCKED, INFO.
+        """
+        type_emoji = {
+            "CLAIM": "🎫",
+            "RELEASED": "🔓",
+            "FENCED": "🧱",
+            "SUSPICIOUS": "🛡️",
+            "BLOCKED": "🚫",
+        }.get(event_type, "📋")
+        title = f"{type_emoji} [HoroConsultant Jira] {event_type}: {ticket_id}"
+        body_lines = [
+            f"• <b>Ticket:</b> <code>{ticket_id}</code>",
+            f"• <b>Summary:</b> {summary or 'N/A'}",
+        ]
+        if details:
+            body_lines.append(f"• <b>Details:</b> {details}")
+        body_lines.append(
+            f"• <b>Timestamp:</b> <code>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</code>"
+        )
+        status = (
+            "SUCCESS"
+            if event_type in ("CLAIM", "RELEASED")
+            else "ERROR"
+            if event_type in ("SUSPICIOUS", "BLOCKED", "FENCED")
+            else "INFO"
+        )
+        return self._send_all(title, "\n".join(body_lines), status=status)
+
     def send_direct_message(self, message: str, chat_id: Optional[str] = None) -> bool:
         """Send a direct message to a specific Telegram chat."""
         target_chat = chat_id or self.telegram_chat_id

@@ -146,7 +146,7 @@ pub fn calculate_satta_lek_matrix(
     lunar_month: u32,
     year_zodiac_num: u32,
 ) -> PyResult<(Vec<u32>, Vec<u32>, Vec<u32>, Vec<u32>)> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let mut row1 = Vec::with_capacity(7);
         let mut row2 = Vec::with_capacity(7);
         let mut row3 = Vec::with_capacity(7);

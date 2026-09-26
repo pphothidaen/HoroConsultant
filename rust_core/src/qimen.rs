@@ -184,7 +184,7 @@ pub fn qimen_9palace_matrix(
     dun_is_yang: bool,
     ju_number: i32,
 ) -> PyResult<Vec<(i32, String, String, String, String)>> {
-    let result = py.allow_threads(move || {
+    let result = py.detach(move || {
         let stems_order = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
         let mut earth_plate = ["戊"; 10]; // 1-indexed by palace_num
 

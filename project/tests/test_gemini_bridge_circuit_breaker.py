@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import httpx
 import pytest
+import time
 
 import project.core.gemini_bridge_client as gbc
 from project.core.gemini_bridge_client import (
@@ -226,7 +227,7 @@ def test_no_http_when_circuit_already_open(monkeypatch, _bridge_on):
     """When the circuit is already open (pre-tripped), call_bridge_tool
     must return 'circuit_open' without instantiating httpx.Client at all."""
     # Pre-trip the circuit far into the future
-    gbc._BRIDGE_CIRCUIT_BREAKER["bridge"] = 999999.0
+    gbc._BRIDGE_CIRCUIT_BREAKER["bridge"] = time.monotonic() + 86400  # KAN-123: relative sentinel, not absolute
 
     ctor_count = {"n": 0}
     post_called = {"flag": False}
