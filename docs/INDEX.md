@@ -106,6 +106,12 @@
 | `2026-09-05-atomic-dynamic-cross-provider-context-design.md` | `superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md` |
 | `2026-09-05-release-qa-remediation-design.md` | `superpowers/specs/2026-09-05-release-qa-remediation-design.md` |
 
+### `api-guide/`
+
+|| File | Path |
+||------|------|
+|| `jira-webhook-integration.md` | `api-guide/jira-webhook-integration.md` |
+
 ### `templates/`
 
 | File | Path |

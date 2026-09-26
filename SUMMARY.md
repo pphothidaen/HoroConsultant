@@ -17,8 +17,9 @@
 * [Autonomous Worker Platform](docs/architecture/autonomous-worker-platform.md)
 * [Gemini Bridge MCP Toggle](docs/gemini-bridge-mcp-toggle.md)
 
-## API
+## API Guide
 * [v3 API Specification](docs/v3_api_specification.md)
+* [Jira Webhook Integration](docs/api-guide/jira-webhook-integration.md)
 
 ## Audit
 * [Audit Discrepancies](docs/audit_discrepancies.md)
