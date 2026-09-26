@@ -3418,6 +3418,190 @@
         }
       }
     },
+    "/api/jira/webhook": {
+      "post": {
+        "tags": [
+          "Jira Autonomy"
+        ],
+        "summary": "Handle Jira Webhook",
+        "description": "Idempotent Webhook Intake Endpoint for Jira Cloud.\n\nProcesses incoming issue updates, sanitizes untrusted input, asserts deduplication,\nevaluates Definition of Ready (DoR), and claims execution lease if ready.",
+        "operationId": "handle_jira_webhook_api_jira_webhook_post",
+        "parameters": [
+          {
+            "name": "X-Atlassian-Webhook-Identifier",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Atlassian-Webhook-Identifier"
+            }
+          },
+          {
+            "name": "X-Jira-Event-Type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Jira-Event-Type"
+            }
+          },
+          {
+            "name": "X-Hub-Signature",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Hub-Signature"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Handle Jira Webhook Api Jira Webhook Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/tickets/{ticket_id}": {
+      "get": {
+        "tags": [
+          "Jira Autonomy"
+        ],
+        "summary": "Get Ticket Status",
+        "description": "Get active state machine context and lease record for a ticket.",
+        "operationId": "get_ticket_status_api_jira_tickets__ticket_id__get",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Ticket Status Api Jira Tickets  Ticket Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/tickets/{ticket_id}/lease/release": {
+      "post": {
+        "tags": [
+          "Jira Autonomy"
+        ],
+        "summary": "Release Or Fence Lease",
+        "description": "Explicitly release or fence an active execution lease.",
+        "operationId": "release_or_fence_lease_api_jira_tickets__ticket_id__lease_release_post",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseLeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Release Or Fence Lease Api Jira Tickets  Ticket Id  Lease Release Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -4530,6 +4714,43 @@
           "query"
         ],
         "title": "QuestionFocusInterpretRequest"
+      },
+      "ReleaseLeaseRequest": {
+        "properties": {
+          "lease_id": {
+            "type": "string",
+            "title": "Lease Id"
+          },
+          "fencing_token": {
+            "type": "string",
+            "title": "Fencing Token"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "description": "'release' or 'fence'",
+            "default": "release"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Reason for fencing or releasing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lease_id",
+          "fencing_token"
+        ],
+        "title": "ReleaseLeaseRequest",
+        "description": "Payload for manual lease release or fencing."
       },
       "ReviewDecision": {
         "properties": {
