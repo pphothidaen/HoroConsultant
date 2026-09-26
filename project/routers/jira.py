@@ -22,6 +22,7 @@ from project.core.lease_manager import LeaseManager
 from project.core.risk_tier_gate import RiskTierGate
 from project.core.runtime_selector import RuntimeSelector
 from project.core.webhook_dedup import WebhookDeduplicator
+from project.mlops.notifications.webhook_notifier import WebhookNotifier
 
 logger = logging.getLogger("jira_router")
 
@@ -171,6 +172,23 @@ async def handle_jira_webhook(
         except Exception as exc:
             logger.warning(f"Runtime selector notice for '{key}': {exc}")
 
+    # Telegram / Discord alerting for webhook events
+    notifier = WebhookNotifier()
+    if sanitized.is_suspicious:
+        notifier.notify_jira_webhook_event(
+            "SUSPICIOUS",
+            key,
+            summary=sanitized.summary or "",
+            details=f"Stripped patterns: {sanitized.stripped_patterns}",
+        )
+    elif lease_info:
+        notifier.notify_jira_webhook_event(
+            "CLAIM",
+            key,
+            summary=sanitized.summary or "",
+            details=f"Backend: {(backend_info or {}).get('engine', 'unknown')}",
+        )
+
     return {
         "status": "success",
         "ticket_id": key,
@@ -230,6 +248,14 @@ async def release_or_fence_lease(ticket_id: str, req: ReleaseLeaseRequest) -> Di
             status_code=400,
             detail=f"Failed to {req.action} lease '{req.lease_id}' for ticket '{ticket_id}'. Invalid token or state.",
         )
+
+    # Telegram / Discord alerting for lease lifecycle events
+    notifier = WebhookNotifier()
+    notifier.notify_jira_webhook_event(
+        state_str.upper(),
+        ticket_id,
+        details=f"Lease: {req.lease_id}",
+    )
 
     return {
         "status": "success",
