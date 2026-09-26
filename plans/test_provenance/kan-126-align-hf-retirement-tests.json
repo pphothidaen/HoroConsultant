@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-126",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a485eea6f3ff5c4f73aad4046b1c0317d49f761c",
+  "test_files": [
+    {
+      "path": "project/tests/test_azure_release.py",
+      "sha256": "3cbf599b71b3593b668183a8fcb7dd78ec6f171f83d346d06fb21af572fddd96"
+    },
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "f2299ca575eed157a67e5fded56c79f2ca5f876945f65ba193ce6c1f477411ac"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_fly_artifact_retirement.py::test_inventory_has_exactly_eleven_active_and_four_retired_workflows"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert 25 == 26"
+    }
+  ],
+  "allowed_source_paths": [
+    "plans/test_provenance/kan-126-align-hf-retirement-tests.json",
+    "scripts/trigger_all_github_actions.py"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Align legacy test_azure_release.py and test_fly_artifact_retirement.py suites with Hugging Face backend retirement as an inert tombstone."
+}
