@@ -141,7 +141,7 @@ class TestFrozenReleaseWorkflowSecurity:
             "azure_deploy.yml": {},
             "deploy.yml": {},
             "fly_deploy.yml": {},
-            "hf_backend_deploy.yml": {"contents": "read", "actions": "read"},
+            "hf_backend_deploy.yml": {},
         }
 
         for workflow_name in FROZEN_RELEASE_WORKFLOWS:
@@ -159,12 +159,7 @@ class TestFrozenReleaseWorkflowSecurity:
             ),
             (
                 "hf_backend_deploy.yml",
-                {
-                    "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
-                    "dopplerhq/secrets-fetch-action@v1.2.0",
-                    "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
-                    "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
-                },
+                set(),
             ),
         ),
     )
@@ -185,7 +180,7 @@ class TestFrozenReleaseWorkflowSecurity:
 
     @pytest.mark.parametrize(
         "workflow_name",
-        ("azure_deploy.yml", "deploy.yml", "fly_deploy.yml"),
+        ("azure_deploy.yml", "deploy.yml", "fly_deploy.yml", "hf_backend_deploy.yml"),
     )
     def test_retired_release_workflows_invoke_no_actions(self, workflow_name: str):
         workflow = _load_workflow(workflow_name)
@@ -267,17 +262,11 @@ class TestSpecificWorkflowsIntegrity:
         assert "scripts/sync_ai_agent_ecosystem.py --check" in content
 
     def test_hf_backend_deploy_workflow(self):
-        """Docker workflow must publish only HF Docker and verify Vercel static separately."""
+        """Hugging Face Docker backend deployment is permanently retired as a tombstone."""
         content = (WORKFLOWS_DIR / "hf_backend_deploy.yml").read_text(encoding="utf-8")
-        assert "dopplerhq/secrets-fetch-action" in content
-        assert "scripts/publish_space_hf.py" in content
-        assert "scripts/run_live_health_verification.py" in content
-        assert "scripts/synthetic_health_monitor.py" in content
-        assert "VERCEL_STATIC_URL" in content
-        assert "Enforce Vercel static and HF Docker target separation" in content
-        assert "--sdk docker" in content
-        assert "--sdk static" not in content
-        assert "Publish static frontend" not in content
+        assert "[RETIRED]" in content
+        assert "permanently retired" in content
+        assert "runs-on: ubuntu-latest" in content
 
     def test_kaggle_finetune_workflow(self):
         """kaggle_finetune.yml must trigger scripts/kaggle_notebook_manager.py --push."""

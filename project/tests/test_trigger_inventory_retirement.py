@@ -21,7 +21,6 @@ EXPECTED_ACTIVE = (
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
     "ci.yml",
-    "hf_backend_deploy.yml",
     "deploy-render.yml",
     "kaggle_dataset_auto_sync.yml",
     "kaggle_finetune.yml",
@@ -50,6 +49,7 @@ EXPECTED_RETIRED = (
     "azure_deploy.yml",
     "deploy.yml",
     "fly_deploy.yml",
+    "hf_backend_deploy.yml",
 )
 EXPECTED_FILESYSTEM = frozenset((*EXPECTED_ACTIVE, *EXPECTED_RETIRED))
 
@@ -103,7 +103,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 26
+    assert len(configured_active) == len(set(configured_active)) == 25
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
@@ -210,7 +210,7 @@ def test_filesystem_inventory_drift_fails_closed(
         trigger_module.active_workflows()
 
 
-def test_main_dispatches_exactly_twenty_six_active_workflows_with_ascii_output(
+def test_main_dispatches_exactly_twenty_five_active_workflows_with_ascii_output(
     trigger_module,
     monkeypatch,
     capsys,
