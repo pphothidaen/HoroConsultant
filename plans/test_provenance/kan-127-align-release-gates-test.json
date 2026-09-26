@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-127",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "26c4de06dcf8de8a41046bfdb97b0a3f0ab35754",
+  "test_files": [
+    {
+      "path": "tests/test_release_ci_gates.py",
+      "sha256": "63aa2e5f15f35a77b7f209f492c1bc8b1880f2c5c106c2337ffaad8e34ba73e3"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_release_ci_gates.py::test_both_release_entry_paths_gate_exact_source_before_publication[workflow_run]"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert 'workflow_run' in {'workflow_dispatch': ''}"
+    }
+  ],
+  "allowed_source_paths": [
+    "plans/test_provenance/kan-127-align-release-gates-test.json"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Align tests/test_release_ci_gates.py with Hugging Face backend retirement as an inert tombstone and verify Render release entry paths."
+}
