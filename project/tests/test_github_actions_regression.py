@@ -38,6 +38,7 @@ EXPECTED_WORKFLOW_FILES = [
     "gemini-bridge-tests.yml",
     "governance-drift.yml",
     "fly_deploy.yml",
+    "gitbook-webhook-pr.yml",
     "hf_backend_deploy.yml",
     "kaggle_dataset_auto_sync.yml",
     "kaggle_finetune.yml",
@@ -290,7 +291,7 @@ class TestSpecificWorkflowsIntegrity:
         assert "actions/download-artifact@v4" in content
 
     def test_production_monitor_workflow(self):
-        """The monitor is a GET-only exact-identity audit of HF Docker and Vercel."""
+        """The monitor is a GET-only exact-identity audit of Render Docker and Vercel."""
         content = (WORKFLOWS_DIR / "production_monitor.yml").read_text(
             encoding="utf-8"
         )
@@ -299,12 +300,8 @@ class TestSpecificWorkflowsIntegrity:
 
         assert workflow["permissions"] == {"contents": "read"}
         assert job["env"] == {
-            "HF_BACKEND_SPACE_ID": "pphothidaen/horoconsultant-core-backend",
-            "HF_BACKEND_URL": (
-                "https://pphothidaen-horoconsultant-core-backend.hf.space"
-            ),
+            "RENDER_BACKEND_URL": "https://horoconsultant-core-backend.onrender.com",
             "VERCEL_STATIC_URL": "https://horo-consultant-psi.vercel.app",
-            "HF_STATIC_SPACE_ID": "",
         }
 
         action_refs = {
