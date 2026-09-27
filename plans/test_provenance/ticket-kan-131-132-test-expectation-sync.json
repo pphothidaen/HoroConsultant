@@ -1,0 +1,55 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-131-KAN-132-TEST-EXPECTATION-SYNC",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "55b37fb3bca7daf12f15fb0dd97d85404b9ccf74",
+  "test_files": [
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "815e354ed5bb2a47ca1d78651100a8cf35b6c549885287100ed7a69d240228cd"
+    },
+    {
+      "path": "project/tests/test_live_health_verification.py",
+      "sha256": "d7a12e4a773658bd6edf81fcfde2006875c9fd63ebe5f53fd0b65f8f913e3984"
+    },
+    {
+      "path": "project/tests/test_production_monitor_release_contract.py",
+      "sha256": "0ff05b73fa32dc1f157ef1a8505e62aaf1046adb3192a5d0421a6c2d0ef30730"
+    },
+    {
+      "path": "project/tests/test_synthetic_health_monitor.py",
+      "sha256": "9c84cc6205e70456b10cf5ffbcfa212fd778a6f37c7103f49ea35fe6055bda2f"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "c95ff950d31af488dd76ef437f0bc1b05563cb11ad73ff4d9fe315b15db6022a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "project/tests/test_production_monitor_release_contract.py",
+        "-q",
+        "--tb=no"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "17 failed at pre-migration HEAD: HF_BACKEND_URL/HF_BACKEND_SPACE_ID/hf_docker_backend expectations vs Render production_monitor.yml"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/production_monitor.yml",
+    "scripts/synthetic_health_monitor.py",
+    "scripts/run_live_health_verification.py",
+    "scripts/trigger_all_github_actions.py",
+    ".github/workflows/gitbook-webhook-pr.yml"
+  ],
+  "test_owner_role": "agent-hermes",
+  "reviewer_role": "orchestrator",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Sync test expectations with the merged Render migration: production_monitor.yml now exposes RENDER_BACKEND_URL (not HF_BACKEND_URL/HF_BACKEND_SPACE_ID) and surface label render_backend; workflow inventory grows 25->26 for gitbook-webhook-pr.yml. Verified: 17 tests failed at HEAD, 53/53 pass with these updates."
+}

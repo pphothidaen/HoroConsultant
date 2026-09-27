@@ -41,6 +41,7 @@ EXPECTED_ACTIVE_WORKFLOW_NAMES = {
     "workflow-auto-disable.yml",
     "workflow-mttr-monitor.yml",
     "code-review.yml",
+    "gitbook-webhook-pr.yml",
 }
 EXPECTED_RETIRED_WORKFLOW_NAMES = {
     "azure_cost_guard.yml",
@@ -94,14 +95,14 @@ def test_fly_configuration_is_deleted_but_audit_tombstone_remains():
     ]
 
 
-def test_inventory_has_exactly_eleven_active_and_four_retired_workflows(
+def test_inventory_has_exactly_twelve_active_and_five_retired_workflows(
     trigger_module,
 ):
     active = trigger_module.active_workflows()
     active_names = [workflow[0] for workflow in active]
     configured_names = [workflow[0] for workflow in trigger_module.WORKFLOWS]
 
-    assert len(active_names) == 25
+    assert len(active_names) == 26
     assert len(active_names) == len(set(active_names))
     assert set(active_names) == EXPECTED_ACTIVE_WORKFLOW_NAMES
     assert set(configured_names) == EXPECTED_ACTIVE_WORKFLOW_NAMES
@@ -177,10 +178,10 @@ def test_trigger_cli_output_is_ascii_and_uses_the_active_inventory(
     output = capsys.readouterr().out
 
     assert output.isascii()
-    assert "Total Active Workflows to Trigger: 25" in output
+    assert "Total Active Workflows to Trigger: 26" in output
     assert "fly_deploy.yml" not in output
     assert set(dispatched) == EXPECTED_ACTIVE_WORKFLOW_NAMES
-    assert len(dispatched) == 25
+    assert len(dispatched) == 26
     assert "Unicode \\u2014 \\U0001f680" in output
     assert "caf\\xe9" in output
 

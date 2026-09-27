@@ -9,25 +9,24 @@ from scripts import synthetic_health_monitor as monitor
 
 def test_build_health_targets_requires_public_backend_for_production() -> None:
     targets = monitor.build_health_targets(
-        {"VERCEL_STATIC_URL": "https://vercel.example", "HF_BACKEND_URL": ""},
+        {"VERCEL_STATIC_URL": "https://vercel.example", "RENDER_BACKEND_URL": ""},
         require_backend=False,
     )
     assert len(targets) == 4
     assert all(target["name"].startswith("Vercel static") for target in targets)
 
-    with pytest.raises(ValueError, match="HF_BACKEND_URL"):
+    with pytest.raises(ValueError, match="RENDER_BACKEND_URL"):
         monitor.build_health_targets(
-            {"VERCEL_STATIC_URL": "https://vercel.example", "HF_BACKEND_URL": ""},
+            {"VERCEL_STATIC_URL": "https://vercel.example", "RENDER_BACKEND_URL": ""},
             require_backend=True,
         )
 
 
-def test_targets_use_vercel_assets_and_exact_hf_docker_health_only() -> None:
+def test_targets_use_vercel_assets_and_exact_render_docker_health_only() -> None:
     targets = monitor.build_health_targets(
         {
             "VERCEL_STATIC_URL": "https://ui.example",
-            "HF_STATIC_CDN_URL": "https://stale.static.example",
-            "HF_BACKEND_URL": "https://api.example",
+            "RENDER_BACKEND_URL": "https://api.example",
         }
     )
 
@@ -70,8 +69,8 @@ def test_monitor_rejects_static_backend_collision_fail_closed(
 
 
 def test_target_response_validation_rejects_placeholder_200() -> None:
-    assert monitor._target_response_is_valid("Hugging Face Docker Backend /health", '{"status":"ok"}')
-    assert not monitor._target_response_is_valid("Hugging Face Docker Backend /health", '{"status":"error"}')
+    assert monitor._target_response_is_valid("Render backend /health", '{"status":"ok"}')
+    assert not monitor._target_response_is_valid("Render backend /health", '{"status":"error"}')
     assert monitor._target_response_is_valid("Vercel static UI", "<!doctype html><html></html>")
     assert monitor._target_response_is_valid(
         "Vercel static version metadata", '{"version":"1.0.0", "release_source_commit":"abc1234"}'
@@ -82,7 +81,7 @@ def test_target_response_validation_rejects_placeholder_200() -> None:
 
 
 def test_run_ping_cycle_fails_on_invalid_200_payload(monkeypatch, tmp_path: Path) -> None:
-    targets = [{"name": "Hugging Face Docker Backend /health", "url": "https://example/health", "critical": True}]
+    targets = [{"name": "Render backend /health", "url": "https://example/health", "critical": True}]
     monkeypatch.setattr(
         monitor,
         "_ping",
@@ -95,7 +94,7 @@ def test_run_ping_cycle_uses_only_vercel_index_fallback(monkeypatch, tmp_path: P
     targets = monitor.build_health_targets(
         {
             "VERCEL_STATIC_URL": "https://ui.example",
-            "HF_BACKEND_URL": "https://api.example",
+            "RENDER_BACKEND_URL": "https://api.example",
         }
     )
 

@@ -16,8 +16,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "production_monitor.yml"
-BACKEND_SPACE_ID = "pphothidaen/horoconsultant-core-backend"
-BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+BACKEND_URL = "https://horoconsultant-core-backend.onrender.com"
 VERCEL_URL = "https://horo-consultant-psi.vercel.app"
 SOURCE_COMMIT = "abc1234"
 SOURCE_REVISION = "a" * 40
@@ -117,8 +116,7 @@ def _run_identity_audit(
     source_path.write_bytes(source_raw)
     public_path.write_bytes(public_raw)
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("HF_BACKEND_SPACE_ID", BACKEND_SPACE_ID)
-    monkeypatch.setenv("HF_BACKEND_URL", BACKEND_URL)
+    monkeypatch.setenv("RENDER_BACKEND_URL", BACKEND_URL)
     monkeypatch.setenv("VERCEL_STATIC_URL", VERCEL_URL)
 
     def fake_check_output(command, **_kwargs):
@@ -173,10 +171,8 @@ def test_monitor_has_canonical_targets_get_only_permissions_and_pinned_actions()
         "cancel-in-progress": "true",
     }
     assert job["env"] == {
-        "HF_BACKEND_SPACE_ID": BACKEND_SPACE_ID,
-        "HF_BACKEND_URL": BACKEND_URL,
+        "RENDER_BACKEND_URL": BACKEND_URL,
         "VERCEL_STATIC_URL": VERCEL_URL,
-        "HF_STATIC_SPACE_ID": "",
     }
 
     action_refs = {step["uses"] for step in job["steps"] if "uses" in step}
@@ -231,7 +227,7 @@ def test_canonical_identity_passes_with_two_get_surfaces_and_packaging_evidence(
 
     assert exit_code == 0
     assert report["success"] is True
-    assert report["backend_target"] == BACKEND_SPACE_ID
+    assert report["backend_target"] == BACKEND_URL
     assert report["backend_sdk"] == "docker"
     assert report["vercel_ui_target"] == VERCEL_URL
     assert report["release_source_commit"] == SOURCE_COMMIT
@@ -246,7 +242,7 @@ def test_canonical_identity_passes_with_two_get_surfaces_and_packaging_evidence(
         (f"{VERCEL_URL}/version.json", "GET"),
     ]
     assert [surface["target"] for surface in report["surfaces"]] == [
-        "hf_docker_backend",
+        "render_backend",
         "vercel_ui",
     ]
     assert all(surface["matched"] is True for surface in report["surfaces"])

@@ -73,8 +73,8 @@ def test_vercel_static_checks_ignore_legacy_hf_static_origin(
         "Vercel static version metadata",
         "Vercel static app.js asset",
         "Vercel static service worker asset",
-        "Hugging Face Docker backend health",
-        "Hugging Face Docker backend version metadata",
+        "Render backend health",
+        "Render backend version metadata",
         "Public backend deterministic API",
     ]
     assert checks[0]["urls"] == ["https://ui.example/", "https://ui.example/index.html"]
