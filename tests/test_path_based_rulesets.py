@@ -97,12 +97,24 @@ def test_empty_paths_default_to_light() -> None:
     assert not result.has_source_changes
 
 
+def test_classify_mapped_paths_as_medium() -> None:
+    """Changes to source files with test-glob mappings (SOURCE_TEST_MAP) trigger TIER_MEDIUM,
+    which skips Rust audit and heavy pytest but still requires security + provenance."""
+    result = prc.classify_paths(["scripts/trigger_all_github_actions.py"])
+    assert result.tier == prc.TIER_MEDIUM
+    assert result.has_source_changes is True
+    assert result.run_security_audit is True
+    assert result.run_provenance_check is True
+    assert result.run_rust_audit is False
+    assert result.run_heavy_pytest is False
+
+
 # --- Governance invariants ---------------------------------------------------
 
 
 def test_all_tiers_require_security_and_provenance() -> None:
     """Fail-closed requirement: every merge path requires test provenance and secret audit."""
-    for tier in (prc.TIER_LIGHT, prc.TIER_STRICT):
+    for tier in (prc.TIER_LIGHT, prc.TIER_MEDIUM, prc.TIER_STRICT):
         decision = prc.tier_policy(tier)
         assert decision.run_security_audit is True, f"Tier {tier} must require security audit"
         assert decision.run_provenance_check is True, f"Tier {tier} must require provenance check"

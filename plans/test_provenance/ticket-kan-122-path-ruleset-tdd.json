@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-122-PATH-RULESET-TDD",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "23d23b9bfd423206ac3017018a4ebd4b9ed24650",
+  "test_files": [
+    {
+      "path": "tests/test_path_based_rulesets.py",
+      "sha256": "6a2aa1e26c26bd9f07266c0ef71decb01812cc55019072c39f3d3720d2afabd5"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["bash", "-c", "exit 1"],
+      "expected_exit": 1,
+      "failure_fingerprint": "negative control: test harness detects non-zero exit codes"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml",
+    "scripts/local_ci.sh",
+    "scripts/path_ruleset_classifier.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze TIER_MEDIUM classification contract for path_ruleset_classifier.py: mapped source files (SOURCE_TEST_MAP) must classify as TIER_MEDIUM (skip Rust audit + heavy pytest, run targeted test globs only), while STRICT_PREFIXES retain fail-closed STRICT behavior. Covers ci.yml (pytest-targeted job) and local_ci.sh (tiered local CI runner) integration."
+}
