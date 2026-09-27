@@ -152,5 +152,58 @@ class TestCommitMsgHook:
         assert result.returncode == 1
 
 
+class TestCmdCheckFailOpen:
+    """Tests for the Jira API cmd_check subcommands — KAN-105.
+
+    These verify the fail-open design: when Jira returns 404 (ticket-not-found),
+    401/403 (auth), or credentials are missing, cmd_check returns 2 (fail-open)
+    rather than 1 (fail-closed).  Only a confirmed ticket LACKING an agent-*
+    label triggers fail-closed (exit 1).
+    """
+
+    @pytest.fixture
+    def _gate(self):
+        return load_gate_module()
+
+    def test_404_returns_fail_open(self, _gate):
+        """Jira 404 → exit 2 (cannot verify, not a violation)."""
+        import unittest.mock as mock
+        with mock.patch.object(_gate, "build_client", return_value=("https://x.atlassian.net", {"Authorization": "Bearer t"}, None)):
+            with mock.patch.object(_gate, "fetch_issue", return_value=(404, {})):
+                rc = _gate.cmd_check({}, "KAN-999")
+        assert rc == 2, f"Expected fail-open (2), got {rc}"
+
+    def test_401_returns_fail_open(self, _gate):
+        """Jira 401 → exit 2 (auth error, cannot verify)."""
+        import unittest.mock as mock
+        with mock.patch.object(_gate, "build_client", return_value=("https://x.atlassian.net", {"Authorization": "Bearer t"}, None)):
+            with mock.patch.object(_gate, "fetch_issue", return_value=(401, {})):
+                rc = _gate.cmd_check({}, "KAN-105")
+        assert rc == 2, f"Expected fail-open (2), got {rc}"
+
+    def test_missing_credentials_returns_fail_open(self, _gate):
+        """No Jira credentials → exit 2 (fail-open)."""
+        rc = _gate.cmd_check({}, "KAN-105")
+        assert rc == 2, f"Expected fail-open (2), got {rc}"
+
+    def test_valid_label_returns_pass(self, _gate):
+        """Ticket with agent-* label → exit 0 (pass)."""
+        import unittest.mock as mock
+        fake = {"fields": {"labels": ["agent-hermes"]}}
+        with mock.patch.object(_gate, "build_client", return_value=("https://x.atlassian.net", {"Authorization": "Bearer t"}, None)):
+            with mock.patch.object(_gate, "fetch_issue", return_value=(200, fake)):
+                rc = _gate.cmd_check({}, "KAN-105")
+        assert rc == 0, f"Expected pass (0), got {rc}"
+
+    def test_missing_label_returns_fail_closed(self, _gate):
+        """Ticket exists but lacks agent-* label → exit 1 (fail-closed)."""
+        import unittest.mock as mock
+        fake = {"fields": {"labels": ["bug"]}}
+        with mock.patch.object(_gate, "build_client", return_value=("https://x.atlassian.net", {"Authorization": "Bearer t"}, None)):
+            with mock.patch.object(_gate, "fetch_issue", return_value=(200, fake)):
+                rc = _gate.cmd_check({}, "KAN-105")
+        assert rc == 1, f"Expected fail-closed (1), got {rc}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
