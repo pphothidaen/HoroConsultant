@@ -250,6 +250,7 @@ def classify_paths(paths: Iterable[str]) -> ClassificationResult:
 
         if is_strict_path(norm):
             material.append(norm)
+            has_unmapped_source = True
             continue
 
         # Try to map source → test globs
