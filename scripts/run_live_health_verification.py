@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Verify the separated Vercel static UI and Hugging Face Docker backend.
+"""Verify the separated Vercel static UI and Render Docker backend.
 
 The checks deliberately cover Vercel's static document, release metadata, and
-runtime assets separately from the public Hugging Face Docker API. A 200
+runtime assets separately from the public Render Docker API. A 200
 response alone is not sufficient evidence that either deployment works.
 """
 
@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 DEFAULT_VERCEL_STATIC_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+DEFAULT_RENDER_BACKEND_URL = "https://horoconsultant-core-backend.onrender.com"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 APPROVED_CANDIDATE_METADATA_PATH = PROJECT_ROOT / "project" / "static" / "version.json"
 RELEASE_IDENTITY_FIELDS = (
@@ -37,6 +37,7 @@ RELEASE_COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
 RELEASE_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 RELEASE_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
 RETIRED_HOST_SUFFIXES = (
+    ".hf.space",
     ".static.hf.space",
     ".azurecontainerapps.io",
     ".azurewebsites.net",
@@ -107,7 +108,9 @@ def load_approved_candidate_identity() -> dict[str, str]:
 
 
 def _backend_from_space_id(space_id: str) -> str:
-    """Derive an HF public space URL from a space id if available."""
+    """Derive an HF public space URL from a space id if available.
+    Deprecated — retained for backward compatibility with legacy HF_BACKEND_SPACE_ID.
+    """
     parts = space_id.strip().split("/")
     if len(parts) != 2:
         return ""
@@ -130,8 +133,10 @@ def _configured_url(value: str) -> str:
 
 
 def _backend_url_from_env(env: Mapping[str, str]) -> str:
-    """Resolve backend URL from explicit config or space-id convention."""
-    configured = _configured_url(env.get("HF_BACKEND_URL", ""))
+    """Resolve backend URL from explicit config or legacy space-id convention.
+    Prefers RENDER_BACKEND_URL; falls back to HF_BACKEND_URL for legacy compat.
+    """
+    configured = _configured_url(env.get("RENDER_BACKEND_URL", env.get("HF_BACKEND_URL", "")))
     if configured:
         return configured
 
@@ -141,9 +146,9 @@ def _backend_url_from_env(env: Mapping[str, str]) -> str:
 
     # An explicit blank is meaningful for local static-only diagnostics. When
     # the setting is absent entirely, retain the production Docker default.
-    if "HF_BACKEND_URL" in env:
+    if "RENDER_BACKEND_URL" in env or "HF_BACKEND_URL" in env:
         return ""
-    return _configured_url(DEFAULT_HF_BACKEND_URL)
+    return _configured_url(DEFAULT_RENDER_BACKEND_URL)
 
 
 def _vercel_static_url_from_env(env: Mapping[str, str]) -> str:
@@ -168,7 +173,7 @@ def _assert_separated_targets(env: Mapping[str, str], static_url: str, backend_u
             raise ValueError("HF_STATIC_SPACE_ID must not equal HF_BACKEND_SPACE_ID; Vercel owns static UI")
         raise ValueError("HF_STATIC_SPACE_ID is retired; configure VERCEL_STATIC_URL for the public UI")
     if static_url == backend_url:
-        raise ValueError("VERCEL_STATIC_URL must not equal HF_BACKEND_URL")
+        raise ValueError("VERCEL_STATIC_URL must not equal backend URL")
     _assert_active_origin(static_url, role="ui")
     if backend_url:
         _assert_active_origin(backend_url, role="backend")
@@ -179,8 +184,6 @@ def _assert_active_origin(url: str, *, role: str) -> None:
     parsed = urllib.parse.urlsplit(url)
     hostname = (parsed.hostname or "").lower()
     retired = any(hostname.endswith(suffix) for suffix in RETIRED_HOST_SUFFIXES)
-    if role == "ui" and hostname.endswith(".hf.space"):
-        retired = True
     if retired:
         raise ValueError(f"retired production {role} target is not permitted")
     if (
@@ -298,7 +301,7 @@ def build_checks(
     if not static_url:
         raise ValueError("VERCEL_STATIC_URL must be a valid URL")
     if require_backend and not backend_url:
-        raise ValueError("HF_BACKEND_URL must be configured for a production deployment verification")
+        raise ValueError("RENDER_BACKEND_URL must be configured for a production deployment verification")
     _assert_separated_targets(env, static_url, backend_url)
     approved_candidate = load_approved_candidate_identity()
 
@@ -331,7 +334,7 @@ def build_checks(
     if backend_url:
         checks.append(
             {
-                "name": "Hugging Face Docker backend health",
+                "name": "Render backend health",
                 "url": f"{backend_url}/health",
                 "validator": _is_health_response,
             }
@@ -339,7 +342,7 @@ def build_checks(
     if backend_url:
         checks.append(
             {
-                "name": "Hugging Face Docker backend version metadata",
+                "name": "Render backend version metadata",
                 "url": f"{backend_url}/version.json",
                 "validator": candidate_validator,
                 "expected_release_identity": approved_candidate,

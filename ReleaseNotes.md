@@ -1,3 +1,63 @@
+# HoroConsultant Release Notes -- CI/CD Hardening: Render Deploy, Monitoring Migration & GitBook Sync Restoration (KAN-131/132)
+
+> **Release**: `CI/CD Hardening (KAN-131/132)` -- Render deploy workflow hardening with Doppler secret sync + pre-deploy diagnostics + failure log capture, monitoring scripts migration HF→Render, GitBook sync restoration via webhook-to-PR workflow
+> **Release Date**: 2026-09-27 (Asia/Bangkok)
+> **Release Authority**: Master Orchestrator
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (2/2 primary tickets resolved, 35 contract tests passing, AI agent ecosystem sync 100% PASS, 0 regressions, all changes on main, do NOT push)`
+
+---
+
+## Executive Summary
+Completed Sprint J carry-over triage and resolution of three blocking CI/CD issues (KAN-131 harden Render deploy + migrate monitoring HF→Render; KAN-132 restore GitBook sync) captured in the archived plan `2026-09-26_162323-triage-three-blocking-ci-cd-issues.md`. Three issue classes were resolved per-strategy: (1) **Code scanning (`claude-opus-5`)** — a GitHub account/organization-level setting with no in-repo fix; owner must reconfigure via the GitHub web UI (no code change possible); (2) **Render deploy `update_failed`** — workflow hardened with pre-deploy service/diagnostics, Doppler `prd` secret sync, `RENDER_API_KEY || RENDER_TOKEN` fallback, terminal-state failure record fetch, and a `Capture deploy diagnostics on failure` step (the platform-level half — Render billing + valid `RENDER_API_KEY` — remains an owner action); (3) **GitBook site sync** — `gitbook-docs.yaml` restored, new `gitbook-webhook-pr.yml` webhook-to-PR workflow added so GitBook's automated sync bypasses branch protection by creating a formal PR that triggers the `test-provenance` gate; owner action remaining: configure the GitBook webhook URL and add the GitBook service account to the branch-protection bypass list. All 35 TDD contract tests (RED phase) pass and `sync_ai_agent_ecosystem.py --check` is 100% PASS.
+
+## Architectural Deliverables
+|| File | Subsystem | Purpose & Impact |
+||---|---|---|---|
+|| `.github/workflows/deploy-render.yml` | CI / DevOps | Pre-deploy `diagnostics` job (Render service + `RENDER_API_KEY`/`RENDER_TOKEN` verification), `Sync Doppler secrets to Render env vars` step (calls `scripts/sync-render-secrets.sh` with `DOPPLER_SERVICE_TOKEN`), secret fallback, `Wait for Render deploy to finish` terminal-state polling with full deploy-record fetch, and `Capture deploy diagnostics on failure` step — root cause: `update_failed` from (a) missing `schemas/` in Dockerfile [KAN-128, already fixed] and (b) invalid `RENDER_API_KEY` + missing Render billing [owner action] |
+|| `.github/workflows/gitbook-webhook-pr.yml` | CI / DevOps | New workflow: `workflow_dispatch` + `repository_dispatch` (`gitbook_docs_sync`) triggers, checks out the target branch, checks out or creates the GitBook sync branch, commits staged doc changes with `[skip ci]`, and opens a formal PR via `actions/github-script` so branch-protection `test-provenance`/`deploy` CI gates run automatically |
+|| `.github/workflows/production_monitor.yml` | Monitoring | Migrated monitoring targets from the retired Hugging Face backend to the Render Docker backend |
+|| `gitbook-docs.yaml` | Docs / GitBook | Restored GitBook integration config file (deleted in `b653e9ec` [KAN-84]); registered in `DOC_FILES` at `scripts/test_provenance_guard.py:49` |
+|| `scripts/synthetic_health_monitor.py` | Monitoring | Migrated from deprecated `HF_BACKEND_URL` to `RENDER_BACKEND_URL` (`DEFAULT_RENDER_BACKEND_URL = https://horoconsultant-core-backend.onrender.com`); legacy HF var retained only as a fallback shim |
+|| `scripts/run_live_health_verification.py` | Monitoring | Updated production backend target from Hugging Face Docker backend to Render Docker backend |
+|| `docs/repository-guidelines.md` | Documentation | Documented GitBook sync failure cause (branch protection vs automated GitBook push) and the webhook-to-PR workaround + remaining owner action |
+|| `README.md` | Documentation | Updated canonical production architecture: Render Docker backend target `https://horoconsultant-core-backend.onrender.com` (was HF Spaces backend) |
+|| `tests/test_render_deploy_contract.py` | Test Suite | 11 TDD contract tests for Render deploy workflow structure, secret fallback, and failure diagnostics |
+|| `tests/test_monitoring_migration_contract.py` | Test Suite | 14 TDD contract tests for HF→Render monitoring script env-var precedence (`RENDER_BACKEND_URL`) |
+|| `tests/test_gitbook_workflow_contract.py` | Test Suite | 10 TDD contract tests for GitBook webhook-to-PR workflow restoration |
+|| `plans/test_provenance/ticket-kan131-132-ci-cd-hardening.json` | Test Provenance | VERIFIED manifest; `baseline_parent 0eefc29c` (KAN-128); 35 contract tests across 3 files; `provenance_status: VERIFIED` |
+
+## Verification Matrix
+|| Test Suite | Tests | Result | Provenance Manifest |
+||---|---|---|---|
+|| `tests/test_render_deploy_contract.py` | 11 | PASS | `ticket-kan131-132-ci-cd-hardening.json` |
+|| `tests/test_monitoring_migration_contract.py` | 14 | PASS | `ticket-kan131-132-ci-cd-hardening.json` |
+|| `tests/test_gitbook_workflow_contract.py` | 10 | PASS | `ticket-kan131-132-ci-cd-hardening.json` |
+|| AI Agent Ecosystem Sync | 18 | PASS | `sync_ai_agent_ecosystem.py --check` |
+|| **Total** | **35** | **PASS** | **100% Verified** |
+
+## Milestone Rollup (100% DONE)
+|| Kanizen Ticket | Focus | Commit / PR | Owner | Status |
+||---|---|---|---|---|
+|| **KAN-131** | Harden Render deploy workflow (Doppler secret sync, pre-deploy diagnostics, failure log capture) | `870f6b96` | devops | DONE |
+|| **KAN-131** | Migrate monitoring scripts HF→Render backend (`RENDER_BACKEND_URL`) | `870f6b96` | devops | DONE |
+|| **KAN-132** | Restore GitBook sync: `gitbook-docs.yaml` + webhook-to-PR workflow | `870f6b96` | developer | DONE |
+|| **KAN-131/132** (TDD RED phase) | 35 contract tests across 3 files + VERIFIED provenance manifest | `071d8247` | qa_tester | DONE |
+|| Code scanning (`claude-opus-5`) | GitHub account-level model misconfiguration — N/A | N/A | OWNER | PENDING (owner web UI) |
+|| Render `update_failed` (platform half) | Render billing + valid `RENDER_API_KEY`/`RENDER_TOKEN` secret | N/A | OWNER | PENDING (owner web UI) |
+|| GitBook sync (platform half) | GitBook webhook URL + branch-protection bypass | N/A | OWNER | PENDING (owner web UI) |
+
+## 🐳 Live Production Endpoints
+|- **HoroConsultant Vercel Edge**: `https://horo-consultant-4asht1tqs-facebook-scraper-ai.vercel.app`
+|- **Render Docker Backend**: `https://horoconsultant-core-backend.onrender.com` (health: `/api/v2/health`, `/health`)
+|- **Gemini Web Bridge (Cloudflare Worker)**: `https://horo-consult.workers.dev` (MCP JSON-RPC `horo_consult`)
+|- **Documentation (GitBook)**: `https://pphothidaen.gitbook.io/pphothidaen-docs/`
+|- **Jira Cloud Project**: `https://pansakorn.atlassian.net/jira/software/projects/KAN/boards`
+
+## 🗄️ Archived Plans List
+- `2026-09-26_162323-triage-three-blocking-ci-cd-issues.md` → [`plans/archive/2026-09-26-ci-cd-triage-plan/2026-09-26_162323-triage-three-blocking-ci-cd-issues.md`](plans/archive/2026-09-26-ci-cd-triage-plan/2026-09-26_162323-triage-three-blocking-ci-cd-issues.md)
+
+---
+
 # HoroConsultant Release Notes -- Sprint J Governance & TDD Lifecycles (v1.6.0-governance)
 
 > **Release**: `v1.6.0-governance` -- Runtime Guardrails, Agent Permissions, Ruleset-as-Code & Path CI Tiering

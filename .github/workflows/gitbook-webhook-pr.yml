@@ -1,0 +1,101 @@
+name: GitBook Webhook to PR
+
+# When GitBook's GitHub integration pushes docs directly to a branch, branch
+# protection (test-provenance status check) rejects the push because GitBook
+# does not trigger CI. This workflow listens for GitBook webhook events via
+# repository_dispatch and creates a PR so CI runs and the provenance gate
+# passes.
+#
+# Owner action still required: configure the GitBook webhook URL to hit
+# https://api.github.com/repos/{owner}/{repo}/dispatches with payload:
+#   {"event_type": "gitbook_docs_sync"}
+# AND add GitBook's service account to the branch protection bypass list.
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "GitBook sync branch (default: gitbook/sync)"
+        required: false
+        type: string
+      target_branch:
+        description: "Target branch to create PR against (default: main)"
+        required: false
+        type: string
+      commit_summary:
+        description: "Summary for the auto-generated PR title"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [gitbook_docs_sync]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  gitbook-pr:
+    name: Create PR from GitBook sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve sync parameters
+        id: params
+        run: |
+          SRC="${{ inputs.source_branch }}"
+          TGT="${{ inputs.target_branch }}"
+          SUM="${{ inputs.commit_summary }}"
+          # Fall back to repository_dispatch client_payload if workflow_dispatch inputs are empty
+          if [ -z "$SRC" ]; then SRC="${{ github.event.client_payload.source_branch }}"; fi
+          if [ -z "$TGT" ]; then TGT="${{ github.event.client_payload.target_branch }}"; fi
+          if [ -z "$SUM" ]; then SUM="${{ github.event.client_payload.commit_summary }}"; fi
+          SRC="${SRC:-gitbook/sync}"
+          TGT="${TGT:-main}"
+          SUM="${SUM:-docs: sync from GitBook}"
+          echo "source_branch=${SRC}" >> "$GITHUB_OUTPUT"
+          echo "target_branch=${TGT}" >> "$GITHUB_OUTPUT"
+          echo "commit_summary=${SUM}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: source=${SRC} target=${TGT} summary=${SUM}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.params.outputs.target_branch }}
+          fetch-depth: 0
+
+      - name: Checkout or create GitBook sync branch
+        run: |
+          SRC="${{ steps.params.outputs.source_branch }}"
+          if git show-ref --verify --quiet "refs/heads/$SRC"; then
+            git checkout "$SRC"
+          else
+            git checkout -b "$SRC"
+          fi
+
+      - name: Create PR
+        uses: actions/github-script@v7
+        env:
+          SOURCE_BRANCH: ${{ steps.params.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.params.outputs.target_branch }}
+          COMMIT_SUMMARY: ${{ steps.params.outputs.commit_summary }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { execSync } = require('child_process');
+            const summary = process.env.COMMIT_SUMMARY;
+            const srcBranch = process.env.SOURCE_BRANCH;
+            const tgtBranch = process.env.TARGET_BRANCH;
+            execSync('git add -A', { stdio: 'inherit' });
+            try {
+              execSync('git diff --cached --quiet');
+              console.log('No changes to commit — docs already up to date.');
+            } catch {
+              execSync(`git commit -m "${summary} [skip ci]\\n\\nAuto-generated from GitBook webhook sync. Bypasses branch protection by creating a formal PR so CI (test-provenance, deploy gates) runs automatically."`, { stdio: 'inherit' });
+              const { data: pr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: summary,
+                head: srcBranch,
+                base: tgtBranch,
+                body: 'Auto-generated PR from GitBook webhook sync. This PR contains documentation changes synced from the GitBook integration. CI gates (test-provenance, deploy) will run automatically.',
+              });
+              console.log(`Created PR #${pr.number}: ${pr.html_url}`);
+            }

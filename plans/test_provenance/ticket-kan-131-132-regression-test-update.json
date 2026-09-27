@@ -1,0 +1,32 @@
+{
+    "schema_version": "test-provenance-v1",
+    "ticket_id": "TICKET-KAN-131-KAN-132-REGRESSION",
+    "sequence": 2,
+    "provenance_status": "VERIFIED",
+    "baseline_parent": "ce32ecd05157e22081babc08b4a6013c02ca2b24",
+    "test_files": [
+        {
+            "path": "project/tests/test_github_actions_regression.py",
+            "sha256": "801d31e150b1ab94aa931a0c06de466701ac208dfc4206f6190d4206680c6b64"
+        }
+    ],
+    "red_tests": [
+        {
+            "command": ["grep", "-q", "HF_BACKEND_URL", ".github/workflows/production_monitor.yml"],
+            "expected_exit": 1,
+            "failure_fingerprint": "grep exit 1: HF_BACKEND_URL absent from production_monitor.yml after Render migration"
+        }
+    ],
+    "allowed_source_paths": [
+        ".github/workflows/production_monitor.yml",
+        ".github/workflows/deploy-render.yml",
+        ".github/workflows/gitbook-webhook-pr.yml",
+        "scripts/synthetic_health_monitor.py",
+        "scripts/run_live_health_verification.py"
+    ],
+    "test_owner_role": "agent-hermes",
+    "reviewer_role": "orchestrator",
+    "supersedes": null,
+    "correction_reason": null,
+    "rationale": "Update workflow regression test (test_github_actions_regression.py) to expect Render backend migration (RENDER_BACKEND_URL) and gitbook-webhook-pr.yml workflow in the expected workflow set. Red test: grep for HF_BACKEND_URL in production_monitor.yml must return exit 1 (absent)."
+}

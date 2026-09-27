@@ -43,10 +43,69 @@ jobs:
     env:
       RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL || 'https://horoconsultant-core-backend.onrender.com' }}
     steps:
+      - name: Pre-deploy diagnostics — verify Render service exists
+        id: diagnostics
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || secrets.RENDER_TOKEN }}
+        run: |
+          set -euo pipefail
+          api_key="${RENDER_API_KEY:-}"
+          if [ -z "$api_key" ]; then
+            echo "::error::RENDER_API_KEY / RENDER_TOKEN secret is missing. Owner action required: configure GitHub secret RENDER_API_KEY (or RENDER_TOKEN from Doppler) in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          listing=$(curl -sS -w $'\n%{http_code}' -H "Authorization: Bearer $api_key" \
+            "https://api.render.com/v1/services?limit=20&name=horoconsultant-core-backend")
+          http_code=$(printf '%s' "$listing" | tail -n1)
+          body=$(printf '%s' "$listing" | sed '$d')
+          echo "Render API discovery HTTP ${http_code}"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Render API returned HTTP ${http_code} — invalid API key or service not accessible. Body:"
+            printf '%s' "$body" | head -c 600; echo
+            exit 1
+          fi
+          service_count=$(printf '%s' "$body" | jq 'if type=="array" then length else 0 end' 2>/dev/null || echo 0)
+          echo "services_found=${service_count}" >> "$GITHUB_OUTPUT"
+          if [ "$service_count" -eq 0 ] 2>/dev/null; then
+            echo "::error::Render service 'horoconsultant-core-backend' not found. Verify service exists at dashboard.render.com, add billing info, then re-dispatch this workflow."
+            exit 1
+          fi
+          svc=$(printf '%s' "$body" | jq -r '.[0]' 2>/dev/null)
+          svc_name=$(printf '%s' "$svc" | jq -r '.service.name // empty' 2>/dev/null)
+          svc_plan=$(printf '%s' "$svc" | jq -r '.service.plan // empty' 2>/dev/null)
+          svc_state=$(printf '%s' "$svc" | jq -r '.service.state // empty' 2>/dev/null)
+          echo "service_name=${svc_name}" >> "$GITHUB_OUTPUT"
+          echo "service_plan=${svc_plan}" >> "$GITHUB_OUTPUT"
+          echo "service_state=${svc_state}" >> "$GITHUB_OUTPUT"
+          echo "Found Render service: ${svc_name} (plan=${svc_plan}, state=${svc_state})"
+
+      # Sync Doppler prd environment variables into the Render service BEFORE
+      # triggering deploy. Missing env vars are a common cause of update_failed.
+      - name: Sync Doppler secrets to Render env vars
+        id: sync_secrets
+        if: steps.diagnostics.outcome == 'success'
+        continue-on-error: true
+        env:
+          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || secrets.RENDER_TOKEN }}
+        run: |
+          set -euo pipefail
+          api_key="${RENDER_API_KEY:-}"
+          if [ -z "$api_key" ]; then
+            echo "::warning::RENDER_API_KEY missing — skipping secret sync (may cause update_failed if env vars missing)"
+          elif [ ! -f scripts/sync-render-secrets.sh ]; then
+            echo "::warning::sync-render-secrets.sh not found — skipping"
+          elif [ -z "${DOPPLER_SERVICE_TOKEN:-}" ]; then
+            echo "::warning::DOPPLER_SERVICE_TOKEN missing — skipping secret sync"
+          else
+            DOPPLER_SERVICE_TOKEN="${DOPPLER_SERVICE_TOKEN}" RENDER_API_KEY="$api_key" \
+              bash scripts/sync-render-secrets.sh || echo "::warning::Secret sync returned non-zero — attempting deploy anyway"
+          fi
+
       - name: Trigger Render deploy
         id: deploy
         env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || secrets.RENDER_TOKEN }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
           set -euo pipefail
@@ -84,7 +143,7 @@ jobs:
 
       - name: Wait for Render deploy to finish
         env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || secrets.RENDER_TOKEN }}
           RENDER_SERVICE_ID: ${{ steps.deploy.outputs.service_id || secrets.RENDER_SERVICE_ID }}
           DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
         run: |
@@ -98,11 +157,40 @@ jobs:
             case "${status}" in
               live) exit 0 ;;
               build_failed|update_failed|pre_deploy_failed|canceled|deactivated)
-                echo "Render deploy reached terminal failure state: ${status}"; exit 1 ;;
+                echo "::error::Render deploy reached terminal failure state: ${status}"
+                echo "=== Fetch full deploy record for diagnostics ==="
+                curl -sS -H "Authorization: Bearer $api_key" \
+                  "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${DEPLOY_ID}" \
+                  | python3 -c "import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d[k] for k in ('id','status','error','service','createdAt','completedAt','url','commitId') if k in d}, indent=2))" 2>/dev/null || echo "(could not parse deploy record)"
+                echo "=== Check service events ==="
+                curl -sS -H "Authorization: Bearer $api_key" \
+                  "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/events?limit=20" \
+                  | python3 -c "import json,sys; [print(e.get('createdAt','?'), e.get('type','?'), e.get('message','?')[:200]) for e in json.load(sys.stdin) if isinstance(e, dict)]" 2>/dev/null || echo "(could not fetch service events)"
+                exit 1 ;;
             esac
             sleep 15
           done
           echo "Timed out waiting for Render deploy"; exit 1
+
+      - name: Capture deploy diagnostics on failure
+        if: failure()
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || secrets.RENDER_TOKEN }}
+          RENDER_SERVICE_ID: ${{ steps.deploy.outputs.service_id || secrets.RENDER_SERVICE_ID }}
+          DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
+        run: |
+          echo "=== Render Deploy Failure Diagnostics ==="
+          echo "Service ID: ${RENDER_SERVICE_ID}"
+          echo "Deploy ID: ${DEPLOY_ID:-unknown}"
+          if [ -n "${DEPLOY_ID}" ]; then
+            echo "Check https://dashboard.render.com/web-services/${RENDER_SERVICE_ID} for full deploy logs."
+          fi
+          echo "=== Owner actions to resolve update_failed ==="
+          echo "1. Verify billing at https://dashboard.render.com/settings/billing"
+          echo "2. Check environment variables in Render service settings"
+          echo "3. Verify RENDER_API_KEY / RENDER_TOKEN GitHub secret is valid"
+          echo "4. Re-dispatch: gh workflow run deploy-render.yml --ref main --field source_sha=<sha>"
+          echo "=== End Diagnostics ==="
 
       - name: Health check Render backend
         run: |
