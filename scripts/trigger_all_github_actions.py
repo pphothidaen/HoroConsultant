@@ -31,6 +31,7 @@ Active workflows:
 23. workflow-auto-disable.yml (Workflow Auto-Disable Policy)
 24. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
 25. code-review.yml (Auto Code Review by agent-code_reviewer)
+26. gitbook-webhook-pr.yml (GitBook Webhook to PR)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
@@ -118,6 +119,7 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     ("workflow-auto-disable.yml", "Workflow Auto-Disable Policy", {}),
     ("workflow-mttr-monitor.yml", "Workflow MTTR SLO Monitor", {}),
     ("code-review.yml", "Auto Code Review by agent-code_reviewer", {}),
+    ("gitbook-webhook-pr.yml", "GitBook Webhook to PR", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]
