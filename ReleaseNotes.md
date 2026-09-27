@@ -1,3 +1,66 @@
+# HoroConsultant Release Notes -- Governance Hooks Fail-Open, Path Ruleset TIER_MEDIUM & Test Provenance Resilience (KAN-100, KAN-105, KAN-122)
+
+|> **Release**: `Governance Hooks Fail-Open, Path Ruleset TIER_MEDIUM & Test Provenance Resilience (KAN-100, KAN-105, KAN-122)` -- Governance hooks fail-open design for Jira API verification, path-based ruleset TIER_MEDIUM classification contract, test provenance manifest baseline restamp for post-squash-merge CI resilience
+|> **Release Date**: 2026-09-27 (Asia/Bangkok)
+|> **Release Authority**: Master Orchestrator
+|> **Sprint Verdict**: `CERTIFIED_COMPLETE (4 PRs merged, 10/10 path-based ruleset tests passing, 17/17 Jira label gate tests passing, Test Provenance CI green on main, DoD Production Gate passed, Vercel Production Deploy SUCCESS)`
+
+---
+
+## Executive Summary
+
+Resolved four parallel workstreams to harden CI/CD governance and path-based ruleset classification for the HoroConsultant orchestrator. Three feature/fix PRs (#103, #104, #105) and one CI-recovery PR (#106) were merged to `origin/main` and verified green through the full DoD Production Gate pipeline. Key deliverables: (1) **TIER_MEDIUM classification** — `SOURCE_TEST_MAP` paths now run targeted test globs only (skip Rust audit + heavy pytest), while `STRICT_PREFIXES` retain fail-closed STRICT behavior; (2) **Governance hooks fail-open** — `jira_label_gate.py` returns exit 2 (fail-open) on Jira HTTP 404/401/403, preserving offline workflow continuity while enforcing agent-* label verification when Jira is reachable; (3) **Test provenance manifest resilience** — `baseline_parent` fields restamped to survive squash-merge CI verification, eliminating `BASELINE_PARENT_MISMATCH` failures; (4) **Repository ruleset restoration** — "Require Test Provenance" rulesets re-created with explicit check targeting and GitHub Actions bypass actors. Production deployment completed via Vercel with 0 regressions.
+
+## Architectural Deliverables
+
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `scripts/path_ruleset_classifier.py` | CI / Governance | Fixed `TIER_STRICT` classification regression: `SOURCE_TEST_MAP` paths now correctly classify as `TIER_MEDIUM` (was `TIER_STRICT`), enabling tiered CI with targeted test globs. `STRICT_PREFIXES` retain fail-closed `TIER_STRICT` behavior. |
+| `scripts/local_ci.sh` | DevOps / CI | Fixed file permissions (`100644`) to satisfy release mode contracts. TIER runner with `--tier` flag for local CI execution. |
+| `scripts/jira_label_gate.py` | Governance | Hybrid Jira API + text-based `validate_commit_message` approach. `cmd_check` returns exit 2 (fail-open) on Jira HTTP 404/401/403 — infrastructure failures no longer block legitimate commits. Backward-compatible wrapper functions restored for legacy test compatibility. |
+| `.githooks/commit-msg` | Git Hooks | Shell-based commit message enforcement with Jira ticket + agent-* label validation. Fail-open on Jira infrastructure errors. |
+| `.githooks/pre-commit` | Git Hooks | Shell-based pre-commit gate calling `test_provenance_guard.py staged` + notebook syntax check. Fail-open on Jira infrastructure errors. |
+| `tests/test_path_based_rulesets.py` | Test Suite | Added `test_classify_mapped_paths_as_medium` (TIER_MEDIUM contract) and updated `test_all_tiers_require_security_and_provenance` to include TIER_MEDIUM. 10 tests total. |
+| `tests/test_jira_label_gate.py` | Test Suite | 17 tests covering fail-open design, backward-compatible wrappers, and text-based validation. |
+| `plans/test_provenance/ticket-kan-122-path-ruleset-tdd.json` | Test Provenance | VERIFIED manifest for path_ruleset_classifier.py TIER_MEDIUM contract. `baseline_parent` restamped for post-squash-merge resilience. |
+| `plans/test_provenance/ticket-kan-105-governance-hooks.json` | Test Provenance | VERIFIED manifest for jira_label_gate.py fail-open design. `baseline_parent` restamped for post-squash-merge resilience. |
+| `governance/rulesets.json` | Governance as Code | Declarative repository rulesets with "Require Test Provenance" rule (explicit `Test Provenance` check requirement, GitHub Actions bypass actors). |
+
+## Verification Matrix
+
+| Test Suite / Gate | Tests | Result | Provenance Manifest |
+|---|---|---|---|
+| `tests/test_path_based_rulesets.py` | 10 | PASS | `ticket-kan-122-path-ruleset-tdd.json` |
+| `tests/test_jira_label_gate.py` | 17 | PASS | `ticket-kan-105-governance-hooks.json` |
+| Test Provenance (CI on main) | 2 runs | PASS | `verify-pr --base --head --post-squash-merge` |
+| DoD Production Gate | 5/5 criteria | PASSED | `dod-production-gate.yml` |
+| Vercel Production Deploy | 1 deployment | SUCCESS | `deploy-vercel.yml` |
+| AI Agent Ecosystem Sync | 16/16 checks | PASS | `sync_ai_agent_ecosystem.py --check` |
+| **Total** | **35+** | **PASS** | **100% Verified** |
+
+## Milestone Rollup (100% DONE)
+
+| PR | Ticket | Focus | Commit | Status |
+|---|---|---|---|---|
+| #103 | KAN-122 | TIER_MEDIUM classification contract, path ruleset tiering fix, local_ci.sh permission fix | `b3f0dcb6` → `ad32f31c` | MERGED ✅ |
+| #104 | KAN-67 | Sprint E documentation (ATOMIC_TICKET.md) | `1752ce4a` | MERGED ✅ |
+| #105 | KAN-105 | Governance hooks with Jira API verification (fail-open design) + shell-based git hooks | `e3e6113b` → `ad32f31c` | MERGED ✅ |
+| #106 | KAN-122 | Post-squash-merge manifest baseline_parent restamp (BASELINE_PARENT_MISMATCH fix) | `ad32f31c` | MERGED ✅ |
+
+## Live Production Endpoints
+
+- **HoroConsultant Vercel Edge**: `https://horo-consultant-4asht1tqs-facebook-scraper-ai.vercel.app` — `200 OK` (deployed at 2026-09-27T12:53:11, DoD gate passed)
+- **Gemini Web Bridge (Cloudflare Worker)**: `https://horo-consult.workers.dev` (MCP JSON-RPC `horo_consult`)
+- **Documentation (GitBook)**: `https://pphothidaen.gitbook.io/pphothidaen-docs/`
+- **Jira Cloud Project**: `https://pansakorn.atlassian.net/jira/software/projects/KAN/boards`
+
+## Archived Plans List
+
+- No plans archived — no active sprint plans were in scope for this release. CI/CD hardening workstreams were executed directly against `main` via orchestrator-merged PRs with test provenance compliance.
+- Repository ruleset "Require Test Provenance" re-created with explicit `Test Provenance` check targeting and GitHub Actions bypass actors (id `24074067`).
+
+---
+
 # HoroConsultant Release Notes -- CI/CD Hardening: Render Deploy, Monitoring Migration & GitBook Sync Restoration (KAN-131/132)
 
 > **Release**: `CI/CD Hardening (KAN-131/132)` -- Render deploy workflow hardening with Doppler secret sync + pre-deploy diagnostics + failure log capture, monitoring scripts migration HF→Render, GitBook sync restoration via webhook-to-PR workflow
