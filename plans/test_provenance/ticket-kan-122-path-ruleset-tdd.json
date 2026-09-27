@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-122-PATH-RULESET-TDD",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "23d23b9bfd423206ac3017018a4ebd4b9ed24650",
+  "baseline_parent": "e3e6113b0bf0bad2c06f7663ee751bb451e03210",
   "test_files": [
     {
       "path": "tests/test_path_based_rulesets.py",
