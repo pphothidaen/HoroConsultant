@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-105-GOVERNANCE-HOOKS",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "7b1c73958a93bda9bfc790bda2d7d38a456739e2",
+  "baseline_parent": "e3e6113b0bf0bad2c06f7663ee751bb451e03210",
   "test_files": [
     {
       "path": "tests/test_jira_label_gate.py",
