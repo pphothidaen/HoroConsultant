@@ -1,6 +1,6 @@
 {
     "schema_version": "test-provenance-v1",
-    "ticket_id": "TICKET-KAN131-KAN132-CI-CD-HARDENING",
+    "ticket_id": "TICKET-KAN-131-KAN-132-CI-CD-HARDENING",
     "sequence": 3,
     "provenance_status": "VERIFIED",
     "baseline_parent": "0eefc29c26488e99fcdc00f63a5e84824edfae86",
