@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-130-JIRA-GOVERNANCE-HMAC-002",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f27f7e52dc51f7e94389f1e0d3b3d92bee9bd67c",
+  "test_files": [
+    {
+      "path": "tests/test_jira_governance_workflow.py",
+      "sha256": "eeae272955314884250f3b44bbc038ce2918c7929243f830877df575f8150e67"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_jira_governance_workflow.py::test_payload_is_built_with_jq_not_heredoc_interpolation"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError at tests/test_jira_governance_workflow.py:103 - payload must be constructed with jq -n"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/jira-governance.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-130 sequence 2: adds the jq payload-construction RED test. A heredoc or string-concatenated body lets a branch name containing a quote break out of the JSON and alter the transmitted document. Verified RED against original main (fails at line 103), GREEN against the fix."
+}

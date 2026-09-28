@@ -91,3 +91,15 @@ def test_secret_is_not_exposed_to_the_script_body() -> None:
         "HERMES_TOKEN must be populated from secrets context"
     )
     assert "secrets." not in _script()
+
+
+def test_payload_is_built_with_jq_not_heredoc_interpolation() -> None:
+    """jq --arg escapes untrusted values into the JSON document.
+
+    A heredoc or string-concatenated body would let a branch name containing a
+    quote break out of the JSON and change the transmitted document.
+    """
+    script = _script()
+    assert "jq -nc" in script, "payload must be constructed with jq -n"
+    assert "--arg branch" in script
+    assert "JSONEOF" not in script, "heredoc body can be broken out of by untrusted input"
