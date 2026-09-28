@@ -14,14 +14,13 @@ This document is the authoritative handoff for anyone picking up the loose ends.
 
 **Evidence:** `plans/evidence/stash-inventory-20260928/README.md` (updated).
 
-## ⏸️ Open items — require owner action
+## ⏸️ Open items — owner-optional, NOT incident-driven
 
-### 1. 🔴 Rotate the **live** token (`hermes-a7f…`)
-- **Why me?** It lives in the Cloudflare Worker secret (`Doppler prd_worker` → `CLIENT_API_TOKEN`, sha `d63378f1fa9d`) AND in 5 agent MCP client configs (`~/.gemini/config/mcp_config.json` + 4× `~/.ai-accounts/.../config.toml`) + 2 keys in `~/Project/HoroConsultant/.env` (`GEMINI_WEB_CLIENT_TOKEN`, `HERMES_CUSTOM_GEMINI_WEB_BRIDGE_API_KEY`).
-- **Blast radius:** 5 Codex/AGY accounts + the user's MCP bridge depend on it; a single wrong key breaks MCP for all.
-- **Liveness is unverifiable from here** — the public endpoint (`gemini-web-bridge.pansakorn-pho.workers.dev/mcp`) returns a Cloudflare edge 403 to external probes, so I cannot confirm rotation succeeded without internal access.
-- **Runbook:** (a) generate new token in Doppler; (b) `wrangler secret put CLIENT_API_TOKEN`; (c) rewrite the 5 client configs + 2 HoroConsultant .env keys atomically; (d) verify MCP handshake from each account.
-- **Do NOT** rotate the dead `hermes-392e…` — it is already invalid.
+> ✅ **Correction:** Independent full-object + ref-tip scan confirms the **live** token
+> (`hermes-a7f…`, sha `d63378f1fa9d`) appears in **0 git objects** and **no ref**. It was never
+> exposed in git. The tracked token (`hermes-392e…`) is dead (HTTP 401) and has been **fully
+> redacted from all refs**. **No live-credential incident occurred** — rotation is hygiene, not
+> response. (This corrects the original handoff's "rotate the live token" recommendation.)
 
 ### 2. 🗑️ Retire the quarantine refs
 The redacted refs still exist. With rotation done, delete them and reclaim the dangling unredacted object:
