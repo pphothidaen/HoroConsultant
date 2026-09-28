@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 
 
@@ -39,14 +40,25 @@ print(json.dumps({
             env["HORO_PROJECT_ROOT"] = project_root
             env.pop("HORO_ALLOW_PYTHON_FALLBACK", None)
             env.pop("PYTHONPATH", None)
-            completed = subprocess.run(
-                [sys.executable, "-c", code, order],
-                cwd="/tmp",
-                env=env,
-                text=True,
-                capture_output=True,
-                check=False,
-            )
+            # Private per-invocation CWD instead of the shared world-writable
+            # /tmp: `python -c` prepends the CWD to sys.path[0], so a stray
+            # inspect.py/json.py there would silently replace the stdlib module
+            # and this order-independence assertion would fail for the wrong
+            # reason. PYTHONSAFEPATH additionally covers nested interpreters and
+            # is a harmless no-op on interpreters older than 3.11.
+            if sys.version_info >= (3, 11):
+                env["PYTHONSAFEPATH"] = "1"
+            else:
+                env.pop("PYTHONSAFEPATH", None)
+            with tempfile.TemporaryDirectory(prefix="horo-wheel-") as workdir:
+                completed = subprocess.run(
+                    [sys.executable, "-c", code, order],
+                    cwd=workdir,
+                    env=env,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
             self.assertEqual(completed.returncode, 0, completed.stderr)
             results.append(json.loads(completed.stdout))
 
