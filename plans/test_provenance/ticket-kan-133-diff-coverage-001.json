@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-133-DIFF-COVERAGE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b8a8e9d1ba3724db0aada213d763c294e052795a",
+  "test_files": [
+    {
+      "path": "tests/test_diff_coverage_guard.py",
+      "sha256": "e4d55a270f66d4247632a7712158d63db86a7a57b5ee04b8cc7d93758d7565bc"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [".venv/bin/python3", "-m", "pytest", "-q", "tests/test_diff_coverage_guard.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "unrecognized arguments: --diff-coverage"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD baseline for KAN-133 --diff-coverage WARN feature. RED proven: before impl, verify-pr rejected --diff-coverage (argparse exit code 2); 3 diff-coverage tests FAILED, default-off test PASSED. GREEN after impl: 4 passed. The guard is doc-classified (DOC_FILES), so its implementation edit is a source commit covered by allowed_source_paths."
+}

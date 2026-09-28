@@ -19,6 +19,7 @@ import json
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
@@ -265,6 +266,94 @@ def _changed_paths(repo: Path, old: str, new: str, *, merge_base: bool = False) 
     separator = "..." if merge_base else ".."
     result = _git(repo, "diff", "--name-only", f"{old}{separator}{new}")
     return sorted({_normalize_path(line) for line in result.stdout.splitlines() if line})
+
+
+def _changed_source_lines(repo: Path, base: str, head: str) -> dict[str, set[int]]:
+    """Return {filepath: set(new-file line numbers)} for lines changed in base..head."""
+    out: dict[str, set[int]] = {}
+    counters: dict[str, int] = {}
+    current: str | None = None
+    result = _git(repo, "diff", f"{base}..{head}", "-U0", "--", check=False)
+    for raw in result.stdout.splitlines():
+        if raw.startswith("+++ b/"):
+            current = _normalize_path(raw[len("+++ b/"):])
+            out.setdefault(current, set())
+            counters[current] = 0
+        elif raw.startswith("@@") and current is not None:
+            match = re.match(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@", raw)
+            if match:
+                counters[current] = int(match.group(1))
+        elif current is not None:
+            if raw.startswith("+") and not raw.startswith("+++"):
+                out[current].add(counters[current])
+                counters[current] += 1
+            elif raw.startswith(" "):
+                counters[current] += 1
+    return {path: lines for path, lines in out.items() if lines}
+
+
+def _coverage_uncovered_lines(cov_path: Path) -> dict[str, set[int]]:
+    """Parse a Cobertura coverage.xml; return {filepath: set(uncovered line numbers)}."""
+    missing: dict[str, set[int]] = {}
+    try:
+        root_el = ET.parse(cov_path).getroot()
+    except (ET.ParseError, OSError):
+        return missing
+    for cls in root_el.iter("class"):
+        fname = cls.get("filename") or cls.get("name")
+        if not fname:
+            continue
+        fname = _normalize_path(str(fname))
+        lines_el = cls.find("lines")
+        if lines_el is None:
+            continue
+        miss: set[int] = set()
+        for ln in lines_el.findall("line"):
+            num = ln.get("number")
+            if not num or not num.isdigit():
+                continue
+            missing_attr = ln.get("missing")
+            if ln.get("hits") == "0" or missing_attr in ("1", "true", "True", "yes"):
+                miss.add(int(num))
+        if miss:
+            missing[fname] = missing.get(fname, set()) | miss
+    return missing
+
+
+def _diff_coverage_notes(repo: Path, base: str, head: str) -> list[str]:
+    """Opt-in diff-coverage report: warn (never fail) on changed source lines not exercised.
+
+    Invoked only with --diff-coverage on `verify-pr`. Does NOT emit issues, so it can
+    never regress a PASSED into a FAILED result.
+    """
+    notes: list[str] = []
+    cov_path = repo / "coverage.xml"
+    if not cov_path.exists():
+        notes.append(
+            "DIFF_COVERAGE_NO_COVERAGE_XML: coverage.xml not found at repo root;"
+            " diff-coverage skipped (WARN only)"
+        )
+        return notes
+    uncovered = _coverage_uncovered_lines(cov_path)
+    if not uncovered:
+        notes.append("DIFF_COVERAGE_NO_UNCOVERED: coverage.xml parsed; no uncovered lines reported")
+        return notes
+    changed = _changed_source_lines(repo, base, head)
+    found = 0
+    for path, lines in changed.items():
+        if _is_test_path(path) or _is_manifest_path(path) or _is_docs_only_path(path):
+            continue
+        miss = uncovered.get(path)
+        if not miss:
+            continue
+        for lineno in sorted(lines & miss):
+            notes.append(
+                f"DIFF_COVERAGE_UNCOVERED: {path}:{lineno} changed but not exercised by tests (WARN)"
+            )
+            found += 1
+    if not found:
+        notes.append("DIFF_COVERAGE_NO_UNCOVERED_CHANGED: changed source lines are covered by tests")
+    return notes
 
 
 def _resolve_commit(repo: Path, revision: str) -> str:
@@ -762,7 +851,14 @@ def verify_staged(repo: Path) -> Report:
     return report
 
 
-def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash_merge: bool = False) -> Report:
+def verify_pr(
+    repo: Path,
+    base_revision: str,
+    head_revision: str,
+    *,
+    post_squash_merge: bool = False,
+    diff_coverage: bool = False,
+) -> Report:
     report = Report(
         command="verify-pr",
         requested_base=base_revision,
@@ -951,6 +1047,8 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str, *, post_squash
                     "material PR path is not owned by any changed provenance manifest",
                     path,
                 )
+    if diff_coverage:
+        report.notes.extend(_diff_coverage_notes(repo, base, head))
     report.ticket_id = ",".join(tickets) if tickets else None
     report.baseline_commit = ",".join(baselines) if baselines else None
     return report
@@ -994,6 +1092,12 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Detect squash-merged release state and verify against the stamped HEAD commit",
     )
+    pr.add_argument(
+        "--diff-coverage",
+        action="store_true",
+        help="Append WARN notes for changed source lines not covered by tests "
+             "(reads coverage.xml; never fails the gate)",
+    )
 
     squash_check = subparsers.add_parser(
         "check-squash-merge",
@@ -1036,6 +1140,7 @@ def main() -> int:
                 args.base,
                 args.head,
                 post_squash_merge=getattr(args, "post_squash_merge", False),
+                diff_coverage=getattr(args, "diff_coverage", False),
             )
         else:
             report = verify_pr(repo, args.base, args.head)
