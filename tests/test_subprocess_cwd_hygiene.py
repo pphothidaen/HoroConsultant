@@ -1,23 +1,31 @@
-"""Guard: no test may use a subprocess CWD that can shadow an importable module.
+"""Guard: no test may run a subprocess with a shared, world-writable CWD.
 
-Several tests spawn a fresh interpreter with ``cwd="/tmp"`` (see
-``project/tests/test_rust_extensions.py``).  For ``python -c`` the interpreter
-prepends the CWD to ``sys.path[0]``, so any file in that directory named after
-an importable module -- ``inspect.py``, ``json.py``, ``bisect.py`` -- silently
-replaces the stdlib module for the whole subprocess.
+Several tests spawn a fresh interpreter with a controlled working directory. For
+``python -c`` the interpreter prepends the CWD to ``sys.path[0]``, so a file in
+that directory named after an importable module -- ``inspect.py``, ``json.py``,
+``bisect.py`` -- silently replaces the real one for the whole subprocess.
 
 That failure mode is maximally confusing: the subprocess dies deep inside an
-unrelated import (``dataclasses`` -> ``inspect``), and the test then reports a
-domain error such as "required native kernel is missing" that has nothing to do
-with the real cause.  It has already cost real debugging time: two stray probe
-scripts left in ``/tmp`` by an earlier session broke two Rust-extension tests.
+unrelated import (``dataclasses`` -> ``inspect``) and the test then reports a
+domain error that has nothing to do with the real cause. It already cost real
+debugging time here: two stray probe scripts an earlier session left in the
+shared temp directory broke two Rust-extension tests with a misleading
+"required native kernel is missing" assertion.
 
-This test makes the contamination loud and local instead of remote and cryptic.
-It is deliberately read-only: it reports, it never deletes.
+The hardened call sites now use a private, per-invocation directory, so this test
+no longer needs to police any one directory. It asserts the *invariant* that keeps
+them fixed: a subprocess CWD must never be a shared location. That form is
+self-maintaining -- it catches the next author who reaches for ``/tmp``, in a
+file this test has never seen.
+
+Passing ``-P``/``PYTHONSAFEPATH`` is deliberately NOT treated as the fix on its
+own: it requires Python 3.11 while this project supports 3.10, and it does not
+cover nested interpreters.
 """
 
 from __future__ import annotations
 
+import ast
 import sys
 from pathlib import Path
 
@@ -25,76 +33,96 @@ import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# Directories that are used as a subprocess CWD somewhere in the suite.  Each
-# entry is (description, resolved path).  ``/tmp`` is a symlink to
-# ``/private/tmp`` on macOS, so it is resolved before scanning.
-_CWD_IN_USE: tuple[tuple[str, Path], ...] = (
-    ("project/tests/test_rust_extensions.py (cwd='/tmp')", Path("/tmp")),
-)
+# Directories any process on the machine can write to. Using one as a subprocess
+# CWD makes the suite's imports depend on ambient filesystem state.
+_SHARED_DIRS = frozenset({"/tmp", "/var/tmp", "/private/tmp", "/private/var/tmp"})
+
+_SEARCH_ROOTS = ("tests", "project/tests", "rust_core/tests")
 
 
-def _importable_names() -> frozenset[str]:
-    """Names that a stray file in a CWD could shadow.
-
-    Includes the standard library plus every already-installed third-party
-    top-level module, because a stray ``numpy.py`` or ``yaml.py`` in a temp
-    directory is just as capable of hijacking an import.
-    """
-    names: set[str] = set(getattr(sys, "stdlib_module_names", ()))
-    try:
-        import importlib.util
-
-        for entry in sys.path:
-            if not entry:
-                continue
-            try:
-                for candidate in Path(entry).glob("*.py"):
-                    if candidate.stem.isidentifier() and not candidate.stem.startswith("_"):
-                        names.add(candidate.stem)
-                for candidate in Path(entry).iterdir():
-                    if candidate.is_dir() and (candidate / "__init__.py").exists():
-                        if candidate.name.isidentifier() and not candidate.name.startswith("_"):
-                            names.add(candidate.name)
-            except (OSError, ValueError):
-                continue
-    except Exception:  # pragma: no cover - defensive only
-        pass
-    return frozenset(names)
+def _iter_test_sources() -> list[Path]:
+    files: list[Path] = []
+    for rel in _SEARCH_ROOTS:
+        root = _REPO_ROOT / rel
+        if root.is_dir():
+            files.extend(sorted(root.rglob("*.py")))
+    return files
 
 
-@pytest.mark.parametrize("description, cwd", _CWD_IN_USE, ids=[d for d, _ in _CWD_IN_USE])
-def test_subprocess_cwd_contains_no_import_shadowing_modules(description: str, cwd: Path) -> None:
-    """A CWD used by a test must not be able to hijack ``import``."""
-    if not cwd.is_dir():
-        pytest.skip(f"{cwd} does not exist on this platform")
+def _literal_string(node: ast.AST) -> str | None:
+    return node.value if isinstance(node, ast.Constant) and isinstance(node.value, str) else None
 
-    shadowable = _importable_names()
+
+def _is_subprocess_call(node: ast.AST) -> bool:
+    """True for ``subprocess.run`` / ``Popen`` / ``check_output`` and friends."""
+    if not isinstance(node, ast.Call):
+        return False
+    func = node.func
+    if isinstance(func, ast.Attribute):
+        return isinstance(func.value, ast.Name) and func.value.id == "subprocess"
+    if isinstance(func, ast.Name):
+        return func.id in {"run", "Popen", "check_output", "check_call"}
+    return False
+
+
+def test_no_test_uses_a_shared_directory_as_a_subprocess_cwd() -> None:
+    """A shared CWD lets unrelated files hijack the child's imports."""
     offenders: list[str] = []
+    self_name = Path(__file__).name
 
-    for path in sorted(cwd.glob("*.py")):
-        stem = path.stem
-        if stem in shadowable and not stem.startswith("_"):
-            offenders.append(stem)
+    for path in _iter_test_sources():
+        # This guard legitimately names those directories.
+        if path.name == self_name:
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except (OSError, SyntaxError):
+            continue
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not _is_subprocess_call(node):
+                continue
+            for keyword in node.keywords:
+                if keyword.arg != "cwd":
+                    continue
+                value = _literal_string(keyword.value)
+                if value is not None and value.rstrip("/") in _SHARED_DIRS:
+                    offenders.append(
+                        f"{path.relative_to(_REPO_ROOT)}:{node.lineno} subprocess cwd={value!r}"
+                    )
 
     assert not offenders, (
-        f"{cwd} (used as a subprocess CWD by {description}) contains module(s) named "
-        f"{sorted(offenders)}. Because the CWD is prepended to sys.path for `python -c`, "
-        f"these shadow the real module and break every test that spawns an interpreter "
-        f"there, typically with a misleading error. Move or rename them; do not delete "
-        f"work that may still be in use."
+        "These call sites run a subprocess with a shared, world-writable working "
+        "directory. Because `python -c` prepends the CWD to sys.path, any stray file "
+        "named after an importable module is imported instead of the real one, "
+        "producing failures that point at the wrong thing:\n  "
+        + "\n  ".join(offenders)
+        + "\nUse a private per-invocation directory instead: tempfile."
+        'TemporaryDirectory() (preferred, works on every supported interpreter) or '
+        "pytest's tmp_path fixture."
     )
 
 
-def test_tmp_dir_is_not_reused_as_a_scratch_directory() -> None:
-    """Document why the suite must prefer pytest's ``tmp_path`` over a shared temp dir.
+def test_shared_temp_dirs_hold_no_stdlib_named_modules() -> None:
+    """Belt-and-braces: a shared dir must not be able to hijack an import.
 
-    ``/tmp`` is shared by every process on the machine, so probe scripts written
-    there outlive the session that created them. ``tmp_path`` is per-test and
-    auto-cleaned, which is why the fix is to stop using a shared CWD rather than
-    to keep policing ``/tmp``.
+    The invariant test above is the real protection. This one is a canary for the
+    machine rather than the repo: if something re-arms a shared temp directory,
+    any *other* project or agent session using it as a CWD is exposed too, and it
+    is worth saying so loudly rather than cleaning up silently.
     """
-    assert not (Path("/tmp") / "conftest.py").exists(), (
-        "A conftest.py in the shared /tmp directory would be auto-loaded by any pytest "
-        "run rooted there. Never write test configuration into a shared temp dir."
-    )
-    assert _REPO_ROOT.is_dir()
+    present = [d for d in sorted(_SHARED_DIRS) if Path(d).is_dir()]
+    if not present:
+        pytest.skip("no shared temp directory present on this platform")
+
+    for directory in present:
+        offenders = [
+            p.name
+            for p in Path(directory).glob("*.py")
+            if p.stem in getattr(sys, "stdlib_module_names", ()) and not p.stem.startswith("_")
+        ]
+        assert not offenders, (
+            f"{directory} contains {sorted(offenders)}, which shadow the standard "
+            f"library for any interpreter started with that directory as its CWD. "
+            f"Move or rename them; do not delete work that may still be in use."
+        )

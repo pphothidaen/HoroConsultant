@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-003",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "da5d5c07003025b5f55ffb892f69c5c0a3acece7",
+  "test_files": [
+    {
+      "path": "tests/test_subprocess_cwd_hygiene.py",
+      "sha256": "38ee9e7ac2f6757726eea97c2c450fc5af37557831cbfea307a00358db08022c"
+    },
+    {
+      "path": "project/tests/test_rust_extensions.py",
+      "sha256": "faf92eac32c1875d4f4d7b5cd39563e03f5ac5e7421ecdd744a8475889cf08ea"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_subprocess_cwd_hygiene.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: These call sites run a subprocess with a shared, world-writable working directory ... subprocess cwd='/tmp'"
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/test_subprocess_cwd_hygiene.py",
+    "project/tests/test_rust_extensions.py",
+    "rust_core/tests/test_installed_wheel.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-131 hardening after cross-functional review: the shared /tmp CWD is removed entirely (tempfile.TemporaryDirectory) so the class of bug cannot recur and the fix works on Python 3.10 where -P does not exist; PYTHONSAFEPATH is set in the child env because the -P flag does not propagate to nested interpreters. Guard rewritten to assert the invariant (no shared dir as a subprocess CWD) rather than policing one directory. RED proven by planting a violating call site, which the guard reported as file:line. allowed_source_paths additionally covers rust_core/tests/test_installed_wheel.py, the second real exposure site; that path is classified SOURCE by TEST_PREFIXES so it is committed separately as a source-only change, without a new manifest, as the governance contract requires."
+}
