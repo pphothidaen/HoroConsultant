@@ -133,3 +133,25 @@ change touches only the outbound Hermes call.** The inbound Jira webhook is unto
 the original code: the callback used Bearer auth against a receiver whose documented contract is
 HMAC-SHA256 V2, so CI-failure callbacks were very likely being rejected silently (the old `curl` had
 no `--fail`, so the step still reported green). `-fS` + strict shell make that class of failure loud.
+
+## KAN-132 — Credential leak vector closed (redaction of the quarantined stash)
+
+The live MCP bearer credential was found inside two local refs created during KAN-130:
+`refs/heads/credential/quarantine-stash6` and `refs/stash-backup/6`, in `ATOMIC_TICKET.md`.
+A *branch* is a real leak vector: `git push --all` would have shipped it.
+
+**Fix (no content lost, no live secret destroyed):** rebuilt the quarantined tree with the
+credential replaced by a placeholder, then committed it as a **parentless** root commit and
+repointed both refs. Parentless is essential — the first attempt parented it to the original,
+which kept the secret reachable through the branch history. Caught by a `git log -S` cross-check.
+
+| Property | Value |
+|---|---|
+| Redacted commit | `c0841867ca` (parentless, 2052 files, `ATOMIC_TICKET.md` preserved) |
+| Original object | `ed0ccaf1d8fe571f10139c417345167480c938a0` — recoverable by SHA only, until `gc.pruneExpire` (~2 weeks) |
+| Exhaustive verification | credential appears in **no reachable commit** across **all** refs (full-history scan, not tip-only) |
+| Commits / branches | credential was never in any commit and never in any branch history |
+
+Residual risk is now limited to the local dotfiles (all gitignored) and the dangling local
+object, which no git operation can publish. Rotating the credential is a separate
+live-infrastructure change and is intentionally NOT performed automatically.
