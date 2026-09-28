@@ -107,3 +107,29 @@ git fsck --unreachable --no-reflogs 2>/dev/null | grep commit
 - `actionlint` clean; HMAC reproduces byte-identically (64-hex); malicious branch name stays inert JSON data.
 - 3-commit gate-verified TDD sequence: `f27f7e52` → `42a50858` → `33445cc0`.
 - Reflog recovery horizon: **unbounded** (reachable refs) rather than ~2 weeks.
+
+---
+
+## Post-review architecture correction: two INCOMPATIBLE webhook receivers
+
+A specialist flagged the HMAC change as a likely regression because the repo contains a verifier
+reading `X-Hub-Signature`. That verifier exists, but it belongs to a **different webhook**. Verified:
+
+| | Inbound Jira → repo | Outbound CI → Hermes |
+|---|---|---|
+| Endpoint | `POST /api/jira/webhook` (`project/routers/jira.py:61`) | `HERMES_ORCHESTRATOR_WEBHOOK` (Hermes gateway :8644 via Cloudflare Tunnel) |
+| Caller | Atlassian Jira Cloud | GitHub Actions (`jira-governance.yml`) |
+| Header | `X-Hub-Signature: sha256=<hex>` over **body only** | `X-Webhook-Timestamp` + `X-Webhook-Signature-V2` over **`${TIMESTAMP}.${BODY}`** |
+| Secret | `JIRA_WEBHOOK_SECRET` | `HERMES_AGENT_TOKEN` |
+| Direction | server receives | client posts |
+
+`project/routers/jira.py` and `docs/api-guide/jira-webhook-integration.md` document the **inbound**
+Jira path only. The **outbound** Hermes path is specified by the `hermes-webhook-bridge` skill
+("Bridge CI webhooks to Hermes Agent via Cloudflare Tunnel … authenticating with HMAC-SHA256 V2
+signatures"), whose GitHub Actions recipe is exactly what `33445cc0` implements.
+
+**Conclusion: the two schemes are not in conflict — they serve different directions, and the KAN-130
+change touches only the outbound Hermes call.** The inbound Jira webhook is untouched. Consequence for
+the original code: the callback used Bearer auth against a receiver whose documented contract is
+HMAC-SHA256 V2, so CI-failure callbacks were very likely being rejected silently (the old `curl` had
+no `--fail`, so the step still reported green). `-fS` + strict shell make that class of failure loud.
