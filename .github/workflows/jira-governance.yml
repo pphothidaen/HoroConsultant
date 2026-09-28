@@ -34,15 +34,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch Event to Hermes Agent
+        env:
+          HERMES_TOKEN: ${{ secrets.HERMES_AGENT_TOKEN }}
+          HERMES_WEBHOOK_URL: ${{ secrets.HERMES_ORCHESTRATOR_WEBHOOK }}
+          # PR-controlled values are passed via env, never interpolated into
+          # the shell body, to avoid script injection (actionlint expression rule).
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'null' }}
+          GH_BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          GH_SHA: ${{ github.sha }}
+          GH_RUN_ID: ${{ github.run_id }}
         run: |
-          curl -s -X POST "${{ secrets.HERMES_ORCHESTRATOR_WEBHOOK }}" \
+          set -euo pipefail
+          TIMESTAMP=$(date +%s)
+          # Build the payload with jq from env vars so untrusted input is never
+          # spliced into the script, and the exact bytes hashed are the exact
+          # bytes transmitted.
+          BODY=$(jq -nc \
+            --arg event "CI_FAILURE" \
+            --arg repository "$GH_REPOSITORY" \
+            --arg branch "$GH_BRANCH" \
+            --arg commit_sha "$GH_SHA" \
+            --arg run_id "$GH_RUN_ID" \
+            --argjson pr_number "$GH_PR_NUMBER" \
+            '{event: $event, repository: $repository, pr_number: $pr_number,
+              branch: $branch, commit_sha: $commit_sha, run_id: $run_id}')
+
+          # Hermes V2 signature: HMAC-SHA256 over "${TIMESTAMP}.${BODY}"
+          # (see hermes-webhook-bridge/references/hmac-signature.md)
+          SIG=$(printf '%s' "${TIMESTAMP}.${BODY}" \
+            | openssl dgst -sha256 -hmac "$HERMES_TOKEN" -hex \
+            | awk '{print $NF}')
+
+          # -fS so a 4xx/5xx (bad or missing secret) FAILS the step instead of
+          # exiting 0 and silently disabling the callback.
+          curl -fsS -X POST "$HERMES_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.HERMES_AGENT_TOKEN }}" \
-            -d '{
-              "event": "CI_FAILURE",
-              "repository": "${{ github.repository }}",
-              "pr_number": ${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'null' }},
-              "branch": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}",
-              "commit_sha": "${{ github.sha }}",
-              "run_id": "${{ github.run_id }}"
-            }'
+            -H "X-Webhook-Timestamp: $TIMESTAMP" \
+            -H "X-Webhook-Signature-V2: $SIG" \
+            -d "$BODY"

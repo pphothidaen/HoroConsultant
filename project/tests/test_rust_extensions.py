@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 
 import numpy as np
 import pytest
@@ -25,27 +26,71 @@ from project.core.xuan_kong_engine import XuanKongEngine
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
-def _run_isolated_python(
-    code: str,
-    *,
-    pythonpath: list[Path],
-    allow_fallback: bool = False,
-) -> subprocess.CompletedProcess[str]:
-    """Run an import contract in a fresh interpreter with a controlled path."""
+def _safe_path_flags() -> list[str]:
+    """Interpreter flags that keep the CWD off ``sys.path``.
+
+    ``python -c`` prepends the CWD to ``sys.path[0]``, so a stray ``inspect.py``
+    or ``json.py`` in the CWD silently replaces the stdlib module for the whole
+    subprocess and the test then fails with a misleading domain error.
+    ``-P`` (PEP 384-style ``PYTHONSAFEPATH``) is the upstream fix, available from
+    Python 3.11; this repo's floor is 3.10, where it does not exist.
+
+    ``-I`` is deliberately NOT used: it implies ``-E``, which discards
+    ``PYTHONPATH`` and therefore breaks the controlled-path contract these tests
+    depend on.
+    """
+    if sys.version_info >= (3, 11):
+        return ["-P"]
+    return []
+
+
+def _subprocess_env(pythonpath: list[Path], allow_fallback: bool) -> dict[str, str]:
+    """Build the child environment.
+
+    ``PYTHONSAFEPATH`` is set in the env rather than only passed as ``-P`` because
+    the flag applies to this interpreter alone: any subprocess the child spawns
+    itself would still get the CWD prepended. As an env var it is inherited, so the
+    whole process tree is covered. It is harmless where unsupported (3.10) and is
+    removed entirely if it was inherited from the outer environment, so the tests
+    never silently depend on ambient state.
+    """
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(str(path) for path in pythonpath)
     if allow_fallback:
         env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
     else:
         env.pop("HORO_ALLOW_PYTHON_FALLBACK", None)
-    return subprocess.run(
-        [sys.executable, "-c", code],
-        cwd="/tmp",
-        env=env,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    if sys.version_info >= (3, 11):
+        env["PYTHONSAFEPATH"] = "1"
+    else:
+        env.pop("PYTHONSAFEPATH", None)
+    return env
+
+
+def _run_isolated_python(
+    code: str,
+    *,
+    pythonpath: list[Path],
+    allow_fallback: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    """Run an import contract in a fresh interpreter with a controlled path.
+
+    The CWD is a private, empty, per-invocation directory rather than the shared
+    world-writable ``/tmp``. That removes the class of bug instead of mitigating
+    it, and it works on every supported interpreter including 3.10, where ``-P``
+    does not exist. A unique directory also cannot be hijacked by a sibling agent
+    session or another project on the same machine.
+    """
+    env = _subprocess_env(pythonpath, allow_fallback)
+    with tempfile.TemporaryDirectory(prefix="horo-isolated-") as workdir:
+        return subprocess.run(
+            [sys.executable, *_safe_path_flags(), "-c", code],
+            cwd=workdir,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
 
 
 def test_rust_import_order_does_not_change_native_availability():
@@ -66,17 +111,16 @@ print(json.dumps(fast_math.runtime_backend(), sort_keys=True))
 """
     results = []
     for order in ("package-first", "fast-math-first"):
-        env = os.environ.copy()
-        env["PYTHONPATH"] = str(_PROJECT_ROOT)
-        env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
-        completed = subprocess.run(
-            [sys.executable, "-c", code, order],
-            cwd="/tmp",
-            env=env,
-            text=True,
-            capture_output=True,
-            check=False,
-        )
+        env = _subprocess_env([_PROJECT_ROOT], allow_fallback=True)
+        with tempfile.TemporaryDirectory(prefix="horo-order-") as workdir:
+            completed = subprocess.run(
+                [sys.executable, *_safe_path_flags(), "-c", code, order],
+                cwd=workdir,
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
         assert completed.returncode == 0, completed.stderr
         results.append(json.loads(completed.stdout))
 

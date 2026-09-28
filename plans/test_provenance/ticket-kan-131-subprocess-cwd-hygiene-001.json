@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "38f31b3093afa286ac1002ff25c296e9f914264c",
+  "test_files": [
+    {
+      "path": "tests/test_subprocess_cwd_hygiene.py",
+      "sha256": "d49349ed17c58a59d2ed7ab6c81965d116f184f753ad8dc76560d64f2f373ace"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_subprocess_cwd_hygiene.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: /tmp (used as a subprocess CWD by project/tests/test_rust_extensions.py (cwd='/tmp')) contains module(s) named ['bisect', 'inspect']"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_rust_extensions.py",
+    "tests/test_agent_token_scope.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-131: guard against stray probe scripts in a shared temp CWD shadowing importable modules. RED proven by re-planting the exact /private/tmp/inspect.py and /private/tmp/bisect.py debris that caused two misleading rust-extension failures; guard then reported the offenders by name and location."
+}

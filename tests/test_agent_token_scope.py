@@ -62,7 +62,17 @@ def _gh_api_user_keys(token: str | None, method: str = "GET") -> tuple[int, str]
 
 
 AGENT_TOKEN = os.environ.get("GH_AGENT_TOKEN")
-OWNER_TOKEN = os.environ.get("GH_OWNER_TOKEN") or os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+
+# The owner token is identified EXPLICITLY and only via GH_OWNER_TOKEN.
+#
+# It must not fall back to GH_TOKEN/GITHUB_TOKEN: this repo's local .env defines
+# GH_TOKEN as a *fine-grained agent* PAT (github_pat_...), which is scoped and
+# therefore returns HTTP 403 for branch-protection reads. Falling back made this
+# module assert owner-level privilege on a deliberately scoped credential, so the
+# test failed for reasons unrelated to the scoping it exists to verify -- and only
+# in a full-suite run, where another test loads .env before this module is
+# imported. The skip below is the correct outcome when no owner token is supplied.
+OWNER_TOKEN = os.environ.get("GH_OWNER_TOKEN")
 
 # Skip API-level tests when no agent token is available
 skip_no_agent_token = pytest.mark.skipif(
@@ -73,7 +83,9 @@ skip_no_agent_token = pytest.mark.skipif(
 # Skip owner token tests when no owner token is available
 skip_no_owner_token = pytest.mark.skipif(
     not OWNER_TOKEN,
-    reason="Owner token not available — set GH_OWNER_TOKEN to verify owner credential unaffected",
+    reason="Owner token not available — set GH_OWNER_TOKEN (a token with owner-level "
+           "rights) to verify owner credential is unaffected. GH_TOKEN/GITHUB_TOKEN "
+           "are intentionally NOT used as a fallback: they may hold a scoped agent PAT.",
 )
 
 
