@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-002",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6ade26a0726667e96a100dd41b885ceab380db31",
+  "test_files": [
+    {
+      "path": "project/tests/test_rust_extensions.py",
+      "sha256": "25c32ec17f27f402f6e6942d2394c29f805a4e70b94f93a19ca43ce83bfe1138"
+    },
+    {
+      "path": "tests/test_agent_token_scope.py",
+      "sha256": "5de360e4dd28685caa224f3b86f2298c71300ef5897c2afbf2e66a5f393b6978"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_rust_extensions.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "JSONDecodeError: Expecting value: line 1 column 1 (char 0) -- poisoned by a stray /tmp module shadowing a stdlib import"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_rust_extensions.py",
+    "tests/test_agent_token_scope.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-131 GREEN: -P (PYTHONSAFEPATH) added to both isolated-subprocess call sites so a shared /tmp CWD can no longer shadow importable modules; verified 18/18 pass with the original debris deliberately re-planted. Also stops OWNER_TOKEN falling back to GH_TOKEN/GITHUB_TOKEN, which in this repo holds a scoped fine-grained PAT that returns HTTP 403 on branch-protection reads."
+}

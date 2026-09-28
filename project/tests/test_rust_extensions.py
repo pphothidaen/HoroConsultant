@@ -25,6 +25,25 @@ from project.core.xuan_kong_engine import XuanKongEngine
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _safe_path_flags() -> list[str]:
+    """Interpreter flags that keep the CWD off ``sys.path``.
+
+    ``python -c`` prepends the CWD to ``sys.path[0]``, so a stray ``inspect.py``
+    or ``json.py`` sitting in ``/tmp`` silently replaces the stdlib module for
+    the whole subprocess and the test then fails with a misleading domain error.
+    ``-P`` (PEP 384-style ``PYTHONSAFEPATH``) is the upstream fix and is available
+    from Python 3.11.
+
+    ``-I`` is deliberately NOT used: it implies ``-E``, which discards
+    ``PYTHONPATH`` and therefore breaks the controlled-path contract these tests
+    depend on. On Python < 3.11 the flag does not exist, so it is omitted rather
+    than passed and rejected.
+    """
+    if sys.version_info >= (3, 11):
+        return ["-P"]
+    return []
+
+
 def _run_isolated_python(
     code: str,
     *,
@@ -39,7 +58,7 @@ def _run_isolated_python(
     else:
         env.pop("HORO_ALLOW_PYTHON_FALLBACK", None)
     return subprocess.run(
-        [sys.executable, "-c", code],
+        [sys.executable, *_safe_path_flags(), "-c", code],
         cwd="/tmp",
         env=env,
         text=True,
@@ -70,7 +89,7 @@ print(json.dumps(fast_math.runtime_backend(), sort_keys=True))
         env["PYTHONPATH"] = str(_PROJECT_ROOT)
         env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
         completed = subprocess.run(
-            [sys.executable, "-c", code, order],
+            [sys.executable, *_safe_path_flags(), "-c", code, order],
             cwd="/tmp",
             env=env,
             text=True,
