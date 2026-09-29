@@ -268,6 +268,33 @@ def _ascii_safe(value: str, limit: int = 120) -> str:
     return text
 
 
+def _read_commit_message(path: Optional[str]) -> str:
+    """Read a commit message file, dropping git's commented template lines.
+
+    COMMIT_EDITMSG and `git commit` message files carry the editor template
+    (`# On branch ...`, `# Changes to be committed: ...`). Those comments are
+    never part of the committed message, and their text is full of words that
+    overlap ticket summaries by coincidence, so tokenizing them would fabricate
+    a scope match and silently suppress a genuine mismatch warning.
+
+    Returns "" for a missing or unreadable file: the scope heuristic treats an
+    absent message as "not evaluable" and stays silent, which is the correct
+    fail-open behavior for a path that may legitimately not exist yet.
+    """
+    if not path:
+        return ""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            raw = handle.read()
+    except OSError:
+        return ""
+    kept = [
+        line for line in raw.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    return "\n".join(kept)
+
+
 def cmd_check(env: dict, key: str, commit_message: str = "") -> int:
     site, headers, _ = build_client(env)
     if not site:
@@ -434,6 +461,16 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("audit", help="audit all issues for missing agent-* labels")
     check_parser = subparsers.add_parser("check", help="check single issue for agent-* label")
     check_parser.add_argument("key")
+    # The commit message is what makes the KAN-181 scope heuristic reachable.
+    # Both hooks pass --message-file; --message exists for direct CLI use.
+    check_parser.add_argument(
+        "--message-file",
+        help="path to the commit message file (COMMIT_EDITMSG) to scope-check",
+    )
+    check_parser.add_argument(
+        "--message",
+        help="commit message text to scope-check (alternative to --message-file)",
+    )
 
     # If the first arg is 'audit' or 'check', use subcommand mode
     if argv and argv[0] in ("audit", "check", "--help", "-h"):
@@ -443,7 +480,12 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_audit(env, args.project)
         elif args.mode == "check":
             env = load_env(args.env)
-            return cmd_check(env, args.key)
+            commit_message = (
+                _read_commit_message(args.message_file)
+                if args.message_file
+                else (args.message or "")
+            )
+            return cmd_check(env, args.key, commit_message)
         else:
             parser.print_help()
             return 0
