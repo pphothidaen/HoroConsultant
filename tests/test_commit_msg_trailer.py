@@ -264,7 +264,67 @@ def test_prepare_commit_msg_hook_is_installed():
 
 
 # --------------------------------------------------------------------------
-# 11. commit-msg must REMAIN read-only -- KAN-179 must not break its contract.
+# 12. END-TO-END (the bug unit tests missed): a real `git commit` inside this
+#     repo must actually gain the trailer. A previous implementation was a
+#     SILENT no-op -- the helper returned None, the hook exited 0, and the
+#     commit looked successful while carrying no trailer at all.
+# --------------------------------------------------------------------------
+def test_end_to_end_real_commit_gains_trailer(trailer, repo):
+    """Drive the real helper through a real commit sequence."""
+    _, baseline = write_manifest(repo, "e2e-001.json", ["scripts/thing.py"])
+
+    (repo / "scripts").mkdir()
+    (repo / "scripts" / "thing.py").write_text("VALUE = 1\n")
+    git(repo, "add", "scripts/thing.py")
+
+    # This is exactly what prepare-commit-msg does: read the message file,
+    # rewrite it, then commit. If the helper no-ops, the message is unchanged.
+    msg_file = repo / ".git" / "COMMIT_EDITMSG"
+    msg_file.write_text("feat(core): implement thing\n")
+    out, changed = trailer.append_trailer(repo, msg_file.read_text(), "message")
+    msg_file.write_text(out)
+
+    assert changed is True, "helper no-op'd: this is the silent-no-op regression"
+    assert f"Test-Baseline: {baseline}" in msg_file.read_text()
+
+    res = git(repo, "commit", "-q", "-F", str(msg_file))
+    body = git(repo, "log", "-1", "--pretty=%B").stdout
+    assert f"Test-Baseline: {baseline}" in body, (
+        f"committed message lost the trailer:\n{body}"
+    )
+
+
+# --------------------------------------------------------------------------
+# 13. The hook must WARN (not silently exit 0) when the helper is missing.
+# --------------------------------------------------------------------------
+def test_hook_warns_when_helper_missing(tmp_path):
+    """A shared core.hooksPath must not turn this into a silent no-op."""
+    fake_repo = tmp_path / "other"
+    fake_repo.mkdir()
+    git(fake_repo, "init", "-q", "-b", "main")
+    git(fake_repo, "config", "user.email", "t@example.com")
+    git(fake_repo, "config", "user.name", "T")
+    (fake_repo / "README.md").write_text("x\n")
+    git(fake_repo, "add", "README.md")
+    git(fake_repo, "commit", "-q", "-m", "init")
+
+    msg = fake_repo / ".git" / "COMMIT_EDITMSG"
+    msg.write_text("feat(core): something\n")
+    before = msg.read_text()
+
+    res = subprocess.run(
+        ["sh", HOOK_PATH, str(msg), "message"],
+        cwd=str(fake_repo), capture_output=True, text=True,
+    )
+    assert res.returncode == 0, "hook must never block a commit"
+    assert "WARN" in res.stdout, (
+        f"missing helper must warn, got stdout={res.stdout!r}"
+    )
+    assert msg.read_text() == before, "message must be untouched"
+
+
+# --------------------------------------------------------------------------
+# 14. commit-msg must REMAIN read-only -- KAN-179 must not break its contract.
 # --------------------------------------------------------------------------
 def test_commit_msg_hook_remains_read_only():
     body = open(os.path.join(REPO_ROOT, ".githooks", "commit-msg"), encoding="utf-8").read()
