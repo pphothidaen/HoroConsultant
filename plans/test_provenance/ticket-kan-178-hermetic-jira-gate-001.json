@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-178-HERMETIC-JIRA-GATE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c790d2775b812e34ef909b8f27bcad8f8b1ec1d3",
+  "test_files": [
+    {
+      "path": "tests/test_jira_label_gate.py",
+      "sha256": "8c7fdb03d5e975a3fc692e02a615b81c8250be08fde7f4dc2a1be81017554e83"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [".venv/bin/python3", "-m", "pytest", "-q", "tests/test_jira_label_gate.py::TestCmdCheckFailOpen::test_missing_credentials_returns_fail_open"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: Expected fail-open (2), got <non-2 when host Jira is reachable and KAN-105 lacks a live agent-* label>"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/jira_label_gate.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD baseline for KAN-178 hermetic Jira label gate. RED proven by direct experiment: with JIRA_API_TOKEN/JIRA_EMAIL injected, the unmocked cmd_check issued a LIVE Jira API request (fetch_issue call count = 1, elapsed 15.12s vs 0.03s hermetic) against the real production project, so the assertion depended on the live labels of the real KAN-105 ticket rather than on code under test. The new contract deletes JIRA_API_TOKEN/JIRA_EMAIL/JIRA_BASE_URL via monkeypatch and asserts fetch_issue is never called. GREEN after fix: 22 passed in BOTH clean and injected-credential states, 0.10s and 0.11s. This manifest is the RED commit's own provenance record; allowed_source_paths carries scripts/jira_label_gate.py for any follow-up hardening, which this ticket does not require because the defect lives in the test, not the source."
+}

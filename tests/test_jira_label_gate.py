@@ -181,10 +181,20 @@ class TestCmdCheckFailOpen:
                 rc = _gate.cmd_check({}, "KAN-105")
         assert rc == 2, f"Expected fail-open (2), got {rc}"
 
-    def test_missing_credentials_returns_fail_open(self, _gate):
-        """No Jira credentials → exit 2 (fail-open)."""
-        rc = _gate.cmd_check({}, "KAN-105")
+    def test_missing_credentials_returns_fail_open(self, _gate, monkeypatch):
+        """No Jira credentials → exit 2 (fail-open), with ZERO network calls.
+
+        KAN-178: this must be hermetic. build_client() falls back to os.environ,
+        so without isolation this test performed a LIVE Jira API call and its
+        result depended on the real labels of the real KAN-105 ticket.
+        """
+        import unittest.mock as mock
+        for var in ("JIRA_API_TOKEN", "JIRA_EMAIL", "JIRA_BASE_URL"):
+            monkeypatch.delenv(var, raising=False)
+        with mock.patch.object(_gate, "fetch_issue") as fetch:
+            rc = _gate.cmd_check({}, "KAN-105")
         assert rc == 2, f"Expected fail-open (2), got {rc}"
+        fetch.assert_not_called()
 
     def test_valid_label_returns_pass(self, _gate):
         """Ticket with agent-* label → exit 0 (pass)."""
