@@ -14,15 +14,18 @@ must be preserved exactly.
 """
 
 import importlib.util
+import json
 import os
+import subprocess
+from pathlib import Path
 
 import pytest
 
-GATE_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "scripts",
-    "jira_label_gate.py",
-)
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(TESTS_DIR)
+GATE_PATH = os.path.join(REPO_ROOT, "scripts", "jira_label_gate.py")
+COMMIT_MSG_HOOK = os.path.join(REPO_ROOT, ".githooks", "commit-msg")
+PRE_COMMIT_HOOK = os.path.join(REPO_ROOT, ".githooks", "pre-commit")
 
 
 def load_gate_module():
@@ -269,3 +272,355 @@ class TestScopeCheckIsWiringOnly:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+# ---------------------------------------------------------------------------
+# KAN-181 production wiring.
+#
+# Everything above this section calls cmd_check() directly with a message. The
+# CLI never did that: main() dispatched `cmd_check(env, args.key)` with no
+# third argument, so the scope heuristic was unreachable from either hook and
+# ran in production exactly never. These tests drive the real entry points --
+# the argparse dispatch in main() and the .githooks shell hooks executed as
+# real processes against a real git repository -- because a passing unit test
+# on cmd_check proves nothing about whether the feature fires.
+# ---------------------------------------------------------------------------
+
+_MISMATCH_SUMMARY = "Renewable lease fencing tokens for agent dispatch"
+_MATCHING_SUMMARY = "Scope relevance validation for the agent label gate"
+
+
+def _issue_payload(labels, summary):
+    return {"fields": {"labels": labels, "summary": summary,
+                       "status": {"name": "In Progress"}}}
+
+
+class _LabeledIssue(_Patched):
+    """_Patched pinned to the common case: HTTP 200 with labels+summary."""
+
+    def __init__(self, gate, payload):
+        super().__init__(gate, payload, 200)
+
+
+class TestCliForwardsCommitMessage:
+    """main() is the production entry point; it must carry the message."""
+
+    def test_check_subcommand_warns_on_scope_mismatch(self, tmp_path, capsys):
+        """The CLI path, not cmd_check, must reach the scope heuristic."""
+        gate = load_gate_module()
+        message = tmp_path / "COMMIT_EDITMSG"
+        message.write_text(
+            "[KAN-130] feat: unrelated telemetry exporter retry budget\n",
+            encoding="utf-8",
+        )
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            rc = gate.main(["check", "KAN-130", "--message-file", str(message)])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "[WARN] KAN-130 scope does not appear related to this commit." in out
+        assert "Renewable lease fencing" in out
+        assert "telemetry exporter retry" in out
+
+    def test_check_subcommand_silent_when_scope_matches(self, tmp_path, capsys):
+        gate = load_gate_module()
+        message = tmp_path / "COMMIT_EDITMSG"
+        message.write_text(
+            "[KAN-130] feat(governance): scope relevance validation for the "
+            "agent label gate\n",
+            encoding="utf-8",
+        )
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MATCHING_SUMMARY)):
+            rc = gate.main(["check", "KAN-130", "--message-file", str(message)])
+        assert rc == 0
+        assert "scope does not appear related" not in capsys.readouterr().out
+
+    def test_check_subcommand_without_message_stays_silent(self, capsys):
+        """No message is not-evaluable, never a mismatch (backward compatible)."""
+        gate = load_gate_module()
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            rc = gate.main(["check", "KAN-130"])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "[OK] KAN-130 carries agent label: agent-hermes" in out
+        assert "scope does not appear related" not in out
+
+    def test_inline_message_flag_is_forwarded(self, capsys):
+        gate = load_gate_module()
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            rc = gate.main([
+                "check", "KAN-130", "--message",
+                "[KAN-130] feat: unrelated telemetry exporter retry budget",
+            ])
+        assert rc == 0
+        assert "scope does not appear related" in capsys.readouterr().out
+
+    def test_missing_message_file_fails_open(self, tmp_path, capsys):
+        """A message file that vanished must never break or block a commit."""
+        gate = load_gate_module()
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            rc = gate.main([
+                "check", "KAN-130", "--message-file", str(tmp_path / "absent"),
+            ])
+        assert rc == 0
+        assert "scope does not appear related" not in capsys.readouterr().out
+
+    def test_git_comment_lines_are_stripped(self, tmp_path, capsys):
+        """COMMIT_EDITMSG carries the editor template; its comments are not intent.
+
+        The template comment here deliberately repeats the word "lease" from the
+        ticket summary. If comments were tokenized they would create a phantom
+        scope match and silently suppress a genuine mismatch warning.
+        """
+        gate = load_gate_module()
+        message = tmp_path / "COMMIT_EDITMSG"
+        message.write_text(
+            "# Changes to be committed: lease renewal logic\n"
+            "# On branch fix-kan-181\n"
+            "\n"
+            "[KAN-130] feat: unrelated telemetry exporter retry budget\n"
+            "\n"
+            "Test-Baseline: 0123456789abcdef0123456789abcdef01234567\n",
+            encoding="utf-8",
+        )
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            rc = gate.main(["check", "KAN-130", "--message-file", str(message)])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "scope does not appear related" in out
+        # The reported subject is the real subject, not the template comment.
+        assert "[KAN-130] feat: unrelated telemetry exporter retry budget" in out
+        assert "lease renewal logic" not in out
+
+    def test_unlabeled_ticket_still_blocks_via_cli(self, capsys):
+        """Wiring the message must not soften the one load-bearing exit code."""
+        gate = load_gate_module()
+        with _LabeledIssue(gate, _issue_payload(["backend"], _MISMATCH_SUMMARY)):
+            rc = gate.main(["check", "KAN-130", "--message", "anything"])
+        assert rc == 1
+        assert "has no agent-* label" in capsys.readouterr().out
+
+    def test_cli_output_is_ascii(self, tmp_path, capsys):
+        """scripts/AGENTS.md: gate stdout must stay ASCII."""
+        gate = load_gate_module()
+        message = tmp_path / "COMMIT_EDITMSG"
+        message.write_text(
+            "[KAN-130] feat: \u00e9telemetry \u65e5\u672c\u8a9e retry budget\n",
+            encoding="utf-8",
+        )
+        with _LabeledIssue(gate, _issue_payload(["agent-hermes"], _MISMATCH_SUMMARY)):
+            gate.main(["check", "KAN-130", "--message-file", str(message)])
+        assert capsys.readouterr().out.isascii()
+
+
+# A stand-in for scripts/jira_label_gate.py used when driving the real hooks.
+# It records the argv it was handed so the test can assert the hook forwards a
+# commit message, and echoes a canned gate report so exit-code handling in the
+# hook (0 pass / 1 block / 2 fail-open) can be exercised without a network.
+_STUB_GATE = '''#!/usr/bin/env python3
+import json, os, sys
+with open(os.environ["STUB_GATE_ARGV"], "w", encoding="utf-8") as handle:
+    json.dump(sys.argv[1:], handle)
+sys.stdout.write(os.environ.get("STUB_GATE_STDOUT", ""))
+sys.stderr.write(os.environ.get("STUB_GATE_STDERR", ""))
+sys.exit(int(os.environ.get("STUB_GATE_EXIT", "0")))
+'''
+
+
+def _git(repo, *args):
+    return subprocess.run(
+        ["git", "-C", str(repo), *args], capture_output=True, text=True, check=True,
+    ).stdout
+
+
+@pytest.fixture
+def hook_repo(tmp_path):
+    """A real git repo wired to the real .githooks, with the Jira call stubbed.
+
+    core.hooksPath is set so the hooks under test run as real processes
+    during a real `git commit`, which is the only way to prove the feature
+    actually fires in production.
+    """
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo.parent, "init", "-q", str(repo))
+    _git(repo, "config", "user.email", "test@example.invalid")
+    _git(repo, "config", "user.name", "KAN-181 Test")
+    _git(repo, "config", "core.hooksPath", os.path.join(REPO_ROOT, ".githooks"))
+    (repo / "scripts").mkdir()
+    (repo / "scripts" / "jira_label_gate.py").write_text(_STUB_GATE, encoding="utf-8")
+    (repo / "readme.txt").write_text("seed\n", encoding="utf-8")
+    _git(repo, "add", "readme.txt")
+    _git(repo, "commit", "-q", "-m", "seed")
+    return repo
+
+
+def _commit(hook_repo, message, env_extra=None):
+    """Run a real `git commit` and return the CompletedProcess."""
+    env = dict(os.environ)
+    env.setdefault("STUB_GATE_ARGV", str(hook_repo / "argv.json"))
+    env.update(env_extra or {})
+    # Keep the test hermetic: never let the developer's real .env or a stray
+    # credential leak into the stubbed gate.
+    env.pop("JIRA_API_TOKEN", None)
+    env.pop("JIRA_EMAIL", None)
+    return subprocess.run(
+        ["git", "-C", str(hook_repo), "commit", "--allow-empty", "-m", message],
+        capture_output=True, text=True, env=env,
+    )
+
+
+def _stub_argv(hook_repo):
+    return json.loads((hook_repo / "argv.json").read_text(encoding="utf-8"))
+
+
+def _hook_output(result):
+    """git relays hook stdout to stderr; check both."""
+    return (result.stdout or "") + (result.stderr or "")
+
+
+def _message_from_argv(hook_repo, argv):
+    """Read the file the gate was pointed at, resolved against the repo root.
+
+    git runs hooks with the repo top level as the working directory, so the
+    gate resolves a relative COMMIT_EDITMSG path correctly; the test has to do
+    the same to inspect it.
+    """
+    path = Path(argv[argv.index("--message-file") + 1])
+    if not path.is_absolute():
+        path = hook_repo / path
+    return path.read_text(encoding="utf-8")
+
+
+class TestCommitMsgHookPassesMessage:
+    """commit-msg receives the real message file as $1; it must forward it."""
+
+    def test_hook_forwards_the_commit_message(self, hook_repo):
+        result = _commit(hook_repo, "[KAN-130] feat: unrelated telemetry retry budget")
+        assert result.returncode == 0, result.stderr
+        argv = _stub_argv(hook_repo)
+        assert "check" in argv and "KAN-130" in argv
+        assert "--message-file" in argv
+        assert "unrelated telemetry retry budget" in _message_from_argv(hook_repo, argv)
+
+    def test_hook_message_is_this_commit_not_a_stale_one(self, hook_repo):
+        """The gate must see the message being committed, not COMMIT_EDITMSG.
+
+        This is the KAN-181 defect in production shape: a stale key left in
+        .git/COMMIT_EDITMSG from a previous commit satisfied the gate for an
+        unrelated commit.
+        """
+        _commit(hook_repo, "[KAN-130] feat: unrelated telemetry retry budget")
+        first = _message_from_argv(hook_repo, _stub_argv(hook_repo))
+        _commit(hook_repo, "[KAN-999] feat: a completely different subject line")
+        second_argv = _stub_argv(hook_repo)
+        second = _message_from_argv(hook_repo, second_argv)
+        assert "KAN-999" in second_argv
+        assert "KAN-130" not in second_argv
+        assert "completely different subject" in second
+        assert second != first
+
+    def test_hook_never_blocks_on_a_scope_warning(self, hook_repo):
+        """A [WARN] scope mismatch must not fail the commit (exit 0 from gate)."""
+        result = _commit(
+            hook_repo,
+            "[KAN-130] feat: unrelated telemetry retry budget",
+            {"STUB_GATE_STDOUT": "[WARN] KAN-130 scope does not appear related.\n",
+             "STUB_GATE_EXIT": "0"},
+        )
+        assert result.returncode == 0, result.stderr
+        assert "unrelated telemetry retry budget" in _git(hook_repo, "log", "-1", "--format=%s")
+
+    def test_hook_still_blocks_on_unlabeled_ticket(self, hook_repo):
+        result = _commit(
+            hook_repo,
+            "[KAN-130] feat: unrelated telemetry retry budget",
+            {"STUB_GATE_STDOUT": "[ERROR] KAN-130 has no agent-* label.\n",
+             "STUB_GATE_EXIT": "1"},
+        )
+        assert result.returncode != 0
+        assert "agent-* label" in _hook_output(result)
+        assert "seed" == _git(hook_repo, "log", "-1", "--format=%s").strip()
+
+    def test_hook_fails_open_without_jira_credentials(self, hook_repo):
+        result = _commit(
+            hook_repo,
+            "[KAN-130] feat: unrelated telemetry retry budget",
+            {"STUB_GATE_STDOUT": "[WARN] credentials unavailable.\n",
+             "STUB_GATE_EXIT": "2"},
+        )
+        assert result.returncode == 0, result.stderr
+        assert "credentials unavailable" in _hook_output(result)
+
+    def test_hook_does_not_edit_the_commit_message(self, hook_repo):
+        """Read-only contract: commit-msg must never rewrite the message.
+
+        Asserted on the COMMITTED message, which is the artifact a user sees.
+        git legitimately rewrites .git/COMMIT_EDITMSG itself, so that file is
+        not a valid probe; the committed body is.
+        """
+        message = "[KAN-130] feat: unrelated telemetry retry budget"
+        _commit(hook_repo, message)
+        body = _git(hook_repo, "log", "-1", "--format=%B").strip()
+        assert body == message
+        # The KAN-179 trailer belongs to prepare-commit-msg, never to this gate.
+        assert "Test-Baseline:" not in body
+        body_text = Path(COMMIT_MSG_HOOK).read_text(encoding="utf-8")
+        assert "never edits the commit message" in body_text
+        assert "commit_msg_trailer.py" not in body_text
+
+
+class TestPreCommitHookResolvesMessageFile:
+    """pre-commit hardcoded .git/COMMIT_EDITMSG, which is a FILE in a worktree.
+
+    In a linked worktree .git is a gitfile, so `.git/COMMIT_EDITMSG` never
+    resolves and the whole gate silently no-ops. `git rev-parse --git-path` is
+    the only form that works in both a normal clone and a worktree.
+    """
+
+    def test_hook_uses_git_path_not_a_hardcoded_dot_git(self):
+        """The primary resolution must be rev-parse, not a literal path.
+
+        A `.git/COMMIT_EDITMSG` fallback may remain (non-git contexts), so this
+        pins that rev-parse is what actually decides the path.
+        """
+        body = Path(PRE_COMMIT_HOOK).read_text(encoding="utf-8")
+        assert "rev-parse --git-path COMMIT_EDITMSG" in body
+        first_assignment = body.index("COMMIT_MSG_FILE=")
+        assert body[first_assignment:].lstrip().startswith(
+            "COMMIT_MSG_FILE=$(git rev-parse --git-path COMMIT_EDITMSG"
+        )
+
+    def test_pre_commit_resolves_the_real_path_in_a_worktree(self, tmp_path):
+        main_repo = tmp_path / "main"
+        main_repo.mkdir()
+        _git(tmp_path, "init", "-q", str(main_repo))
+        _git(main_repo, "config", "user.email", "t@example.invalid")
+        _git(main_repo, "config", "user.name", "T")
+        (main_repo / "seed.txt").write_text("seed\n", encoding="utf-8")
+        _git(main_repo, "add", "seed.txt")
+        _git(main_repo, "commit", "-q", "-m", "seed")
+        worktree = tmp_path / "wt"
+        _git(main_repo, "worktree", "add", "-q", str(worktree), "-b", "wtbranch")
+
+        # In a worktree .git is a file, which is what breaks the hardcoded path.
+        assert (worktree / ".git").is_file()
+
+        editmsg = Path(_git(worktree, "rev-parse", "--git-path", "COMMIT_EDITMSG").strip())
+        if not editmsg.is_absolute():
+            editmsg = worktree / editmsg
+        editmsg.parent.mkdir(parents=True, exist_ok=True)
+        editmsg.write_text("[KAN-130] unrelated telemetry retry budget\n", encoding="utf-8")
+
+        (worktree / "scripts").mkdir()
+        (worktree / "scripts" / "jira_label_gate.py").write_text(_STUB_GATE, encoding="utf-8")
+        env = dict(os.environ, STUB_GATE_ARGV=str(worktree / "argv.json"))
+        result = subprocess.run(
+            ["sh", str(PRE_COMMIT_HOOK)], cwd=str(worktree), capture_output=True,
+            text=True, env=env,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        argv = json.loads((worktree / "argv.json").read_text(encoding="utf-8"))
+        assert "--message-file" in argv
+        assert "unrelated telemetry retry budget" in Path(
+            argv[argv.index("--message-file") + 1]
+        ).read_text(encoding="utf-8")
