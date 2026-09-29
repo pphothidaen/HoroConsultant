@@ -53,16 +53,34 @@ KAN_181 = {
 }
 
 
-def _patched(gate, issue, status=200):
-    """Mock build_client/fetch_issue exactly as tests/test_jira_label_gate.py does."""
-    import unittest.mock as mock
-    return (
-        mock.patch.object(
+class _Patched:
+    """Context manager yielding the live mocks _patched installs.
+
+    mock.patch.object() returns a PATCHER, which has no call_count; the
+    mock with the recorded calls is only available as the __enter__ result.
+    """
+
+    def __init__(self, gate, issue, status):
+        import unittest.mock as mock
+        self._client = mock.patch.object(
             gate, "build_client",
             return_value=("https://x.atlassian.net", {"Authorization": "Bearer t"}, None),
-        ),
-        mock.patch.object(gate, "fetch_issue", return_value=(status, issue)),
-    )
+        )
+        self._fetch = mock.patch.object(gate, "fetch_issue", return_value=(status, issue))
+
+    def __enter__(self):
+        self.build_client = self._client.__enter__()
+        self.fetch_issue = self._fetch.__enter__()
+        return self
+
+    def __exit__(self, *exc):
+        self._fetch.__exit__(*exc)
+        return self._client.__exit__(*exc)
+
+
+def _patched(gate, issue, status=200):
+    """Mock build_client/fetch_issue exactly as tests/test_jira_label_gate.py does."""
+    return _Patched(gate, issue, status)
 
 
 class TestScopeTokenization:
@@ -147,8 +165,8 @@ class TestCmdCheckScopeWarning:
 
     def test_scope_mismatch_warns_but_still_passes(self, _gate, capsys):
         """A labeled but off-scope ticket WARNs and returns 0 (never blocks)."""
-        client, fetch = _patched(_gate, KAN_130)
-        with client, fetch:
+        patched = _patched(_gate, KAN_130)
+        with patched as mocks:
             rc = _gate.cmd_check(
                 {}, "KAN-130",
                 "[KAN-130] fix(provenance): rotate webhook credential store",
@@ -162,8 +180,8 @@ class TestCmdCheckScopeWarning:
         assert "KAN-130" in out
 
     def test_scope_match_emits_no_warning(self, _gate, capsys):
-        client, fetch = _patched(_gate, KAN_181)
-        with client, fetch:
+        patched = _patched(_gate, KAN_181)
+        with patched as mocks:
             rc = _gate.cmd_check(
                 {}, "KAN-181",
                 "[KAN-181] feat(governance): add label scope validation",
@@ -175,8 +193,8 @@ class TestCmdCheckScopeWarning:
 
     def test_no_message_keeps_legacy_output_exactly(self, _gate, capsys):
         """Existing callers pass no message: byte-identical [OK] line, no warn."""
-        client, fetch = _patched(_gate, KAN_130)
-        with client, fetch:
+        patched = _patched(_gate, KAN_130)
+        with patched as mocks:
             rc = _gate.cmd_check({}, "KAN-130")
         out = capsys.readouterr().out
         assert rc == 0
@@ -184,8 +202,8 @@ class TestCmdCheckScopeWarning:
 
     def test_missing_summary_never_warns(self, _gate, capsys):
         """Ticket payload without a summary is not evidence of mismatch."""
-        client, fetch = _patched(_gate, {"fields": {"labels": ["agent-hermes"]}})
-        with client, fetch:
+        patched = _patched(_gate, {"fields": {"labels": ["agent-hermes"]}})
+        with patched as mocks:
             rc = _gate.cmd_check({}, "KAN-105", "feat: totally unrelated subject")
         out = capsys.readouterr().out
         assert rc == 0
@@ -193,8 +211,8 @@ class TestCmdCheckScopeWarning:
 
     def test_warning_output_is_pure_ascii(self, _gate, capsys):
         """scripts/AGENTS.md forbids unicode in script output."""
-        client, fetch = _patched(_gate, KAN_130)
-        with client, fetch:
+        patched = _patched(_gate, KAN_130)
+        with patched as mocks:
             _gate.cmd_check({}, "KAN-130", "[KAN-130] fix: rotate webhook credential")
         out = capsys.readouterr().out
         out.encode("ascii")  # raises on any non-ASCII byte
@@ -204,16 +222,16 @@ class TestExitCodeContractUnchanged:
     """The load-bearing contract: a scope check must not perturb any exit code."""
 
     def test_unlabeled_ticket_still_fails_closed(self, _gate, capsys):
-        client, fetch = _patched(_gate, {"fields": {"labels": ["bug"], "summary": "Bug"}})
-        with client, fetch:
+        patched = _patched(_gate, {"fields": {"labels": ["bug"], "summary": "Bug"}})
+        with patched as mocks:
             rc = _gate.cmd_check({}, "KAN-105", "feat: something")
         assert rc == 1
         assert "[ERROR] KAN-105 has no agent-* label" in capsys.readouterr().out
 
     @pytest.mark.parametrize("status", [401, 403, 404, 500, 503])
     def test_unverifiable_still_fails_open(self, _gate, status):
-        client, fetch = _patched(_gate, {}, status=status)
-        with client, fetch:
+        patched = _patched(_gate, {}, status=status)
+        with patched as mocks:
             rc = _gate.cmd_check({}, "KAN-999", "feat: something unrelated")
         assert rc == 2, f"status {status} must stay fail-open (2), got {rc}"
 
@@ -229,10 +247,10 @@ class TestExitCodeContractUnchanged:
     def test_no_additional_http_calls(self, _gate):
         """Scope checking must reuse the existing fetch_issue response only."""
         import unittest.mock as mock
-        client, fetch = _patched(_gate, KAN_130)
-        with client, fetch:
+        patched = _patched(_gate, KAN_130)
+        with patched as mocks:
             _gate.cmd_check({}, "KAN-130", "fix: rotate webhook credential")
-        assert fetch.call_count == 1, "scope check must not issue a new HTTP request"
+        assert mocks.fetch_issue.call_count == 1, "scope check must not issue a new HTTP request"
 
 
 class TestScopeCheckIsWiringOnly:
@@ -240,11 +258,11 @@ class TestScopeCheckIsWiringOnly:
 
     def test_warning_does_not_change_return_value(self, _gate):
         """Same ticket, two commits: rc identical whether scope matches or not."""
-        client, fetch = _patched(_gate, KAN_181)
-        with client, fetch:
+        patched = _patched(_gate, KAN_181)
+        with patched as mocks:
             matched = _gate.cmd_check({}, "KAN-181", "feat: add label scope validation")
-        client, fetch = _patched(_gate, KAN_181)
-        with client, fetch:
+        patched = _patched(_gate, KAN_181)
+        with patched as mocks:
             mismatched = _gate.cmd_check({}, "KAN-181", "feat: tune unrelated postgres index")
         assert matched == mismatched == 0
 

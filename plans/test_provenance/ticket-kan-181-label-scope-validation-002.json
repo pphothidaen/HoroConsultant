@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-181-LABEL-SCOPE-VALIDATION",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bc0530f5383a0b5f772f0c7753a6ebc6d9e45795",
+  "test_files": [
+    {
+      "path": "tests/test_jira_label_scope.py",
+      "sha256": "988ae489a01971b5662003edf33f9160b25054405a4477944e59bb276702fa30"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_jira_label_scope.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "25 failed, 1 passed against baseline source bc0530f5 (TypeError: cmd_check() takes 2 positional arguments but 3 were given; AttributeError: module 'jira_label_gate' has no attribute 'scope_overlap'/'scope_tokens')"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/jira_label_gate.py"
+  ],
+  "test_owner_role": "orchestrator",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "bc0530f5383a0b5f772f0c7753a6ebc6d9e45795",
+  "correction_reason": "The sequence-1 baseline froze a defective test helper. _patched() returned mock.patch.object() PATCHERS, but test_no_additional_http_calls asserted fetch.call_count on the patcher object rather than on the mock yielded by __enter__; a _patch has no call_count, so the test raised AttributeError and could never pass regardless of the implementation. This is a defect in the test harness, not in the contract under test. The correction replaces the tuple-of-patchers with a small _Patched context manager that exposes the live build_client/fetch_issue mocks, and updates all ten call sites. The assertion itself is unchanged and still pins the real requirement: exactly one HTTP call, no extra request for scope data. RED was re-proven honestly against the pristine baseline source (25 failed, 1 passed, exit 1) by temporarily restoring scripts/jira_label_gate.py from bc0530f5 rather than relying on the earlier run.",
+  "rationale": "TDD baseline (sequence 2, supersedes bc0530f5) for KAN-181 scope-relevance validation of the Jira agent-label gate. The defect: cmd_check validated agent-* LABEL PRESENCE ONLY, so any labeled ticket satisfied the gate regardless of whether the commit had anything to do with the ticket. Real evidence: a commit citing KAN-181 passed against a stale KAN-133 key left in .git/COMMIT_EDITMSG, and KAN-133's scope (renewable leases, fencing tokens) was unrelated to the work (webhook dispatch). RED: 25 failed, 1 passed (exit 1) on the missing third cmd_check parameter and the absent scope_tokens/scope_overlap helpers. GREEN: 26 passed, with tests/test_jira_label_gate.py unchanged at 22 passed, confirming the exit-code contract (0 = labeled, 1 = exists but unlabeled, 2 = unverifiable) did not regress. Design: a WORD-OVERLAP heuristic, so it can only ever add a [WARN] line naming BOTH the ticket summary and the commit subject; it never changes a return value, because a heuristic false positive must not block legitimate work. Ticket keys and agent-* roster labels are stripped before tokenizing so a ticket cannot 'match' a commit merely by repeating the same key or lane. The summary field is already present in the existing fetch_issue response (fields=labels,summary,status), so no additional HTTP request was introduced; test_no_additional_http_calls pins fetch_issue.call_count == 1. Missing or boilerplate-only input returns None, which callers treat as silence rather than mismatch. All warning output is ASCII-folded and clipped per the scripts/AGENTS.md rule."
+}
