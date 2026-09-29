@@ -1,0 +1,70 @@
+#!/bin/sh
+# prepare-commit-msg hook: append a `Test-Baseline: <sha>` trailer when it is
+# provable -- KAN-179.
+#
+# This hook is the ONLY writer. The sibling .githooks/commit-msg gate stays
+# strictly read-only (it validates Jira agent-label governance and never edits
+# the message); that contract is preserved and enforced by
+# tests/test_commit_msg_trailer.py::test_commit_msg_hook_remains_read_only.
+#
+# Safety contract:
+#   - Never blocks a commit. Every failure path exits 0.
+#   - Never guesses a baseline SHA. See scripts/commit_msg_trailer.py for the
+#     full "provable baseline" conditions.
+#   - Never rewrites a message except by appending one trailer line.
+
+set -u
+
+# $1 = path to the commit message file, $2 = source of the message
+# ($2 is "message" for -m/-F, "template" for a template, "merge" for a merge,
+#  "squash" or "commit" for -c/-C/--amend).
+
+MSG_FILE="${1:-}"
+MSG_SOURCE="${2:-}"
+
+# Skip sources where a trailer would be wrong or meaningless.
+case "$MSG_SOURCE" in
+    merge|squash|commit)
+        exit 0
+        ;;
+esac
+
+if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
+    exit 0
+fi
+
+# Resolve the repository root from the hook's own location. core.hooksPath may
+# point at a shared hooks directory (e.g. another repo's .githooks), so paths
+# relative to $PWD are NOT reliable -- doing that made this hook a silent
+# no-op that reported success while never appending anything.
+HOOK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+if [ -z "$REPO_ROOT" ]; then
+    # Fall back to the hook's grandparent when hooksPath is external.
+    REPO_ROOT=$(dirname -- "$HOOK_DIR")
+fi
+
+TRAILER_SCRIPT="$REPO_ROOT/scripts/commit_msg_trailer.py"
+if [ ! -f "$TRAILER_SCRIPT" ]; then
+    echo "[WARN] prepare-commit-msg: helper not found at $TRAILER_SCRIPT; trailer skipped."
+    exit 0
+fi
+
+# Interpreter selection matches .githooks/commit-msg: prefer the repo venv.
+if [ -x "$REPO_ROOT/.venv/bin/python3" ]; then
+    PYTHON="$REPO_ROOT/.venv/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON="python3"
+else
+    echo "[WARN] prepare-commit-msg: no Python interpreter; trailer skipped."
+    exit 0
+fi
+
+# Run from the repository root so the helper reads this repo's index/manifests.
+cd "$REPO_ROOT" || exit 0
+"$PYTHON" "$TRAILER_SCRIPT" --repo "$REPO_ROOT" --message-file "$MSG_FILE" || {
+    echo "[WARN] prepare-commit-msg: trailer helper failed; message left unchanged."
+    exit 0
+}
+
+exit 0
