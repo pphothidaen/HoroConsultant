@@ -4121,3 +4121,37 @@ an older SHA, local-only test, HTTP status alone, or a different deployment.
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-PROD` | `BLOCKED_BY_RELEASE_CI_OBSERVE` | `devops`; `devops-deployment`, `hf-static-release-verification` | Merge only after required CI passes; deploy/verify the same release identity on HF Docker and Vercel, with health, API/HITL smoke, UI/export E2E, and 360/375/390/768/1440 visual audit evidence. Stop on HTTP 503, identity mismatch, or failed viewport. |
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-CLOSEOUT` | `BLOCKED_BY_RELEASE_PROD` | `business_analyst`; `bsa-doc-skill-management`, `agile-governance`, `orchestrator-delegation` | After verified production only, update `ReleaseNotes.md`, reconcile ticket/plan status, and move the two exact Horo Lite active plans into `plans/archive/2026-09-08-horo-lite-review-remediation/`. |
 | `TICKET-HLITE-REVIEW-REMEDIATION-20260907-RELEASE-TAG-CLEANUP` | `BLOCKED_BY_RELEASE_CLOSEOUT` | `devops`; `devops-deployment`, `hf-static-release-verification`, `agile-governance` | Commit closeout on a protected branch, obtain required PR checks/merge, create and push the next non-conflicting production tag, remove only the owned release branch, and prove local/origin main and tag identities agree while preserving the unrelated HITL worktree change. |
+
+---
+
+## Provenance governance remediation -- 2026-09-29
+
+**Trigger:** orchestrator handoff audit of the KAN-122/132/133 delivery. The
+delivery itself is real, merged and verified (PR #109, PR #111, `main` @ `728c4897`,
+`verify-pr --base b8a8e9d1 --head main --diff-coverage` => `PASSED`). Three defects
+were found in the *handoff and governance metadata*, not in the shipped code.
+
+**Defect 1 -- ticket mis-attribution.** Commits `33445cc0`, `38f31b30`, `da5d5c07`,
+`2a57db49`, `b5889733`, `b0620a4c`, `b8a8e9d1`, `02c3861a`, `22571990` cite
+`KAN-130`/`131`/`132`/`133`. Verified against Jira, all four are unrelated Sprint K
+delivery tickets (children of `KAN-129`), still `Backlog`: WorkerRuntime Abstraction,
+RuntimeBackend ABC, Deterministic Evidence Contract, and Concurrency Control Plane.
+None owns the provenance, credential, or webhook work merged under their keys.
+Corrected forward only; merged shared history is never amended or force-pushed.
+
+**Defect 2 -- the gate cannot detect this.** `scripts/jira_label_gate.py` `cmd_check`
+(lines 172-186) validates *label presence only* and never compares ticket scope to
+commit content, so any `agent-*` labeled ticket satisfies `commit-msg` regardless of fit.
+
+**Defect 3 -- a live-credential test leak.** `tests/test_jira_label_gate.py::test_missing_credentials_returns_fail_open`
+calls the real unmocked `cmd_check`; `build_client()` (lines 86-90) falls back to
+`os.environ`, so on any credentialed host it performs a live Jira network call. This was
+mis-reported as a "pre-existing flaky test" and is a genuine environment-dependent defect.
+
+| Ticket | State | Owner / bound skills | Exclusive scope and acceptance |
+|---|---|---|---|
+| `KAN-178` | `READY` | `qa_tester`; `qa-e2e-testing` | `tests/test_jira_label_gate.py`, `plans/test_provenance/ticket-provenance-hermetic-jira-gate-001.json`. RED: fail under injected `JIRA_API_TOKEN`/`JIRA_EMAIL`. GREEN: `monkeypatch` deletes `JIRA_API_TOKEN`/`JIRA_EMAIL`/`JIRA_BASE_URL`. Accept: 22 passed in *both* credential states. Must precede all other lanes for clean suite signal. |
+| `KAN-179` | `BLOCKED_ON_HOOK_CONTRACT_DECISION` | `developer_api`; `sdlc-aisdlc-workflow` | `.githooks/commit-msg`, `tests/test_commit_msg_trailer_hook.py`, optional `scripts/commit_msg_trailer.py`. Append `Test-Baseline: <baseline>` **only** when exactly one `plans/test_provenance/*.json` manifest is staged; zero or multiple candidates leaves the message byte-identical. Never guess a SHA. `AGENTS.md` ownership: open decision whether to amend the read-only hook contract (line 5) or add a separate `prepare-commit-msg` hook. |
+| `KAN-180` | `BLOCKED_BY_KAN-179` | `devops`; `devops-deployment` | `.githooks/pre-push`, `tests/test_pre_push_hook.py`. Adopt the interpreter block from `.githooks/commit-msg:9-16` (`.venv/bin/python3` first) to fix the false `tomllib` report caused by bare `python3` resolving to system 3.9.6. Validate every commit in the pushed range from hook stdin, not `git log -1`. Preserve fail-closed on real gate failure. Sequential after `KAN-179` (shared `.githooks/` path). |
+| `KAN-181` | `READY` | `orchestrator`; `agile-governance` | Attribution remediation only: record the true ticket per commit, file/link the correct tickets, and add scope validation to `jira_label_gate.py` so a label-only match cannot satisfy `commit-msg`. No history rewrite. |
+| `TICKET-PROVENANCE-CLOSEOUT-20260929` | `BLOCKED_BY_ALL_ABOVE` | `orchestrator`; `agile-governance` | Full suite (5138 collected) with zero failures, `sync_ai_agent_ecosystem.py --check` exit 0, `verify-pr` PASSED, then Rule 22 archival to `plans/archive/2026-09-29-kan-provenance/` and `ReleaseNotes.md` republication. |
