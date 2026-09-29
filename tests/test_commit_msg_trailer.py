@@ -184,10 +184,16 @@ def test_existing_trailer_is_not_duplicated(trailer, repo):
     "docs(governance): update rule",
     "fix(governance): harden gate",
     "build(hf): package",
-    'Revert "bad commit"',
-    "fixup! feat(core): something",
 ])
 def test_release_and_merge_subjects_are_skipped(trailer, repo, subject):
+    """Only the guard's own exemption list may suppress the trailer.
+
+    This list used to include Revert/fixup!/squash!/amend!, which the guard does
+    NOT exempt -- so those commits were silently left untrailered and then failed
+    SOURCE_COMMIT_MISSING_BASELINE_TRAILER. See the D3 cases in
+    tests/test_commit_msg_trailer_regression.py, which assert the helper/guard
+    agreement directly against the real guard.
+    """
     write_manifest(repo, "t-007.json", ["scripts/foo.py"])
     (repo / "scripts").mkdir()
     (repo / "scripts" / "foo.py").write_text("VALUE = 1\n")
