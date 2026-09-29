@@ -30,12 +30,21 @@ fi
 # (with `git commit -m` the file is written after this hook runs). The
 # authoritative check lives in commit-msg; this one is best-effort for
 # editor-based commits where COMMIT_EDITMSG is already populated.
-COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
+#
+# Resolve the path with `git rev-parse --git-path` rather than hardcoding
+# `.git/COMMIT_EDITMSG`: in a linked worktree `.git` is a FILE, so the
+# hardcoded path never existed and this whole gate silently no-opped there.
+# rev-parse --git-path is correct in a normal clone AND in a worktree.
+COMMIT_MSG_FILE=$(git rev-parse --git-path COMMIT_EDITMSG 2>/dev/null || true)
+if [ -z "$COMMIT_MSG_FILE" ]; then
+    COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
+fi
 if [ -f "scripts/jira_label_gate.py" ] && [ -f "$COMMIT_MSG_FILE" ]; then
     TICKET_KEY=$(head -n 20 "$COMMIT_MSG_FILE" | grep -oE 'KAN-[0-9]+' | head -1 || true)
     if [ -n "$TICKET_KEY" ]; then
         echo "[INFO] Pre-commit: checking Jira agent-label governance for $TICKET_KEY."
-        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY"
+        # --message-file is what makes the KAN-181 scope check reachable.
+        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY" --message-file "$COMMIT_MSG_FILE"
         STATUS=$?
         if [ "$STATUS" -eq 1 ]; then
             echo "[ERROR] Pre-commit blocked: $TICKET_KEY violates agent-label governance (hook 2b)."

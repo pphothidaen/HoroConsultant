@@ -21,7 +21,9 @@ if [ -f "scripts/jira_label_gate.py" ]; then
     TICKET_KEY=$(head -n 20 "$MSG_FILE" | grep -oE 'KAN-[0-9]+' | head -1 || true)
     if [ -n "$TICKET_KEY" ]; then
         echo "[INFO] commit-msg: checking Jira agent-label governance for $TICKET_KEY."
-        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY"
+        # --message-file is what makes the KAN-181 scope check reachable: the
+        # gate is otherwise blind to the message and stays silent (KAN-181).
+        "$PYTHON" "scripts/jira_label_gate.py" check "$TICKET_KEY" --message-file "$MSG_FILE"
         STATUS=$?
         if [ "$STATUS" -eq 1 ]; then
             echo "[ERROR] commit-msg blocked: $TICKET_KEY violates agent-label governance (hook 2b)."

@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-179-COMMIT-TRAILER-DEFECTS",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "d81f36b8d6ab825ced7b53a67e87866b9ff06cfb",
+  "test_files": [
+    {
+      "path": "tests/test_commit_msg_trailer_regression.py",
+      "sha256": "db765b04ac2a0f9b40ef824a9e0109bfdb63b3c200146596b7c069d6fbda94d2"
+    },
+    {
+      "path": "tests/test_commit_msg_trailer.py",
+      "sha256": "f0a35862b6b7ba25fc48bc64e6e67cb60d64bc98e21abbe4a14761f6feb8d130"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_commit_msg_trailer_regression.py",
+        "tests/test_commit_msg_trailer.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "10 failed, 2 passed (D1-D4 against the sequence-3 helper)"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/commit_msg_trailer.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "d81f36b8d6ab825ced7b53a67e87866b9ff06cfb",
+  "correction_reason": "The sequence-3 baseline changed after the RED commit, so this manifest re-freezes both test files at their final hashes. Two corrections were made while turning RED into GREEN, both of which strengthened the contract rather than relaxing it. (1) tests/test_commit_msg_trailer_regression.py: the D4 case originally used a line carrying a real 40-hex SHA, which is a GENUINE existing trailer that must be respected; the placeholder 'Test-Baseline: <sha>' is the actual prose false positive, and a control asserting the genuine trailer is still honoured was added. (2) tests/test_commit_msg_trailer.py: test_release_and_merge_subjects_are_skipped parametrised Revert and fixup! as expected-skip subjects. That assertion encoded defect D3 -- the guard's is_release_or_gov list does not exempt them, so those commits were silently left untrailered and then rejected with SOURCE_COMMIT_MISSING_BASELINE_TRAILER. The parametrisation was corrected to the guard's actual exemption list.",
+  "rationale": "Superseding baseline for the KAN-179 Test-Baseline trailer helper fixes. RED: 10 failed, 2 passed. GREEN: 33 passed across both suites. The real scripts/test_provenance_guard.py is the end-to-end oracle, so helper formatting and decision bugs both reach the gate."
+}

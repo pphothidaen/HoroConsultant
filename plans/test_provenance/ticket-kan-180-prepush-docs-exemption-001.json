@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-180-PREPUSH-DOCS-EXEMPTION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e5fd531fe61ad98613cfa4238a07ecd703408d7c",
+  "test_files": [
+    {
+      "path": "tests/test_pre_push_hook.py",
+      "sha256": "af5a9ca1a2304554a654c8c567138cb2a2549f9ed88de7d3d553d4d8927c8a4a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pre_push_hook.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "17 failed, 15 passed: bare python3 interpreter in pre-push (venv not used, no fail-open warning, venv pytest not on PATH), docs-only pushes rejected by the unconditional manifest requirement in tdd_gate.check_green_state, and only git log -1 validated instead of the full pushed range"
+    }
+  ],
+  "allowed_source_paths": [
+    ".githooks/pre-push"
+  ],
+  "test_owner_role": "devops",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-180 fixes the .githooks/pre-push gate. RED evidence: tests/test_pre_push_hook.py executes the real hook with bash inside a throwaway git repository and asserts observed exit codes and stdout/stderr, rather than only asserting on the hook body, because a prior lane's hook passed 20 unit assertions while being a silent no-op end-to-end. The sandbox copies the real scripts/tdd_gate.py and tests/test_tdd_gate.py so the gate under test is production code, and it resolves the repository root from the hook's own location for the same reason. Failing coverage at RED (17 failed, 15 passed): (A) test_hook_never_invokes_a_bare_python3 asserts the gate is launched via a resolved interpreter variable; test_prefers_repo_venv_interpreter_end_to_end installs a .venv/bin/python3 shim that records its argv and asserts the shim actually ran; test_gate_finds_pytest_through_the_venv_bin_directory proves tdd_gate.py's bare `pytest` subprocess resolves through the venv bin, which is required because the ambient python3 on this host is 3.9.6 and cannot import tomllib; test_fails_open_with_warning_when_no_python_exists asserts a warn-and-exit-0 path when no interpreter exists. (B) test_docs_only_push_is_waived_and_gate_still_runs plus eleven parametrized test_documentation_path_variants_are_exempt cases fail because tdd_gate.check_green_state requires a manifest unconditionally, while test_docs_only_push_still_requires_manifest_when_one_exists_but_tests_fail and the five parametrized test_any_non_documentation_path_keeps_the_manifest_requirement cases pin that the strict path is preserved. (C) test_earlier_commit_in_range_is_validated fails because the hook only inspects git log -1. test_hook_never_writes_to_the_repository pins the read-only contract."
+}

@@ -20,16 +20,24 @@ THE TDD SHAPE THIS SUPPORTS (and why "staged manifest" is the wrong trigger)
 
 DESIGN CONTRACT -- never guess a baseline
     The trailer is appended ONLY when ALL hold:
-      1. Subject is not merge/release/governance/build/revert/fixup.
-      2. No `Test-Baseline:` trailer is already present.
-      3. At least one staged path is a real source path (not a test, manifest,
-         or docs-only path).
-      4. EXACTLY ONE committed manifest's allowed_source_paths covers those
-         staged source paths. Zero or more than one => no-op, because the
-         baseline would be ambiguous.
-      5. That manifest has EXACTLY ONE add-commit in history (same definition
+      1. Subject is not exempt per BYPASS_SUBJECT_PREFIXES, which mirrors the
+         guard's is_release_or_gov list. The helper must never skip a subject
+         the guard still demands a trailer for.
+      2. No real `Test-Baseline: <sha>` trailer is already present. A prose
+         mention inside a body line does not count.
+      3. EXACTLY ONE committed manifest's allowed_source_paths covers EVERY
+         staged path that is neither a test nor a manifest -- the same set the
+         guard calls non_test_paths. Covering only SOME of them would make the
+         guard emit SOURCE_PATH_OUTSIDE_MANIFEST, so partial coverage is a
+         no-op, not a success. Zero or more than one manifest => no-op,
+         because the baseline would be ambiguous.
+      4. That manifest has EXACTLY ONE add-commit in history (same definition
          the verifier uses), so the trailer names the baseline the guard will
          actually check against.
+
+    The trailer is appended as its own trailing paragraph so it is a standalone
+    line. The guard compares whole stripped lines, so a trailer glued onto the
+    preceding line is invisible to it.
 
     If any condition fails the message is returned BYTE-IDENTICAL. This helper
     never raises into the commit path: a failure must not block or corrupt a
@@ -40,12 +48,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 TRAILER_PREFIX = "Test-Baseline:"
 MANIFEST_PREFIX = "plans/test_provenance/"
+
+# A real, already-present trailer: a standalone line naming a full object SHA.
+# Used so body prose that merely mentions the format is not mistaken for one.
+_SHA = r"[0-9a-f]{40,64}"
+_TRAILER_LINE_RE = re.compile(rf"{re.escape(TRAILER_PREFIX)} {_SHA}")
 
 # Keep in sync with TEST_PREFIXES in scripts/test_provenance_guard.py.
 TEST_PREFIXES = (
@@ -67,7 +81,11 @@ DOC_PREFIXES = (
     ".github/workflows/",
 )
 
-# Keep in sync with the release/governance bypass list in the guard.
+# Keep in sync with the release/governance bypass list in the guard
+# (is_release_or_gov in verify_history). This list must be a SUBSET of the
+# guard's: a prefix here that the guard does NOT exempt means the helper stays
+# silent on a commit the guard still demands a trailer for, which surfaces as
+# SOURCE_COMMIT_MISSING_BASELINE_TRAILER.
 BYPASS_SUBJECT_PREFIXES = (
     "feat(release):",
     "docs(release):",
@@ -76,10 +94,6 @@ BYPASS_SUBJECT_PREFIXES = (
     "build(hf):",
     "merge:",
     "Merge",
-    "Revert",
-    "fixup!",
-    "squash!",
-    "amend!",
 )
 
 
@@ -139,6 +153,16 @@ def _is_source_path(path: str) -> bool:
     )
 
 
+def _is_governed_path(path: str) -> bool:
+    """A path the guard holds a trailer-carrying commit to.
+
+    Mirrors the guard's non_test_paths filter exactly: it excludes tests and
+    manifests, but NOT documentation. The guard applies SOURCE_PATH_OUTSIDE_MANIFEST
+    to a docs/ file sharing the commit, so the helper must too.
+    """
+    return not (_is_test_path(path) or _is_manifest_path(path))
+
+
 def _matches_allowed(path: str, patterns) -> bool:
     """Same semantics as _matches_allowed in scripts/test_provenance_guard.py."""
     for raw in patterns or []:
@@ -186,18 +210,32 @@ def _read_manifest(repo: Path, path: str) -> dict | None:
 
 
 def should_skip(message: str) -> bool:
+    """True when the subject is exempt or a real trailer is already present.
+
+    "Real" means a standalone line of the form `Test-Baseline: <sha>`. A body
+    line that merely mentions the format (e.g. prose documenting it) must not
+    count, or the hook silently no-ops on a commit whose baseline is provable.
+    """
     subject = message.lstrip().splitlines()[0] if message.strip() else ""
     if subject.startswith(BYPASS_SUBJECT_PREFIXES):
         return True
-    return any(
-        line.strip().startswith(TRAILER_PREFIX) for line in message.splitlines()
-    )
+    return any(_TRAILER_LINE_RE.fullmatch(line.strip())
+               for line in message.splitlines())
 
 
 def _resolve_baseline(repo: Path, staged: list[str]) -> str | None:
-    """Return the single provable baseline SHA for these staged paths, or None."""
-    source_paths = [p for p in staged if _is_source_path(p)]
-    if not source_paths:
+    """Return the single provable baseline SHA for these staged paths, or None.
+
+    `governed` mirrors the guard's non_test_paths: every staged path that is
+    neither a test nor a manifest. The guard holds a trailer-carrying commit to
+    ALL of them, so the helper requires a manifest that covers all of them too.
+    Requiring only partial coverage would make the helper attach a trailer that
+    the guard rejects with SOURCE_PATH_OUTSIDE_MANIFEST -- strictly worse than
+    staying silent, because the commit then looks baseline-stamped while failing
+    the gate.
+    """
+    governed = [p for p in staged if _is_governed_path(p)]
+    if not governed:
         return None
 
     candidates: list[str] = []
@@ -208,7 +246,7 @@ def _resolve_baseline(repo: Path, staged: list[str]) -> str | None:
         allowed = manifest.get("allowed_source_paths")
         if not isinstance(allowed, list):
             continue
-        if any(_matches_allowed(p, allowed) for p in source_paths):
+        if all(_matches_allowed(p, allowed) for p in governed):
             candidates.append(manifest_path)
 
     if len(candidates) != 1:
@@ -229,15 +267,21 @@ def compute_trailer(repo: Path, message: str) -> str | None:
 
 
 def append_trailer(repo: Path, message: str, source: str | None = None) -> tuple[str, bool]:
-    """Return (new_message, changed). Never raises."""
+    """Return (new_message, changed). Never raises.
+
+    The trailer goes in its own trailing paragraph so it is a standalone line.
+    The guard compares whole stripped lines, so a trailer concatenated onto the
+    previous line ("Ticket: KAN-179Test-Baseline: <sha>") is invisible to it and
+    the commit is reported as missing its trailer.
+    """
     try:
         trailer = compute_trailer(repo, message)
         if not trailer:
             return message, False
         body = message.rstrip("\n")
-        if not body.endswith("\n\n"):
-            body = body + "\n" if "\n\n" not in body else body
-        return f"{body}{trailer}\n", True
+        if not body:
+            return f"{trailer}\n", True
+        return f"{body}\n\n{trailer}\n", True
     except Exception:  # fail-safe: never corrupt or block a commit
         return message, False
 

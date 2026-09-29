@@ -1,21 +1,230 @@
 #!/usr/bin/env bash
 # Git pre-push hook: Enforce TDD State Gate & Provenance — KAN-95/KAN-105
+#
+# KAN-180 remediation:
+#   (A) Interpreter selection — prefer the repository virtualenv
+#       (.venv/bin/python3) over a bare `python3`. The system interpreter is
+#       not guaranteed to carry the repository's dependencies, so a bare
+#       `python3` made the gate run against the wrong environment.
+#   (B) Documentation-only exemption — when EVERY path changed across the
+#       commits being pushed is documentation, the test-provenance manifest
+#       requirement is waived. A docs-only change has no test to freeze, and a
+#       manifest REQUIRES a non-empty test_files array bound to a RED commit,
+#       so no honest manifest can exist. The test-suite requirement is NOT
+#       waived: a docs-only push with a failing suite is still rejected.
+#   (C) Per-commit coverage — every commit in the pushed range is validated,
+#       not only `git log -1`. The pre-push ref updates arrive on stdin as
+#       `<local_ref> <local_sha> <remote_ref> <remote_sha>`.
+#
+# Strictness contract: if ANY changed path is not documentation, behaviour is
+# exactly as before the exemption existed.
+#
+# Read-only gate: never edits repository files, refs, or the index.
 
-set -e
+set -u
 
-# Read the latest commit message
-COMMIT_MSG=$(git log -1 --pretty=%B)
-ISSUE_KEY=$(echo "$COMMIT_MSG" | grep -oE "KAN-[0-9]+" | head -1)
+ZERO_SHA="0000000000000000000000000000000000000000"
+TEST_TARGET="tests/test_tdd_gate.py"
+GATE_SCRIPT="scripts/tdd_gate.py"
 
-if [ -n "$ISSUE_KEY" ]; then
-    echo "🔍 Pre-push Gate: Checking TDD governance and provenance for $ISSUE_KEY..."
-    if [ -f "scripts/tdd_gate.py" ]; then
-        python3 scripts/tdd_gate.py --current "TDD RED" --target "TDD GREEN" --issue "$ISSUE_KEY" --test-target "tests/test_tdd_gate.py" || {
-            echo "❌ Pre-push rejected: TDD transition verification failed for $ISSUE_KEY" >&2
-            exit 1
-        }
-        echo "✅ Pre-push Gate: Passed for $ISSUE_KEY"
+# --------------------------------------------------------------------------
+# Resolve the repository root from the hook's own location, never from $PWD:
+# core.hooksPath may point at a shared hooks directory, so a $PWD-relative
+# path made this gate a silent no-op that reported success while running
+# nothing.
+# --------------------------------------------------------------------------
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+if [ -z "$REPO_ROOT" ]; then
+    REPO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+fi
+if [ ! -d "$REPO_ROOT" ]; then
+    echo "[WARN] Pre-push skipped: repository root could not be resolved."
+    exit 0
+fi
+cd "$REPO_ROOT" || exit 0
+
+# --------------------------------------------------------------------------
+# (A) Interpreter selection — mirrors .githooks/commit-msg lines 9-16.
+# --------------------------------------------------------------------------
+if [ -x "$REPO_ROOT/.venv/bin/python3" ]; then
+    PYTHON="$REPO_ROOT/.venv/bin/python3"
+    # tdd_gate.py shells out to `pytest` as a bare command, so it resolves from
+    # PATH. Prepend the virtualenv bin directory, otherwise the gate would run
+    # on the venv interpreter yet collect tests with whatever `pytest` happens
+    # to be on the caller's PATH (often none, or a different environment).
+    PATH="$REPO_ROOT/.venv/bin:$PATH"
+    export PATH
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON="python3"
+else
+    echo "[WARN] Pre-push skipped: Python is required for repository gates."
+    exit 0
+fi
+
+# A changed path counts as documentation when it is a Markdown file or lives
+# under a documentation prefix. Mirrors _is_docs_only_path / DOC_PREFIXES in
+# scripts/test_provenance_guard.py.
+is_docs_only_path() {
+    case "$1" in
+        *.md) return 0 ;;
+    esac
+    case "$1" in
+        docs/*|plans/*|.agents/*|.agy/*|.antigravity/*|.claude/*|.codex/*|.github/workflows/*)
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+# Collect every path touched by the given commits. Per-commit (rather than a
+# single net diff) so that a path added and later reverted inside the range is
+# still visible, keeping the decision fail-closed toward strict.
+CHANGED_PATHS=""
+collect_paths() {
+    for commit in $1; do
+        paths=$(git show --name-only --pretty=format: "$commit" 2>/dev/null | sed '/^[[:space:]]*$/d')
+        if [ -n "$paths" ]; then
+            CHANGED_PATHS="${CHANGED_PATHS}
+${paths}"
+        fi
+    done
+}
+
+# 1 when every changed path is documentation and at least one path changed.
+DOCS_EXEMPT=0
+evaluate_docs_exemption() {
+    local saw_path=0
+    local path
+    DOCS_EXEMPT=0
+    while IFS= read -r path; do
+        [ -n "$path" ] || continue
+        saw_path=1
+        if ! is_docs_only_path "$path"; then
+            return 1
+        fi
+    done <<EOF
+${CHANGED_PATHS}
+EOF
+    [ "$saw_path" -eq 1 ] || return 1
+    DOCS_EXEMPT=1
+    return 0
+}
+
+# --------------------------------------------------------------------------
+# (C) Resolve the pushed range from the pre-push stdin.
+# --------------------------------------------------------------------------
+REF_UPDATES=""
+if [ ! -t 0 ]; then
+    REF_UPDATES=$(cat || true)
+fi
+
+COMMITS=""
+HAVE_RANGE=0
+# Distinguishes "git gave us ref updates" from a manual invocation. Without
+# it, a push whose refs contribute no new commits would fall through to the
+# manual-invocation branch and validate HEAD, i.e. commits nobody is pushing.
+HAVE_INPUT=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    [ -n "${local_sha:-}" ] || continue
+    HAVE_INPUT=1
+    # Deletion push: there is nothing new to validate.
+    if [ "$local_sha" = "$ZERO_SHA" ]; then
+        continue
     fi
+    if ! git cat-file -e "${local_sha}^{commit}" 2>/dev/null; then
+        continue
+    fi
+    if [ -n "${remote_sha:-}" ] && [ "$remote_sha" != "$ZERO_SHA" ] &&
+        git cat-file -e "${remote_sha}^{commit}" 2>/dev/null; then
+        RANGE="${remote_sha}..${local_sha}"
+    else
+        # New branch: everything not already published is being pushed.
+        RANGE=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || true)
+        if [ -z "$RANGE" ]; then
+            # Nothing unpublished: every commit is already on some remote, so
+            # this ref has nothing to validate. Do NOT fall back to
+            # RANGE="$local_sha" — that makes `git rev-list` walk the entire
+            # history, silently validating commits that are not being pushed
+            # and blocking the push on pre-existing ones. `continue` leaves
+            # HAVE_RANGE at 0 only if no ref produced commits; a later ref
+            # with real commits still sets it.
+            continue
+        fi
+    fi
+    NEW_COMMITS=$(git rev-list "$RANGE" 2>/dev/null || true)
+    [ -n "$NEW_COMMITS" ] || continue
+    HAVE_RANGE=1
+    COMMITS="${COMMITS}
+${NEW_COMMITS}"
+done <<EOF
+${REF_UPDATES}
+EOF
+
+if [ "$HAVE_RANGE" -eq 0 ] && [ "$HAVE_INPUT" -eq 0 ]; then
+    # Manual invocation with no ref updates on stdin. Keep the pre-KAN-180
+    # contract exactly: validate HEAD only, manifest requirement intact, no
+    # documentation exemption.
+    HEAD_SHA=$(git rev-parse --verify HEAD 2>/dev/null || true)
+    if [ -z "$HEAD_SHA" ]; then
+        exit 0
+    fi
+    COMMITS="$HEAD_SHA"
+    DOCS_EXEMPT=0
+elif [ "$HAVE_RANGE" -eq 0 ]; then
+    # Git supplied ref updates but none of them carry commits that are not
+    # already published. There is genuinely nothing to validate; do not fall
+    # back to HEAD, which would check commits outside this push.
+    exit 0
+else
+    collect_paths "$COMMITS"
+    evaluate_docs_exemption || true
+fi
+
+if [ ! -f "$GATE_SCRIPT" ]; then
+    echo "[WARN] Pre-push skipped: ${GATE_SCRIPT} not found; TDD gate not run."
+    exit 0
+fi
+
+# --------------------------------------------------------------------------
+# Validate every commit in the range.
+#
+# Coverage is per COMMIT, deliberately not per issue key. The previous
+# SEEN_KEYS dedup skipped every commit after the first for a given key, so a
+# three-commit range for one ticket produced a single gate invocation. That
+# under-reported the real coverage: this hook claims, in its header and in the
+# per-commit log line below, to validate every commit in the pushed range. It
+# is also unsound as a shortcut, because the gate's verdict is a function of the
+# worktree (manifest glob plus suite result) rather than of the commit under
+# test, so "this key was already checked" is not evidence that a later commit
+# sharing the key was checked.
+# --------------------------------------------------------------------------
+BLOCKED=0
+for commit in $COMMITS; do
+    ISSUE_KEY=$(git log -1 --pretty=%B "$commit" 2>/dev/null | grep -oE "KAN-[0-9]+" | head -1 || true)
+    [ -n "$ISSUE_KEY" ] || continue
+    echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit:0:8})..."
+
+    OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
+        --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" 2>&1)
+    STATUS=$?
+
+    if [ "$STATUS" -eq 0 ]; then
+        printf '%s\n' "$OUTPUT"
+        echo "✅ Pre-push Gate: Passed for ${ISSUE_KEY}"
+    elif [ "$DOCS_EXEMPT" -eq 1 ] &&
+        printf '%s' "$OUTPUT" | grep -q "Missing test provenance manifest" &&
+        "$PYTHON" -m pytest -q "$TEST_TARGET" >/dev/null 2>&1; then
+        # (B) The only unmet requirement is the manifest, and the suite passes.
+        echo "ℹ️  Pre-push Gate: provenance manifest waived for ${ISSUE_KEY} — every path in this push is documentation, and the test suite passes."
+    else
+        printf '%s\n' "$OUTPUT" >&2
+        echo "❌ Pre-push rejected: TDD transition verification failed for ${ISSUE_KEY}" >&2
+        BLOCKED=1
+    fi
+done
+
+if [ "$BLOCKED" -ne 0 ]; then
+    exit 1
 fi
 
 exit 0
