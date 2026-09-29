@@ -312,13 +312,15 @@ def test_d3_bypass_list_matches_the_guard_exemption_list(helper):
 # D4 -- an UNRELATED prose mention of "Test-Baseline:" must not disable the hook
 # ---------------------------------------------------------------------------
 def test_d4_body_prose_mention_does_not_suppress_the_trailer(helper, tmp_path):
-    """should_skip() must only honour a REAL trailer, not body prose.
+    """should_skip() must only honour a REAL trailer line, not a prose mention.
 
-    The guard itself tolerates any "Test-Baseline:"-prefixed line
-    (has_other_baseline), so skipping is not fatal for the guard -- but it is
-    still a silent no-op: the helper declines to do its job for a commit whose
-    message merely documents the trailer format. The contract says the trailer is
-    appended when the baseline is provable, so this must not silently no-op.
+    A body that documents the trailer format -- e.g. a template with a literal
+    "<sha>" placeholder -- is prose, not a trailer. The old prefix-only check
+    treated any line starting with "Test-Baseline:" as an existing trailer, so
+    documenting the format silently disabled the hook.
+
+    A line carrying a real 40-char SHA IS a genuine existing trailer and must
+    still be respected, so the two cases are asserted separately below.
     """
     repo, rel, baseline = build_repo(tmp_path, ["scripts/foo.py"])
     stage_files(repo, {"scripts/foo.py": "VALUE = 1\n"})
@@ -326,8 +328,8 @@ def test_d4_body_prose_mention_does_not_suppress_the_trailer(helper, tmp_path):
     msg = ("feat(core): implement foo\n"
            "\n"
            "The guard reads the baseline from the trailer block.\n"
-           "Test-Baseline: deadbeefdeadbeefdeadbeefdeadbeefdeadbeef\n"
-           "That line above is prose describing the format, not a real trailer.\n")
+           "Test-Baseline: <sha>\n"
+           "That line above is a template placeholder, not a real trailer.\n")
     out, changed = helper.append_trailer(repo, msg, "message")
 
     assert changed is True, (
@@ -336,3 +338,15 @@ def test_d4_body_prose_mention_does_not_suppress_the_trailer(helper, tmp_path):
     assert f"Test-Baseline: {baseline}" in [
         ln.strip() for ln in out.splitlines()
     ]
+
+
+def test_d4_real_existing_trailer_is_still_respected(helper, tmp_path):
+    """Control for D4: a genuine trailer must NOT be duplicated."""
+    repo, rel, baseline = build_repo(tmp_path, ["scripts/foo.py"])
+    stage_files(repo, {"scripts/foo.py": "VALUE = 1\n"})
+
+    msg = f"feat(core): implement foo\n\nTest-Baseline: {baseline}\n"
+    out, changed = helper.append_trailer(repo, msg, "message")
+
+    assert changed is False, "a real existing trailer must suppress a duplicate"
+    assert out == msg
