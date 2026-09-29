@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-179-COMMIT-TRAILER-HOOK",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1e00c3aa72fc9dd2a630e09eb516e239b6aed1ee",
+  "test_files": [
+    {
+      "path": "tests/test_commit_msg_trailer.py",
+      "sha256": "8d4c058bda4935adcfb5d86633a2b6180b748b9be2533ed1f38eb465bb35ea17"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_commit_msg_trailer.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "13 errors (scripts/commit_msg_trailer.py does not exist) + 1 failed (hook not installed)"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/commit_msg_trailer.py",
+    ".githooks/prepare-commit-msg"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD baseline for KAN-179 auto Test-Baseline trailer hook. RED proven: with no helper module the suite produced 13 errors and 1 failure because scripts/commit_msg_trailer.py and .githooks/prepare-commit-msg did not exist. GREEN: 20 passed. Design note: the first implementation keyed the trigger on a STAGED manifest, which unit test test_appends_when_baseline_is_provable caught as wrong -- in the real TDD flow the GREEN/source commit stages only source files because the manifest was committed in the RED step, so a staged-manifest trigger could never fire. The contract was redesigned to key on a COMMITTED manifest whose allowed_source_paths covers the staged source paths, matching the guard's SOURCE_COMMIT_MISSING_BASELINE_TRAILER semantics. An end-to-end commit test additionally exposed that a shared core.hooksPath made the hook a SILENT no-op, because it resolved scripts/commit_msg_trailer.py relative to the invoking repo instead of the hook location; the hook now resolves the repo root explicitly and WARNs when the helper is absent rather than exiting 0 quietly. The .githooks/commit-msg read-only contract is preserved and pinned by test_commit_msg_hook_remains_read_only."
+}
