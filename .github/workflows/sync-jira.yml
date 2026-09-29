@@ -22,8 +22,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Teamwork Graph CLI
+        # --yes alone is insufficient: the installer only forwards consent (--yes) to the
+        # nested `twg consent` when --skip-login AND --skip-skills are also set. Without all
+        # three it runs `twg consent` interactively, which fails in CI with no TTY.
         run: |
-          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes --skip-login --skip-skills
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Sync remaining sub-tasks to Jira
@@ -48,8 +51,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Teamwork Graph CLI
+        # --yes alone is insufficient: the installer only forwards consent (--yes) to the
+        # nested `twg consent` when --skip-login AND --skip-skills are also set. Without all
+        # three it runs `twg consent` interactively, which fails in CI with no TTY.
         run: |
-          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
+          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes --skip-login --skip-skills
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Sync Jira status to ATOMIC_TICKET
