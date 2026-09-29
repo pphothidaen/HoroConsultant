@@ -120,8 +120,13 @@ fi
 
 COMMITS=""
 HAVE_RANGE=0
+# Distinguishes "git gave us ref updates" from a manual invocation. Without
+# it, a push whose refs contribute no new commits would fall through to the
+# manual-invocation branch and validate HEAD, i.e. commits nobody is pushing.
+HAVE_INPUT=0
 while read -r local_ref local_sha remote_ref remote_sha; do
     [ -n "${local_sha:-}" ] || continue
+    HAVE_INPUT=1
     # Deletion push: there is nothing new to validate.
     if [ "$local_sha" = "$ZERO_SHA" ]; then
         continue
@@ -136,7 +141,14 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         # New branch: everything not already published is being pushed.
         RANGE=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || true)
         if [ -z "$RANGE" ]; then
-            RANGE="$local_sha"
+            # Nothing unpublished: every commit is already on some remote, so
+            # this ref has nothing to validate. Do NOT fall back to
+            # RANGE="$local_sha" — that makes `git rev-list` walk the entire
+            # history, silently validating commits that are not being pushed
+            # and blocking the push on pre-existing ones. `continue` leaves
+            # HAVE_RANGE at 0 only if no ref produced commits; a later ref
+            # with real commits still sets it.
+            continue
         fi
     fi
     NEW_COMMITS=$(git rev-list "$RANGE" 2>/dev/null || true)
@@ -148,7 +160,7 @@ done <<EOF
 ${REF_UPDATES}
 EOF
 
-if [ "$HAVE_RANGE" -eq 0 ]; then
+if [ "$HAVE_RANGE" -eq 0 ] && [ "$HAVE_INPUT" -eq 0 ]; then
     # Manual invocation with no ref updates on stdin. Keep the pre-KAN-180
     # contract exactly: validate HEAD only, manifest requirement intact, no
     # documentation exemption.
@@ -158,6 +170,11 @@ if [ "$HAVE_RANGE" -eq 0 ]; then
     fi
     COMMITS="$HEAD_SHA"
     DOCS_EXEMPT=0
+elif [ "$HAVE_RANGE" -eq 0 ]; then
+    # Git supplied ref updates but none of them carry commits that are not
+    # already published. There is genuinely nothing to validate; do not fall
+    # back to HEAD, which would check commits outside this push.
+    exit 0
 else
     collect_paths "$COMMITS"
     evaluate_docs_exemption || true
@@ -169,18 +186,22 @@ if [ ! -f "$GATE_SCRIPT" ]; then
 fi
 
 # --------------------------------------------------------------------------
-# Validate every commit in the range, deduplicating by issue key.
+# Validate every commit in the range.
+#
+# Coverage is per COMMIT, deliberately not per issue key. The previous
+# SEEN_KEYS dedup skipped every commit after the first for a given key, so a
+# three-commit range for one ticket produced a single gate invocation. That
+# under-reported the real coverage: this hook claims, in its header and in the
+# per-commit log line below, to validate every commit in the pushed range. It
+# is also unsound as a shortcut, because the gate's verdict is a function of the
+# worktree (manifest glob plus suite result) rather than of the commit under
+# test, so "this key was already checked" is not evidence that a later commit
+# sharing the key was checked.
 # --------------------------------------------------------------------------
 BLOCKED=0
-SEEN_KEYS=" "
 for commit in $COMMITS; do
     ISSUE_KEY=$(git log -1 --pretty=%B "$commit" 2>/dev/null | grep -oE "KAN-[0-9]+" | head -1 || true)
     [ -n "$ISSUE_KEY" ] || continue
-    case "$SEEN_KEYS" in
-        *" ${ISSUE_KEY} "*) continue ;;
-    esac
-    SEEN_KEYS="${SEEN_KEYS}${ISSUE_KEY} "
-
     echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit:0:8})..."
 
     OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \

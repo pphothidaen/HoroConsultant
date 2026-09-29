@@ -178,6 +178,22 @@ class Sandbox:
             '{"schema_version": "test-provenance-v1"}\n',
         ).relative_to(self.root).as_posix()
 
+    def publish_main_to_remote(self) -> None:
+        """Publish main to a bare remote so `--remotes` resolves to real refs.
+
+        The bare repository lives OUTSIDE the worktree (under ``outside``) so it
+        can never be staged as a changed path by ``git add -A``.
+        """
+        bare = self.outside / "origin.git"
+        if not bare.exists():
+            subprocess.run(
+                ["git", "init", "-q", "--bare", str(bare)],
+                check=True,
+                capture_output=True,
+            )
+        self._git("remote", "add", "origin", str(bare))
+        self._git("push", "-q", "origin", "main")
+
 
 @pytest.fixture
 def sandbox(tmp_path: Path) -> Sandbox:
@@ -478,3 +494,102 @@ def test_hook_ignores_commits_without_a_ticket_key(sandbox: Sandbox) -> None:
     result = sandbox.run_hook(sandbox.ref_update(sha, sandbox.seed))
 
     assert result.returncode == 0, _output(result)
+
+
+# ---------------------------------------------------------------------------
+# (D) Defect D1 — per-commit dedup correctness
+#
+# The hook deduplicates gate invocations by ISSUE KEY, so a range of N commits
+# sharing one key is validated once. That contradicts the hook's documented
+# contract (C) and its own per-commit log line, which both promise that EVERY
+# commit in the pushed range is validated: the count of commits actually
+# checked is not the count reported. Deduplication is also unsound as a
+# correctness device, because the gate's verdict is derived from the worktree
+# (manifest set + suite result) rather than from the commit being checked, so
+# "already seen this key" is not evidence that a later commit of the same key
+# was validated. Coverage must be per commit.
+# ---------------------------------------------------------------------------
+def test_every_commit_sharing_a_key_is_validated(sandbox: Sandbox) -> None:
+    """Three KAN-180 commits in the range must produce three gate checks."""
+    sandbox.write("scripts/first.py", "FIRST = 1\n")
+    sandbox.commit("fix(KAN-180): first source change")
+    sandbox.write("scripts/second.py", "SECOND = 2\n")
+    sandbox.commit("fix(KAN-180): second source change")
+    sandbox.write("scripts/third.py", "THIRD = 3\n")
+    head = sandbox.commit("fix(KAN-180): third source change")
+
+    result = sandbox.run_hook(sandbox.ref_update(head, sandbox.seed))
+
+    out = _output(result)
+    checks = out.count("Checking TDD governance")
+    assert checks == 3, f"expected one gate check per commit, got {checks}:\n{out}"
+
+
+def test_every_distinct_key_in_a_multi_key_range_is_validated(sandbox: Sandbox) -> None:
+    """A range spanning three tickets must report three checks, one each."""
+    sandbox.write("scripts/a.py", "A = 1\n")
+    sandbox.commit("fix(KAN-111): first ticket")
+    sandbox.write("scripts/b.py", "B = 2\n")
+    sandbox.commit("fix(KAN-180): second ticket")
+    sandbox.write("scripts/c.py", "C = 3\n")
+    head = sandbox.commit("fix(KAN-222): third ticket")
+
+    result = sandbox.run_hook(sandbox.ref_update(head, sandbox.seed))
+
+    out = _output(result)
+    assert out.count("Checking TDD governance") == 3, out
+    for key in ("KAN-111", "KAN-180", "KAN-222"):
+        assert key in out, out
+    assert result.returncode == 1, out  # no manifests exist for any of them
+
+
+# ---------------------------------------------------------------------------
+# (E) Defect D2 — new-branch range must not degrade to the whole history
+#
+# For a new branch the hook computes
+#   RANGE=$(git rev-list "$local_sha" --not --remotes)
+# When every commit is already published to some remote that list is EMPTY.
+# The old fallback `RANGE="$local_sha"` then made `git rev-list` walk the
+# ENTIRE history, silently validating commits that are not being pushed. On a
+# real repository that is slow, and it blocks the push on pre-existing commits
+# that were never part of it. Nothing new to push must mean nothing to check.
+# ---------------------------------------------------------------------------
+def test_new_branch_with_nothing_new_does_not_walk_history(sandbox: Sandbox) -> None:
+    """A new branch whose commits are all published must check nothing.
+
+    The seed history contains an unticketed commit; if the hook degraded to
+    `git rev-list HEAD` it would walk that history instead of the new branch.
+    """
+    sandbox.write("scripts/feature.py", "VALUE = 1\n")
+    sandbox.commit("fix(KAN-180): change that is already published")
+    sandbox.publish_main_to_remote()
+    sandbox._git("checkout", "-q", "-b", "sidecar")
+    head = sandbox._git("rev-parse", "HEAD")
+
+    unpublished = sandbox._git("rev-list", head, "--not", "--remotes")
+    assert unpublished == "", "scenario invalid: the branch has unpublished commits"
+
+    zero = "0" * 40
+    result = sandbox.run_hook(sandbox.ref_update(head, zero))
+
+    out = _output(result)
+    assert "Checking TDD governance" not in out, (
+        "the hook validated commits that are not being pushed:\n" + out
+    )
+    assert result.returncode == 0, out
+
+
+def test_new_branch_validates_the_unpublished_commits_only(sandbox: Sandbox) -> None:
+    """A genuinely new branch still validates its own unpublished commits."""
+    sandbox.publish_main_to_remote()
+    sandbox._git("checkout", "-q", "-b", "sidecar")
+    sandbox.write("scripts/feature.py", "VALUE = 1\n")
+    head = sandbox.commit("fix(KAN-180): new work on the new branch")
+
+    zero = "0" * 40
+    result = sandbox.run_hook(sandbox.ref_update(head, zero))
+
+    out = _output(result)
+    assert "Checking TDD governance" in out, out
+    assert result.returncode == 1, out  # no manifest for KAN-180
+    assert "Missing test provenance manifest" in out
