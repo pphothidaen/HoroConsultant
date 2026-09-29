@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-181-LABEL-SCOPE-VALIDATION",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8676b38d601a161c220c972d23e17c4a6a36132f",
+  "test_files": [
+    {
+      "path": "tests/test_jira_label_scope.py",
+      "sha256": "cbdedaddd1ec8ad2000f4776cc3f80b0fcb02e21bdc0aa2f8b7025fbd5fb176e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_jira_label_scope.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "11 failed, 31 passed against baseline source 8676b38d: 7x SystemExit: 2 from argparse rejecting the unknown --message-file/--message flags on the check subparser (the CLI had no way to accept a commit message), 2x AssertionError on the pre-commit hook still hardcoding .git/COMMIT_EDITMSG, 1x FileNotFoundError proving the pre-commit gate never invokes jira_label_gate.py at all inside a linked worktree"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/jira_label_gate.py",
+    ".githooks/commit-msg",
+    ".githooks/pre-commit"
+  ],
+  "test_owner_role": "orchestrator",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "27f5b1c2b68dc36d754b008d99ea31a74a58c2bc",
+  "correction_reason": "The sequence-2 baseline proved the heuristic WORKS but never proved it FIRES. All 32 of its tests called cmd_check(env, key, message) directly with a message argument, so they exercised a signature the production CLI never used: main() dispatched cmd_check(env, args.key) with two arguments, and neither .githooks hook passed a message. The scope-relevance feature was therefore dead code in production -- every test passed while the feature could not fire on a single real commit. This baseline supersedes 27f5b1c2 because it changes the frozen test file, and it tests the real entry points instead: the argparse dispatch in main() (asserting the message actually reaches cmd_check) and the two .githooks shell scripts executed as real processes during real `git commit` runs in a throwaway repository, with only the Jira HTTP call stubbed. RED was re-proven honestly by restoring scripts/jira_label_gate.py, .githooks/commit-msg and .githooks/pre-commit from 8676b38d and re-running the suite: 11 failed, 31 passed, exit 1.",
+  "rationale": "TDD baseline (sequence 3, supersedes 27f5b1c2) for the KAN-181 production wiring defect. THE DEFECT: the scope-relevance validation added in 8676b38d was unreachable from production. scripts/jira_label_gate.py main() parsed `check <key>` with no message option and called cmd_check(env, args.key) -- two arguments, so commit_message defaulted to \"\". cmd_check's scope branch requires a non-empty message: scope_overlap() returns None (not-evaluable) when either side has no significant tokens, and None is silence, never a mismatch. .githooks/commit-msg and .githooks/pre-commit likewise invoked `check $TICKET_KEY` with no message. Net effect: the feature printed [WARN] exactly never, and the 32 existing tests still passed because each called cmd_check directly with a message the CLI never supplied -- the exact failure mode where a green suite conceals a dead feature. A SECOND, independent wiring defect was found while proving this: .githooks/pre-commit hardcoded COMMIT_MSG_FILE=\".git/COMMIT_EDITMSG\", but in a linked worktree .git is a FILE, not a directory, so that path never existed and the entire pre-commit gate silently no-opped. THE FIX: main() gains --message-file and --message, resolves the message, and forwards it to cmd_check; both hooks pass --message-file; pre-commit resolves the message path via `git rev-parse --git-path COMMIT_EDITMSG`, which is correct in a normal clone AND a worktree. GREEN: 42 passed in this file; 103 passed across the Jira-label, commit-trailer, and KAN-119/KAN-122 governance suites; tests/test_jira_label_gate.py unchanged. INVARIANTS HELD: (1) the scope mismatch remains a [WARN] that never changes a return value, so no heuristic false positive can block a commit -- pinned by a real `git commit` that succeeds while the gate prints a scope warning; (2) a genuinely unlabeled ticket still blocks with exit 1, pinned through the real commit-msg hook; (3) missing credentials still fail open (exit 2 -> warn, commit proceeds); (4) the read-only guarantee is preserved -- commit-msg never edits the message, asserted on the COMMITTED body rather than .git/COMMIT_EDITMSG, which git itself legitimately rewrites; (5) gate stdout stays ASCII per scripts/AGENTS.md. A missing or unreadable --message-file returns \"\" and the check stays silent, so a vanished file can never break or block a commit. Git's commented editor-template lines are stripped before tokenizing: they are never part of the committed message and their boilerplate wording overlaps ticket summaries by coincidence, which would fabricate a scope match and silently suppress a genuine warning -- pinned by a test whose template comment deliberately repeats the word 'lease'."
+}

@@ -169,7 +169,133 @@ def cmd_audit(env: dict, project: str) -> int:
     return 1
 
 
-def cmd_check(env: dict, key: str) -> int:
+# ---------------------------------------------------------------------------
+# Scope-relevance heuristic (KAN-181).
+#
+# `cmd_check` historically validated LABEL PRESENCE ONLY, so any ticket key
+# that merely carried an agent-* label satisfied the gate. Real defect: a
+# commit citing KAN-181 passed the gate against a stale KAN-133 key left in
+# .git/COMMIT_EDITMSG, even though KAN-133's scope (renewable leases) had
+# nothing to do with the commit (webhook dispatch).
+#
+# A label match is necessary but not sufficient evidence that the cited ticket
+# is the right one. The comparison below is a WORD-OVERLAP heuristic, so it
+# only ever adds a [WARN] line; it never changes a return value. Heuristics
+# that could block a legitimate commit would be worse than no signal at all.
+# ---------------------------------------------------------------------------
+
+# Conventional-commit scaffolding and English glue carry no scope signal.
+SCOPE_STOPWORDS = frozenset({
+    "about", "above", "after", "again", "against", "also", "and", "are",
+    "because", "been", "before", "being", "below", "between", "both", "but",
+    "can", "cannot", "could", "did", "does", "doing", "done", "down", "during",
+    "each", "few", "for", "from", "further", "had", "has", "have", "having",
+    "her", "here", "hers", "him", "his", "how", "into", "its", "itself",
+    "just", "let", "like", "make", "makes", "making", "more", "most", "much",
+    "must", "myself", "not", "now", "off", "once", "only", "onto", "other",
+    "our", "ours", "out", "over", "own", "same", "shall", "she", "should",
+    "since", "some", "such", "than", "that", "the", "their", "theirs", "them",
+    "then", "there", "these", "they", "this", "those", "through", "thus",
+    "too", "under", "until", "upon", "use", "used", "uses", "using", "very",
+    "was", "were", "what", "when", "where", "which", "while", "who", "whom",
+    "why", "will", "with", "within", "would", "you", "your", "yours",
+    # Conventional-commit type/scope verbs: ubiquitous in every subject line.
+    "build", "chore", "ci", "docs", "feat", "feature", "fix", "fixes",
+    "hotfix", "perf", "refactor", "revert", "style", "test", "tests",
+    "wip", "add", "added", "adds", "bump", "improve", "improves", "move",
+    "remove", "removes", "rename", "support", "tweak", "update", "updated",
+    "updates",
+})
+
+# Below this length a token is noise ("ci", "fix") rather than scope signal.
+SCOPE_MIN_TOKEN_LEN = 4
+
+# Ticket keys ("KAN-181") and agent roster labels ("agent-hermes") are identity,
+# not subject matter. Stripping them keeps a ticket from "matching" a commit
+# purely because both mention the same key or the same agent lane.
+_TICKET_KEY_RE = re.compile(r"\b[a-z]{2,}-\d+\b", re.IGNORECASE)
+_AGENT_LABEL_RE = re.compile(r"\bagent-[a-z0-9_]+\b", re.IGNORECASE)
+_WORD_RE = re.compile(r"[a-z0-9]+")
+
+
+def _singular(word: str) -> str:
+    """Cheap plural fold so 'labels' and 'label' match each other."""
+    if len(word) > 4 and word.endswith("s") and not word.endswith("ss"):
+        return word[:-1]
+    return word
+
+
+def scope_tokens(text: str | None) -> set:
+    """Return the significant lowercase word tokens of `text`.
+
+    Drops ticket keys, agent-* labels, stopwords, and very short words, and
+    adds a singular variant alongside each plural so noun forms line up.
+    """
+    if not text:
+        return set()
+    cleaned = _TICKET_KEY_RE.sub(" ", _AGENT_LABEL_RE.sub(" ", str(text)))
+    tokens: set = set()
+    for word in _WORD_RE.findall(cleaned.lower()):
+        if len(word) < SCOPE_MIN_TOKEN_LEN or word in SCOPE_STOPWORDS:
+            continue
+        tokens.add(word)
+        singular = _singular(word)
+        if singular != word:
+            tokens.add(singular)
+    return tokens
+
+
+def scope_overlap(summary: str | None, commit_message: str | None):
+    """Return the shared scope tokens, or None when the pair is not evaluable.
+
+    None means "no evidence either way" - a missing summary, a missing commit
+    message, or boilerplate-only input. Callers must treat None as silence,
+    never as a mismatch.
+    """
+    summary_tokens = scope_tokens(summary)
+    message_tokens = scope_tokens(commit_message)
+    if not summary_tokens or not message_tokens:
+        return None
+    return summary_tokens & message_tokens
+
+
+def _ascii_safe(value: str, limit: int = 120) -> str:
+    """Fold to ASCII and clip, so the warning obeys scripts/AGENTS.md."""
+    text = " ".join(str(value or "").split())
+    text = text.encode("ascii", "replace").decode("ascii")
+    if len(text) > limit:
+        text = text[:limit].rstrip() + "..."
+    return text
+
+
+def _read_commit_message(path: Optional[str]) -> str:
+    """Read a commit message file, dropping git's commented template lines.
+
+    COMMIT_EDITMSG and `git commit` message files carry the editor template
+    (`# On branch ...`, `# Changes to be committed: ...`). Those comments are
+    never part of the committed message, and their text is full of words that
+    overlap ticket summaries by coincidence, so tokenizing them would fabricate
+    a scope match and silently suppress a genuine mismatch warning.
+
+    Returns "" for a missing or unreadable file: the scope heuristic treats an
+    absent message as "not evaluable" and stays silent, which is the correct
+    fail-open behavior for a path that may legitimately not exist yet.
+    """
+    if not path:
+        return ""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            raw = handle.read()
+    except OSError:
+        return ""
+    kept = [
+        line for line in raw.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    return "\n".join(kept)
+
+
+def cmd_check(env: dict, key: str, commit_message: str = "") -> int:
     site, headers, _ = build_client(env)
     if not site:
         print("[ERROR] Jira label check blocked: missing JIRA_API_TOKEN/JIRA_EMAIL.")
@@ -180,6 +306,18 @@ def cmd_check(env: dict, key: str) -> int:
         agent = [label for label in labels if label.startswith("agent-")]
         if agent:
             print(f"[OK] {key} carries agent label: {', '.join(agent)}")
+            # Scope warning only. Never changes the return value: a heuristic
+            # false positive must not block legitimate work.
+            summary = data.get("fields", {}).get("summary") or ""
+            overlap = scope_overlap(summary, commit_message)
+            if overlap is not None and not overlap:
+                subject = next((line.strip() for line in str(commit_message).splitlines()
+                                if line.strip()), "")
+                print(f"[WARN] {key} scope does not appear related to this commit.")
+                print(f"[WARN]   ticket summary: {_ascii_safe(summary)}")
+                print(f"[WARN]   commit subject: {_ascii_safe(subject)}")
+                print("[INFO] Governance hook 2b: confirm the cited ticket is the correct")
+                print("[INFO] ticket for this change. This is advisory and does not block.")
             return 0
         print(f"[ERROR] {key} has no agent-* label (labels: {', '.join(labels) or 'none'}).")
         print("[INFO] Governance hook 2b: every issue must carry an agent-* label.")
@@ -323,6 +461,16 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("audit", help="audit all issues for missing agent-* labels")
     check_parser = subparsers.add_parser("check", help="check single issue for agent-* label")
     check_parser.add_argument("key")
+    # The commit message is what makes the KAN-181 scope heuristic reachable.
+    # Both hooks pass --message-file; --message exists for direct CLI use.
+    check_parser.add_argument(
+        "--message-file",
+        help="path to the commit message file (COMMIT_EDITMSG) to scope-check",
+    )
+    check_parser.add_argument(
+        "--message",
+        help="commit message text to scope-check (alternative to --message-file)",
+    )
 
     # If the first arg is 'audit' or 'check', use subcommand mode
     if argv and argv[0] in ("audit", "check", "--help", "-h"):
@@ -332,7 +480,12 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_audit(env, args.project)
         elif args.mode == "check":
             env = load_env(args.env)
-            return cmd_check(env, args.key)
+            commit_message = (
+                _read_commit_message(args.message_file)
+                if args.message_file
+                else (args.message or "")
+            )
+            return cmd_check(env, args.key, commit_message)
         else:
             parser.print_help()
             return 0
