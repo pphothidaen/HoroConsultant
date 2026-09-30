@@ -38,6 +38,21 @@ HORO_NOTEBOOK_SCOPE = "notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0"
 # must exceed it or a healthy slow answer is misread as a provider outage.
 AIPASS_BRIDGE_TIMEOUT_S = 240.0
 
+# api-spec §9.2 / invariant G-9: the HoroConsultant notebook covers BaZi,
+# numerology and Thai astrology. Question domains answered FROM a BaZi chart
+# are in scope; explicit other disciplines are not, and must never be routed
+# to the notebook provider. Fail-closed allowlist — anything not listed here
+# (including unknown categories) stays on the existing interpretation path.
+NOTEBOOK_DISCIPLINE_CATEGORIES = frozenset({
+    "career", "finance", "love", "health", "family", "timing", "guidance",
+    "bazi", "numerology", "thai_astrology",
+})
+
+
+def notebook_grounding_allowed(category: Optional[str]) -> bool:
+    """True only when the question domain is covered by the notebook."""
+    return (category or "").strip().lower() in NOTEBOOK_DISCIPLINE_CATEGORIES
+
 
 @dataclass
 class ProviderState:

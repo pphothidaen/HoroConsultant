@@ -30,6 +30,7 @@ from project.core.iching_engine import IChingEngine
 from project.core.liu_ren_engine import LiuRenEngine
 from project.core.numerology_engine import NumerologyEngine
 from project.core.question_focus_router import question_focus_router
+from project.core.llm_gateway import llm_gateway, notebook_grounding_allowed
 from project.api_router import HybridRouter
 
 logger = logging.getLogger("api_v2")
@@ -167,9 +168,15 @@ def calculate_unified(req: UnifiedCalculateRequest):
 
 
 @v2_router.post("/interpret/focused")
-def interpret_focused(req: QuestionFocusInterpretRequest):
+async def interpret_focused(req: QuestionFocusInterpretRequest):
     """
     Generate domain-focused AI astrological interpretation using QuestionFocusRouter.
+
+    KAN-209 (api-spec §9.2 / invariant G-9): questions whose domain is covered
+    by the HoroConsultant notebook (BaZi / numerology / Thai astrology) are
+    routed to the notebook-grounded aipass_bridge provider when it is
+    configured; every other discipline and every unconfigured deployment
+    stays on the existing hybrid_router path — never a silent fallback.
     """
     try:
         dt = datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
@@ -188,12 +195,44 @@ def interpret_focused(req: QuestionFocusInterpretRequest):
         language=req.language,
     )
 
-    # 3. Generate via HybridRouter
-    gen_result = hybrid_router.generate(prompt=focused_prompt)
+    # 3. Route: notebook-grounded consultation only for covered domains on a
+    # configured (consented) deployment; everything else keeps the legacy path.
+    aipass = llm_gateway.providers.get("aipass_bridge")
+    use_notebook = bool(
+        aipass and aipass.is_configured and notebook_grounding_allowed(category)
+    )
+
+    provenance = None
+    if use_notebook:
+        gen_result = await llm_gateway.generate_text(
+            prompt=focused_prompt,
+            system_instruction=(
+                "[ข้อจำกัด] ตอบเฉพาะศาสตร์ที่ครอบคลุมใน Notebook "
+                "(โหราศาสตร์จีน BaZi, เลขศาสตร์, โหราศาสตร์ไทย) "
+                "ห้ามคำนวณดวงชะตาเอง ใช้เฉพาะ birth_context ที่ให้มา"
+            ),
+            preferred_provider="aipass_bridge",
+            birth_context={
+                "birth_datetime": req.birth_datetime,
+                "longitude": req.longitude,
+                "utc_offset_hours": req.utc_offset_hours,
+                "day_master": chart.get("day_master"),
+                "five_elements": chart.get("five_elements"),
+                "favorable_elements": chart.get("favorable_elements"),
+            },
+        )
+        route = gen_result.get("provider", "aipass_bridge")
+        provenance = gen_result.get("provenance")
+    else:
+        # 3b. Generate via HybridRouter (existing node prompts / debate path)
+        gen_result = hybrid_router.generate(prompt=focused_prompt)
+        route = "hybrid_router"
     interpretation = gen_result.get("text", "") or "วิเคราะห์ดวงชะตาตามหลัก 16 สาขาวิชา"
 
     # 4. Enrich metadata
     meta = question_focus_router.enrich_response_metadata(category, confidence, interpretation)
+    meta["routing"] = route
+    meta["provenance"] = provenance
 
 
     return {
