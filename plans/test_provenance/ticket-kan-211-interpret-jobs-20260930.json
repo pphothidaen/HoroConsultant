@@ -3,16 +3,22 @@
   "ticket_id": "TICKET-KAN-211",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "ff3a8a3fdd7384e7544f3d0fbe1552aabfe116c2",
+  "baseline_parent": "c325026c264d4e3da3e73f24cd265ca511f55120",
   "test_files": [
     {
       "path": "project/tests/test_interpret_jobs.py",
-      "sha256": "077b84b22c238f42769336c5cab3005c7792b172cc3215b411d7f6ba60a42652"
+      "sha256": "2a51c5084d9978b6a92a1c51991af3210713d91ffec6790979b62d3a15f791ca"
     }
   ],
   "red_tests": [
     {
-      "command": [".venv/bin/python", "-m", "pytest", "-q", "project/tests/test_interpret_jobs.py"],
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_interpret_jobs.py"
+      ],
       "expected_exit": 2,
       "failure_fingerprint": "collection ImportError against baseline: project.core.interpret_jobs (job store, run_grounded_job) and the /api/v2/interpret/grounded endpoints do not exist yet"
     }
@@ -23,7 +29,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
+  "supersedes": "c325026c264d4e3da3e73f24cd265ca511f55120",
+  "correction_reason": "poll response carries the envelope status=success; the job lifecycle field is job_status",
   "rationale": "Bind the 202+poll async pattern for notebook-grounded interpret calls (api-spec §8: 30-260s latency must not block HTTP) to KAN-211."
 }

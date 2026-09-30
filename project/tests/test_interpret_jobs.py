@@ -83,7 +83,7 @@ def test_post_returns_202_with_status_url():
     assert data["status_url"].startswith("/api/v2/interpret/grounded/jobs/")
     poll = client.get(data["status_url"])
     assert poll.status_code == 200
-    assert poll.json()["status"] in {"queued", "running", "done"}
+    assert poll.json()["job_status"] in {"queued", "running", "done"}
 
 
 def test_invalid_datetime_answers_400_before_202():
