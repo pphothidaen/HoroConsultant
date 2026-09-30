@@ -21,6 +21,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -29,6 +30,12 @@ SCHEMA_VERSION = "test-provenance-v1"
 MANIFEST_PREFIX = "plans/test_provenance/"
 TEST_PREFIXES = ("tests/", "project/tests/", "TDD-HORO-v3.0/tests/", "tools/agent-broker/Tests/")
 DOC_PREFIXES = ("docs/", "plans/", ".agents/", ".agy/", ".antigravity/", ".claude/", ".codex/", ".github/workflows/")
+# Branches that always require full provenance verification.
+PROTECTED_BRANCHES = frozenset({"main", "master", "release/*"})
+# Branches that may take the soft-guard path. Positive allowlist on purpose:
+# anything not listed here falls through to full verification, so a typo'd or
+# unexpected branch name can never opt out of the gate.
+DEV_BRANCH_PATTERNS = ("feat/*", "fix/*", "wip/*", "experiment/*", "review/*", "draft/*", "temp/*")
 DOC_FILES = {
     "README.md",
     "HOWTO.md",
@@ -203,6 +210,43 @@ def _repo_root(value: str | None) -> Path:
     candidate = Path(value or ".").resolve()
     result = _git(candidate, "rev-parse", "--show-toplevel")
     return Path(result.stdout.strip()).resolve()
+
+
+def _get_current_branch(repo: Path) -> str:
+    result = _git(repo, "rev-parse", "--abbrev-ref", "HEAD")
+    return result.stdout.strip()
+
+
+def _dev_branch_skip_provenance(repo: Path) -> bool:
+    """True only on an explicitly recognised dev branch.
+
+    Fail-closed: protected branches, detached HEAD ("HEAD"), and any
+    unrecognised branch name all return False and require full provenance
+    verification. Inverted logic here — "skip unless known-dev" rather than
+    "skip unless protected" — is the whole point: the latter would let any
+    name not on the protected list bypass the gate.
+
+    Added in KAN-222. The same helper landed in the pre-rebase-kan214-wip
+    stash but was never called, so it was unreachable; tests now pin it.
+    """
+    branch = _get_current_branch(repo)
+    if not branch or branch == "HEAD":
+        # Empty or detached: there is no branch to have been reviewed, so
+        # there is nothing that could justify a soft-guard.
+        return False
+    if any(fnmatch(branch, pattern) for pattern in PROTECTED_BRANCHES):
+        return False
+    # fnmatch's "*" matches the empty string, so "feat/" would satisfy
+    # "feat/*" — a branch with no name after the slash. Matching the literal
+    # "feat/" prefix first and then requiring a non-empty remainder makes the
+    # allowlist mean what it looks like it means.
+    for pattern in DEV_BRANCH_PATTERNS:
+        prefix = pattern.rstrip("*")  # "feat/*" -> "feat/", slash retained
+        if not branch.startswith(prefix):
+            continue
+        if branch[len(prefix) :]:
+            return True
+    return False
 
 
 def _normalize_path(value: str) -> str:
