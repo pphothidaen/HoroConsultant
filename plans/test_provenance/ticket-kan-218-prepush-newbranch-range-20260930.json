@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-218",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0bc1520be81313c003c6684362e708f4302968f0",
+  "test_files": [
+    {
+      "path": "tests/test_pre_push_hook.py",
+      "sha256": "fb4804e8ffc93280f6a9be998337bf14af910da5c60b9cea0ae4f061ae8ce2ab"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pre_push_hook.py",
+        "-k",
+        "new_branch"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_new_branch_push_validates_only_the_pushed_commit: the gate checked a commit set that is not exactly the pushed head, because the range is computed from unpublished local history; test_new_branch_push_still_blocks_on_the_pushed_commit: the pushed commit was not checked at all"
+    }
+  ],
+  "allowed_source_paths": [
+    ".githooks/pre-push"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0bc1520be81313c003c6684362e708f4302968f0",
+  "correction_reason": "new-branch pushes validate the entire unpublished local history, so the gate reports failures for commits that are not part of the push",
+  "rationale": "Bind the new-branch range computation to KAN-218: the hook uses `git rev-list <sha> --not --remotes`, which cannot subtract anything for a branch with no remote-tracking ref, so the range becomes the whole unpublished history. Pin both halves of the fix: the range must contain exactly the pushed commit, and narrowing it must not stop the gate from validating and rejecting that commit."
+}

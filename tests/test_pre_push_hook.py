@@ -418,6 +418,62 @@ def test_material_change_passes_once_a_manifest_exists(sandbox: Sandbox) -> None
 
 
 # ---------------------------------------------------------------------------
+# (D) New-branch range computation (KAN-218)
+# ---------------------------------------------------------------------------
+def test_new_branch_push_validates_only_the_pushed_commit(sandbox: Sandbox) -> None:
+    """A new branch must not drag unpublished ancestors into validation.
+
+    ``git rev-list <sha> --not --remotes`` cannot subtract anything for a
+    branch that does not exist on the remote yet: there is no remote-tracking
+    ref for it, so every commit reachable from the pushed head that is not
+    already published anywhere comes back in the range. The hook would then
+    validate the whole unpushed local history and report failures for
+    commits that are not part of this push at all.
+
+    The observable is the set of commits the gate CHECKS, reported on stdout
+    as one "Checking ... for KAN-<id> (<sha>)" line per commit.
+    """
+    # Two commits, neither published: HEAD and its parent.
+    sandbox.write("scripts/feature.py", "VALUE = 1\n")
+    older = sandbox.commit("fix(KAN-181): older unpublished change")
+    head = sandbox.commit("fix(KAN-182): head of the new branch")
+
+    # Push the head as a brand-new branch: remote_sha is the zero SHA, which
+    # is what git sends for a branch that does not exist on the remote.
+    zero = "0" * 40
+    result = sandbox.run_hook(sandbox.ref_update(head, zero))
+
+    out = _output(result)
+    checked = re.findall(
+        r"Checking TDD governance and provenance for KAN-\d+ \(([0-9a-f]+)", out
+    )
+
+    assert checked == [head], (
+        "expected the hook to validate exactly the pushed commit "
+        f"{head[:8]}, but it validated {checked}. The older unpublished "
+        f"commit {older[:8]} was pulled in, which means the range is being "
+        "computed from local history rather than from what is being pushed."
+    )
+
+
+def test_new_branch_push_still_blocks_on_the_pushed_commit(sandbox: Sandbox) -> None:
+    """The range fix must not turn the gate into a no-op for new branches.
+
+    Companion to the test above: narrowing the range is only correct if the
+    pushed commit is still actually validated and can still be rejected.
+    """
+    head = sandbox.commit("fix(KAN-183): new branch with no manifest")
+    zero = "0" * 40
+
+    result = sandbox.run_hook(sandbox.ref_update(head, zero))
+
+    out = _output(result)
+    assert "Checking TDD governance and provenance for KAN-183" in out
+    assert result.returncode == 1, _output(result)
+    assert "Missing test provenance manifest" in out
+
+
+# ---------------------------------------------------------------------------
 # (C) Per-commit coverage across the pushed range
 # ---------------------------------------------------------------------------
 def test_earlier_commit_in_range_is_validated(sandbox: Sandbox) -> None:
