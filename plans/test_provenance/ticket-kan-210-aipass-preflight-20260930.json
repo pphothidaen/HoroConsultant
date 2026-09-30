@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-210",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a921e58a2e0c342e0e108b400bbad75fe63486f0",
+  "test_files": [
+    {
+      "path": "project/tests/test_aipass_preflight.py",
+      "sha256": "4cfa72ea586cd872165f76aa5220a76b40fd7cb2675442ba9ca54ab0b0ddf8f1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [".venv/bin/python", "-m", "pytest", "-q", "project/tests/test_aipass_preflight.py"],
+      "expected_exit": 2,
+      "failure_fingerprint": "collection ImportError against baseline: llm_gateway.aipass_bridge_preflight and /api/v2/llm/aipass/preflight do not exist yet"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/llm_gateway.py",
+    "project/routers/v2.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Bind the aipass_bridge preflight contract (api-spec §10: MCP check_bridge_health without a Gemini round-trip, fail-closed mapping of grounding state) to KAN-210."
+}
