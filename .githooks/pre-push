@@ -61,6 +61,24 @@ else
     exit 0
 fi
 
+# ---------------------------------------------------------------------------
+# Remote/base resolution for the new-branch range (KAN-218).
+#
+# `git rev-list <sha> --not --remotes` cannot bound the range for a branch
+# that does not exist on the remote yet, because there is no remote-tracking
+# ref for it to subtract. The range has to be anchored to the remote's
+# default branch instead. Both values are read once, defensively: an
+# unresolvable remote must degrade to the previous over-validating
+# behaviour, never to a range that validates less than it used to.
+# ---------------------------------------------------------------------------
+PUSH_REMOTE=$(git rev-parse --abbrev-ref --symbolic-full-name '@{push}' 2>/dev/null || true)
+case "$PUSH_REMOTE" in
+    */*) PUSH_REMOTE="${PUSH_REMOTE%%/*}" ;;   # strip refs/heads/ prefix
+esac
+[ -n "$PUSH_REMOTE" ] || PUSH_REMOTE="origin"
+
+DEFAULT_REMOTE_BRANCH="main"
+
 # A changed path counts as documentation when it is a Markdown file or lives
 # under a documentation prefix. Mirrors _is_docs_only_path / DOC_PREFIXES in
 # scripts/test_provenance_guard.py.
@@ -139,7 +157,52 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         RANGE="${remote_sha}..${local_sha}"
     else
         # New branch: everything not already published is being pushed.
-        RANGE=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || true)
+        #
+        # `--not --remotes` alone is NOT sufficient here. A branch that does
+        # not exist on the remote has no remote-tracking ref, so there is
+        # nothing for `--not --remotes` to subtract, and the range silently
+        # becomes the ENTIRE unpublished local history. Any ancestor of the
+        # pushed head that is not already published anywhere gets validated
+        # too, so the gate reports failures for commits that are not part of
+        # this push at all (observed: a one-file docs branch reporting on
+        # KAN-67/68/70/71 and KAN-183).
+        #
+        # Anchor the range to the remote's default branch instead, which is
+        # the base a new branch is cut from. This bounds the range to what is
+        # actually being pushed.
+        BASE=""
+        for candidate in \
+            "refs/remotes/$PUSH_REMOTE/HEAD" \
+            "refs/remotes/$PUSH_REMOTE/$DEFAULT_REMOTE_BRANCH"
+        do
+            BASE=$(git rev-parse --verify --quiet "$candidate" 2>/dev/null) || BASE=""
+            [ -n "$BASE" ] && break
+        done
+        if [ -n "$BASE" ]; then
+            # Keep RANGE as a genuine revision RANGE expression (`<base>..<head>`)
+            # so the downstream `git rev-list "$RANGE"` resolves it. Emitting a
+            # bare list of SHAs does not work: rev-list rejects both the
+            # newline- and space-separated forms as malformed revisions and
+            # yields nothing, which silently turns the gate into a no-op.
+            RANGE="${BASE}..${local_sha}"
+        else
+            # No remote-tracking ref could be resolved. Fall back to the old
+            # behaviour rather than inventing a range: over-validating is a
+            # false negative (annoying), under-validating here would be a
+            # false positive (a gate that silently stops gating).
+            #
+            # `--not --remotes` yields a LIST of SHAs, which `git rev-list
+            # "$RANGE"` cannot consume as a single revision argument. Wrap it
+            # so it round-trips: pass the list back through rev-list's stdin
+            # form instead, by widening RANGE to the oldest unpublished commit
+            # through the pushed head.
+            OLDEST_UNPUSHED=$(git rev-list "$local_sha" --not --remotes 2>/dev/null | tail -1 || true)
+            if [ -n "$OLDEST_UNPUSHED" ] && [ "$OLDEST_UNPUSHED" != "$local_sha" ]; then
+                RANGE="${OLDEST_UNPUSHED}^..${local_sha}"
+            else
+                RANGE="$local_sha"
+            fi
+        fi
         if [ -z "$RANGE" ]; then
             # Nothing unpublished: every commit is already on some remote, so
             # this ref has nothing to validate. Do NOT fall back to
