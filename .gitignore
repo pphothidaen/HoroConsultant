@@ -49,3 +49,6 @@ project/kaggle_kernel/horoconsultant-finetune-pipeline.log
 .build/
 tools/agent-broker/.build/
 .wrangler/
+# Agent tool scratch dirs: regenerated on every run, never source.
+.hermes/cache/
+tmp_test_render/
