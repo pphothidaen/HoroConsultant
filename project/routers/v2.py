@@ -7,11 +7,13 @@ Supports all 16 computational metaphysics disciplines.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 
 from project.core.bazi_engine import BaZiEngine
 from project.core.tai_yi_engine import TaiYiEngine
@@ -177,22 +179,34 @@ async def interpret_focused(req: QuestionFocusInterpretRequest):
     routed to the notebook-grounded aipass_bridge provider when it is
     configured; every other discipline and every unconfigured deployment
     stays on the existing hybrid_router path — never a silent fallback.
+    For long-running grounded calls prefer POST /interpret/grounded (202 +
+    poll), see KAN-211.
     """
     try:
-        dt = datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid datetime format. Expected YYYY-MM-DD HH:MM:SS")
+        return await run_grounded_pipeline(req.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+async def run_grounded_pipeline(req_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Shared pipeline for /interpret/focused and the KAN-211 async jobs."""
+    from project.core.llm_gateway import llm_gateway, notebook_grounding_allowed
+
+    try:
+        dt = datetime.strptime(req_dict["birth_datetime"], "%Y-%m-%d %H:%M:%S")
+    except (KeyError, ValueError):
+        raise ValueError("Invalid datetime format. Expected YYYY-MM-DD HH:MM:SS")
 
     # 1. Compute Base BaZi Chart
-    chart = bazi_eng.calculate(dt, req.longitude, req.utc_offset_hours)
+    chart = bazi_eng.calculate(dt, req_dict["longitude"], req_dict["utc_offset_hours"])
 
     # 2. Classify domain & build focused prompt
-    category, confidence = question_focus_router.classify_question(req.query)
+    category, confidence = question_focus_router.classify_question(req_dict["query"])
     focused_prompt = question_focus_router.build_focused_prompt(
         category=category,
         chart_data=chart,
-        query=req.query,
-        language=req.language,
+        query=req_dict["query"],
+        language=req_dict.get("language", "th"),
     )
 
     # 3. Route: notebook-grounded consultation only for covered domains on a
@@ -213,9 +227,9 @@ async def interpret_focused(req: QuestionFocusInterpretRequest):
             ),
             preferred_provider="aipass_bridge",
             birth_context={
-                "birth_datetime": req.birth_datetime,
-                "longitude": req.longitude,
-                "utc_offset_hours": req.utc_offset_hours,
+                "birth_datetime": req_dict["birth_datetime"],
+                "longitude": req_dict["longitude"],
+                "utc_offset_hours": req_dict["utc_offset_hours"],
                 "day_master": chart.get("day_master"),
                 "five_elements": chart.get("five_elements"),
                 "favorable_elements": chart.get("favorable_elements"),
@@ -234,15 +248,59 @@ async def interpret_focused(req: QuestionFocusInterpretRequest):
     meta["routing"] = route
     meta["provenance"] = provenance
 
-
     return {
         "status": "success",
         "api_version": "v2.0.0",
-        "query": req.query,
+        "query": req_dict["query"],
         "day_master": chart.get("day_master"),
         "five_elements": chart.get("five_elements"),
         "interpretation": interpretation,
         "metadata": meta,
+    }
+
+
+@v2_router.post("/interpret/grounded", status_code=202)
+async def interpret_grounded_async(req: QuestionFocusInterpretRequest):
+    """
+    KAN-211 (api-spec §8): accept a notebook-grounded interpret call without
+    blocking HTTP — a grounding chain can take 30-260s. Returns 202 with a
+    job_id and a status_url to poll. Payload validation is synchronous (400
+    before 202); routing/discipline decisions happen inside the job.
+    """
+    from project.core.interpret_jobs import create_job, run_grounded_job
+
+    try:
+        datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid datetime format. Expected YYYY-MM-DD HH:MM:SS")
+
+    job_id = create_job()
+    asyncio.create_task(run_grounded_job(job_id, req.model_dump()))
+    return JSONResponse(
+        status_code=202,
+        content={
+            "status": "accepted",
+            "job_id": job_id,
+            "status_url": f"/api/v2/interpret/grounded/jobs/{job_id}",
+        },
+    )
+
+
+@v2_router.get("/interpret/grounded/jobs/{job_id}")
+async def get_interpret_job(job_id: str):
+    from project.core.interpret_jobs import get_job
+
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Unknown job id")
+    return {
+        "status": "success",
+        "api_version": "v2.0.0",
+        "job_id": job.id,
+        "job_status": job.status,
+        "result": job.result,
+        "error": job.error,
+        "created_at": job.created_at,
     }
 
 
