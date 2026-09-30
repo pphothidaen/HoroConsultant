@@ -21,6 +21,7 @@ Run: .venv/bin/python -m pytest tests/test_provenance_branch_guard.py -q
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -58,9 +59,7 @@ class _FakeGit:
     def __init__(self, branch: str) -> None:
         self.branch = branch
 
-    def __call__(self, *args: str, **kwargs: object) -> "subprocess.CompletedProcess[str]":  # type: ignore[name-defined]
-        import subprocess
-
+    def __call__(self, *args: str, **kwargs: object) -> "subprocess.CompletedProcess[str]":
         assert "rev-parse" in args, f"unexpected git call: {args}"
         return subprocess.CompletedProcess(args=list(args), returncode=0, stdout=self.branch + "\n", stderr="")
 
