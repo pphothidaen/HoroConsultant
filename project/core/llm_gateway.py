@@ -6,15 +6,17 @@ Multi-Provider Resilient LLM Gateway with Dynamic Failover & Circuit Breaker.
 Tiers:
   Tier 1: Cloudflare Workers AI (@cf/meta/llama-3.1-8b-instruct)
   Tier 2: Google Gemini (gemini-2.5-flash / gemini-1.5-flash)
-  Tier 3: Codex CLI (read-only local wrapper)
-  Tier 4: Anthropic Claude (claude-3-5-sonnet / claude-3-haiku)
-  Tier 5: Local Ollama (qwen2.5:7b-instruct-q4_K_M)
-  Tier 6: Deterministic Canonical Synthesizer (Safe Offline Fallback)
+  Tier 3: AIPASS Bridge (notebook-grounded horo_consult via Gemini Web Bridge MCP)
+  Tier 4: Codex CLI (read-only local wrapper)
+  Tier 5: Anthropic Claude (claude-3-5-sonnet / claude-3-haiku)
+  Tier 6: Local Ollama (qwen2.5:7b-instruct-q4_K_M)
+  Tier 7: Deterministic Canonical Synthesizer (Safe Offline Fallback)
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import time
@@ -25,6 +27,32 @@ import httpx
 from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
 
 logger = logging.getLogger("LLMGateway")
+
+# KAN-208 / api-spec (gemini-web-bridge docs/api-spec.md) §2: the canonical
+# scope id of the HoroConsultant NotebookLM notebook that horo_consult grounds
+# every answer in. A response that does not carry this scope served the answer
+# is not a grounded reading and must be rejected (invariant G-1).
+HORO_NOTEBOOK_SCOPE = "notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0"
+
+# api-spec §8: the grounding chain (45s attach + 60s type + 120s collect +
+# 35s verify) can legitimately take ~260s worst case; the caller-side timeout
+# must exceed it or a healthy slow answer is misread as a provider outage.
+AIPASS_BRIDGE_TIMEOUT_S = 240.0
+
+# api-spec §9.2 / invariant G-9: the HoroConsultant notebook covers BaZi,
+# numerology and Thai astrology. Question domains answered FROM a BaZi chart
+# are in scope; explicit other disciplines are not, and must never be routed
+# to the notebook provider. Fail-closed allowlist — anything not listed here
+# (including unknown categories) stays on the existing interpretation path.
+NOTEBOOK_DISCIPLINE_CATEGORIES = frozenset({
+    "career", "finance", "love", "health", "family", "timing", "guidance",
+    "bazi", "numerology", "thai_astrology",
+})
+
+
+def notebook_grounding_allowed(category: Optional[str]) -> bool:
+    """True only when the question domain is covered by the notebook."""
+    return (category or "").strip().lower() in NOTEBOOK_DISCIPLINE_CATEGORIES
 
 
 @dataclass
@@ -59,32 +87,43 @@ class LLMGateway:
                 tier=2,
                 is_configured=bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")),
             ),
+            "aipass_bridge": ProviderState(
+                key="aipass_bridge",
+                name="AIPASS Bridge (Notebook-Grounded horo_consult)",
+                tier=3,
+                is_configured=bool(os.getenv("AIPASS_BRIDGE_BASE_URL"))
+                and bool(os.getenv("AIPASS_BRIDGE_API_KEY"))
+                and os.getenv("HORO_BRIDGE_CONSENT", "").lower() == "true",
+            ),
             "codex": ProviderState(
                 key="codex",
                 name="Codex CLI",
-                tier=3,
+                tier=4,
                 is_configured=check_codex_installation(),
             ),
             "claude": ProviderState(
                 key="claude",
                 name="Anthropic Claude",
-                tier=4,
+                tier=5,
                 is_configured=bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("CLAUDE_API_KEY")),
             ),
             "ollama": ProviderState(
                 key="ollama",
                 name="Local Ollama",
-                tier=5,
+                tier=6,
                 is_configured=bool(os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")),
             ),
             "deterministic": ProviderState(
                 key="deterministic",
                 name="Deterministic Synthesizer",
-                tier=6,
+                tier=7,
                 is_configured=True,
             ),
         }
         self.lock = asyncio.Lock()
+        # api-spec §9.3: provenance captured by the last successful
+        # aipass_bridge call, attached to the generate_text result.
+        self._last_aipass_provenance: Optional[Dict[str, Any]] = None
 
     def _is_circuit_open(self, p: ProviderState) -> bool:
         if time.time() < p.circuit_broken_until:
@@ -185,6 +224,117 @@ class LLMGateway:
             data = resp.json()
             return data.get("response", "")
 
+    async def _call_aipass_bridge(
+        self,
+        prompt: str,
+        system_instruction: str,
+        birth_context: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Notebook-grounded consultation via the Gemini Web Bridge MCP server.
+
+        api-spec (gemini-web-bridge docs/api-spec.md) §9: the worker's remote
+        MCP endpoint exposes horo_consult, which answers only from the
+        HoroConsultant NotebookLM notebook (fail-closed on grounding). This
+        provider never streams and never carries a `scope` argument — an
+        explicit scope disables the notebook attach (spec §2, invariant G-2).
+        """
+        base_url = os.getenv("AIPASS_BRIDGE_BASE_URL")
+        api_key = os.getenv("AIPASS_BRIDGE_API_KEY")
+        if not base_url or not api_key:
+            raise ValueError("AIPASS Bridge credentials missing")
+
+        # api-spec §9.2: horo_consult has no system-prompt channel — the
+        # domain firewall rides inside the query text. No `scope` is sent:
+        # the worker's default notebook attach is the only grounded path.
+        query = f"{system_instruction}\n\n{prompt}".strip()
+        args: Dict[str, Any] = {"query": query, "response_format": "text"}
+        if birth_context:
+            args["birth_context"] = birth_context
+
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": "horo_consult", "arguments": args},
+        }
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        async with httpx.AsyncClient(timeout=AIPASS_BRIDGE_TIMEOUT_S) as client:
+            resp = await client.post(f"{base_url.rstrip('/')}/mcp", headers=headers, json=payload)
+            resp.raise_for_status()
+            body = resp.json()
+
+        if body.get("error"):
+            raise ValueError(f"aipass_bridge JSON-RPC error {body['error'].get('code')}: {body['error'].get('message', '')[:200]}")
+
+        result = body.get("result") or {}
+        text = (result.get("content") or [{}])[0].get("text", "")
+        if not text or not text.strip():
+            raise ValueError("aipass_bridge returned an empty answer")
+
+        # api-spec invariant G-1 (hard guard): an accepted answer must be
+        # notebook-grounded. This also catches the GCP-fallback leak (a
+        # successful response with no notebookGrounding field at all).
+        grounding = result.get("notebookGrounding") or {}
+        scope = (result.get("bridgeScope") or {}).get("used")
+        if not grounding.get("verified"):
+            raise ValueError(
+                f"Rejected ungrounded horo_consult answer (verified={grounding.get('verified')!r}, "
+                f"scope={scope!r}) — api-spec invariant G-1"
+            )
+        if scope != HORO_NOTEBOOK_SCOPE:
+            raise ValueError(f"Answer served from unexpected scope {scope!r}, expected {HORO_NOTEBOOK_SCOPE!r}")
+
+        self._last_aipass_provenance = {
+            "grounding": scope,
+            "grounding_verified": True,
+            "citations": grounding.get("citationCount"),
+            "cited_sources": grounding.get("citedSources"),
+            "model": "gemini-web-notebook",
+        }
+        return text
+
+    async def aipass_bridge_preflight(self) -> Dict[str, Any]:
+        """Preflight the bridge without spending a Gemini round-trip.
+
+        api-spec §10: the worker's MCP check_bridge_health reports the
+        notebook attach/grounding state for free. Fail-closed mapping: any
+        transport failure is "critical" — an unavailable oracle must never
+        read as healthy.
+        """
+        base_url = os.getenv("AIPASS_BRIDGE_BASE_URL")
+        api_key = os.getenv("AIPASS_BRIDGE_API_KEY")
+        if not base_url or not api_key:
+            return {"status": "critical", "error": "AIPASS Bridge credentials missing"}
+        try:
+            payload = {
+                "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                "params": {"name": "check_bridge_health", "arguments": {}},
+            }
+            headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(f"{base_url.rstrip('/')}/mcp", headers=headers, json=payload)
+                resp.raise_for_status()
+                body = resp.json()
+            if body.get("error"):
+                raise ValueError(f"JSON-RPC error {body['error'].get('code')}")
+            report = json.loads((body["result"]["content"][0]["text"] or "{}"))
+            notebook = report.get("notebook", {})
+            grounding = notebook.get("last_grounding_status")
+            attach = notebook.get("last_attach_status")
+            if grounding == "grounded" and attach == "ok":
+                status = "ok"
+            elif report.get("extension_status") == "CONNECTED_AND_READY":
+                status = "degraded"
+            else:
+                status = "degraded" if report.get("status") != "critical" else "critical"
+            return {
+                "status": status,
+                "extension_status": report.get("extension_status"),
+                "notebook": notebook,
+            }
+        except Exception as exc:
+            return {"status": "critical", "error": str(exc)[:200]}
+
     def _call_deterministic(self, prompt: str, system_instruction: str) -> str:
         """Deterministic canonical fallback text."""
         return (
@@ -198,10 +348,11 @@ class LLMGateway:
         self,
         prompt: str,
         system_instruction: str = "",
-        preferred_provider: Optional[str] = None
+        preferred_provider: Optional[str] = None,
+        birth_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Execute text generation with multi-tier failover and latency tracking."""
-        order = ["cloudflare", "gemini", "codex", "claude", "ollama", "deterministic"]
+        order = ["cloudflare", "gemini", "aipass_bridge", "codex", "claude", "ollama", "deterministic"]
         if preferred_provider and preferred_provider in self.providers:
             order.remove(preferred_provider)
             order.insert(0, preferred_provider)
@@ -209,6 +360,7 @@ class LLMGateway:
         call_map = {
             "cloudflare": self._call_cloudflare,
             "gemini": self._call_gemini,
+            "aipass_bridge": self._call_aipass_bridge,
             "codex": self._call_codex,
             "claude": self._call_claude,
             "ollama": self._call_ollama,
@@ -236,17 +388,24 @@ class LLMGateway:
             try:
                 t0 = time.perf_counter()
                 func = call_map[p_key]
-                text = await func(prompt, system_instruction)
+                if p_key == "aipass_bridge":
+                    text = await func(prompt, system_instruction, birth_context)
+                else:
+                    text = await func(prompt, system_instruction)
                 lat = (time.perf_counter() - t0) * 1000.0
                 if text and len(text.strip()) > 0:
                     self._record_success(p, lat)
-                    return {
+                    result = {
                         "text": text.strip(),
                         "provider": p_key,
                         "model": p.name,
                         "latency_ms": round(lat, 2),
                         "fallback_triggered": p_key != order[0]
                     }
+                    if p_key == "aipass_bridge" and self._last_aipass_provenance:
+                        result["provenance"] = self._last_aipass_provenance
+                        self._last_aipass_provenance = None
+                    return result
                 else:
                     self._record_failure(p, "Empty text response")
             except Exception as exc:
