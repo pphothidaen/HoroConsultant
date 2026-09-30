@@ -16,6 +16,7 @@ Tiers:
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import time
@@ -291,6 +292,48 @@ class LLMGateway:
             "model": "gemini-web-notebook",
         }
         return text
+
+    async def aipass_bridge_preflight(self) -> Dict[str, Any]:
+        """Preflight the bridge without spending a Gemini round-trip.
+
+        api-spec §10: the worker's MCP check_bridge_health reports the
+        notebook attach/grounding state for free. Fail-closed mapping: any
+        transport failure is "critical" — an unavailable oracle must never
+        read as healthy.
+        """
+        base_url = os.getenv("AIPASS_BRIDGE_BASE_URL")
+        api_key = os.getenv("AIPASS_BRIDGE_API_KEY")
+        if not base_url or not api_key:
+            return {"status": "critical", "error": "AIPASS Bridge credentials missing"}
+        try:
+            payload = {
+                "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                "params": {"name": "check_bridge_health", "arguments": {}},
+            }
+            headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(f"{base_url.rstrip('/')}/mcp", headers=headers, json=payload)
+                resp.raise_for_status()
+                body = resp.json()
+            if body.get("error"):
+                raise ValueError(f"JSON-RPC error {body['error'].get('code')}")
+            report = json.loads((body["result"]["content"][0]["text"] or "{}"))
+            notebook = report.get("notebook", {})
+            grounding = notebook.get("last_grounding_status")
+            attach = notebook.get("last_attach_status")
+            if grounding == "grounded" and attach == "ok":
+                status = "ok"
+            elif report.get("extension_status") == "CONNECTED_AND_READY":
+                status = "degraded"
+            else:
+                status = "degraded" if report.get("status") != "critical" else "critical"
+            return {
+                "status": status,
+                "extension_status": report.get("extension_status"),
+                "notebook": notebook,
+            }
+        except Exception as exc:
+            return {"status": "critical", "error": str(exc)[:200]}
 
     def _call_deterministic(self, prompt: str, system_instruction: str) -> str:
         """Deterministic canonical fallback text."""

@@ -277,6 +277,20 @@ def get_llm_providers_status():
     }
 
 
+@v2_router.get("/llm/aipass/preflight")
+async def aipass_preflight():
+    """
+    KAN-210: ops preflight for the notebook-grounded aipass_bridge provider.
+    Reports the worker's notebook attach/grounding state via MCP
+    check_bridge_health without spending a Gemini round-trip. Fail-closed.
+    """
+    return {
+        "status": "success",
+        "api_version": "v2.0.0",
+        "data": await llm_gateway.aipass_bridge_preflight(),
+    }
+
+
 @v2_router.post("/llm/route-test")
 async def test_llm_route(req: Optional[LLMRouteTestRequest] = None):
     """
