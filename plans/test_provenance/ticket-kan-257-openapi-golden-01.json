@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-257-OPENAPI-GOLDEN",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "e6572ff8607838524cc41b95cd7c35d4b7eb83a9",
+  "baseline_parent": "6fc2778e70bddd85e1ccd3e111bbf07f26586d4a",
   "test_files": [
     {
       "path": "project/tests/goldens/openapi.json",
