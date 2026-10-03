@@ -30,7 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 os.environ.setdefault("HORO_ALLOW_PYTHON_FALLBACK", "1")
 os.environ.setdefault("SKIP_FAISS_WARMUP", "true")
 
-from project.main import app  # noqa: E402  (import after env hardening)
+from project.main import app  # import after env hardening above
 
 
 def main() -> None:
