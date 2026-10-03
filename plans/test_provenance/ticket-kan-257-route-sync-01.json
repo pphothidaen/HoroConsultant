@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-257-ROUTE-SYNC",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "5644f592196eec34ba9aebb2af379d4064dbd332",
+  "baseline_parent": "6fc2778e70bddd85e1ccd3e111bbf07f26586d4a",
   "test_files": [
     {
       "path": "tests/test_route_sync.py",
