@@ -236,6 +236,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         # hard boundary is CI plus the DoD production gate on main.
         NEW_COMMITS="$local_sha"
     fi
+    # Residual (accepted, KAN-257 review): no-base pushes validate tip-only, and a rewind whose remote_sha is absent is skipped by the deletion guard above — enforcement for both is CI + the DoD production gate on main.
     [ -n "$NEW_COMMITS" ] || continue
     HAVE_RANGE=1
     COMMITS="${COMMITS}
