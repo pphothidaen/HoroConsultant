@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-257-OPENAPI-GOLDEN",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e6572ff8607838524cc41b95cd7c35d4b7eb83a9",
+  "test_files": [
+    {
+      "path": "project/tests/goldens/openapi.json",
+      "sha256": "18ee1f0d5078a311d79f3bbe3feed3aa11ba9340fa68e031b1057d1206d2f131"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_gateway_contract.py::test_python_openapi_matches_captured_literal_golden",
+        "-m",
+        "not network"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "the committed golden predates the merged KAN-208/211 work: app.openapi() emits 87 paths while the golden freezes 84 — the contract assertion 'app.openapi() == golden' fails on the 3 missing paths /api/v2/interpret/grounded, /api/v2/interpret/grounded/jobs/{job_id}, /api/v2/llm/aipass/preflight (plus the KAN-209 docstring expansion of /api/v2/interpret/focused)."
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/capture_openapi_golden.py",
+    "docs/api-guide/jira-webhook-integration.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-257: the OpenAPI golden is stale, not the app — exactly 3 ADDED paths from the merged KAN-208/211 PR, zero removals, no method drift, no component-schema drift. Regeneration is the fix, captured with the new canonical scripts/capture_openapi_golden.py (the regeneration path was previously undocumented; the doc pointer referenced a non-existent v3_api_specification.md). The golden is a governed test path (project/tests/), so this manifest binds its post-regeneration bytes; info.version embeds a git short hash and is monkeypatched by the contract test, so it never gates the comparison (regenerated with GIT_COMMIT_HASH=6fc2778 pinned for byte-identical reproduction)."
+}
