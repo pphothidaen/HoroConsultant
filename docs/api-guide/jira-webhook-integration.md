@@ -185,5 +185,15 @@ python3 -m pytest project/tests/test_gateway_contract.py -v
 The OpenAPI contract snapshot is frozen at
 `project/tests/goldens/openapi.json` and verified by
 `test_gateway_contract.py`. Any new route or schema change requires
-regenerating the golden file (see
-[Architecture Design Spec](v3_api_specification.md)).
+regenerating the golden file with the canonical capture script:
+
+```bash
+HORO_ALLOW_PYTHON_FALLBACK=1 SKIP_FAISS_WARMUP=true \
+    python scripts/capture_openapi_golden.py
+```
+
+Run it in the CI-parity environment (Python 3.12 + the pinned
+`requirements.txt` dependency set, as installed by
+`.github/workflows/ci.yml`) so the committed bytes match what CI
+reproduces. The `info.version` field embeds the current git short hash and
+is monkeypatched by the contract test, so it never gates the comparison.
