@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-257-ROUTE-SYNC",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5644f592196eec34ba9aebb2af379d4064dbd332",
+  "test_files": [
+    {
+      "path": "tests/test_route_sync.py",
+      "sha256": "1b485a39b89ec870ce1d81bdd5baf44d80983001abe54483bd8f8a0eab139932"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_route_sync.py::TestRustRouteCoverage::test_all_openapi_paths_have_rust_entry",
+        "-m",
+        "contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 route(s) in Python OpenAPI are NOT covered by the Rust gateway routing table: get /api/v2/interpret/grounded/jobs/{job_id}; get /api/v2/llm/aipass/preflight; post /api/v2/interpret/grounded. Prerequisite: generate the snapshot first per ci.yml 'Generate OpenAPI snapshot & verify Rust↔Python route sync': python3 -c \"import json; from project.main import app; json.dump(app.openapi(), open('/tmp/oa.json','w'))\". This failure was pre-existing at 6fc2778 but masked on main because the pytest step aborted the job before the route-sync step ran."
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_route_sync.py::TestRustRouteCoverage::test_kan208_211_v2_routes_are_routed",
+        "-m",
+        "contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "the new KAN-208/211 regression pin fails at baseline: /api/v2/interpret/grounded (POST) and /api/v2/llm/aipass/preflight (GET) are missing from route_kind() explicit routes and /api/v2/interpret/grounded/jobs/{job_id} (GET) has no dynamic prefix in rust_core/src/server.rs."
+    }
+  ],
+  "allowed_source_paths": [
+    "rust_core/src/server.rs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-257 delta-review P1: the route-sync CI step (ci.yml 'Generate OpenAPI snapshot & verify Rust↔Python route sync') failed at 6fc2778 because the 3 KAN-208/211 v2 routes were never added to route_kind() in rust_core/src/server.rs; it was masked on main because the pytest step aborted the job before route-sync ran. Fix follows the repo precedent commits e4dc000e (Jira routes) and add8ae3f (40 missing routes): explicit or-chain entries for the param-less POST/GET routes plus a starts_with dynamic guard for the {job_id} polling route. tests/test_route_sync.py gains one regression pin (test_kan208_211_v2_routes_are_routed) mirroring the sibling test_admin_provider_pools_is_routed pattern; RED at baseline, GREEN after the Rust change. Cargo check passes on rust_core."
+}
