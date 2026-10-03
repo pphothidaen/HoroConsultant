@@ -186,19 +186,27 @@ while read -r local_ref local_sha remote_ref remote_sha; do
             # yields nothing, which silently turns the gate into a no-op.
             RANGE="${BASE}..${local_sha}"
         else
-            # No remote-tracking ref could be resolved. Fall back to the old
-            # behaviour rather than inventing a range: over-validating is a
-            # false negative (annoying), under-validating here would be a
-            # false positive (a gate that silently stops gating).
+            # No remote-tracking ref could be resolved (fresh clone, CI
+            # sandbox, a repository with no configured remote). The only
+            # commit unambiguously part of THIS push is the pushed tip
+            # itself, so validate exactly that single commit.
             #
-            # `--not --remotes` yields a LIST of SHAs, which `git rev-list
-            # "$RANGE"` cannot consume as a single revision argument. Wrap it
-            # so it round-trips: pass the list back through rev-list's stdin
-            # form instead, by widening RANGE to the oldest unpublished commit
-            # through the pushed head.
-            OLDEST_UNPUSHED=$(git rev-list "$local_sha" --not --remotes 2>/dev/null | tail -1 || true)
-            if [ -n "$OLDEST_UNPUSHED" ] && [ "$OLDEST_UNPUSHED" != "$local_sha" ]; then
-                RANGE="${OLDEST_UNPUSHED}^..${local_sha}"
+            # The previous fallback here widened the range to the oldest
+            # unpublished commit (`<oldest>^..<head>`), which dragged the
+            # tip's unpublished ancestors into the gate (failures for
+            # commits that are not part of this push) and was FATAL when the
+            # oldest unpublished commit was the repository ROOT seed commit:
+            # `<root>^` does not resolve, `git rev-list` failed, the
+            # `|| true` at the rev-list call below swallowed the error,
+            # NEW_COMMITS came back empty and the gate exited 0 having
+            # validated NOTHING (KAN-257). The single-commit range keeps the
+            # gate live without resurrecting the pre-KAN-218 whole-history
+            # walk: `git rev-list "<tip>^..<tip>"` yields exactly the tip,
+            # and when the tip is itself the root seed commit (no parents)
+            # the bare SHA already denotes exactly that one commit — a bare
+            # root SHA can never walk a whole history because it has none.
+            if git rev-parse --verify --quiet "${local_sha}^" >/dev/null 2>&1; then
+                RANGE="${local_sha}^..${local_sha}"
             else
                 RANGE="$local_sha"
             fi
@@ -215,6 +223,19 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         fi
     fi
     NEW_COMMITS=$(git rev-list "$RANGE" 2>/dev/null || true)
+    if [ -z "$NEW_COMMITS" ] && [ -n "${remote_sha:-}" ] &&
+        [ "$remote_sha" != "$ZERO_SHA" ] &&
+        git cat-file -e "${remote_sha}^{commit}" 2>/dev/null &&
+        git merge-base --is-ancestor "$local_sha" "$remote_sha" 2>/dev/null; then
+        # Force-push rewind: the pushed tip re-points an existing remote ref
+        # to one of its own ancestors, so the `remote..local` range is empty
+        # and would make this gate a silent free pass — the gate exits 0
+        # without validating anything. Validate the tip that is about to
+        # become the remote head instead (KAN-257). Enforcement for rewinds
+        # remains bounded by design: this hook is a read-only gate, and the
+        # hard boundary is CI plus the DoD production gate on main.
+        NEW_COMMITS="$local_sha"
+    fi
     [ -n "$NEW_COMMITS" ] || continue
     HAVE_RANGE=1
     COMMITS="${COMMITS}
@@ -265,7 +286,7 @@ BLOCKED=0
 for commit in $COMMITS; do
     ISSUE_KEY=$(git log -1 --pretty=%B "$commit" 2>/dev/null | grep -oE "KAN-[0-9]+" | head -1 || true)
     [ -n "$ISSUE_KEY" ] || continue
-    echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit:0:8})..."
+    echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit})..."
 
     OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
         --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" 2>&1)
