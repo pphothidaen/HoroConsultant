@@ -270,8 +270,13 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         | (&Method::POST, "/api/v2/chat/stream")
         | (&Method::GET, "/api/v2/health")
         | (&Method::POST, "/api/v2/interpret/focused")
+        // KAN-208/211: grounded interpretation submit + aipass preflight.
+        // MUST be kept in sync with Python FastAPI routes. See
+        // tests/test_route_sync.py.
+        | (&Method::POST, "/api/v2/interpret/grounded")
         | (&Method::GET, "/api/v2/llm/providers/status")
         | (&Method::POST, "/api/v2/llm/route-test")
+        | (&Method::GET, "/api/v2/llm/aipass/preflight")
         | (&Method::POST, "/api/v2/mian_xiang/analyze")
         | (&Method::POST, "/api/v3/audit")
         | (&Method::POST, "/api/v3/calculate")
@@ -344,6 +349,12 @@ fn route_kind(method: &Method, path: &str) -> Option<RouteKind> {
         // Jira ticket routes with path params (G3)
         (&Method::GET, dynamic) | (&Method::POST, dynamic)
             if dynamic.starts_with("/api/jira/tickets/") =>
+        {
+            Some(RouteKind::PythonProxy)
+        }
+        // KAN-211: grounded interpretation job polling (path param)
+        (&Method::GET, dynamic)
+            if dynamic.starts_with("/api/v2/interpret/grounded/jobs/") =>
         {
             Some(RouteKind::PythonProxy)
         }

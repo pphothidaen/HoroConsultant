@@ -170,6 +170,25 @@ class TestRustRouteCoverage:
             "/admin/provider-pools is missing from the Rust routing table"
         )
 
+    def test_kan208_211_v2_routes_are_routed(
+        self, rust_explicit_routes, rust_dynamic_prefixes
+    ):
+        """Regression guard for KAN-208/211: the grounded-interpretation and
+        aipass-preflight routes must reach the Python worker, not 404 at the
+        Rust gateway."""
+        assert ("post", "/api/v2/interpret/grounded") in rust_explicit_routes, (
+            "/api/v2/interpret/grounded is missing from the Rust routing table"
+        )
+        assert _route_is_covered(
+            "get",
+            "/api/v2/interpret/grounded/jobs/{job_id}",
+            rust_explicit_routes,
+            rust_dynamic_prefixes,
+        ), "/api/v2/interpret/grounded/jobs/{job_id} (GET) not covered"
+        assert ("get", "/api/v2/llm/aipass/preflight") in rust_explicit_routes, (
+            "/api/v2/llm/aipass/preflight is missing from the Rust routing table"
+        )
+
     def test_all_admin_paths_proxied(
         self, rust_explicit_routes, rust_dynamic_prefixes, openapi_path_methods
     ):

@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-257-PREPUSH-RANGE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6fc2778e70bddd85e1ccd3e111bbf07f26586d4a",
+  "test_files": [
+    {
+      "path": "tests/test_pre_push_hook_matrix.py",
+      "sha256": "d03c5cf6685e3c92e7a3af2de116d6b250c4d74a5d2c70abd419653c512069f0"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pre_push_hook.py::test_new_branch_push_validates_only_the_pushed_commit",
+        "tests/test_pre_push_hook.py::test_new_branch_push_still_blocks_on_the_pushed_commit"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "checked == [] and empty hook output — for a new-branch push with no remote-tracking base, .githooks/pre-push computed OLDEST_UNPUSHED as the ROOT seed commit and built RANGE='<root>^..<head>'; '<root>^' does not resolve, the fatal rev-list error was swallowed by '|| true', NEW_COMMITS came back empty, and the gate exited 0 having validated NOTHING (assertion 'checked == [<head>]' fails on [])."
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pre_push_hook_matrix.py::test_force_push_rewind_validates_the_pushed_tip"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "force-push rewind (remote_sha valid, local_sha an ancestor of it) produced an empty remote..local range, so the hook exited 0 without validating anything — 'Checking TDD governance and provenance for KAN-250' missing from output."
+    }
+  ],
+  "allowed_source_paths": [
+    ".githooks/pre-push"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-257: the pre-push gate was a silent no-op for new-branch pushes with no remote-tracking base (CI/sandbox): the '<oldest-unpushed>^..<head>' fallback is fatal when the oldest unpublished commit is the repository ROOT seed commit, the swallowed error emptied NEW_COMMITS, and the gate validated nothing. The fix validates exactly the pushed tip when no base resolves (tip^..tip, bare SHA when the tip is itself a root), closes the force-push rewind free pass by validating the rewound tip, and reports the full SHA in the Checking line so the pinned observable (full 40-char SHA, per the KAN-218 test contract) is emitted. tests/test_pre_push_hook.py is deliberately NOT listed in test_files: it is byte-identical to main by the KAN-257 review contract (git diff main -- tests/test_pre_push_hook.py must be empty), and the staged provenance gate rejects manifest entries whose test file does not change in the baseline commit — its frozen state is enforced by that contract instead of a hash binding. The new tests/test_pre_push_hook_matrix.py pins the remaining behaviour-matrix cells (rewind validates, multi-ref accumulation, root-tip range resolution)."
+}
