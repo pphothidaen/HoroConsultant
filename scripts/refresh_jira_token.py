@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh the TWG (Atlassian 3LO) OAuth access token.
+"""Refresh the Atlassian 3LO OAuth access token.
 
 Why this exists
 ---------------
@@ -17,8 +17,8 @@ next run starts from a live credential.
 
 Usage
 -----
-    TWG_CLIENT_ID=... TWG_CLIENT_SECRET=... TWG_REFRESH_TOKEN=... \\
-        python3 scripts/refresh_twg_token.py
+    JIRA_CLIENT_ID=... JIRA_CLIENT_SECRET=... JIRA_REFRESH_TOKEN=... \\
+        python3 scripts/refresh_jira_token.py
 
 Prints the access token on stdout. Also emits `access_token` to
 $GITHUB_OUTPUT when that variable is present.
@@ -37,7 +37,7 @@ import urllib.request
 from typing import Any, Callable
 
 TOKEN_URL = "https://auth.atlassian.com/oauth/token"
-SECRET_NAME = "TWG_REFRESH_TOKEN"
+SECRET_NAME = "JIRA_REFRESH_TOKEN"
 
 # Transport is injectable so tests can exercise the success and failure paths
 # without reaching Atlassian.
@@ -117,16 +117,16 @@ def emit_github_output(name: str, value: str) -> None:
 
 
 def main() -> int:
-    client_id = os.environ.get("TWG_CLIENT_ID", "")
-    client_secret = os.environ.get("TWG_CLIENT_SECRET", "")
-    refresh_token = os.environ.get("TWG_REFRESH_TOKEN", "")
+    client_id = os.environ.get("JIRA_CLIENT_ID", "")
+    client_secret = os.environ.get("JIRA_CLIENT_SECRET", "")
+    refresh_token = os.environ.get("JIRA_REFRESH_TOKEN", "")
 
     missing = [
         name
         for name, value in (
-            ("TWG_CLIENT_ID", client_id),
-            ("TWG_CLIENT_SECRET", client_secret),
-            ("TWG_REFRESH_TOKEN", refresh_token),
+            ("JIRA_CLIENT_ID", client_id),
+            ("JIRA_CLIENT_SECRET", client_secret),
+            ("JIRA_REFRESH_TOKEN", refresh_token),
         )
         if not value
     ]
