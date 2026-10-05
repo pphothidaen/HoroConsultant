@@ -1,7 +1,8 @@
 name: Sync ATOMIC-TICKET <-> Jira
 
 # Bidirectional sync: ATOMIC_TICKET.md <-> Jira Issues (KAN project)
-# Requires: TWG_TOKEN, TWG_USER, TWG_SITE (from `twg login` credentials)
+# Direct Jira Cloud REST via scripts/sync_jira_to_atomic.py (basic auth:
+# JIRA_EMAIL + JIRA_API_TOKEN, site via JIRA_BASE_URL).
 # Jira Plans auto-sync via parent hierarchy + fixVersion
 
 on:
@@ -21,50 +22,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Teamwork Graph CLI
-        # --yes alone is insufficient: the installer only forwards consent (--yes) to the
-        # nested `twg consent` when --skip-login AND --skip-skills are also set. Without all
-        # three it runs `twg consent` interactively, which fails in CI with no TTY.
-        run: |
-          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes --skip-login --skip-skills
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Sync remaining sub-tasks to Jira
         env:
-          TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
-          TWG_USER: ${{ secrets.TWG_USER }}
-          TWG_SITE: ${{ secrets.TWG_SITE }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         run: |
-          # Create remaining sub-tasks using bulk payload
-          twg login --no-verify --yes || true
-          if [ -f docs/jira/remaining_subtasks_bulk.json ]; then
-            echo "Found remaining sub-tasks JSON — ready for bulk creation"
-          fi
-
-      - name: Verify sync
-        run: twg jira workitem query --jql "project = KAN AND parent = KAN-38" --output json | jq '.data | length'
+          python3 scripts/sync_jira_to_atomic.py
 
   sync-from-jira:
+    # KAN-264 NOTE: This job is inert — github.event_name == 'jira' never fires
+    # on this repository (Jira Automation webhook handles Jira→File sync, see
+    # docs/jira_sync_protocol.md). Kept for structural parity with the original
+    # workflow; no TWG CLI, no secrets consumed.
     if: github.event_name == 'jira'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Teamwork Graph CLI
-        # --yes alone is insufficient: the installer only forwards consent (--yes) to the
-        # nested `twg consent` when --skip-login AND --skip-skills are also set. Without all
-        # three it runs `twg consent` interactively, which fails in CI with no TTY.
-        run: |
-          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes --skip-login --skip-skills
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Sync Jira status to ATOMIC_TICKET
         env:
-          TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
-          TWG_USER: ${{ secrets.TWG_USER }}
-          TWG_SITE: ${{ secrets.TWG_SITE }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         run: |
-          twg login --no-verify --yes || true
-          # Sync completed sub-tasks status
-          twg jira workitem query --jql "project = KAN AND status = Done AND updated >= -1h" --output json > /tmp/jira_done.json
-          echo "Synced $(jq '.data | length' /tmp/jira_done.json) completed items"
+          python3 scripts/sync_jira_to_atomic.py

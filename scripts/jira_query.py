@@ -13,7 +13,7 @@ cannot run in CI:
 needs.
 
 Auth is the Atlassian 3LO bearer token produced by
-scripts/refresh_twg_token.py.
+scripts/refresh_jira_token.py.
 """
 
 from __future__ import annotations
