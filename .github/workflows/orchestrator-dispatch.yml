@@ -18,9 +18,13 @@ env:
   JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
   JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
   JIRA_PROJECT_KEY: 'KAN'
-  TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
+  # Atlassian 3LO access token, short-lived (~8h) and refreshed per run below.
+  TWG_TOKEN: ${{ steps.twg-token.outputs.access_token || secrets.TWG_TOKEN }}
   TWG_USER: ${{ secrets.TWG_USER }}
   TWG_SITE: ${{ secrets.TWG_SITE }}
+  TWG_CLIENT_ID: ${{ secrets.TWG_CLIENT_ID }}
+  TWG_CLIENT_SECRET: ${{ secrets.TWG_CLIENT_SECRET }}
+  TWG_REFRESH_TOKEN: ${{ secrets.TWG_REFRESH_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ORCHESTRATOR_LANE: 'Horo Consultant'
 
@@ -43,6 +47,17 @@ jobs:
           curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           twg login --no-verify --yes || true
+
+      # Atlassian forces rotating refresh tokens, so the access token cannot
+      # be a static secret. Refresh it here and persist the rotated
+      # refresh_token; `twg auth refresh` cannot do this because a fresh
+      # runner has no stored credentials.
+      - name: Refresh TWG access token
+        id: twg-token
+        run: |
+          ACCESS_TOKEN=$(python3 scripts/refresh_twg_token.py)
+          echo "::notice::token refresh exit=$?"
+          echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Poll Jira for Ready tickets
         id: poll
