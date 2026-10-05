@@ -1,0 +1,52 @@
+{
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-DROP-TWG",
+ "sequence": 3,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "4125591fb6eb70ffd11c30f6ceffea48f1b1285f",
+ "test_files": [
+  {
+   "path": "project/tests/test_github_actions_regression.py",
+   "sha256": "e7e3ca40ba3df360eafd4ec75aab1dda7275094af4f35a06237a382ee4ab7183"
+  },
+  {
+   "path": "tests/test_refresh_jira_token.py",
+   "sha256": "4d0d54baabe20f06118397b7a07f326576bd81db3bf5edf90472e8d96a683721"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "project/tests/test_github_actions_regression.py::test_sync_jira_workflow_uses_non_interactive_twg_login"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "The pre-migration test asserts >= 2 non-comment 'twg login --yes' lines in sync-jira.yml; after the direct REST migration (4125591f) zero such lines exist, so the old pin fails with 'Expected at least 2 twg login commands in sync-jira.yml'. Re-pinned as test_sync_jira_workflow_uses_direct_rest_no_twg_login asserting the REST path."
+  },
+  {
+   "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_refresh_jira_token.py::test_failure_to_persist_is_a_hard_error"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "The committed test body was truncated: it never monkeypatched persist_refresh_token to fail and never called mod.main(), so a broken persist path (main() must return 1) passed vacuously. Repaired to force CalledProcessError from persist_refresh_token and assert mod.main() == 1."
+  }
+ ],
+ "allowed_source_paths": [
+  ".github/workflows/sync-jira.yml",
+  "scripts/sync_jira_to_atomic.py",
+  "project/tests/test_github_actions_regression.py",
+  "tests/test_refresh_jira_token.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": "a2e0715a7665e4e2313812f691ab5b069f1ea0d5",
+ "correction_reason": "Re-pins test_sync_jira_workflow_uses_non_interactive_twg_login to the REST path (zero twg login lines, sync_jira_to_atomic.py invoked, no TWG_TOKEN/TWG_USER/TWG_SITE secrets) and repairs the truncated test_failure_to_persist_is_a_hard_error so it actually exercises the persist-failure exit 1 contract.",
+ "rationale": "KAN-264 sync-jira REST migration closeout: the workflow no longer installs or logs into the Teamwork Graph CLI, so the regression pin moved from the TWG login contract to the direct REST contract, and the vacuous persist-failure test was made load-bearing."
+}

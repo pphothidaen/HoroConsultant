@@ -86,6 +86,14 @@ def test_failure_to_persist_is_a_hard_error(monkeypatch) -> None:
     monkeypatch.setattr(mod, "persist_refresh_token", boom)
     monkeypatch.setenv("GITHUB_REPOSITORY", "pphothidaen/HoroConsultant")
     monkeypatch.setenv("JIRA_CLIENT_ID", "c")
+    monkeypatch.setenv("JIRA_CLIENT_SECRET", "s")
+    monkeypatch.setenv("JIRA_REFRESH_TOKEN", "old")
+    monkeypatch.setattr(mod, "request_new_token", lambda body: {
+        "access_token": "at", "refresh_token": "rotated-new"})
+
+    assert mod.main() == 1
+
+
 def test_workflow_refreshes_token_before_query() -> None:
     """A static JIRA_ACCESS_TOKEN cannot work: access tokens expire in ~8h."""
     text = WORKFLOW.read_text(encoding="utf-8")
@@ -132,6 +140,8 @@ def test_workflow_no_dead_jira_user_email() -> None:
     assert "JIRA_USER_EMAIL" not in text, (
         "dead secrets.JIRA_USER_EMAIL reference must be removed"
     )
+
+
 # ── Unconfigured runs ───────────────────────────────────────────────────────
 
 @pytest.mark.parametrize(
