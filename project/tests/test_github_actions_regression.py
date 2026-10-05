@@ -394,6 +394,9 @@ def test_sync_jira_workflow_uses_direct_rest_no_twg_login():
     assert "scripts/sync_jira_to_atomic.py" in workflow, (
         "sync-jira.yml must invoke the direct REST helper"
     )
+    assert "--jql" in workflow, (
+        "sync_jira_to_atomic.py requires --jql; a call without it exits 2 (KAN-264 regression)"
+    )
     for secret in ("TWG_TOKEN", "TWG_USER", "TWG_SITE"):
         assert secret not in workflow, f"dead TWG secret reference must be removed: {secret}"
 
