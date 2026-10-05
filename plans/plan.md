@@ -2489,3 +2489,23 @@ Added **40 missing routes** to `route_kind()` in `rust_core/src/server.rs`:
 ### Files Changed (2 commits)
 1. `fix: add 40 missing routes...` — `server.rs`, CI workflows, docs, pytest.ini
 2. `test: add Rust↔Python route sync contract test` — test + manifest
+
+<!-- KAN-264-DROP-TWG-20261005:START -->
+## KAN-264 Continuation Plan — sync-jira REST Migration, QA Re-pin, Poll-Path Review (2026-10-05)
+
+Status: READY (lanes registered in ATOMIC_TICKET.md section `KAN-264-DROP-TWG-20261005`)
+Branch: `fix/KAN-264-drop-twg`. Audit source: `plans/audit/KAN-264-status.md`.
+
+### 1. Executive Summary & Goal
+Close the remaining KAN-264 open items: migrate `sync-jira.yml` off the Teamwork Graph CLI to direct Jira Cloud REST (`scripts/sync_jira_to_atomic.py`, basic auth), re-pin the stale TWG-named regression test to the REST path, repair the vacuous persist-failure test, and obtain a read-only security review of the committed poll path.
+
+### 2. Execution Waves & Path Ownership
+- Wave 1 (parallel, disjoint): `TICKET-KAN-264-DROP-TWG-DEVOPS-03` (role `devops`; owns `.github/workflows/sync-jira.yml`, `scripts/sync_jira_to_atomic.py`, `scripts/jira_query.py`) + `TICKET-KAN-264-DROP-TWG-REVIEW-04` (role `code_reviewer`; strictly read-only over the poll path).
+- Wave 2 (sequential, after DEVOPS-03): `TICKET-KAN-264-DROP-TWG-QA-05` (role `qa_tester`; owns `project/tests/test_github_actions_regression.py`, `tests/test_jira_query.py`, `tests/test_refresh_jira_token.py`, `plans/test_provenance/`).
+
+### 3. Governance
+- Approved ticket context: `.agents/context/tickets/TICKET-KAN-264-DROP-TWG.v1.json`; lane resolution via `scripts/resolve_agent_context.py` (fail-closed).
+- Evidence: `test-provenance-v1` manifest `plans/test_provenance/ticket-kan-264-sync-jira-03.json` (QA lane) + review report (reviewer lane).
+- Out of scope (human operator): Atlassian 3LO OAuth app provisioning and `JIRA_CLIENT_ID`/`JIRA_SECRET`/`JIRA_REFRESH_TOKEN` secrets; `sync-from-jira` job stays documented as inert.
+- Lane commits local only (no push); pure ASCII documentation; existing dirty worktree preserved.
+<!-- KAN-264-DROP-TWG-20261005:END -->
