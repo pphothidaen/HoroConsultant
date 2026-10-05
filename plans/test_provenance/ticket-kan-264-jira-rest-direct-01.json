@@ -1,40 +1,40 @@
 {
-  "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-KAN-264-JIRA-REST-DIRECT",
-  "sequence": 1,
-  "provenance_status": "VERIFIED",
-  "baseline_parent": "14e16e31095f7a8a53682e12189743b15bd992c6",
-  "test_files": [
-    {
-      "path": "tests/test_jira_query.py",
-      "sha256": "5f071872c108f1a38d053c1301339459e4d2345e2b583ce9aa7d42a43cac0ae4"
-    },
-    {
-      "path": "tests/test_refresh_jira_token.py",
-      "sha256": "d5f0696a4d4b4cc2efb2ca5d4e655fc46e4bd6206a81f311455c4585d98aec1b"
-    }
-  ],
-  "red_tests": [
-    {
-      "command": [
-        ".venv/bin/python",
-        "-m",
-        "pytest",
-        "-q",
-        "tests/test_refresh_jira_token.py"
-      ],
-      "expected_exit": 1,
-      "failure_fingerprint": "Replacing scripts/jira_query.py with the previous twg CLI invocation in orchestrator-dispatch.yml failed 2 tests: test_workflow_refreshes_token_before_query ('refresh must run before the query') and test_workflow_does_not_invoke_twg ('workflow still invokes twg'). Confirms the tests fail if the CLI returns or the ordering regresses."
-    }
-  ],
-  "allowed_source_paths": [
-    ".github/workflows/orchestrator-dispatch.yml",
-    "scripts/jira_query.py",
-    "scripts/refresh_jira_token.py"
-  ],
-  "test_owner_role": "agent-qa_tester",
-  "reviewer_role": "agent-code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
-  "rationale": "KAN-264: the Teamwork Graph CLI cannot run on a CI runner. Its OAuth scopes (:twg-cli, :twg) are not grantable through the Atlassian developer console, and twg login is an interactive device flow needing a browser. Replacing the poll with a direct Jira Cloud REST call under read:jira-work. Rotating refresh tokens still require the per-run refresh, so refresh_jira_token.py is retained and renamed off the TWG naming."
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-JIRA-REST-DIRECT",
+ "sequence": 1,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "e9b6c2bec0bef79ed72c6dd45e808e8b76a99959",
+ "test_files": [
+  {
+   "path": "tests/test_jira_query.py",
+   "sha256": "91a20163211302b82ee79450b154117e6e66e4f12d0d89207dc809453e863294"
+  },
+  {
+   "path": "tests/test_refresh_jira_token.py",
+   "sha256": "4d0d54baabe20f06118397b7a07f326576bd81db3bf5edf90472e8d96a683721"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_refresh_jira_token.py"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "Replacing scripts/jira_query.py with the previous twg CLI invocation in orchestrator-dispatch.yml failed 2 tests: test_workflow_refreshes_token_before_query ('refresh must run before the query') and test_workflow_does_not_invoke_twg ('workflow still invokes twg'). Confirms the tests fail if the CLI returns or the ordering regresses."
+  }
+ ],
+ "allowed_source_paths": [
+  ".github/workflows/orchestrator-dispatch.yml",
+  "scripts/jira_query.py",
+  "scripts/refresh_jira_token.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": null,
+ "correction_reason": null,
+ "rationale": "KAN-264: the Teamwork Graph CLI cannot run on a CI runner. Its OAuth scopes (:twg-cli, :twg) are not grantable through the Atlassian developer console, and twg login is an interactive device flow needing a browser. Replacing the poll with a direct Jira Cloud REST call under read:jira-work. Rotating refresh tokens still require the per-run refresh, so refresh_jira_token.py is retained and renamed off the TWG naming. Squash-merge re-anchor: PR #128 landed as squash commit e9b6c2be, so baseline_parent is re-anchored to that commit and test digests re-pinned to the merged content (KAN-260 precedent)."
 }

@@ -1,35 +1,35 @@
 {
-  "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-KAN-264-TWG-TOKEN-REFRESH",
-  "sequence": 1,
-  "provenance_status": "VERIFIED",
-  "baseline_parent": "ac1e1b729c52066740b0da555821a0a818f1dfa4",
-  "test_files": [
-    {
-      "path": "tests/test_refresh_twg_token.py",
-      "sha256": "0a736b8c6843dbbeb63c165991b4cae45f045953ed151977d059a19a9b02abb9"
-    }
-  ],
-  "red_tests": [
-    {
-      "command": [
-        ".venv/bin/python",
-        "-m",
-        "pytest",
-        "-q",
-        "tests/test_refresh_twg_token.py"
-      ],
-      "expected_exit": 1,
-      "failure_fingerprint": "test_rotated_refresh_token_is_persisted failed with 'assert [] == [(rotated-new, pphothidaen/HoroConsultant)]' after the persist call was replaced with a no-op, and test_workflow_refreshes_token_before_use failed with 'refresh must run before the Jira query' after the Refresh TWG access token step was removed from orchestrator-dispatch.yml. Both confirm the tests fail when the behaviour they pin is removed."
-    }
-  ],
-  "allowed_source_paths": [
-    ".github/workflows/orchestrator-dispatch.yml",
-    "scripts/refresh_twg_token.py"
-  ],
-  "test_owner_role": "agent-qa_tester",
-  "reviewer_role": "agent-code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
-  "rationale": "KAN-264: Atlassian forces rotating refresh tokens on new 3LO integrations, so the TWG access token expires in ~8h. GitHub runners are ephemeral, so twg auth refresh has no stored credentials to refresh and the refresh_token grant has to run in the workflow. The rotated refresh_token must be written back to the repository secret or every later run starts from a token Atlassian has already invalidated. Unconfigured runs exit 0 so provisioning delay cannot raise an SLO breach."
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-TWG-TOKEN-REFRESH",
+ "sequence": 1,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "e9b6c2bec0bef79ed72c6dd45e808e8b76a99959",
+ "test_files": [
+  {
+   "path": "tests/test_refresh_jira_token.py",
+   "sha256": "4d0d54baabe20f06118397b7a07f326576bd81db3bf5edf90472e8d96a683721"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_refresh_twg_token.py"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "test_rotated_refresh_token_is_persisted failed with 'assert [] == [(rotated-new, pphothidaen/HoroConsultant)]' after the persist call was replaced with a no-op, and test_workflow_refreshes_token_before_use failed with 'refresh must run before the Jira query' after the Refresh TWG access token step was removed from orchestrator-dispatch.yml. Both confirm the tests fail when the behaviour they pin is removed."
+  }
+ ],
+ "allowed_source_paths": [
+  ".github/workflows/orchestrator-dispatch.yml",
+  "scripts/refresh_twg_token.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": null,
+ "correction_reason": null,
+ "rationale": "KAN-264: Atlassian forces rotating refresh tokens on new 3LO integrations, so the TWG access token expires in ~8h. GitHub runners are ephemeral, so twg auth refresh has no stored credentials to refresh and the refresh_token grant has to run in the workflow. The rotated refresh_token must be written back to the repository secret or every later run starts from a token Atlassian has already invalidated. Unconfigured runs exit 0 so provisioning delay cannot raise an SLO breach. Squash-merge re-anchor: PR #128 landed as squash commit e9b6c2be, so baseline_parent is re-anchored to that commit and test digests re-pinned to the merged content (KAN-260 precedent). The original tests/test_refresh_twg_token.py was renamed to tests/test_refresh_jira_token.py by the same PR, so the pin follows the renamed file."
 }

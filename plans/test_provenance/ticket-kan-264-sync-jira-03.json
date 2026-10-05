@@ -3,11 +3,11 @@
  "ticket_id": "TICKET-KAN-264-DROP-TWG",
  "sequence": 3,
  "provenance_status": "VERIFIED",
- "baseline_parent": "4125591fb6eb70ffd11c30f6ceffea48f1b1285f",
+ "baseline_parent": "e9b6c2bec0bef79ed72c6dd45e808e8b76a99959",
  "test_files": [
   {
    "path": "project/tests/test_github_actions_regression.py",
-   "sha256": "e7e3ca40ba3df360eafd4ec75aab1dda7275094af4f35a06237a382ee4ab7183"
+   "sha256": "bb45199e32bac204929c78fe11e72bfe36cc3039eae847e5b01864924bafbcda"
   },
   {
    "path": "tests/test_refresh_jira_token.py",
@@ -46,7 +46,6 @@
  ],
  "test_owner_role": "agent-qa_tester",
  "reviewer_role": "agent-code_reviewer",
- "supersedes": "a2e0715a7665e4e2313812f691ab5b069f1ea0d5",
- "correction_reason": "Re-pins test_sync_jira_workflow_uses_non_interactive_twg_login to the REST path (zero twg login lines, sync_jira_to_atomic.py invoked, no TWG_TOKEN/TWG_USER/TWG_SITE secrets) and repairs the truncated test_failure_to_persist_is_a_hard_error so it actually exercises the persist-failure exit 1 contract.",
- "rationale": "KAN-264 sync-jira REST migration closeout: the workflow no longer installs or logs into the Teamwork Graph CLI, so the regression pin moved from the TWG login contract to the direct REST contract, and the vacuous persist-failure test was made load-bearing."
+ "supersedes": null,
+ "rationale": "KAN-264 sync-jira REST migration closeout: the workflow no longer installs or logs into the Teamwork Graph CLI, so the regression pin moved from the TWG login contract to the direct REST contract, and the vacuous persist-failure test was made load-bearing. Correction: Re-pins test_sync_jira_workflow_uses_non_interactive_twg_login to the REST path (zero twg login lines, sync_jira_to_atomic.py invoked, no TWG_TOKEN/TWG_USER/TWG_SITE secrets) and repairs the truncated test_failure_to_persist_is_a_hard_error so it actually exercises the persist-failure exit 1 contract. Squash-merge re-anchor: PR #128 landed as squash commit e9b6c2be, so baseline_parent is re-anchored to that commit and test digests re-pinned to the merged content (KAN-260 precedent)."
 }
