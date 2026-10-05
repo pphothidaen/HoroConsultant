@@ -28,7 +28,10 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         run: |
-          python3 scripts/sync_jira_to_atomic.py
+          python3 scripts/sync_jira_to_atomic.py \
+            --jql "project = KAN AND parent = KAN-38" \
+            --out /tmp/subtasks.json
+          echo "Found $(jq '.issues | length' /tmp/subtasks.json) remaining sub-tasks"
 
   sync-from-jira:
     # KAN-264 NOTE: This job is inert — github.event_name == 'jira' never fires
@@ -46,4 +49,7 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         run: |
-          python3 scripts/sync_jira_to_atomic.py
+          python3 scripts/sync_jira_to_atomic.py \
+            --jql "project = KAN AND status = Done AND updated >= -1h" \
+            --out /tmp/jira_done.json
+          echo "Synced $(jq '.issues | length' /tmp/jira_done.json) completed items"
