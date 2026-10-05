@@ -15,12 +15,13 @@ concurrency:
 
 env:
   JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-  JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
   JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
   JIRA_PROJECT_KEY: 'KAN'
-  TWG_TOKEN: ${{ secrets.TWG_TOKEN }}
-  TWG_USER: ${{ secrets.TWG_USER }}
-  TWG_SITE: ${{ secrets.TWG_SITE }}
+  # Atlassian 3LO access token, short-lived (~8h) and refreshed per run below.
+  JIRA_ACCESS_TOKEN: ${{ steps.jira-token.outputs.access_token }}
+  JIRA_CLIENT_ID: ${{ secrets.JIRA_CLIENT_ID }}
+  JIRA_CLIENT_SECRET: ${{ secrets.JIRA_CLIENT_SECRET }}
+  JIRA_REFRESH_TOKEN: ${{ secrets.JIRA_REFRESH_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ORCHESTRATOR_LANE: 'Horo Consultant'
 
@@ -38,21 +39,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install TWG CLI
+      # Atlassian forces rotating refresh tokens, so the access token cannot
+      # be a static secret. Refresh it here and persist the rotated
+      # refresh_token so the next scheduled run starts from a live credential.
+      - name: Refresh Jira access token
+        id: jira-token
         run: |
-          curl -fsSL https://teamwork-graph.atlassian.com/cli/install | TWG_BIN_DIR="$HOME/.local/bin" bash -s -- --yes
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          twg login --no-verify --yes || true
+          ACCESS_TOKEN=$(python3 scripts/refresh_jira_token.py)
+          echo "::notice::token refresh exit=$?"
+          echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
+      # Direct Jira Cloud REST rather than the Teamwork Graph CLI: the CLI's
+      # OAuth scopes (:twg-cli / :twg) are not grantable through the developer
+      # console, and `twg login` is an interactive device flow that cannot run
+      # on a CI runner. read:jira-work covers this read-only JQL query.
       - name: Poll Jira for Ready tickets
         id: poll
+        env:
+          JQL: >-
+            project = KAN AND status = "Ready"
+            AND "Project Lane" = "Horo Consultant"
+            ORDER BY created ASC
         run: |
-          twg jira workitem query --jql "project = KAN AND status = \"Ready\" AND \"Project Lane\" = \"Horo Consultant\" ORDER BY created ASC" -o json --output-summary none > /tmp/jira_ready.json
-          COUNT=$(jq '.data | length' /tmp/jira_ready.json)
+          python3 scripts/jira_query.py --jql "$JQL" > /tmp/jira_ready.json
+          COUNT=$(jq '.issues | length' /tmp/jira_ready.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
           if [ "$COUNT" -gt 0 ]; then
-            KEY=$(jq -r '.data[0].key' /tmp/jira_ready.json)
-            SUMMARY=$(jq -r '.data[0].summary' /tmp/jira_ready.json)
+            KEY=$(jq -r '.issues[0].key' /tmp/jira_ready.json)
+            SUMMARY=$(jq -r '.issues[0].fields.summary' /tmp/jira_ready.json)
             echo "key=$KEY" >> $GITHUB_OUTPUT
             echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
           fi

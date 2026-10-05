@@ -4157,3 +4157,23 @@ mis-reported as a "pre-existing flaky test" and is a genuine environment-depende
 | `TICKET-PROVENANCE-CLOSEOUT-20260929` | `BLOCKED_BY_ALL_ABOVE` | `orchestrator`; `agile-governance` | Full suite (5138 collected) with zero failures, `sync_ai_agent_ecosystem.py --check` exit 0, `verify-pr` PASSED, then Rule 22 archival to `plans/archive/2026-09-29-kan-provenance/` and `ReleaseNotes.md` republication. |
 
 <!-- KAN-183 verification trigger -->
+
+<!-- KAN-264-DROP-TWG-20261005:START -->
+## KAN-264-DROP-TWG-20261005 -- KAN-264 Continuation: sync-jira REST Migration, QA Re-pin, Poll-Path Review
+
+**Status**: `IN_PROGRESS`
+**Authority**: Branch `fix/KAN-264-drop-twg`; provenance manifests `plans/test_provenance/ticket-kan-264-jira-rest-direct-01.json` and `plans/test_provenance/ticket-kan-264-drop-twg-02.json` (VERIFIED). Audit source: `plans/audit/KAN-264-status.md`.
+**Sprint Goal**: Complete the KAN-264 open items: (1) migrate `.github/workflows/sync-jira.yml` off the Teamwork Graph CLI (`twg`) to direct Jira Cloud REST via `scripts/sync_jira_to_atomic.py`; (2) re-pin the stale `test_sync_jira_workflow_uses_non_interactive_twg_login` regression test to assert the REST path; (3) read-only security/secret review of the committed poll path; (4) repair the vacuous `test_failure_to_persist_is_a_hard_error` test.
+
+| Ticket | Priority / effort | State | One editor / skills / writable paths | Depends on / blocks | Scope, acceptance, exclusions, and DoD |
+|---|---|---|---|---|---|
+| `TICKET-KAN-264-DROP-TWG-DEVOPS-03` -- sync-jira REST migration | HIGH / medium | `READY` | `devops`; `[devops-deployment, hf-static-release-verification]`; strictly `.github/workflows/sync-jira.yml`, `scripts/sync_jira_to_atomic.py`, `scripts/jira_query.py` | Depends on committed poll path (4b30b518, a2e0715a); blocks QA-05 | **Scope:** Remove `twg` CLI install/login and `TWG_*` secrets from `sync-jira.yml`; wire `scripts/sync_jira_to_atomic.py` (basic auth `JIRA_EMAIL`/`JIRA_API_TOKEN`) into the workflow; commit the untracked script; fix stale `refresh_twg_token.py` docstring ref at `scripts/jira_query.py:16`. Leave the inert `sync-from-jira` job documented as never-runs. DoD: workflow has zero non-comment `twg`/`TWG_` references, script committed, change committed locally. |
+| `TICKET-KAN-264-DROP-TWG-REVIEW-04` -- poll-path security review | HIGH / low | `READY` | `code_reviewer`; `[qa-e2e-testing, hf-static-release-verification]`; read-only over `scripts/jira_query.py`, `scripts/refresh_jira_token.py`, `scripts/sync_jira_to_atomic.py`, `.github/workflows/orchestrator-dispatch.yml`, `.github/workflows/sync-jira.yml` | Independent of DEVOPS-03; blocks release claims | **Scope:** Secret scan and security review of the Jira REST poll path (token handling, subprocess argv, output emission, fail-safe exit codes). Report-only: findings with severity; no source edits. DoD: written review report with pass/fail per file. |
+| `TICKET-KAN-264-DROP-TWG-QA-05` -- regression re-pin + provenance | HIGH / medium | `BLOCKED_BY_DEVOPS-03` | `qa_tester`; `[qa-regression-provenance, qa-e2e-testing]`; strictly `project/tests/test_github_actions_regression.py`, `tests/test_jira_query.py`, `tests/test_refresh_jira_token.py`, `plans/test_provenance/` | Depends on DEVOPS-03 landing | **Scope:** Rename and re-pin `test_sync_jira_workflow_uses_non_interactive_twg_login` to assert the REST path (no non-comment `twg login` lines; workflow invokes `sync_jira_to_atomic.py`); repair vacuous `test_failure_to_persist_is_a_hard_error`; run full Jira test set; write provenance manifest `plans/test_provenance/ticket-kan-264-sync-jira-03.json` with sha256-pinned test files and red-test fingerprint. DoD: all touched tests pass, manifest VERIFIED. |
+
+**Governance & Boundaries**:
+- Strict one-editor-per-resource ownership; DEVOPS-03 and REVIEW-04 run in parallel (disjoint paths), QA-05 sequential after DEVOPS-03.
+- Dispatch via approved ticket context `.agents/context/tickets/TICKET-KAN-264-DROP-TWG.v1.json` + `scripts/resolve_agent_context.py` (fail-closed).
+- Operator items out of scope: Atlassian 3LO OAuth app provisioning and `JIRA_CLIENT_ID`/`JIRA_SECRET`/`JIRA_REFRESH_TOKEN` secrets (human operator).
+- Existing dirty worktree preserved; lane commits local only (no push); pure ASCII documentation.
+<!-- KAN-264-DROP-TWG-20261005:END -->

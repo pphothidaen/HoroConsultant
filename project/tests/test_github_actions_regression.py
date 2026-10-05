@@ -383,15 +383,21 @@ def test_dockerfiles_include_schemas_directory():
     assert "schemas" in dockerfile_render
 
 
-def test_sync_jira_workflow_uses_non_interactive_twg_login():
+def test_sync_jira_workflow_uses_direct_rest_no_twg_login():
     workflow = (ROOT_DIR / ".github" / "workflows" / "sync-jira.yml").read_text(encoding="utf-8")
     login_lines = [
         line.strip()
         for line in workflow.splitlines()
         if "twg login" in line and not line.strip().startswith("#")
     ]
-    assert len(login_lines) >= 2, "Expected at least 2 twg login commands in sync-jira.yml"
-    for line in login_lines:
-        assert "--yes" in line, f"Expected --yes in twg login command: {line}"
+    assert not login_lines, f"twg login must be gone after the REST migration: {login_lines}"
+    assert "scripts/sync_jira_to_atomic.py" in workflow, (
+        "sync-jira.yml must invoke the direct REST helper"
+    )
+    assert "--jql" in workflow, (
+        "sync_jira_to_atomic.py requires --jql; a call without it exits 2 (KAN-264 regression)"
+    )
+    for secret in ("TWG_TOKEN", "TWG_USER", "TWG_SITE"):
+        assert secret not in workflow, f"dead TWG secret reference must be removed: {secret}"
 
 

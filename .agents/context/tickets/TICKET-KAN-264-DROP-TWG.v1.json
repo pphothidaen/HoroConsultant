@@ -1,0 +1,116 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-KAN-264-DROP-TWG",
+  "revision": 1,
+  "ticket_sha256": "2702c964954bb3377b66027b93c492ac948543104e3d9dc72fd274451a6a73aa",
+  "plan_sha256": "50dedc5d744fccf99407b613663f127dd08738a6ea101fc6a303e48544b0372d",
+  "lanes": [
+    {
+      "lane_id": "TICKET-KAN-264-DROP-TWG-DEVOPS-03",
+      "role": "devops",
+      "phase": "implementation",
+      "actions": [
+        "source.write",
+        "test.run",
+        "commit.local"
+      ],
+      "touched_paths": [
+        ".github/workflows/sync-jira.yml",
+        "scripts/sync_jira_to_atomic.py",
+        "scripts/jira_query.py"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "workflow-auth-model-change",
+        "untracked-script-adoption"
+      ],
+      "allowed_child_command_class": "source-mutation",
+      "exclusions": [
+        "no-push",
+        "no-deploy",
+        "no-network",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-tests-write"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-KAN-264-DROP-TWG-REVIEW-04",
+      "role": "code_reviewer",
+      "phase": "verification",
+      "actions": [
+        "code.review",
+        "secret.scan"
+      ],
+      "touched_paths": [
+        ".github/workflows/orchestrator-dispatch.yml",
+        ".github/workflows/sync-jira.yml",
+        "scripts/jira_query.py",
+        "scripts/refresh_jira_token.py",
+        "scripts/sync_jira_to_atomic.py"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "oauth-secret-handling",
+        "ci-workflow-attack-surface"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network",
+        "no-provider-execution",
+        "no-account-or-secret-operations",
+        "no-guard-bypass"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-KAN-264-DROP-TWG-QA-05",
+      "role": "qa_tester",
+      "phase": "verification",
+      "actions": [
+        "test.write",
+        "test.run",
+        "provenance.write",
+        "commit.local"
+      ],
+      "touched_paths": [
+        "plans/test_provenance/ticket-kan-264-sync-jira-03.json",
+        "project/tests/test_github_actions_regression.py",
+        "tests/test_jira_query.py",
+        "tests/test_refresh_jira_token.py"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "regression-repin",
+        "manifest-digest-pinning"
+      ],
+      "allowed_child_command_class": "source-mutation",
+      "exclusions": [
+        "no-push",
+        "no-deploy",
+        "no-network",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-source-write"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

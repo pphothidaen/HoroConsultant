@@ -1,0 +1,35 @@
+{
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-DROP-TWG",
+ "sequence": 4,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "5d991b850523101aab33ad5de97070afe72ae53c",
+ "test_files": [
+  {
+   "path": "project/tests/test_github_actions_regression.py",
+   "sha256": "bb45199e32bac204929c78fe11e72bfe36cc3039eae847e5b01864924bafbcda"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "project/tests/test_github_actions_regression.py::test_sync_jira_workflow_uses_direct_rest_no_twg_login"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "Without --jql in sync-jira.yml, the CI sync-to-jira job exits 2 ('the following arguments are required: --jql', run 37348474963); the re-pinned regression test now asserts '--jql' is present in the workflow so the missing-argument class is caught pre-merge."
+  }
+ ],
+ "allowed_source_paths": [
+  ".github/workflows/sync-jira.yml",
+  "project/tests/test_github_actions_regression.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": "08ae2d46fe3a642db9b342ec12290ba1831c6ba9",
+ "correction_reason": "CI run 37348474963 failed: sync-jira.yml invoked sync_jira_to_atomic.py without the required --jql. Workflow now passes the recovered TWG-era queries; regression pin extended to assert --jql presence.",
+ "rationale": "KAN-264 sync-jira REST migration defect fix: restore the original job queries (project = KAN AND parent = KAN-38 verify; Done-in-last-hour backup sync) on the direct REST helper."
+}
