@@ -58,6 +58,31 @@ jobs:
 
               if (runs.data.workflow_runs.length === 0) continue;
 
+              // A workflow an admin deliberately turned off is not an SLO breach.
+              // Treating it as one makes the alert unresolvable: a disabled
+              // workflow produces no further runs, so no future 'success' can
+              // ever clear it and the breach persists indefinitely.
+              const latestOverall = (
+                await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: w.id,
+                  per_page: 1,
+                })
+              ).data.workflow_runs[0];
+
+              if (
+                latestOverall &&
+                (latestOverall.conclusion === 'disabled_manually' ||
+                  latestOverall.conclusion === 'disabled_automatically')
+              ) {
+                core.info(
+                  `Skipping "${w.name}" — most recent run was ` +
+                    `${latestOverall.conclusion} (not an SLO breach).`
+                );
+                continue;
+              }
+
               const latest = runs.data.workflow_runs[0];
               const runTime = new Date(latest.created_at);
               const now = new Date();
