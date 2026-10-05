@@ -124,6 +124,14 @@ def test_workflow_passes_refresh_inputs() -> None:
         assert f"{name}: ${{{{ secrets.{name} }}}}" in text, (
             f"{name} is not wired into the refresh helper"
         )
+
+
+def test_workflow_no_dead_jira_user_email() -> None:
+    """JIRA_USER_EMAIL is not a repo secret; the dead reference must be gone."""
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "JIRA_USER_EMAIL" not in text, (
+        "dead secrets.JIRA_USER_EMAIL reference must be removed"
+    )
 # ── Unconfigured runs ───────────────────────────────────────────────────────
 
 @pytest.mark.parametrize(

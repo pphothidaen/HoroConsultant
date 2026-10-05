@@ -72,6 +72,15 @@ def test_missing_token_fails_before_any_request() -> None:
     assert "no access token" in str(excinfo.value)
 
 
+def test_missing_token_failsafe_on_run(monkeypatch, capsys) -> None:
+    """main() with no token emits a notice and exits 0, not an SLO breach."""
+    monkeypatch.setenv("JIRA_BASE_URL", "https://x.atlassian.net")
+    monkeypatch.delenv("JIRA_ACCESS_TOKEN", raising=False)
+    monkeypatch.setattr("sys.argv", ["jira_query.py", "--jql", "project = KAN"])
+    assert mod.main() == 0
+    assert "count=0" in capsys.readouterr().out
+
+
 # ── Error surfacing ─────────────────────────────────────────────────────────
 
 def test_http_error_carries_jira_message() -> None:
@@ -114,6 +123,7 @@ def test_main_emits_only_needed_fields(monkeypatch, capsys) -> None:
     assert mod.main.__wrapped__() if hasattr(mod.main, "__wrapped__") else True
 
     monkeypatch.setattr("sys.argv", ["jira_query.py", "--jql", "project = KAN"])
+    monkeypatch.setenv("JIRA_ACCESS_TOKEN", "tok")
     assert mod.main() == 0
     out = capsys.readouterr().out
     payload = json.loads(out)
@@ -126,6 +136,7 @@ def test_main_emits_only_needed_fields(monkeypatch, capsys) -> None:
 
 def test_missing_fields_do_not_crash(monkeypatch, capsys) -> None:
     monkeypatch.setenv("JIRA_BASE_URL", "https://x.atlassian.net")
+    monkeypatch.setenv("JIRA_ACCESS_TOKEN", "tok")
     monkeypatch.setattr(mod, "search_jira", lambda *a, **k: {"issues": [{"key": "K-1"}]})
     monkeypatch.setattr("sys.argv", ["jira_query.py", "--jql", "project = KAN"])
     assert mod.main() == 0
