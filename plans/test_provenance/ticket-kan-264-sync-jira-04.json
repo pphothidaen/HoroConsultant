@@ -3,7 +3,7 @@
  "ticket_id": "TICKET-KAN-264-DROP-TWG",
  "sequence": 4,
  "provenance_status": "VERIFIED",
- "baseline_parent": "5d991b850523101aab33ad5de97070afe72ae53c",
+ "baseline_parent": "e9b6c2bec0bef79ed72c6dd45e808e8b76a99959",
  "test_files": [
   {
    "path": "project/tests/test_github_actions_regression.py",
@@ -29,7 +29,6 @@
  ],
  "test_owner_role": "agent-qa_tester",
  "reviewer_role": "agent-code_reviewer",
- "supersedes": "08ae2d46fe3a642db9b342ec12290ba1831c6ba9",
- "correction_reason": "CI run 37348474963 failed: sync-jira.yml invoked sync_jira_to_atomic.py without the required --jql. Workflow now passes the recovered TWG-era queries; regression pin extended to assert --jql presence.",
- "rationale": "KAN-264 sync-jira REST migration defect fix: restore the original job queries (project = KAN AND parent = KAN-38 verify; Done-in-last-hour backup sync) on the direct REST helper."
+ "supersedes": null,
+ "rationale": "KAN-264 sync-jira REST migration defect fix: restore the original job queries (project = KAN AND parent = KAN-38 verify; Done-in-last-hour backup sync) on the direct REST helper. Correction: CI run 37348474963 failed: sync-jira.yml invoked sync_jira_to_atomic.py without the required --jql. Workflow now passes the recovered TWG-era queries; regression pin extended to assert --jql presence. Squash-merge re-anchor: PR #128 landed as squash commit e9b6c2be, so baseline_parent is re-anchored to that commit and test digests re-pinned to the merged content (KAN-260 precedent)."
 }
