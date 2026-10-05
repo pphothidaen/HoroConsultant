@@ -401,3 +401,14 @@ def test_sync_jira_workflow_uses_direct_rest_no_twg_login():
         assert secret not in workflow, f"dead TWG secret reference must be removed: {secret}"
 
 
+def test_orchestrator_dispatch_uses_direct_rest_no_twg():
+    workflow = (ROOT_DIR / ".github" / "workflows" / "orchestrator-dispatch.yml").read_text(encoding="utf-8")
+    twg_lines = [line.strip() for line in workflow.splitlines() if "twg" in line.lower() and not line.strip().startswith("#")]
+    assert not twg_lines, (
+        f"orchestrator-dispatch.yml must stay TWG-free after the REST migration (PR #128): {twg_lines}"
+    )
+    assert "scripts/jira_query.py" in workflow, (
+        "orchestrator-dispatch.yml must invoke the direct REST helper"
+    )
+
+
