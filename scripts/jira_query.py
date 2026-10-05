@@ -94,6 +94,14 @@ def main() -> int:
         print("::error::JIRA_BASE_URL is not set")
         return 1
 
+    # Not provisioned: the refresh helper exits 0 with a notice when the
+    # 3LO secrets are unset. A scheduled run must not flip the MTTR SLO
+    # monitor into breach because provisioning has not happened yet.
+    if not args.token:
+        print("::notice::no JIRA_ACCESS_TOKEN; not provisioned, count=0")
+        json.dump({"issues": []}, sys.stdout)
+        return 0
+
     try:
         payload = search_jira(
             args.base_url, args.jql, args.token, args.max_results
