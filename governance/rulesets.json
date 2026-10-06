@@ -1,7 +1,13 @@
 {
   "rulesets": [
     {
-      "bypass_actors": [],
+      "bypass_actors": [
+        {
+          "actor_id": 143542,
+          "actor_type": "Integration",
+          "bypass_mode": "always"
+        }
+      ],
       "conditions": {
         "ref_name": {
           "exclude": [],
@@ -11,18 +17,18 @@
         }
       },
       "enforcement": "active",
-      "id": 24074067,
+      "id": 21626253,
       "name": "Require Test Provenance",
       "rules": [
         {
           "parameters": {
-            "do_not_enforce_on_create": false,
+            "do_not_enforce_on_create": true,
             "required_status_checks": [
               {
                 "context": "Test Provenance"
               }
             ],
-            "strict_required_status_checks_policy": false
+            "strict_required_status_checks_policy": true
           },
           "type": "required_status_checks"
         }
