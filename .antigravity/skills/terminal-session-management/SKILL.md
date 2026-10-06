@@ -1,6 +1,6 @@
 ---
 name: terminal-session-management
-description: Manage persistent terminal sessions with herdr (primary) and tmux fallback on Mac.
+description: Manage persistent terminal sessions with herdr and
 owner: hermes
 responsibility: terminal-infrastructure
 responsible_agents:

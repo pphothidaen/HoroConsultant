@@ -1,7 +1,7 @@
 ---
 name: bazi-calculator
 disabled: true
-description: Compute BaZi 4-Pillars with true solar time, ten-stem interactions, and five-elements balance.
+description: Compute BaZi 4-Pillars with true solar time,
 ---
 
 # ☯️ BaZi Calculator Skill

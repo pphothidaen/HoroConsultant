@@ -1,7 +1,7 @@
 ---
 name: rag-search
 disabled: true
-description: Perform ranked retrieval over FAISS-indexed classical metaphysics texts with configured embeddings.
+description: Ranked retrieval over FAISS-indexed metaphysics
 ---
 
 # 📚 RAG Vector Store Search Skill

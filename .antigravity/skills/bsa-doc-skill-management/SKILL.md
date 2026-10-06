@@ -1,6 +1,6 @@
 ---
 name: bsa-doc-skill-management
-description: Requirements decomposition, live docs sync, quota/account handoff, and skill governance.
+description: Requirements decomposition, docs sync,
 ---
 
 # BSA Doc Skill Management

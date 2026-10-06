@@ -1,7 +1,7 @@
 ---
 name: github-pr-automation
 disabled: true
-description: Automated PR creation, CI monitoring, merge, and deployment via gh CLI.
+description: Automated PR creation, CI monitoring, merge, and
 ---
 
 # GitHub PR Automation

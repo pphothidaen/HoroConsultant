@@ -1,6 +1,6 @@
 ---
 name: qa-regression-provenance
-description: Run fail-closed regression baseline verification and test-provenance tracking.
+description: Run fail-closed regression baseline verification,
 ---
 
 # QA Regression Provenance
