@@ -18,8 +18,10 @@ These three Cloudflare API tokens must be added manually in **GitHub Repository 
    - Account → Cloudflare Workers Scripts → Edit
    - Account → Cloudflare Workers KV Storage → Edit
    - Account → Cloudflare Workers R2 Storage → Edit
-   - Account → Cloudflare Workers Durable Objects → Edit
    - Zone → Zone Settings → Read (if using custom domains)
+
+Note: Durable Objects have no standalone token permission — `Workers Scripts: Edit` already covers deploying workers that bind Durable Objects (e.g. the `EXT_HUB` DO in `wrangler.aipass.toml`).
+
 4. Account Resources: **Include → Specific account → [select the account from table above]**
 5. Name the token clearly (e.g., `GH Actions - Hermes Workers`)
 6. Copy the token and add it as the corresponding GitHub secret
