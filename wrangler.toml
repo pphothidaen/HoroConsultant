@@ -18,10 +18,12 @@ ENVIRONMENT = "production"
 binding = "CACHE"
 id = "07d1f31739eb418b944bf8d66f17a452"
 
-# R2 bucket for artifact storage
-[[r2_buckets]]
-binding = "ARTIFACTS"
-bucket_name = "horoconsultant-artifacts"
+# NOTE: no R2 bucket binding here. R2 is not enabled on this Cloudflare
+# account (deploy fails with API error 10042 "Please enable R2"), so any R2
+# entry fails `wrangler deploy` outright. api/index.js does not reference
+# env.ARTIFACTS; project/static/_worker.js (Pages) degrades gracefully
+# without the binding. Re-add only after R2 is enabled and the bucket
+# horoconsultant-artifacts exists.
 
 # Cron triggers for periodic tasks
 [triggers]
