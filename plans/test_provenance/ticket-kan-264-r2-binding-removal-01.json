@@ -3,7 +3,7 @@
  "ticket_id": "TICKET-KAN-264-R2-BINDING-REMOVAL",
  "sequence": 1,
  "provenance_status": "VERIFIED",
- "baseline_parent": "671a78b7651f41fbb213a9afdd43b6ed71e1776e",
+ "baseline_parent": "faeadaff836b83647172501c385c67b337cb6aff",
  "test_files": [
   {
    "path": "tests/test_cloudflare_r2_binding.py",

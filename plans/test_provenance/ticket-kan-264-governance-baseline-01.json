@@ -3,7 +3,7 @@
  "ticket_id": "TICKET-KAN-264-GOV-BASELINE",
  "sequence": 1,
  "provenance_status": "VERIFIED",
- "baseline_parent": "7bd75e95c68a475c2b525c2a868f6c8c04106679",
+ "baseline_parent": "faeadaff836b83647172501c385c67b337cb6aff",
  "test_files": [
   {
    "path": "tests/test_governance_sync.py",
