@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-264",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "408f1f3d60e7da45b9eb2b01bdc3e53b9f8c4d8d",
+  "baseline_parent": "72ad69a4e088a8ca06dca490b1b9a75a9d5c3bef",
   "test_files": [
     {
       "path": "tests/test_wrangler_aipass.py",
