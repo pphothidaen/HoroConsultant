@@ -1,6 +1,6 @@
 ---
 name: five-elements-ui-palette
-description: Map Wu Xing five-element semantic color palettes and cultural harmony constraints.
+description: Map Wu Xing five-element semantic color palettes
 ---
 
 # Five Elements UI Palette

@@ -1,6 +1,6 @@
 ---
 name: ui-visual-auditor
-description: Audit multi-viewport screenshots for layout distortion, clipping, and overlapping elements.
+description: Audit multi-viewport screenshots for layout
 ---
 
 # UI Visual Auditor & Multi-Viewport Layout Inspector Skill

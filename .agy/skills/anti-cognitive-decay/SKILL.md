@@ -1,6 +1,6 @@
 ---
 name: anti-cognitive-decay
-description: Bounded context handoff and operator-only lifecycle management.
+description: Bounded context handoff and operator-only
 ---
 
 # Anti-Cognitive Decay Skill

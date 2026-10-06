@@ -1,6 +1,6 @@
 ---
 name: metaphysical-domain-engine
-description: Compatibility router for deterministic request routing, HITL gate, and finetune handoff.
+description: Router for deterministic request routing, HITL
 owner: orchestrator
 sunset: Sunset upon full migration to focused metaphysical skills in v2.0.0; no focused-profile activation.
 ---

@@ -271,3 +271,25 @@ def test_ruleset_volatile_keys_exclude_id_but_keep_it_exported() -> None:
     # "id" is server-assigned but must survive export so apply can target it.
     assert "id" in gs.RULESET_VOLATILE_KEYS
     assert "id" not in gs.RULESET_EXPORT_VOLATILE_KEYS
+
+
+def test_governance_baseline_declares_required_review_policy() -> None:
+    # KAN-264 policy restore: the live ruleset was recreated without its
+    # Integration bypass actor or strict params and classic protection lost
+    # its 1-review requirement; PR #135 had re-baselined the declaration to
+    # that weakened state. The declaration must keep asserting the intended
+    # policy (KAN-97) so governance_sync.py apply can restore it on GitHub;
+    # re-baselining to a weakened live state re-triggers the policy drift.
+    protection = json.loads(
+        (REPO_ROOT / "governance" / "branch-protection.main.json").read_text(encoding="utf-8")
+    )
+    reviews = protection["required_pull_request_reviews"]
+    assert reviews["required_approving_review_count"] == 1
+    assert protection["enforce_admins"]["enabled"] is True
+    rulesets = json.loads((REPO_ROOT / "governance" / "rulesets.json").read_text(encoding="utf-8"))["rulesets"]
+    target = next(r for r in rulesets if r["name"] == "Require Test Provenance")
+    bypass = target["bypass_actors"]
+    assert len(bypass) == 1 and bypass[0]["actor_type"] == "Integration" and bypass[0]["bypass_mode"] == "always"
+    params = target["rules"][0]["parameters"]
+    assert params["do_not_enforce_on_create"] is True
+    assert params["strict_required_status_checks_policy"] is True

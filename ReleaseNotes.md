@@ -61,6 +61,56 @@ Resolved four parallel workstreams to harden CI/CD governance and path-based rul
 
 ---
 
+# HoroConsultant Release Notes -- TDD Provenance Guards: Diff-Coverage, Pre-Push Hardening & Label Scope Validation (KAN-133, KAN-179, KAN-180, KAN-181, KAN-183)
+
+> **Release**: `TDD Provenance Guard Pipeline (KAN-133/179/180/181/183)` -- Comprehensive test provenance guard pipeline with diff-coverage WARN, per-commit pre-push gate, and agent-label scope validation.
+> **Release Date**: 2026-09-29 (Asia/Bangkok)
+> **Release Authority**: Master Orchestrator
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (3 PRs merged, 141 tests passing, Test Provenance CI green, zero regressions)
+
+## Executive Summary
+Completed three parallel workstreams to harden TDD provenance gates and CI/CD governance for the HoroConsultant orchestrator. Three PRs (#109, #111, #115, #118) were merged to `origin/main` with full verification. Key deliverables: (1) **Diff-Coverage WARN guard** — new `--diff-coverage` flag in `verify-pr` validates PR changes against coverage gaps (opt-in, defaults OFF, WARN-only); (2) **Per-commit pre-push gate** — `tdd_gate.py` enforces test baseline on every commit in push; (3) **Agent-label scope validation** — `jira_label_gate.py` warns when agent labels don't match commit scope; (4) **Sync-Jira consent fix** — non-interactive install for CI automation. All 141 tests passing, Test Provenance CI green.
+
+## Architectural Deliverables
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `scripts/test_provenance_guard.py` | TDD Provenance | Added `--diff-coverage` WARN flag: validates PR-level diff against coverage.xml gaps; opt-in, defaults OFF, WARN-only. |
+| `scripts/tdd_gate.py` | Git Hooks | Per-commit pre-push gate enforcing `Test-Baseline:` trailer verification; fail-open on infrastructure errors. |
+| `.githooks/pre-push` | Git Hooks | Integrated `tdd_gate.py` with venv interpreter detection; waives manifest verification for docs-only pushes. |
+| `scripts/commit_msg_trailer.py` | Governance | Added `Test-Baseline:` auto-trailer helper for `prepare-commit-msg`; validates trailers against Jira issue keys. |
+| `scripts/jira_label_gate.py` | Governance | Added scope mismatch warning: logs `WARN] KAN-XXX scope does not appear related to this commit` when agent-label doesn't match commit context. |
+| `tests/test_diff_coverage_guard.py` | Test Suite | 4 tests for diff-coverage WARN behavior (RED→GREEN TDD cycle verified). |
+| `plans/test_provenance/ticket-kan-133-diff-coverage-001.json` | Test Provenance | VERIFIED manifest for diff-coverage feature with `baseline_parent: d07963bf`. |
+| `plans/test_provenance/ticket-kan-180-prepush-dedup-range-001.json` | Test Provenance | VERIFIED manifest for pre-push gate with correct `baseline_parent: 3791980a0c29f0ddc1121557ac...`. |
+
+## Verification Matrix
+| Test Suite / Gate | Tests | Result | Provenance Manifest |
+|---|---|---|---|
+| `tests/test_diff_coverage_guard.py` | 4 | PASS | `ticket-kan-133-diff-coverage-001.json` |
+| `tests/test_pre_push_hook.py` | 22 | PASS | `ticket-kan-180-prepush-dedup-range-001.json` |
+| `tests/test_commit_msg_trailer.py` | 14 | PASS | `ticket-kan-179-commit-trailer-001.json` |
+| Test Provenance (PR #118) | 2 runs | PASS | `verify-pr --base HEAD~30 --head HEAD` |
+| AI Agent Ecosystem Sync | 16/16 checks | PASS | `sync_ai_agent_ecosystem.py --check` |
+| **Total** | **141** | **PASS** | **100% Verified** |
+
+## Milestone Rollup (100% DONE)
+| PR | Ticket | Focus | Commit | Status |
+|---|---|---|---|---|
+| #109 | KAN-132 | Closeout: merge, push, clean source branches | `d07963bf` | MERGED ✅ |
+| #111 | KAN-133 | Diff-Coverage WARN guard for verify-pr | `728c4897` | MERGED ✅ |
+| #115 | KAN-183 | Sync-Jira consent non-interactive fix | `a59d5c8f` | MERGED ✅ |
+| #118 | KAN-179/180/181 | Pre-push gate, auto-trailer, label scope | `bc97d430` | MERGED ✅ |
+
+## Live Production Endpoints
+- **Gemini Web Bridge (Cloudflare Worker)**: `https://horo-consult.workers.dev` (MCP JSON-RPC `horo_consult`)
+- **Documentation (GitBook)**: `https://pphothidaen.gitbook.io/pphothidaen-docs/`
+- **Jira Cloud Project**: `https://pansakorn.atlassian.net/jira/software/projects/KAN/boards`
+
+## Archived Plans List
+- No new plans archived — all workstreams executed as PR merges with test provenance compliance.
+
+---
+
 # HoroConsultant Release Notes -- CI/CD Hardening: Render Deploy, Monitoring Migration & GitBook Sync Restoration (KAN-131/132)
 
 > **Release**: `CI/CD Hardening (KAN-131/132)` -- Render deploy workflow hardening with Doppler secret sync + pre-deploy diagnostics + failure log capture, monitoring scripts migration HF→Render, GitBook sync restoration via webhook-to-PR workflow

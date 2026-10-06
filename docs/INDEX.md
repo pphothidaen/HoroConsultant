@@ -3,7 +3,7 @@
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
 
-**Total documents:** 70
+**Total documents:** 72
 
 ## Document Registry
 
@@ -13,6 +13,7 @@
 |------|------|
 | `AI_AGENT_ECOSYSTEM_SYNC.md` | `AI_AGENT_ECOSYSTEM_SYNC.md` |
 | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` |
+| `GITHUB_SECRETS_WORKERS.md` | `GITHUB_SECRETS_WORKERS.md` |
 | `HITL_OPERATING_GUIDE.md` | `HITL_OPERATING_GUIDE.md` |
 | `RELEASE_HANDOFF_CHECKLIST.md` | `RELEASE_HANDOFF_CHECKLIST.md` |
 | `RELEASE_NOTES.md` | `RELEASE_NOTES.md` |
@@ -90,6 +91,12 @@
 |------|------|
 | `capacity_tracking.md` | `jira/capacity_tracking.md` |
 | `dashboard_config.md` | `jira/dashboard_config.md` |
+
+### `session-handoff/`
+
+| File | Path |
+|------|------|
+| `2026-10-06-kan-264-close-out.md` | `session-handoff/2026-10-06-kan-264-close-out.md` |
 
 ### `superpowers/`
 

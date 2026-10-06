@@ -1,6 +1,6 @@
 ---
 name: qa-e2e-testing
-description: Compatibility router for QA regression, API/UI contract, and release verification.
+description: Router for QA regression, API/UI contract, and
 owner: qa_tester
 sunset: Sunset upon full migration to focused QA skills in v2.0.0; no focused-profile activation.
 ---

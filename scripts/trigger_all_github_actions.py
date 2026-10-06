@@ -32,6 +32,10 @@ Active workflows:
 24. workflow-mttr-monitor.yml (Workflow MTTR SLO Monitor)
 25. code-review.yml (Auto Code Review by agent-code_reviewer)
 26. gitbook-webhook-pr.yml (GitBook Webhook to PR)
+27. gitleaks.yml (Gitleaks Secret Scan)
+28. workers-aipass.yml (Workers AIPass)
+29. workers-gemini.yml (Workers Gemini)
+30. workers-hermes.yml (Workers Hermes)
 
 Retired workflow tombstones (never dispatched):
 1. azure_cost_guard.yml
@@ -120,6 +124,10 @@ WORKFLOWS: tuple[tuple[str, str, dict[str, str]], ...] = (
     ("workflow-mttr-monitor.yml", "Workflow MTTR SLO Monitor", {}),
     ("code-review.yml", "Auto Code Review by agent-code_reviewer", {}),
     ("gitbook-webhook-pr.yml", "GitBook Webhook to PR", {}),
+    ("gitleaks.yml", "Gitleaks Secret Scan", {}),
+    ("workers-aipass.yml", "Workers AIPass", {}),
+    ("workers-gemini.yml", "Workers Gemini", {}),
+    ("workers-hermes.yml", "Workers Hermes", {}),
 )
 
 WorkflowStatus = Literal["RETIRED", "TRIGGERED", "FAILED", "ERROR"]

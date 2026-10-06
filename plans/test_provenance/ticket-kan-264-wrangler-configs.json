@@ -1,0 +1,83 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-264",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "72ad69a4e088a8ca06dca490b1b9a75a9d5c3bef",
+  "test_files": [
+    {
+      "path": "tests/test_wrangler_aipass.py",
+      "sha256": "86bc490d6dc3fa712c8be8f5697f00da2ff213af13dd8460e832dda7b0e1e83f"
+    },
+    {
+      "path": "tests/test_wrangler_gemini.py",
+      "sha256": "a5aef8af5a436c38317f249d6f7f9e381dfc79296b4307ee6ab9dbf32c499440"
+    },
+    {
+      "path": "tests/test_wrangler_hermes.py",
+      "sha256": "623886a0e62e3ec24a2508e950a160f313ddd1aa0e629aeff77bd6312fb2198b"
+    },
+    {
+      "path": "tests/test_deploy_worker_script.py",
+      "sha256": "9235faff995a42f9b43aa9764a55bcb6206c6a6a884f965d25be5181b2016c9c"
+    },
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "3705866bf20508c6d6394cd6c7049a578cdcf9f778d0cd9e2b1f49cd7c0d925a"
+    },
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "9c5d1cbee17c10844208430ce6dec7d9143ea1b4e869f91bc7da204989b21e4e"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "ab06927d695e8877041ef628771e4c9e3b1dfdb69e3fc839e48200b35442cd29"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "-q",
+        "tests/test_wrangler_aipass.py::TestWranglerAipassConfig::test_account_id_is_set"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Fail-closed: wrangler.aipass.toml account_id must be validated before deployment"
+    },
+    {
+      "command": [
+        "pytest",
+        "-q",
+        "tests/test_wrangler_gemini.py::TestWranglerGeminiConfig::test_account_id_is_set"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Fail-closed: wrangler.gemini.toml account_id must be validated before deployment"
+    },
+    {
+      "command": [
+        "pytest",
+        "-q",
+        "tests/test_wrangler_hermes.py::TestWranglerHermesConfig::test_account_id_is_set"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Fail-closed: wrangler.hermes.toml account_id must be validated before deployment"
+    }
+  ],
+  "allowed_source_paths": [
+    "wrangler.aipass.toml",
+    "wrangler.gemini.toml",
+    "wrangler.hermes.toml",
+    ".github/workflows/workers-aipass.yml",
+    ".github/workflows/workers-gemini.yml",
+    ".github/workflows/workers-hermes.yml",
+    "docs/GITHUB_SECRETS_WORKERS.md",
+    ".gitleaksignore",
+    "wrangler.toml.legacy",
+    "scripts/deploy-worker.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TICKET-264: Verify wrangler configurations for three Cloudflare accounts (hermes, gemini, aipass) with proper account_id, worker names, bindings, and no hardcoded secrets"
+}

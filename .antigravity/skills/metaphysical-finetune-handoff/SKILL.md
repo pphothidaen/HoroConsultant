@@ -1,6 +1,6 @@
 ---
 name: metaphysical-finetune-handoff
-description: Curate verified, redacted metaphysical consultation datasets for fine-tuning handoff.
+description: Curate verified, redacted metaphysical datasets
 ---
 
 # Metaphysical Fine-Tune Handoff

@@ -1,0 +1,36 @@
+{
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-RESTORE-POLICY",
+ "sequence": 1,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "53d67e25b0a6b7a100326fa9166f9c4224d93301",
+ "test_files": [
+  {
+   "path": "tests/test_governance_sync.py",
+   "sha256": "2dfade4812745a87e4c1cf623c0759a05eac9e0f996fc588e6e5441f529841bc"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_governance_sync.py::test_governance_baseline_declares_required_review_policy"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "Weakening the declaration back to the re-baselined state (0 required approving reviews, no Integration bypass actor, relaxed ruleset params) fails this guard and leaves governance_sync.py apply unable to restore the KAN-97 policy."
+  }
+ ],
+ "allowed_source_paths": [
+  "governance/branch-protection.main.json",
+  "governance/rulesets.json",
+  "tests/test_governance_sync.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": null,
+ "correction_reason": null,
+ "rationale": "KAN-264 close-out (user-approved full access): PR #135 re-baselined governance/*.json to the weakened live state (0 reviews, recreated ruleset 24074067 without bypass actor/strict params). This baseline restores the KAN-97 declaration (1 required approving review, enforce_admins, Integration bypass actor, strict status-check params) so governance_sync.py apply can push it back to GitHub; apply matches rulesets by name and updates id 24074067 in place. Red verified against re-baselined declaration: 1 failed; green after restore: 22 passed."
+}

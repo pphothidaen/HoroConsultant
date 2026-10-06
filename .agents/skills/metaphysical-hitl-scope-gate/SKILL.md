@@ -1,6 +1,6 @@
 ---
 name: metaphysical-hitl-scope-gate
-description: Validate metaphysical boundary, ambiguity, and conflict risk gates for HITL review.
+description: Validate metaphysical boundary, ambiguity,
 ---
 
 # Metaphysical HITL Scope Gate

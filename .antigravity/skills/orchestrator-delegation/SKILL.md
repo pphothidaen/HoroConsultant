@@ -1,6 +1,6 @@
 ---
 name: orchestrator-delegation
-description: Coordinate bounded work across specialist lanes with ticket, lane, and context bindings.
+description: Coordinate bounded work across specialist lanes
 owner: orchestrator
 responsibility: multi-agent-orchestration
 responsible_agents:

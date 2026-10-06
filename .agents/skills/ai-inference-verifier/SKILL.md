@@ -1,7 +1,7 @@
 ---
 name: ai-inference-verifier
 disabled: true
-description: Validate that interpretation output is real LLM inference, not static-template fallback.
+description: Validate interpretation is real LLM inference, not
 ---
 
 # 🕵️ AI Inference Origin & Anti-Template Verification Skill
