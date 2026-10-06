@@ -17,8 +17,9 @@ env:
   JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
   JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
   JIRA_PROJECT_KEY: 'KAN'
-  # Atlassian 3LO access token, short-lived (~8h) and refreshed per run below.
-  JIRA_ACCESS_TOKEN: ${{ steps.jira-token.outputs.access_token }}
+  # JIRA_ACCESS_TOKEN is set per-step below: the `steps` context is not
+  # available at workflow level, and referencing it here made the workflow
+  # unparseable ("Unrecognized named-value: 'steps'").
   JIRA_CLIENT_ID: ${{ secrets.JIRA_CLIENT_ID }}
   JIRA_CLIENT_SECRET: ${{ secrets.JIRA_CLIENT_SECRET }}
   JIRA_REFRESH_TOKEN: ${{ secrets.JIRA_REFRESH_TOKEN }}
@@ -56,12 +57,19 @@ jobs:
       - name: Poll Jira for Ready tickets
         id: poll
         env:
+          # A 3LO bearer token is only accepted through the OAuth gateway,
+          # not the site hostname, so resolve the cloud id per run and build
+          # the gateway base URL from it.
+          JIRA_ACCESS_TOKEN: ${{ steps.jira-token.outputs.access_token }}
           JQL: >-
             project = KAN AND status = "Ready"
             AND "Project Lane" = "Horo Consultant"
             ORDER BY created ASC
         run: |
-          python3 scripts/jira_query.py --jql "$JQL" > /tmp/jira_ready.json
+          CLOUD_ID=$(curl -sf -H "Authorization: Bearer $JIRA_ACCESS_TOKEN" \
+            https://api.atlassian.com/oauth/token/accessible-resources | jq -r '.[0].id')
+          GATEWAY_URL="https://api.atlassian.com/ex/jira/$CLOUD_ID"
+          python3 scripts/jira_query.py --jql "$JQL" --base-url "$GATEWAY_URL" > /tmp/jira_ready.json
           COUNT=$(jq '.issues | length' /tmp/jira_ready.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
           if [ "$COUNT" -gt 0 ]; then
