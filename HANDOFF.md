@@ -41,3 +41,29 @@
 4. **Never**: push origin main, edit branch protection directly (use `governance_sync.py apply --yes` after merging declaration changes; ruleset matches by name), commit `project/data/*.json` churn, or touch Hermes files.
 5. **Next tasks in order** (see Pending items above): (a) codex skill budget — dispatch lane, trim `.agents/skills/*/SKILL.md` descriptions, then `python3 scripts/sync_ai_agent_ecosystem.py --sync` and `sync_codex_account_configs.py --check`; (b) R2 via Cloudflare dash only.
 6. **Validate before claiming done**: combined status on main HEAD = success, `gh api .../dependabot/alerts` open = 0, `governance_sync.py validate` = no drift.
+
+### Hand-holding runbook (do exactly this, in order)
+**A. Codex skill budget (start here — no external access needed)**
+1. `python3 scripts/sync_codex_account_configs.py --check` → expect 4x `[ERROR] prompt=NNNN chars (budget <= 8000)`. Note NNNN — you must cut that many chars (+margin).
+2. Measure per-skill contribution: `for f in .agents/skills/*/SKILL.md; do echo "$(grep -A3 '^description:' $f | wc -c) $f"; done | sort -rn | head -20` — the description frontmatter (1-3 lines after `description:`) is what lands in the prompt. Longest descriptions first.
+3. Edit ONLY the `description:` frontmatter of the biggest skills. Keep each under ~200 chars, keep the `use when` trigger phrase (Codex matches on it). DO NOT touch body content below frontmatter. Aim to cut budget_overrun + ~300 chars total, spread over 3-6 files.
+4. Regenerate + recheck: `python3 scripts/sync_ai_agent_ecosystem.py --sync` then `python3 scripts/sync_ai_agent_ecosystem.py --check` (expect all [OK] except possibly codex budget) then `python3 scripts/sync_codex_account_configs.py --check` (expect 4x [OK]). The check regenerates `.codex/agents/*.toml` — those are generated outputs, commit them as-is.
+5. Commit: branch `fix/KAN-264-skill-budget`, ONE commit `KAN-264: shorten skill descriptions to fit codex prompt budget` containing only `.agents/skills/*/SKILL.md` + any generated `.codex/` + `.agents/` sync outputs. Docs/config paths → no provenance manifest needed. PR `[KAN-264] ...` → merge.
+6. Rollback if the check gets worse: `git checkout main -- .agents/skills` and re-run `--sync`.
+
+**B. R2 (needs Cloudflare dash login — do after A or skip)**
+1. dash.cloudflare.com → account `bda49e...` → R2 → purchase the free plan (0 cost, clickthrough) → Create bucket `horoconsultant-artifacts` (location: auto).
+2. Revert the removal: `git log --oneline --all -- wrangler.toml | head` → take the pre-#136 version's `[[r2_buckets]]` block back into wrangler.toml; flip `test_r2_buckets_absent...` guards in `tests/test_cloudflare_r2_binding.py` + `tests/test_cloudflare_deploy.py` back to presence assertions; run `doppler run -- npx wrangler deploy --dry-run` (needs `doppler secrets get CLOUDFLARE_API_TOKEN` to exist — it does NOT in the `horo-consultant` Doppler project; put the token in `.env` first, wrangler reads CLOUDFLARE_API_TOKEN).
+3. Ship as a normal Rule-23 PR with a NEW manifest (source commit = wrangler.toml; red test = the flipped guard against binding-absent config).
+
+**C. Hermes KAN-184 WIP (only if the Hermes session is closed/abandoned)**
+1. Confirm owner: `ls .hermes/plans/ | grep kan-184`; read that plan file. If their session is gone: the two conflicted files are a stale merge of `.gitignore` + `scripts/test_provenance_guard.py` (backup exists at `/tmp/kan184-wip-backup/` until reboot).
+2. Resolution recipe: for each conflict block `<<<<<<< Updated upstream ... ======= ... >>>>>>>`, the "Updated upstream" side is committed repo policy (keep), the other side is the KAN-184 intent — merge BOTH semantically (e.g., keep PROTECTED_BRANCHES comment block AND their added dev-branch guard constants). Untracked files (`tests/test_dev_branch_guard.py`, `.github/workflows/gitleaks.yml`, `.gitleaksignore`) are complete — just include them.
+3. Validate before PR: `python3 -m pytest tests/test_dev_branch_guard.py -q` and run the pre-commit hook WITHOUT the workaround for the first time (proves the script is fixed). PR `[KAN-184] ...` — NOTE title regex needs [KAN-184] which is valid.
+
+**Universal pitfalls (exact error → fix)**
+- `PR_REQUIRES_BASELINE_MANIFEST` → your PR touched a non-docs path (not .md, not .github/workflows/, not tests/, not plans/) → add manifest in a second commit (tests+manifest ONLY in that commit).
+- `BASELINE_PARENT_MISMATCH` post-merge → expected for manifest-adding PRs → docs-only re-anchor PR.
+- `STAGED_COMMIT_MIXES_SOURCE_AND_TEST` → commit source and tests separately; use `git commit -- <paths>` pathspec form.
+- `Vercel fail — Canceled from the Vercel Dashboard` on PRs → ignore, external.
+- Merge blocked waiting review → reviewer automation should approve within ~1 min; if not, ask the owner to approve in UI (author cannot self-approve).
