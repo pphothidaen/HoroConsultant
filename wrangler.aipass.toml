@@ -1,0 +1,23 @@
+# Cloudflare Workers configuration for AIPass account (horo-aipass-bridge)
+# Account ID: db2b77716a826311bbf9d104e125f540
+# Workers: aipass-web-bridge
+
+name = "aipass-web-bridge"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+account_id = "db2b77716a826311bbf9d104e125f540"
+
+[durable_objects]
+bindings = [{ name = "EXT_HUB", class_name = "ExtHub" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ExtHub"]
+
+# Secrets are set via the Cloudflare dashboard or `npx wrangler secret put` —
+# NEVER commit secret values here (see docs/CONFIGURATION.md for the storage
+# policy: Doppler → Cloudflare secrets → .env, in that order).
+#   BRIDGE_SECRET   → extension channel /ext/*
+#   CLIENT_API_KEY  → API/MCP clients (Authorization: ***
+# Chrome extension popup: Bridge URL = https://aipass-web-bridge.<account>.workers.dev
+# Hermes provider base_url = https://aipass-web-bridge.<account>.workers.dev/v1

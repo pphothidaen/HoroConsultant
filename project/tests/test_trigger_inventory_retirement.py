@@ -44,6 +44,10 @@ EXPECTED_ACTIVE = (
     "workflow-mttr-monitor.yml",
     "code-review.yml",
     "gitbook-webhook-pr.yml",
+    "gitleaks.yml",
+    "workers-aipass.yml",
+    "workers-gemini.yml",
+    "workers-hermes.yml",
 )
 EXPECTED_RETIRED = (
     "azure_cost_guard.yml",
@@ -104,7 +108,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     }
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 26
+    assert len(configured_active) == len(set(configured_active)) == 30
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
@@ -211,7 +215,7 @@ def test_filesystem_inventory_drift_fails_closed(
         trigger_module.active_workflows()
 
 
-def test_main_dispatches_exactly_twenty_six_active_workflows_with_ascii_output(
+def test_main_dispatches_exactly_thirty_active_workflows_with_ascii_output(
     trigger_module,
     monkeypatch,
     capsys,
@@ -234,9 +238,9 @@ def test_main_dispatches_exactly_twenty_six_active_workflows_with_ascii_output(
     trigger_module.main()
     output = capsys.readouterr().out
 
-    assert "Total Active Workflows to Trigger: 26" in output
+    assert "Total Active Workflows to Trigger: 30" in output
     assert set(file for file, _title, _inputs in dispatches) == set(EXPECTED_ACTIVE)
-    assert len(dispatches) == 26
+    assert len(dispatches) == 30
     assert "\\u2014 \\U0001f680" in output
     assert output.isascii()
 
