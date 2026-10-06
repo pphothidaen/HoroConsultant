@@ -33,3 +33,11 @@
 - PR title CI regex: `/^\[KAN-\d+\].../` ([KAN-xxx] prefix mandatory).
 - Vercel "Canceled from the Vercel Dashboard" on PR previews is a known external status; production Vercel deploys on main are green. Workers/Vercel/Render deploy workflows may show "skipped" on docs-only pushes.
 - Rule 23 flow used throughout: PR ([KAN-264] title) → CI green → squash merge → `git checkout main && git pull --ff-only && git branch -D <branch>` (squash merges are not ancestors; merge proof = `gh pr view` state MERGED).
+
+### Quick-start playbook for the next session (junior agent)
+1. **Boot**: `git checkout main && git pull --ff-only origin main` → `gh pr list` (no open PRs expected) → worktree has Hermes KAN-184 WIP: leave `scripts/test_provenance_guard.py` + `.gitignore` alone.
+2. **If pre-commit hook fails with SyntaxError** in test_provenance_guard.py: `git checkout HEAD -- .gitignore scripts/test_provenance_guard.py`, commit, then restore from `/tmp/kan184-wip-backup/` (may be gone after reboot — that's fine, it's Hermes's WIP, re-derivable from their session).
+3. **Change workflow** (Rule 23): branch `fix/KAN-264-*` → commit source → commit test+manifest (`baseline_parent` = source-commit SHA, full 40 chars; test commit must contain ONLY tests+manifest) → PR title `[KAN-264] ...` → CI green → squash merge → post-merge re-anchor docs-only PR if a manifest was added → `git branch -D` (squash ≠ ancestor).
+4. **Never**: push origin main, edit branch protection directly (use `governance_sync.py apply --yes` after merging declaration changes; ruleset matches by name), commit `project/data/*.json` churn, or touch Hermes files.
+5. **Next tasks in order** (see Pending items above): (a) codex skill budget — dispatch lane, trim `.agents/skills/*/SKILL.md` descriptions, then `python3 scripts/sync_ai_agent_ecosystem.py --sync` and `sync_codex_account_configs.py --check`; (b) R2 via Cloudflare dash only.
+6. **Validate before claiming done**: combined status on main HEAD = success, `gh api .../dependabot/alerts` open = 0, `governance_sync.py validate` = no drift.
