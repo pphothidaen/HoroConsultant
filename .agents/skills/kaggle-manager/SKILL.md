@@ -1,7 +1,7 @@
 ---
 name: kaggle-manager
 disabled: true
-description: DISABLED — legacy Kaggle fine-tuning notebook orchestration retained for reference only.
+description: DISABLED — legacy Kaggle fine-tuning notebook
 ---
 
 # 🚀 Kaggle Notebook Automation Skill

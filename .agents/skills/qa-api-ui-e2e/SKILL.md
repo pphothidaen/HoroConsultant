@@ -1,6 +1,6 @@
 ---
 name: qa-api-ui-e2e
-description: Verify API and UI contracts across Docker backend and static UI targets.
+description: Verify API and UI contracts across Docker backend
 ---
 
 # QA API and UI E2E Verification

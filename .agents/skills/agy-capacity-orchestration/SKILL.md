@@ -1,7 +1,7 @@
 ---
 name: agy-capacity-orchestration
 disabled: true
-description: Govern four-pool AGY/Codex capacity with leases, backpressure, and evidence.
+description: Govern four-pool AGY/Codex capacity with leases,
 ---
 
 # AGY Capacity Orchestration

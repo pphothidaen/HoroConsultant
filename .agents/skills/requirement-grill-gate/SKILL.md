@@ -1,6 +1,6 @@
 ---
 name: requirement-grill-gate
-description: Run fail-closed 9-dimension intake before planning, delegation, or implementation.
+description: Run fail-closed 9-dimension intake before planning
 ---
 
 # Requirement Grill Gate

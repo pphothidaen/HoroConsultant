@@ -1,6 +1,6 @@
 ---
 name: sdlc-aisdlc-workflow
-description: AI SDLC governance from requirements decomposition to QA, release, and post-deploy.
+description: AI SDLC governance from requirements to QA,
 owner: orchestrator
 responsibility: sdlc-workflow
 responsible_agents:
