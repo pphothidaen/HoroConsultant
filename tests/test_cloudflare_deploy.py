@@ -48,11 +48,11 @@ class TestWranglerConfigIntegrity:
         assert "[[kv_namespaces]]" in content
         assert 'binding = "CACHE"' in content
 
-    def test_r2_buckets_configured(self):
-        """wrangler.toml must have R2 bucket binding."""
+    def test_r2_buckets_absent_until_r2_enabled(self):
+        """No [[r2_buckets]] while R2 is disabled on the account (error 10042)."""
         content = read_wrangler()
-        assert "[[r2_buckets]]" in content
-        assert 'binding = "ARTIFACTS"' in content
+        assert "[[r2_buckets]]" not in content
+        assert 'binding = "ARTIFACTS"' not in content
 
     def test_triggers_configured(self):
         """wrangler.toml must have triggers section."""

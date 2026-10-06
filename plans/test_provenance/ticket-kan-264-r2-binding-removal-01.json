@@ -1,0 +1,41 @@
+{
+ "schema_version": "test-provenance-v1",
+ "ticket_id": "TICKET-KAN-264-R2-BINDING-REMOVAL",
+ "sequence": 1,
+ "provenance_status": "VERIFIED",
+ "baseline_parent": "671a78b7651f41fbb213a9afdd43b6ed71e1776e",
+ "test_files": [
+  {
+   "path": "tests/test_cloudflare_r2_binding.py",
+   "sha256": "5c4d16b53bbf92000ca49918d9679bea54bf69dc231c573e72597939390d05e1"
+  },
+  {
+   "path": "tests/test_cloudflare_deploy.py",
+   "sha256": "ef3cfda13648b75f132fdfe8095014871d3c26c779d19876ce9f1d0359e2e1e9"
+  }
+ ],
+ "red_tests": [
+  {
+   "command": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_cloudflare_r2_binding.py::TestR2BucketBinding::test_r2_buckets_binding_absent",
+    "tests/test_cloudflare_deploy.py::TestWranglerConfigIntegrity::test_r2_buckets_absent_until_r2_enabled"
+   ],
+   "expected_exit": 1,
+   "failure_fingerprint": "Reintroducing any R2 bucket binding into wrangler.toml while R2 is disabled on the Cloudflare account (API error 10042) fails these guards and re-breaks every wrangler deploy (PR #135 dispatch regression class)."
+  }
+ ],
+ "allowed_source_paths": [
+  "wrangler.toml",
+  "tests/test_cloudflare_r2_binding.py",
+  "tests/test_cloudflare_deploy.py"
+ ],
+ "test_owner_role": "agent-qa_tester",
+ "reviewer_role": "agent-code_reviewer",
+ "supersedes": null,
+ "correction_reason": null,
+ "rationale": "KAN-264 close-out: dispatching workers-builds.yml (production) after PR #135's token fix exposed the true deploy blocker - R2 is not enabled on the Cloudflare account (error 10042), and wrangler.toml declared an unused ARTIFACTS R2 binding (api/index.js never references it; _worker.js guards with if(env.ARTIFACTS)). This baseline removes the binding and inverts the stale binding-must-exist tests into absence guards. Red verified against binding-present config: 3 failed; green after removal: 15 passed; wrangler deploy --dry-run clean."
+}
