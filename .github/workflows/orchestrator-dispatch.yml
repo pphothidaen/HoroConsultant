@@ -45,6 +45,12 @@ jobs:
       # refresh_token so the next scheduled run starts from a live credential.
       - name: Refresh Jira access token
         id: jira-token
+        env:
+          # Atlassian rotates the refresh token on every grant, and the rotated
+          # value must be written back to JIRA_REFRESH_TOKEN for the next run.
+          # GITHUB_TOKEN cannot call the actions/secrets API, so persistence
+          # uses the fine-grained PAT scoped to Secrets: write on this repo.
+          GH_TOKEN: ${{ secrets.GH_SECRETS_PAT }}
         run: |
           ACCESS_TOKEN=$(python3 scripts/refresh_jira_token.py)
           echo "::notice::token refresh exit=$?"
