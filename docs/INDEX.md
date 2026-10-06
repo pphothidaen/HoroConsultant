@@ -3,7 +3,7 @@
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
 
-**Total documents:** 70
+**Total documents:** 71
 
 ## Document Registry
 
@@ -23,6 +23,7 @@
 | `branch_migration_action_priority_runbook.md` | `branch_migration_action_priority_runbook.md` |
 | `c4_hermes_9router_architecture.md` | `c4_hermes_9router_architecture.md` |
 | `gemini-bridge-mcp-toggle.md` | `gemini-bridge-mcp-toggle.md` |
+| `GITHUB_SECRETS_WORKERS.md` | `GITHUB_SECRETS_WORKERS.md` |
 | `governance-as-code.md` | `governance-as-code.md` |
 | `jira_sync_protocol.md` | `jira_sync_protocol.md` |
 | `kaggle_hybrid_tradeoff_matrix.md` | `kaggle_hybrid_tradeoff_matrix.md` |
