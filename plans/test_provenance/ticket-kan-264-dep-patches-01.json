@@ -3,7 +3,7 @@
  "ticket_id": "TICKET-KAN-264-DEP-PATCHES",
  "sequence": 1,
  "provenance_status": "VERIFIED",
- "baseline_parent": "08f3c7008a035e2d8a5dc33c404f3231332cb8bc",
+ "baseline_parent": "53d67e25b0a6b7a100326fa9166f9c4224d93301",
  "test_files": [
   {
    "path": "tests/test_dependency_patches.py",
