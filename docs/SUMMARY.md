@@ -52,3 +52,4 @@
 * [Branch Migration Action Priority Runbook](branch_migration_action_priority_runbook.md)
 * [Kaggle Hybrid Tradeoff Matrix](kaggle_hybrid_tradeoff_matrix.md)
 * [Lessons Learned v3 Visual Integrity](lessons_learned_v3_visual_integrity_2026-08-24.md)
+* [Session Handoff — 2026-10-06 KAN-264 close-out](session-handoff/2026-10-06-kan-264-close-out.md)
