@@ -1,6 +1,6 @@
 ---
 name: hf-static-release-verification
-description: Enforce fail-closed HF Docker backend and Vercel UI release gates.
+description: Enforce fail-closed HF Docker backend and Vercel
 owner: devops
 responsible_agents:
   - devops

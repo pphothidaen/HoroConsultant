@@ -1,6 +1,6 @@
 ---
 name: multi-account-agent-orchestration
-description: Route bounded agent work across accounts with quota evidence and HITL gates.
+description: Route bounded agent work across accounts with
 ---
 
 # Multi-Account Agent Orchestration

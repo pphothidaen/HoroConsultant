@@ -1,6 +1,6 @@
 ---
 name: devops-deployment
-description: Run fail-closed HF Docker backend and Vercel UI release workflows.
+description: Run fail-closed HF Docker backend and Vercel UI
 owner: devops
 responsibility: production-deployment
 responsible_agents:

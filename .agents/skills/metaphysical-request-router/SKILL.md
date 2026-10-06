@@ -1,6 +1,6 @@
 ---
 name: metaphysical-request-router
-description: Route metaphysical inquiries to deterministic calculation engines and tools.
+description: Route metaphysical inquiries to deterministic
 ---
 
 # Metaphysical Request Router

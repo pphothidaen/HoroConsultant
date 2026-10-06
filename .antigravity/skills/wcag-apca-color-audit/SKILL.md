@@ -1,6 +1,6 @@
 ---
 name: wcag-apca-color-audit
-description: Audit UI color contrast compliance against WCAG 2.1 AA and APCA lightness standards.
+description: Audit UI color contrast compliance against WCAG
 ---
 
 # WCAG & APCA Color Audit

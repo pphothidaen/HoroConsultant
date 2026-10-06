@@ -1,6 +1,6 @@
 ---
 name: web-color-design
-description: Compatibility router for Five Elements palette, WCAG audit, and UI color tokens.
+description: Router for Five Elements palette, WCAG audit, and
 owner: ux_ui_designer
 sunset: Sunset upon full migration to focused UI color skills in v2.0.0; no focused-profile activation.
 ---

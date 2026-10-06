@@ -1,7 +1,7 @@
 ---
 name: zero-cost-ai-pipeline
 disabled: true
-description: Implement fail-closed zero-cost AI provider routing, circuit breakers, and rate limits.
+description: Implement fail-closed zero-cost AI provider
 ---
 
 # Zero-Cost AI Pipeline Implementation & Verification

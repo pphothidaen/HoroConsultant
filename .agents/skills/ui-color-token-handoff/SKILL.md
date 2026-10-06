@@ -1,6 +1,6 @@
 ---
 name: ui-color-token-handoff
-description: Export structured CSS custom properties and semantic design tokens for UI handoff.
+description: Export CSS custom properties and semantic design
 ---
 
 # UI Color Token Handoff
