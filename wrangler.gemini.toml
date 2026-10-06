@@ -1,0 +1,54 @@
+# Cloudflare Workers configuration for Gemini account (horo-gemini-bridge)
+# Account ID: d91b1a43a188b73be61833adee445111
+# Workers: prod (gemini-web-bridge)
+
+# Worker name determines the public hostname as
+# <name>.<subdomain>.workers.dev -> prod.gemini-web-bridge.workers.dev
+# The account subdomain is "gemini-web-bridge", so naming the worker
+# "gemini-web-bridge" produced the doubled, confusing
+# gemini-web-bridge.gemini-web-bridge.workers.dev. "prod" keeps the hostname
+# readable and leaves the subdomain as the branding.
+name = "prod"
+main = "src/index.js"
+compatibility_date = "2026-09-12"
+compatibility_flags = ["nodejs_compat"]
+account_id = "d91b1a43a188b73be61833adee445111"
+
+# This worker is reachable at prod.gemini-web-bridge.workers.dev
+# (subdomain "gemini-web-bridge" on the Gemini.web.bridge@gmail.com account).
+# workers_dev = true is what publishes it; there is no custom route.
+workers_dev = true
+
+# Configure BRIDGE_AUTH_TOKEN and CLIENT_API_KEY with wrangler secret put.
+
+# Gitleaks: allow .env to exist locally but NEVER commit it (see .gitignore)
+# Doppler secrets are downloaded to .env for local dev only.
+
+[durable_objects]
+bindings = [
+  { name = "BRIDGE_DO", class_name = "GeminiBridgeDO" }
+]
+
+# Temporary PDF artifact storage for the horo_consult MCP tool (1h TTL).
+# Account-scoped: this id belongs to the Gemini.web.bridge@gmail.com Cloudflare
+# account (d91b1a43a188b73be61833adee445111). The previous id
+# (9620c1ac40ab481c83f9687b7d63a5ce) was in the Pansakorn.pho@gmail.com account
+# and is unreachable from here — a KV id is not valid across accounts.
+[[kv_namespaces]]
+binding = "ARTIFACT_KV"
+id = "400bc54565de455689ece92f8351bcb9"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GeminiBridgeDO"]
+
+# KAN-236 latency telemetry collection is no longer active. Workers Logs is
+# charged against the same CPU budget as the DO, and nothing in this repo reads
+# it outside debugging.
+[observability]
+enabled = false
+
+[vars]
+BRIDGE_VERBOSE = "1"
+CONTEXT_ROTATION_THRESHOLD = "8"
+MULTI_SESSION = "true"
