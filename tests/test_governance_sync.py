@@ -271,3 +271,22 @@ def test_ruleset_volatile_keys_exclude_id_but_keep_it_exported() -> None:
     # "id" is server-assigned but must survive export so apply can target it.
     assert "id" in gs.RULESET_VOLATILE_KEYS
     assert "id" not in gs.RULESET_EXPORT_VOLATILE_KEYS
+
+
+def test_governance_baseline_matches_live_rebaseline() -> None:
+    # KAN-264 re-baseline: the live "Require Test Provenance" ruleset was
+    # recreated (id 24074067) without its Integration bypass actor or strict
+    # params, and classic protection moved to 0 required approving reviews.
+    # The committed declaration must stay on the exported live state; the
+    # stale KAN-97 declaration (id 21626253, 1 review) re-triggers drift.
+    protection = json.loads(
+        (REPO_ROOT / "governance" / "branch-protection.main.json").read_text(encoding="utf-8")
+    )
+    assert protection["required_pull_request_reviews"]["required_approving_review_count"] == 0
+    rulesets = json.loads((REPO_ROOT / "governance" / "rulesets.json").read_text(encoding="utf-8"))["rulesets"]
+    target = next(r for r in rulesets if r["name"] == "Require Test Provenance")
+    assert target["id"] == 24074067
+    assert target["bypass_actors"] == []
+    params = target["rules"][0]["parameters"]
+    assert params["do_not_enforce_on_create"] is False
+    assert params["strict_required_status_checks_policy"] is False
