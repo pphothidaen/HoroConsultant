@@ -10,32 +10,31 @@ def read_wrangler():
 
 
 class TestR2BucketBinding:
-    """Test that wrangler.toml has R2 bucket binding for model artifacts."""
+    """R2 must stay out of wrangler.toml until R2 is enabled on the account.
+
+    The Cloudflare account has R2 disabled, so any [[r2_buckets]] entry fails
+    `wrangler deploy` with API error 10042. api/index.js (the deployed entry)
+    never references env.ARTIFACTS; project/static/_worker.js guards with
+    `if (env.ARTIFACTS)` and degrades gracefully. Re-adding the binding
+    without enabling R2 first re-breaks every Workers deploy (PR #135/#136
+    regression class).
+    """
 
     def test_wrangler_file_exists(self):
         """wrangler.toml must exist."""
         assert WRANGLER_PATH.exists(), f"wrangler.toml not found at {WRANGLER_PATH}"
 
-    def test_r2_buckets_binding_exists(self):
-        """wrangler.toml must have [[r2_buckets]] binding."""
+    def test_r2_buckets_binding_absent(self):
+        """wrangler.toml must NOT have [[r2_buckets]] while R2 is disabled."""
         content = read_wrangler()
-        assert "[[r2_buckets]]" in content, "Missing [[r2_buckets]] binding in wrangler.toml"
+        assert "[[r2_buckets]]" not in content, \
+            "[[r2_buckets]] present but R2 is not enabled on the account (error 10042)"
 
-    def test_r2_binding_has_artifacts_binding(self):
-        """R2 bucket binding must use binding = 'ARTIFACTS'."""
+    def test_artifacts_binding_absent(self):
+        """No ARTIFACTS binding may linger in wrangler.toml."""
         content = read_wrangler()
-        assert 'binding = "ARTIFACTS"' in content, "Missing binding = 'ARTIFACTS' in r2_buckets"
-
-    def test_r2_binding_has_bucket_name(self):
-        """R2 bucket binding must have a bucket_name field."""
-        content = read_wrangler()
-        assert "bucket_name" in content, "Missing bucket_name field in r2_buckets binding"
-
-    def test_r2_bucket_name_is_horoconsultant_artifacts(self):
-        """R2 bucket must be named 'horoconsultant-artifacts'."""
-        content = read_wrangler()
-        assert "horoconsultant-artifacts" in content, \
-            "R2 bucket must be named 'horoconsultant-artifacts'"
+        assert 'binding = "ARTIFACTS"' not in content, \
+            "ARTIFACTS binding present but no R2 bucket backs it"
 
 
 class TestR2ZeroCostGuardrail:
