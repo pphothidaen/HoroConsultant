@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
 
 [vars]
-BACKEND_BASE_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+BACKEND_BASE_URL = "https://horoconsultant-core-backend.onrender.com"
 BACKEND_TIMEOUT_MS = "15000"
 CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com"
 ENVIRONMENT = "production"
