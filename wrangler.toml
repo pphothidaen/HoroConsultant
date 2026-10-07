@@ -1,6 +1,6 @@
 # Cloudflare Workers configuration for horoconsultant
 # This is the MAIN entry point for Workers deployments (not Pages)
-name = "horoconsultant"
+name = "horoconsultant-production"
 main = "api/index.js"
 # account_id required for Workers deploy — NOT supported in Pages projects
 compatibility_date = "2026-09-22"
@@ -38,4 +38,5 @@ enabled = true
 vars = { ENVIRONMENT = "preview" }
 
 [env.production]
+name = "horoconsultant-production"
 vars = { ENVIRONMENT = "production" }

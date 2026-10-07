@@ -478,6 +478,18 @@ export default async function handler(request, response) {
   }
 
   const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
+
+  // Root path handler - simple health/info endpoint
+  if (requestedPath === "/" || requestedPath === "/health") {
+    return response.status(200).json({
+      status: "ok",
+      service: "HoroConsultant Vercel Gateway",
+      environment: process.env.ENVIRONMENT || "production",
+      version: gitCommit || "dev",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   if (requestedPath === "/api/wake") {
     if (request.method !== "POST") {
       response.setHeader("Allow", "POST, OPTIONS");
