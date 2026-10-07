@@ -477,7 +477,9 @@ export default async function handler(request, response) {
     return sendGatewayError(response, 400, "invalid_request_url", correlationId);
   }
 
-  const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
+  // Cloudflare Workers: requestUrl.pathname is the actual path
+  // Vercel Gateway style: requestUrl.searchParams.get("path") || requestUrl.pathname
+  const requestedPath = requestUrl.pathname;
 
   // Root path handler - simple health/info endpoint
   if (requestedPath === "/" || requestedPath === "/health") {
@@ -499,8 +501,7 @@ export default async function handler(request, response) {
   }
 
   if (request.method === "GET"
-    && requestUrl.pathname === "/api/index"
-    && !requestUrl.searchParams.has("path")) {
+    && requestUrl.pathname === "/api/index") {
     if (!BACKEND_ORIGINS.length) {
       return sendGatewayError(response, 503, "backend_not_configured", correlationId);
     }
