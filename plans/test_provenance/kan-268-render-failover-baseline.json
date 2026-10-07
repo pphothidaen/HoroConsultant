@@ -1,0 +1,56 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-268-RENDER-FAILOVER-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "268b4d95b0288aecd93910c63aecf011cb5bf235",
+  "test_files": [
+    {
+      "path": "tests/test_kan268_backend_failover.py",
+      "sha256": "52850d4ecb91018fee5fcbbf09f68330ff6be9fcc7b684189d098411994277ed"
+    },
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "f0d12e2ad85fbad818a005630bc56c6921b0c76fb5195c24b052621df3f7952e"
+    },
+    {
+      "path": "tests/test_cloudflare_worker_proxy.py",
+      "sha256": "7bf9aa306446c389183e22aef4a4cbf3c20e2269c2ac5e4c3f90de2fb6f932ed"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan268_backend_failover.py",
+        "tests/test_cloudflare_worker_proxy.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "14 failed, 28 passed; KAN268_RENDER_PRIMARY: project/static/_worker.js still declares a single hardcoded HF const as the backend and wrangler BACKEND_BASE_URL is not repointed to the Render origin"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_render_failover_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "9 failed, 3 passed; KAN268_WORKER_ROUTING: the deployed _worker.js proxies to the paused HF Space instead of the Render primary and emits no x-backend-origin marker"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js",
+    "wrangler.toml",
+    "wrangler.hermes.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-268 regression surface before source work. The Worker file that is ACTUALLY DEPLOYED is project/static/_worker.js (proven by its unique X-Cost-Guardrail / X-R2-Policy response headers, which appear nowhere else in the repo). It declared `const BACKEND_BASE_URL = 'https://pphothidaen-horoconsultant-core-backend.hf.space'`, a module-level const that shadowed wrangler.toml's [vars] BACKEND_BASE_URL, so every config-only fix was a silent no-op and the live Worker proxied to a retired, PAUSED HF Space (HTTP 503) while the documented PRIMARY backend, Render (https://horoconsultant-core-backend.onrender.com), returned HTTP 200. The behavioural node tests invoke the real worker module with a stubbed global fetch, so a change that alters configuration without altering runtime routing cannot pass them; the python tests pin the source contract and the two wrangler origins. This also supersedes the false premise of PR #153, which renamed the Worker and swapped its entry point, breaking the repo's own contract tests."
+}

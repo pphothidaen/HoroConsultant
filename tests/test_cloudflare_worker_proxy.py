@@ -83,11 +83,18 @@ class TestWorkerStructure:
         assert "async fetch(request, env)" in js, "Missing fetch handler signature"
 
     def test_worker_has_backend_base_url(self):
-        """Worker must define BACKEND_BASE_URL."""
+        """Worker must define the backend origins: Render primary + HF fallback.
+
+        KAN-268: the single hardcoded `const BACKEND_BASE_URL` was the bug —
+        it shadowed wrangler.toml and pinned the Worker to the retired HF Space.
+        """
         js = read_worker_js()
-        url = extract_string(js, "BACKEND_BASE_URL")
-        assert url is not None, "BACKEND_BASE_URL not found"
-        assert url.startswith("http"), f"Invalid BACKEND_BASE_URL: {url}"
+        render = extract_string(js, "RENDER_BACKEND_URL")
+        fallback = extract_string(js, "HF_FALLBACK_URL")
+        assert render is not None, "RENDER_BACKEND_URL not found"
+        assert render.startswith("http"), f"Invalid RENDER_BACKEND_URL: {render}"
+        assert fallback is not None, "HF_FALLBACK_URL not found"
+        assert fallback.startswith("http"), f"Invalid HF_FALLBACK_URL: {fallback}"
 
     def test_worker_has_cors_allowed_origins(self):
         """Worker must define CORS_ALLOWED_ORIGINS."""
@@ -208,9 +215,13 @@ class TestProxyToBackend:
     """Test the proxy to backend logic."""
 
     def test_proxy_function_exists(self):
-        """Worker should have a proxyToBackend function."""
+        """Worker should have a proxyToBackend function that can fail over.
+
+        KAN-268: the signature gained `env` so the primary origin is resolved
+        dynamically (env.BACKEND_BASE_URL) instead of a hardcoded const.
+        """
         js = read_worker_js()
-        assert "async function proxyToBackend(request, path)" in js
+        assert "async function proxyToBackend(request, path, env)" in js
 
     def test_proxy_constructs_backend_url(self):
         """Proxy should construct URL from BACKEND_BASE_URL and path."""
