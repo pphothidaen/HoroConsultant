@@ -13,7 +13,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TRIGGER_SCRIPT = ROOT / "scripts" / "trigger_all_github_actions.py"
-FLY_WORKFLOW = ROOT / ".github" / "workflows" / "fly_deploy.yml"
+FLY_WORKFLOW = ROOT / ".github" / "workflows" / "_archive" / "fly_deploy.yml"
 
 EXPECTED_ACTIVE_WORKFLOW_NAMES = {
     "ai_agent_ecosystem_sync.yml",
@@ -76,6 +76,16 @@ def trigger_module() -> ModuleType:
 def test_fly_configuration_is_deleted_but_audit_tombstone_remains():
     assert not (ROOT / "fly.toml").exists()
     assert FLY_WORKFLOW.is_file()
+
+    # Also check archived workflows
+    archive_dir = ROOT / ".github" / "workflows" / "_archive"
+    for name in EXPECTED_RETIRED_WORKFLOW_NAMES:
+        assert (archive_dir / name).is_file(), f"Retired workflow {name} not found in _archive/"
+
+    # Verify active workflows only (excluding test_provenance.yml which is test infrastructure)
+    workflows_dir = ROOT / ".github" / "workflows"
+    active_files = {f.name for f in workflows_dir.glob("*.yml") if f.name != "test_provenance.yml"}
+    assert active_files == EXPECTED_ACTIVE_WORKFLOW_NAMES
 
     text = FLY_WORKFLOW.read_text(encoding="utf-8")
     workflow = yaml.load(text, Loader=yaml.BaseLoader)
