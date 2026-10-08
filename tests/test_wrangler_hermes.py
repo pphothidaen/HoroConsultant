@@ -64,13 +64,16 @@ class TestWranglerHermesConfig:
         assert "[[r2_buckets]]" not in content
         assert 'binding = "ARTIFACTS"' not in content
 
-    def test_triggers_configured(self):
-        """wrangler.hermes.toml must have triggers section with crons."""
-        content = read_wrangler()
-        assert "[triggers]" in content
-        assert "crons" in content
-        assert "0 0 * * *" in content  # daily
-        assert "0 */6 * * *" in content  # every 6 hours
+    def test_no_dead_cron_triggers(self):
+        """KAN-273: no cron may be registered without a valid target.
+
+        Parsed, not grepped — this file carries a commented reference block for
+        another worker (hermes-harness-hooks) that legitimately mentions crons.
+        """
+        import tomllib
+        with open(WRANGLER_PATH, "rb") as handle:
+            config = tomllib.load(handle)
+        assert not (config.get("triggers") or {}).get("crons")
 
     def test_observability_configured(self):
         """wrangler.hermes.toml must have observability enabled."""
@@ -111,6 +114,6 @@ class TestWranglerHermesSyntax:
         assert "account_id" in config
         assert "vars" in config
         assert "kv_namespaces" in config
-        assert "triggers" in config
+        # KAN-273: `triggers` was removed — the Worker cron had no valid target.
         assert "observability" in config
         assert "env" in config

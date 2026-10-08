@@ -25,9 +25,8 @@ ENVIRONMENT = "production"
 binding = "CACHE"
 id = "07d1f31739eb418b944bf8d66f17a452"
 
-# Cron triggers for periodic tasks
-[triggers]
-crons = ["0 0 * * *", "0 */6 * * *"]
+# KAN-273: cron triggers REMOVED — scheduled() targeted /api/v1/sync, which the
+# backend does not serve. The backend owns the sync schedule (project/main.py).
 
 [observability]
 enabled = true
