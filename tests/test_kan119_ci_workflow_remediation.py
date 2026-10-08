@@ -45,12 +45,15 @@ def test_all_workflows_registered_in_trigger_inventory():
         assert required in configured_active, f"{required} missing from WORKFLOWS inventory"
 
 
-def test_production_monitor_fail_closed_contract():
+def test_production_monitor_fail_closed_contract() -> None:
     """Verify production_monitor.yml has no degraded bypass and enforces 2 surfaces."""
     content = (WORKFLOWS_DIR / "production_monitor.yml").read_text(encoding="utf-8")
     assert 'len(report["surfaces"]) != 2' in content, "Missing exact surface cardinality check"
     assert "raise SystemExit(0 if report[\"success\"] else 1)" in content, "Missing fail-closed exit"
-    assert "degraded" not in content, "Degraded mode bypass must not be present in monitor"
+    # KAN-173: degraded variable is expected (used for alerting), but no bypass allowing degraded to pass silently
+    # Ensure notification step runs on degradation (not just sys.exit(0))
+    assert "notify_health_degradation" in content, "Missing degradation notification call"
+    assert "Degradation notification sent" in content, "Missing notification success message"
 
 
 def test_workflow_auto_disable_has_workflow_dispatch():

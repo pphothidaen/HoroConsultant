@@ -1,0 +1,72 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-173",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "46a81642b67734a133bb2fad5a90bf6ec31c8fee",
+  "test_files": [
+    {
+      "path": "project/tests/test_gateway_ui_release_contract.py",
+      "sha256": "d54fdcb93a0f8b79771f4b2e0a5c043e7551a508355cf4cee9770e3644dddcbf"
+    },
+    {
+      "path": "project/tests/test_web_regression.py",
+      "sha256": "c5f3ad3a80f3b657f64f9b83434af4bfdd15ef1081d57d5d851b9b20b9a14bb2"
+    },
+    {
+      "path": "tests/test_kan119_ci_workflow_remediation.py",
+      "sha256": "ef2814f85837cfd2071bdd754e801926b7c9767e2aa6defaabdfda671a3d1e46"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_gateway_ui_release_contract.py::test_browser_routes_only_same_origin_and_rejects_hf_and_never_retries"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test expects HF backend to work (old behavior); fails because .hf.space check removed in app.js"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_web_regression.py::TestWebRegressionUI::test_ui_static_js_loads"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test asserts .hf.space check present in app.js; fails because .hf.space check removed (KAN-276)"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan119_ci_workflow_remediation.py::test_production_monitor_fail_closed_contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test asserts 'degraded' not in content; fails because KAN-173 adds notification step with degraded variable for alerting"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/production_monitor.yml",
+    "project/static/app.js",
+    "public/app.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0099c5b0a5a7c5b06d3df470598c785b0153a3db",
+  "correction_reason": "Add test changes for KAN-276 (HF removal) and KAN-173 (watchdog notification) alignment; sequence 3 supersedes sequence 2",
+  "rationale": "KAN-276 removed .hf.space CSP allowance from browser assets (project/static/app.js and public/app.js). KAN-173 added notification step to production_monitor.yml. Tests must be updated to reflect new expected behavior: HF backend rejection, .hf.space check absence, and degraded variable usage for alerting (not bypass)."
+}
