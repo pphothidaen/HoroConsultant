@@ -21,6 +21,8 @@ from __future__ import annotations
 import json
 import os
 import time
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -28,6 +30,30 @@ from typing import Any
 
 class LeaseHeldError(RuntimeError):
     """Raised when another run holds a live lease on the same run key."""
+
+
+STATE_KEY = "state"
+D1_TIMEOUT_SECONDS = 10
+
+
+def _d1_request(url: str, payload: dict[str, Any], token: str) -> dict[str, Any]:
+    """POST one statement to the Cloudflare D1 REST API.
+
+    Kept as a module-level function so tests can substitute it without network
+    access (see tests/test_kan275_durable_store.py).
+    """
+    body = json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=D1_TIMEOUT_SECONDS) as response:
+        return json.loads(response.read().decode("utf-8"))
 
 
 @dataclass
@@ -50,20 +76,52 @@ class DurableStore:
 
     # ------------------------------------------------------------------ plumbing
 
+    def _d1_url(self) -> str:
+        account = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+        return (
+            f"https://api.cloudflare.com/client/v4/accounts/{account}"
+            f"/d1/database/{self.location}/query"
+        )
+
+    def _d1_token(self) -> str:
+        token = os.getenv("CLOUDFLARE_D1_API_TOKEN", "").strip()
+        if not token:
+            raise RuntimeError(
+                "CLOUDFLARE_D1_API_TOKEN is not set; the d1 backend cannot persist "
+                "bookkeeping. Refusing to continue rather than silently discard the run."
+            )
+        return token
+
+    def _d1_rows(self, sql: str, params: list[Any]) -> list[dict[str, Any]]:
+        """Run one statement and return the flattened result rows."""
+        response = _d1_request(self._d1_url(), {"sql": sql, "params": params}, self._d1_token())
+        if not response.get("success", False):
+            raise RuntimeError(f"D1 query failed: {response.get('errors')}")
+        blocks = response.get("result") or []
+        return (blocks[0].get("results") if blocks else None) or []
+
     def _read_raw(self) -> dict[str, Any]:
         if self.backend == "local":
             path = Path(self.location)
             if not path.exists():
                 return {}
             return json.loads(path.read_text(encoding="utf-8"))
-        raise NotImplementedError("d1 backend requires the REST client (Task 3.5)")
+        rows = self._d1_rows(
+            "SELECT v FROM sync_state WHERE k = ?", [STATE_KEY]
+        )
+        if not rows:
+            return {}
+        return json.loads(rows[0]["v"])
 
     def _write_raw(self, payload: dict[str, Any]) -> None:
         if self.backend == "local":
             path = Path(self.location)
             path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
             return
-        raise NotImplementedError("d1 backend requires the REST client (Task 3.5)")
+        self._d1_rows(
+            "INSERT OR REPLACE INTO sync_state (k, v, updated_at) VALUES (?, ?, ?)",
+            [STATE_KEY, json.dumps(payload, ensure_ascii=False), time.time()],
+        )
 
     # --------------------------------------------------------------------- api
 
