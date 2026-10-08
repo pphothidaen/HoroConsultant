@@ -7,7 +7,7 @@ const vercelConfig = JSON.parse(
 );
 
 test("Vercel automatic Git deployments keep main production and disable previews", () => {
-  assert.deepEqual(vercelConfig.git?.deploymentEnabled, {
+  assert.deepEqual(vercelConfig.github?.deploymentEnabled, {
     "*": false,
     main: true,
   });
