@@ -3,11 +3,11 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { configuredBackendOrigin } from "../api/index.js";
+import { configuredRenderBackendOrigin } from "../api/index.js";
 
 const ROOT = new URL("../", import.meta.url);
 const INDEX_MODULE_URL = new URL("../api/index.js", import.meta.url).href;
-const CANONICAL_BACKEND = "https://pphothidaen-horoconsultant-core-backend.hf.space";
+const CANONICAL_BACKEND = "https://horoconsultant-core-backend.onrender.com";
 
 // Deliberately explicit: adding a new privileged route requires a conscious
 // gateway, browser-token, and deployment-contract review instead of a wildcard.
@@ -53,7 +53,7 @@ function runGateway({ method = "GET", path, authorization = "Bearer verified-goo
   `;
   const result = spawnSync(process.execPath, ["--input-type=module", "--eval", script], {
     encoding: "utf8",
-    env: { ...process.env, HF_BACKEND_URL: CANONICAL_BACKEND },
+    env: { ...process.env, RENDER_BACKEND_URL: CANONICAL_BACKEND },
   });
   assert.equal(result.status, 0, result.stderr);
   return JSON.parse(result.stdout);
@@ -74,7 +74,7 @@ test("production Vercel has only the exact Admin startup rewrites, never an admi
 });
 
 test("gateway forwards only the authenticated Admin startup allowlist and preserves the ID token", () => {
-  assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: CANONICAL_BACKEND }), CANONICAL_BACKEND);
+  assert.equal(configuredRenderBackendOrigin({ RENDER_BACKEND_URL: CANONICAL_BACKEND }), CANONICAL_BACKEND);
   for (const [method, path] of ADMIN_STARTUP_ROUTES) {
     const result = runGateway({ method, path });
     assert.equal(result.statusCode, 200, `${method} ${path} should be routable through production ingress`);
