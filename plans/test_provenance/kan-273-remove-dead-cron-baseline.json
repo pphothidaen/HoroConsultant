@@ -1,0 +1,53 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-273-REMOVE-DEAD-CRON-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1d2c16b2e26ceb52957d0a3d825ebfb95aeed127",
+  "test_files": [
+    {
+      "path": "tests/test_kan273_remove_dead_cron.py",
+      "sha256": "55601115daff069c9d02051e6e22d635f351674b7bd9bc5812f23837d622992d"
+    },
+    {
+      "path": "tests/test_cloudflare_deploy.py",
+      "sha256": "620fc0649a5947b86403ef8f199097a5a4bacc20d769df0e5547c0a5a35fcf1c"
+    },
+    {
+      "path": "tests/test_wrangler_hermes.py",
+      "sha256": "b5c6b5908e04e81ac4e714dcc2ff63ce3960679dfb07ab635668b89177813850"
+    },
+    {
+      "path": "tests/test_cloudflare_cron_triggers.py",
+      "sha256": "e86f8e4a33036f779389eab63a05d0f1fc207e76fbdf77853c801ddb8fb5430a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan273_remove_dead_cron.py",
+        "tests/test_cloudflare_deploy.py",
+        "tests/test_wrangler_hermes.py",
+        "tests/test_cloudflare_cron_triggers.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "9 failed, 21 passed; KAN273_DEAD_CRON: _worker.js scheduled() still POSTs /api/v1/sync (absent from the backend route table) and both wrangler configs still register the two crons"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js",
+    "wrangler.toml",
+    "wrangler.hermes.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-273 contract before source work. The Worker cron fired twice daily (0 0 * * * and 0 */6 * * *) and POSTed <primary>/api/v1/sync. Measured: POST /api/v1/sync returns 404 on Render and 405 on Vercel, and the backend OpenAPI document lists 87 paths with none containing 'sync', so the route has never existed. ctx.waitUntil swallowed the result, so the cron reported success while doing nothing. The sync itself is not missing: project/main.py registers its own APScheduler job 'midnight_gdrive_sync' driven by AUTO_SYNC_CRON and gated on AUTO_SYNC_ENABLED, and Doppler confirms AUTO_SYNC_ENABLED=true and AUTO_SYNC_CRON='0 0 * * *'. The Worker cron was therefore a redundant duplicate with no valid target, so the honest fix is removal rather than inventing an endpoint. The two contract tests that asserted a [triggers] section are updated in this same commit to assert the absence of a dead cron, and a guard test pins the premise (the backend's own job) so that if the backend ever stops self-scheduling, removing the Worker cron gets revisited. Assertions read the PARSED TOML rather than raw text: wrangler.hermes.toml carries a commented reference block for a different worker (hermes-harness-hooks) that legitimately mentions crons, so a substring check would fail for the wrong reason."
+}

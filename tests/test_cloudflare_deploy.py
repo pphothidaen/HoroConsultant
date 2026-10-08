@@ -58,11 +58,18 @@ class TestWranglerConfigIntegrity:
         assert "[[r2_buckets]]" not in content
         assert 'binding = "ARTIFACTS"' not in content
 
-    def test_triggers_configured(self):
-        """wrangler.toml must have triggers section."""
-        content = read_wrangler()
-        assert "[triggers]" in content
-        assert "crons" in content
+    def test_no_dead_cron_triggers(self):
+        """KAN-273: no cron may be registered without a valid target.
+
+        The Worker's cron POSTed /api/v1/sync, which the backend does not serve.
+        The backend schedules its own sync (project/main.py), so the Worker cron
+        was a redundant duplicate that silently 404'd twice a day.
+        Parsed, not grepped — these files carry commented reference blocks.
+        """
+        import tomllib
+        with open(WRANGLER_PATH, "rb") as handle:
+            config = tomllib.load(handle)
+        assert not (config.get("triggers") or {}).get("crons")
 
     def test_observability_configured(self):
         """wrangler.toml must have observability enabled."""
