@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-278-WORKFLOW-ARCHIVE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "130d18b096094df7ed799bda8edabe47d46c683f",
+  "test_files": [
+    {
+      "path": "tests/test_release_ci_gates.py",
+      "sha256": "352277df83aafd4b1b05aacf3ba45fb3ca593efa76a5a3a2058f00fbeda06be4"
+    },
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "17d42cfe5612c5082b31fd30c57359c93ff51dec77b9319d6cb9099c2f62a72e"
+    },
+    {
+      "path": "project/tests/test_azure_release.py",
+      "sha256": "9c6f77a7572d33d69c5a403cf4b438f6eeedf1dde0aee1cffb56674588b33ac3"
+    },
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "98743b061ded0d8e4db83586d8b1590afc058e17b7045a0695ccc4645d827287"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "d00783edf963eb0c4f9dc012a344a758e6a82186895be33c24018e3f1ebe3b04"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "bash",
+        "-c",
+        "test -f .github/workflows/deploy.yml && echo 'FAIL: deploy.yml still in active workflows' && exit 1 || echo 'OK: deploy.yml archived'"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "KAN-278 negative control: deploy.yml must NOT exist in active .github/workflows/ (it should be in _archive/)"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/post-deploy-tdd.yml",
+    "scripts/trigger_all_github_actions.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-278 archives 5 retired workflows (azure_deploy.yml, azure_cost_guard.yml, fly_deploy.yml, hf_backend_deploy.yml, deploy.yml) to .github/workflows/_archive/. Two blockers fixed: (1) post-deploy-tdd.yml workflow_run trigger updated from deploy.yml to deploy-render.yml; (2) test_release_ci_gates.py _workflow() helper updated to check both .github/workflows/ and .github/workflows/_archive/ for retired workflow files. Also updated 4 test files and trigger script to handle archived workflows. RED test = negative control verifying deploy.yml is absent from active workflows. All 261 tests pass."
+}
