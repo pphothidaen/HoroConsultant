@@ -1,9 +1,7 @@
-// api/index.js -- Least-privilege Vercel gateway for the canonical HF backend.
+// api/index.js -- Least-privilege Vercel gateway for the canonical Render backend.
 
 import { applyCorsPolicy } from "./gateway.js";
 
-const CANONICAL_HF_BACKEND_ORIGIN =
-  "https://pphothidaen-horoconsultant-core-backend.hf.space";
 const DEFAULT_BACKEND_TIMEOUT_MS = 8_000;
 const MAX_BACKEND_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
@@ -55,35 +53,8 @@ function isAllowedRoute(pathname) {
 
 /**
  * Resolve the sole authorized Docker backend. Environment configuration may
- * select only the canonical HF Space origin; missing or different targets fail
+ * select only the canonical Render origin; missing or different targets fail
  * closed rather than falling through to another provider or local template.
- */
-export function configuredBackendOrigin(environment = process.env) {
-  const configured = typeof environment?.HF_BACKEND_URL === "string"
-    ? environment.HF_BACKEND_URL.trim()
-    : "";
-  if (!configured) return null;
-
-  try {
-    const parsed = new URL(configured);
-    if (parsed.protocol !== "https:"
-      || parsed.username
-      || parsed.password
-      || parsed.pathname !== "/"
-      || parsed.search
-      || parsed.hash
-      || parsed.origin !== CANONICAL_HF_BACKEND_ORIGIN) {
-      return null;
-    }
-    return parsed.origin;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Resolve the Render primary backend. Same fail-closed contract as the HF
- * origin: only the exact canonical Render origin is accepted.
  */
 export function configuredRenderBackendOrigin(environment = process.env) {
   const configured = typeof environment?.RENDER_BACKEND_URL === "string"
@@ -109,12 +80,11 @@ export function configuredRenderBackendOrigin(environment = process.env) {
 }
 
 /**
- * Ordered upstream origins: Render (primary) first, HF Space (fallback) last.
- * Empty when neither origin is configured or both fail validation.
+ * The sole upstream origin: Render. Empty when not configured or fails validation.
  */
 export function configuredBackendOrigins(environment = process.env) {
-  return [configuredRenderBackendOrigin(environment), configuredBackendOrigin(environment)]
-    .filter((origin, index, all) => Boolean(origin) && all.indexOf(origin) === index);
+  const origin = configuredRenderBackendOrigin(environment);
+  return origin ? [origin] : [];
 }
 
 function configuredBackendTimeoutMs(environment = process.env) {
@@ -376,10 +346,9 @@ async function proxyRequest(request, response, correlationId) {
 }
 
 async function handleWakeRequest(request, response, correlationId) {
-  const hfToken = (process.env.HF_TOKEN || process.env.HF_ACCESS_TOKEN || "").trim();
   response.setHeader("x-request-id", correlationId);
 
-  // 1. Fast check if backend is already healthy
+  // Check if backend is already healthy
   for (const origin of BACKEND_ORIGINS) {
     try {
       const probeController = new AbortController();
@@ -401,55 +370,11 @@ async function handleWakeRequest(request, response, correlationId) {
     }
   }
 
-  // 2. If HF_TOKEN is not configured on gateway
-  if (!hfToken) {
-    return response.status(200).json({
-      status: "paused_unauthenticated",
-      message: "Backend is paused and HF_TOKEN is not configured in environment",
-      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
-      correlation_id: correlationId,
-    });
-  }
-
-  // 3. Trigger restart on Hugging Face Space API
-  try {
-    const restartController = new AbortController();
-    const restartTimeout = setTimeout(() => restartController.abort(), 8000);
-    const restartRes = await fetch("https://huggingface.co/api/spaces/pphothidaen/horoconsultant-core-backend/restart", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${hfToken}`,
-        "Content-Type": "application/json",
-      },
-      signal: restartController.signal,
-    });
-    clearTimeout(restartTimeout);
-
-    if (restartRes.ok || restartRes.status === 200) {
-      return response.status(200).json({
-        status: "waking",
-        message: "Hugging Face Space restart triggered successfully",
-        estimated_seconds: 60,
-        correlation_id: correlationId,
-      });
-    }
-
-    const errorText = await restartRes.text().catch(() => "");
-    return response.status(200).json({
-      status: "trigger_failed",
-      message: `Hugging Face API returned HTTP ${restartRes.status}`,
-      detail: errorText.slice(0, 200),
-      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
-      correlation_id: correlationId,
-    });
-  } catch (err) {
-    return response.status(200).json({
-      status: "trigger_error",
-      message: err.message || "Failed to contact Hugging Face API",
-      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
-      correlation_id: correlationId,
-    });
-  }
+  return response.status(200).json({
+    status: "unavailable",
+    message: "Backend is not reachable",
+    correlation_id: correlationId,
+  });
 }
 
 export default async function handler(request, response) {
