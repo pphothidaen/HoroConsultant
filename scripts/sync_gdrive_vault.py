@@ -31,6 +31,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.durable_store import DurableStore, LeaseHeldError
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -147,9 +149,20 @@ def sync_all(force_reindex: bool = False, dry_run: bool = False) -> dict[str, An
             log.info(f"  • [{f['id']}] {f['name']} -> {f['url']}")
         return {"status": "dry_run", "before_count": len(before_files)}
 
+    # KAN-275: acquire a durable lease before doing any work
+    run_key = datetime.now().strftime("sync-%Y-%m-%d")
+    store = DurableStore.from_env()
+    try:
+        lease = store.begin_run(run_key=run_key, owner=os.getenv("HOSTNAME", "unknown"))
+        log.info(f"🔒 Acquired durable lease: {run_key} (fencing_token={lease['fencing_token']})")
+    except LeaseHeldError as exc:
+        log.warning(f"⚠️ Another run holds the lease for {run_key}: {exc}")
+        return {"status": "skipped", "reason": str(exc)}
+
     # 2. Download from all configured Google Drive links
     download_results = []
     for f_info in GDRIVE_FOLDERS:
+        store.heartbeat(run_key=run_key, step="download", detail=f_info["name"])
         ok = download_gdrive_folder(f_info)
         download_results.append({"folder": f_info["name"], "success": ok})
 
@@ -168,6 +181,7 @@ def sync_all(force_reindex: bool = False, dry_run: bool = False) -> dict[str, An
     # 4. Trigger Ingestion if new files arrived or force_reindex
     ingested = False
     if new_files or force_reindex or len(after_files) > 0:
+        store.heartbeat(run_key=run_key, step="ingest", detail="starting")
         log.info("\n⚙️ Triggering Vault Ingestion (PDF extraction -> nomic-embed -> FAISS + JSONL)…")
         cmd_ingest = [
             sys.executable, "project/rag/ingest_vault.py",
@@ -210,6 +224,10 @@ def sync_all(force_reindex: bool = False, dry_run: bool = False) -> dict[str, An
     STATUS_FILE.write_text(json.dumps(sync_summary, indent=2, ensure_ascii=False), encoding="utf-8")
     log.info(f"\n📊 Status report saved -> {STATUS_FILE}")
 
+    # KAN-275: record the durable last-success summary
+    store.complete_run(run_key=run_key, vectors=vector_count)
+    log.info(f"✅ Durable bookkeeping updated: {run_key}")
+
     print("\n" + "=" * 65)
     print("  SUMMARY REPORT")
     print("=" * 65)
@@ -236,6 +254,11 @@ def check_and_run_if_missed() -> bool:
 
     today_str = datetime.now().strftime("%Y-%m-%d")
     last_sync_date = ""
+
+    store = DurableStore.from_env()
+    durable_state = store.read()
+    if durable_state.get("last_success"):
+        last_sync_date = durable_state["last_success"].get("run_key", "").replace("sync-", "")
 
     if STATUS_FILE.exists():
         try:
