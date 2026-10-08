@@ -36,10 +36,13 @@ class TestWranglerHermesConfig:
             'Expected Workers name = "horoconsultant"'
 
     def test_main_entry_point_set(self):
-        """wrangler.hermes.toml must specify main entry point."""
+        """wrangler.hermes.toml must specify main entry point.
+
+        KAN-269: consolidated onto the file the live Worker actually runs.
+        """
         content = read_wrangler()
-        assert 'main = "api/index.js"' in content, \
-            "Missing main entry point for Workers"
+        assert 'main = "project/static/_worker.js"' in content, \
+            "main must point at the deployed Worker entry point"
 
     def test_compatibility_date_set(self):
         """wrangler.hermes.toml must have compatibility_date."""

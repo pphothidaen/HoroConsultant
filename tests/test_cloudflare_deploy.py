@@ -33,10 +33,14 @@ class TestDeploymentReadiness:
             "Expected Workers name = \"horoconsultant\""
 
     def test_main_entry_point_set(self):
-        """wrangler.toml must specify main entry point (not Pages output dir)."""
+        """wrangler.toml must specify main entry point (not Pages output dir).
+
+        KAN-269: consolidated onto the file the live Worker actually runs.
+        api/index.js remains the Vercel gateway, served from its own channel.
+        """
         content = read_wrangler()
-        assert 'main = "api/index.js"' in content, \
-            "Missing main entry point for Workers"
+        assert 'main = "project/static/_worker.js"' in content, \
+            "main must point at the deployed Worker entry point"
 
 
 class TestWranglerConfigIntegrity:
