@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-275",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b855ec15fd9435c8934a1847e586df65f0c420dd",
+  "test_files": [
+    {
+      "path": "tests/test_kan275_durable_store.py",
+      "sha256": "9f710c5ede0578251ed5160d2b19886c14c5f9896ff7f2add19708451d33ec85"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan275_durable_store.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "4 failed, 6 passed; AttributeError: 'module' object at scripts.durable_store has no attribute '_d1_request' - the d1 backend was never implemented, it raised NotImplementedError('d1 backend requires the REST client')"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/durable_store.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Correction history: Sequence 1 shipped the d1 backend as a stub: _read_raw and _write_raw raised NotImplementedError('d1 backend requires the REST client (Task 3.5)'). The plan deferred that client to a task that was never written, so the production path could not persist anything while the local path made the suite green - exactly the silent-success pattern KAN-275 exists to remove. Sequence 2 implements the Cloudflare D1 REST transport (SELECT/INSERT OR REPLACE against sync_state) and pins it with five tests that substitute a module-level _d1_request, so no network or credentials are needed. Note the local interpreter is Python 3.9, so the stub helper avoids PEP 604 annotations that would break collection.  Close the M7 gap: the durable store's production backend must actually persist to D1, not raise. The transport is a module-level _d1_request so it is substitutable in tests; the store refuses to run without CLOUDFLARE_D1_API_TOKEN rather than silently discarding a run. Verified end to end against the live database horo-sync-state (eafa3062-4418-4831-94f6-5a8f23701cdd, WEUR): begin_run -> heartbeat -> complete_run wrote a 349-byte state row, confirmed independently by a direct curl SELECT of sync_state, with the lease cleared after completion."
+}
