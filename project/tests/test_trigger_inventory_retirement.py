@@ -7,7 +7,11 @@ import re
 import shlex
 from pathlib import Path
 from types import ModuleType
-from typing import get_args, get_type_hints, is_typeddict
+from typing import get_args, get_type_hints
+try:
+    from typing import is_typeddict
+except ImportError:
+    from typing_extensions import is_typeddict
 
 import pytest
 import yaml
@@ -56,7 +60,11 @@ EXPECTED_RETIRED = (
     "fly_deploy.yml",
     "hf_backend_deploy.yml",
 )
-EXPECTED_FILESYSTEM = frozenset((*EXPECTED_ACTIVE, *EXPECTED_RETIRED))
+# Active workflows in .github/workflows/
+# Retired workflows in .github/workflows/_archive/
+EXPECTED_FILESYSTEM_ACTIVE = frozenset(EXPECTED_ACTIVE)
+EXPECTED_FILESYSTEM_RETIRED = frozenset(EXPECTED_RETIRED)
+EXPECTED_FILESYSTEM = EXPECTED_FILESYSTEM_ACTIVE | EXPECTED_FILESYSTEM_RETIRED
 
 
 @pytest.fixture(scope="module")
@@ -100,23 +108,37 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     documented_active, documented_retired = _documented_names(
         trigger_module.__doc__
     )
-    filesystem = {
+    # Check active workflows only in .github/workflows/
+    active_files = {
         path.name
         for pattern in ("*.yml", "*.yaml")
         for path in WORKFLOWS_DIR.glob(pattern)
         if path.name != "test_provenance.yml"
     }
+    assert active_files == EXPECTED_FILESYSTEM_ACTIVE
+    # Check retired workflows in _archive/
+    archive_dir = WORKFLOWS_DIR / "_archive"
+    retired_files = set()
+    if archive_dir.exists():
+        retired_files = {
+            path.name
+            for pattern in ("*.yml", "*.yaml")
+            for path in archive_dir.glob(pattern)
+        }
+    assert retired_files == EXPECTED_FILESYSTEM_RETIRED
 
     assert configured_active == EXPECTED_ACTIVE
     assert len(configured_active) == len(set(configured_active)) == 30
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
-    assert filesystem == EXPECTED_FILESYSTEM
     assert not set(configured_active) & configured_retired
     assert trigger_module.active_workflows() == trigger_module.WORKFLOWS
 
 
+import sys
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="ForwardRef union '|' not supported in Python < 3.10")
 def test_result_contract_is_typed_and_has_a_closed_status_vocabulary(trigger_module):
     assert is_typeddict(trigger_module.WorkflowResult)
     assert get_type_hints(trigger_module.trigger_workflow)["return"] is (
@@ -265,7 +287,7 @@ def test_main_inventory_drift_stops_before_any_dispatch(
 
 @pytest.mark.parametrize("workflow_name", EXPECTED_RETIRED)
 def test_retired_tombstones_are_ascii_inert_and_credential_free(workflow_name):
-    path = WORKFLOWS_DIR / workflow_name
+    path = WORKFLOWS_DIR / "_archive" / workflow_name
     text = path.read_text(encoding="utf-8")
     workflow = yaml.load(text, Loader=yaml.BaseLoader)
 
@@ -304,7 +326,7 @@ def test_retired_tombstones_are_ascii_inert_and_credential_free(workflow_name):
 def test_trigger_and_retired_workflow_surfaces_are_ascii_and_secret_free():
     texts = [TRIGGER_SCRIPT.read_text(encoding="utf-8")]
     texts.extend(
-        (WORKFLOWS_DIR / workflow).read_text(encoding="utf-8")
+        (WORKFLOWS_DIR / "_archive" / workflow).read_text(encoding="utf-8")
         for workflow in EXPECTED_RETIRED
     )
     combined = "\n".join(texts)

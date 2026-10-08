@@ -27,25 +27,20 @@ WORKFLOWS_DIR = ROOT_DIR / ".github" / "workflows"
 EXPECTED_WORKFLOW_FILES = [
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
-    "azure_cost_guard.yml",
-    "azure_deploy.yml",
     "ci.yml",
     "code-review.yml",
     "deploy-render.yml",
     "deploy-vercel.yml",
-    "deploy.yml",
     "dod-production-gate.yml",
     "gemini-bridge-tests.yml",
     "gitbook-webhook-pr.yml",
     "gitleaks.yml",
     "governance-drift.yml",
-    "fly_deploy.yml",
-    "hf_backend_deploy.yml",
+    "jira-governance.yml",
+    "jira-sync.yml",
     "kaggle_dataset_auto_sync.yml",
     "kaggle_finetune.yml",
     "kaggle_sync.yml",
-    "jira-governance.yml",
-    "jira-sync.yml",
     "lint.yml",
     "notebooklm_cookie_heartbeat.yml",
     "orchestrator-dispatch.yml",
@@ -63,6 +58,15 @@ EXPECTED_WORKFLOW_FILES = [
     "workflow-mttr-monitor.yml",
 ]
 
+# Archived (retired) workflows — still governed but moved to _archive/
+ARCHIVED_WORKFLOW_FILES = [
+    "azure_cost_guard.yml",
+    "azure_deploy.yml",
+    "deploy.yml",
+    "fly_deploy.yml",
+    "hf_backend_deploy.yml",
+]
+
 FROZEN_RELEASE_WORKFLOWS = (
     "azure_cost_guard.yml",
     "azure_deploy.yml",
@@ -73,18 +77,23 @@ FROZEN_RELEASE_WORKFLOWS = (
 
 
 def _load_workflow(filename: str) -> dict[str, Any]:
-    """Load one workflow without YAML 1.1 coercing the ``on`` key."""
+    """Load one workflow without YAML 1.1 coercing the ``on`` key.
+    Checks active workflows first, then _archive/ for retired workflows.
+    """
     filepath = WORKFLOWS_DIR / filename
-    assert filepath.exists(), f"Workflow file {filename} does not exist in {WORKFLOWS_DIR}"
+    if not filepath.exists():
+        # Try _archive/ for retired workflows
+        filepath = WORKFLOWS_DIR / "_archive" / filename
+    assert filepath.exists(), f"Workflow file {filename} does not exist in {WORKFLOWS_DIR} or {WORKFLOWS_DIR}/_archive/"
     parsed = yaml.load(filepath.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
     assert isinstance(parsed, dict), f"Workflow {filename} did not parse into a dictionary"
     return parsed
 
 
 def _load_all_workflows() -> dict[str, dict[str, Any]]:
-    """Load and parse all workflow YAML files."""
+    """Load and parse all workflow YAML files (active + archived)."""
     workflows = {}
-    for filename in EXPECTED_WORKFLOW_FILES:
+    for filename in EXPECTED_WORKFLOW_FILES + ARCHIVED_WORKFLOW_FILES:
         workflows[filename] = _load_workflow(filename)
     return workflows
 
@@ -99,9 +108,13 @@ class TestGitHubActionsWorkflowsInventory:
             assert filepath.is_file(), f"Missing expected workflow: {filename}"
 
     def test_no_orphan_or_empty_workflows(self):
-        """Ensure no 0-byte or corrupted workflow files exist."""
-        workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml"))
-        assert {path.name for path in workflow_files} == set(EXPECTED_WORKFLOW_FILES)
+        """Ensure no 0-byte or corrupted workflow files exist (active + archived)."""
+        workflow_files = (
+            list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml")) +
+            list((WORKFLOWS_DIR / "_archive").glob("*.yml")) + list((WORKFLOWS_DIR / "_archive").glob("*.yaml"))
+        )
+        expected_all = set(EXPECTED_WORKFLOW_FILES) | set(ARCHIVED_WORKFLOW_FILES)
+        assert {path.name for path in workflow_files} == expected_all
         for wf in workflow_files:
             assert wf.stat().st_size > 50, f"Workflow {wf.name} is too small or empty ({wf.stat().st_size} bytes)"
 
@@ -267,8 +280,9 @@ class TestSpecificWorkflowsIntegrity:
         assert "scripts/sync_ai_agent_ecosystem.py --check" in content
 
     def test_hf_backend_deploy_workflow(self):
-        """Hugging Face Docker backend deployment is permanently retired as a tombstone."""
-        content = (WORKFLOWS_DIR / "hf_backend_deploy.yml").read_text(encoding="utf-8")
+        """Hugging Face Docker backend deployment is permanently retired as a tombstone (archived)."""
+        workflow = _load_workflow("hf_backend_deploy.yml")
+        content = yaml.dump(workflow, Dumper=yaml.Dumper)
         assert "[RETIRED]" in content
         assert "permanently retired" in content
         assert "runs-on: ubuntu-latest" in content

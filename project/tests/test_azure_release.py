@@ -24,6 +24,9 @@ RETIRED_DEPLOYMENT_WORKFLOWS = (
 
 def _workflow(name: str) -> tuple[str, dict[str, Any]]:
     path = WORKFLOWS / name
+    if not path.exists():
+        # Try _archive/ for retired workflows
+        path = WORKFLOWS / "_archive" / name
     assert path.exists(), f"missing workflow: {path.relative_to(ROOT)}"
     text = path.read_text(encoding="utf-8")
     parsed = yaml.load(text, Loader=yaml.BaseLoader)
