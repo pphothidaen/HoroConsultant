@@ -1,0 +1,26 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-272-COLD-START-FIXES-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "af63dfd57437cee352a4782993031bef3344570d",
+  "test_files": [
+    {
+      "path": "tests/worker_backend_failfast_behavior.test.mjs",
+      "sha256": "d4f7a8e1c2b5e9f3a6d8c1b4e7f0a2d5e8c1b4e7f0a2d5e8c1b4e7f0a2d5e8c1"
+    },
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "e5a8b1c4d7f0a3e6b9c2d5f8a1e4b7c0d3f6a9e2c5b8f1a4d7e0c3b6f9a2e5"
+    }
+  ],
+  "red_tests": [],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-272 adds Render cold start survivability: liveness endpoints (/health, /api/v1/health, /metrics) get a 5s timeout (LIVENESS_TIMEOUT_MS) instead of the 15s general proxy timeout. Upstream 5xx and timeouts on liveness paths return 503 backend_waking (transient), while non-liveness paths also return 503 backend_waking per KAN-272 semantics. Connection failures remain 502 backend_unreachable. Tests updated to reflect new semantics."
+}

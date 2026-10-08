@@ -69,14 +69,14 @@ test("Render 5xx does not fall back to the dead HF Space", async () => {
   assert.ok(!result.calls[0].url.startsWith(HF), "the paused HF Space must not be contacted");
 });
 
-test("Render 5xx surfaces one clear 502, not a proxied 503", async () => {
+test("Render 5xx surfaces a transient 503 for non-liveness paths (KAN-272)", async () => {
   const result = await callWorker({
-    path: "/health",
+    path: "/api/v1/test",
     upstreams: [{ match: RENDER, status: 503 }],
   });
-  assert.equal(result.status, 502, "a dead upstream must not be reported as a 503 from it");
+  assert.equal(result.status, 503, "non-liveness path 5xx -> transient 503 backend_waking");
   const body = JSON.parse(result.text);
-  assert.equal(body.code, "backend_unreachable");
+  assert.equal(body.code, "backend_waking");
 });
 
 test("Render network failure surfaces the same single 502", async () => {
