@@ -26,5 +26,5 @@
     {"source": "/admin/provider-pools", "destination": "/api/index?path=/admin/provider-pools"},
     {"source": "/hitl/stats", "destination": "/api/index?path=/hitl/stats"}
   ],
-  "github": {"silent": true, "autoAlias": false}
+  "github": {"silent": true, "autoAlias": false, "deploymentEnabled": {"*": false, "main": true}}
 }
