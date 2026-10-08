@@ -1,9 +1,15 @@
-# Cloudflare Workers configuration for Hermes account (horo-hermes)
-# Account ID: bda49e4e77e00609cb1ef68561b0d9eb
-# Workers: horoconsultant, hermes-harness-hooks, hermes-harness-hooks-staging
+# Cloudflare Workers configuration for the HoroConsultant Worker.
+# Account ID: bda49e4e77e00609cb1ef68561b0d9eb  (Pansakorn@gmail.com's account —
+#   NOT a "Hermes" account. An earlier comment claimed otherwise; that was wrong
+#   and caused the Hermes-scoped API/token to be used against this Worker, which
+#   answers 10007 "This Worker does not exist on your account".)
+# Workers in this account: horoconsultant, hermes-harness-hooks, hermes-harness-hooks-staging
+#
+# KAN-269: `main` points at project/static/_worker.js — the file the live Worker
+# `horoconsultant-production` actually runs.
 
 name = "horoconsultant"
-main = "api/index.js"
+main = "project/static/_worker.js"
 compatibility_date = "2026-09-22"
 compatibility_flags = ["nodejs_compat"]
 account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
@@ -32,8 +38,14 @@ enabled = true
 [env.preview]
 vars = { ENVIRONMENT = "preview" }
 
+# KAN-269: vars and kv_namespaces are NON-INHERITABLE — [env.production] must
+# declare them itself or the production Worker loses BACKEND_BASE_URL and CACHE.
 [env.production]
-vars = { ENVIRONMENT = "production" }
+vars = { ENVIRONMENT = "production", BACKEND_BASE_URL = "https://horoconsultant-core-backend.onrender.com", BACKEND_TIMEOUT_MS = "15000", CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com" }
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "07d1f31739eb418b944bf8d66f17a452"
 
 # ============================================================
 # Additional workers in this account (defined separately in their own repos)

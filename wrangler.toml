@@ -1,7 +1,11 @@
 # Cloudflare Workers configuration for horoconsultant
-# This is the MAIN entry point for Workers deployments (not Pages)
+# This is the MAIN entry point for Workers deployments (not Pages).
+# KAN-269: `main` points at project/static/_worker.js — that is the file the live
+# Worker `horoconsultant-production` actually runs (proven by its unique
+# X-Cost-Guardrail / X-R2-Policy response headers). api/index.js is the Vercel
+# gateway and is served from its own channel, not deployed as a Worker here.
 name = "horoconsultant"
-main = "api/index.js"
+main = "project/static/_worker.js"
 # account_id required for Workers deploy — NOT supported in Pages projects
 compatibility_date = "2026-09-22"
 compatibility_flags = ["nodejs_compat"]
@@ -20,10 +24,9 @@ id = "07d1f31739eb418b944bf8d66f17a452"
 
 # NOTE: no R2 bucket binding here. R2 is not enabled on this Cloudflare
 # account (deploy fails with API error 10042 "Please enable R2"), so any R2
-# entry fails `wrangler deploy` outright. api/index.js does not reference
-# env.ARTIFACTS; project/static/_worker.js (Pages) degrades gracefully
-# without the binding. Re-add only after R2 is enabled and the bucket
-# horoconsultant-artifacts exists.
+# entry fails `wrangler deploy` outright. project/static/_worker.js guards
+# env.ARTIFACTS and degrades gracefully without the binding. Re-add only after
+# R2 is enabled and the bucket horoconsultant-artifacts exists.
 
 # Cron triggers for periodic tasks
 [triggers]
@@ -34,8 +37,17 @@ enabled = true
 
 # Env variables synced from Doppler
 # DO NOT hardcode secrets here — use `doppler run -- wrangler deploy`
+#
+# KAN-269: `vars` and `kv_namespaces` are NON-INHERITABLE — an environment does
+# not inherit them from the top level. [env.production] must therefore declare
+# them itself, otherwise the production Worker has no BACKEND_BASE_URL and no
+# CACHE binding.
 [env.preview]
 vars = { ENVIRONMENT = "preview" }
 
 [env.production]
-vars = { ENVIRONMENT = "production" }
+vars = { ENVIRONMENT = "production", BACKEND_BASE_URL = "https://horoconsultant-core-backend.onrender.com", BACKEND_TIMEOUT_MS = "15000", CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com" }
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "07d1f31739eb418b944bf8d66f17a452"

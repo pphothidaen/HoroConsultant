@@ -5,13 +5,15 @@ on:
     branches: [main]
     paths:
       - "wrangler.toml"
-      - "api/index.js"
+      - "wrangler.hermes.toml"
+      - "project/static/_worker.js"
       - "project/routers/**"
   pull_request:
     branches: [main]
     paths:
       - "wrangler.toml"
-      - "api/index.js"
+      - "wrangler.hermes.toml"
+      - "project/static/_worker.js"
       - "project/routers/**"
   workflow_dispatch:
     inputs:
@@ -52,13 +54,19 @@ jobs:
           npx wrangler whoami
 
       - name: Dry-run deploy
-        continue-on-error: true
-        run: npx wrangler deploy --dry-run
+        # KAN-269: no continue-on-error. A dry-run that silently fails hides a
+        # broken config, which is how the entry-point drift went unnoticed.
+        run: npx wrangler deploy --dry-run --env production
 
       - name: Deploy to Workers
         if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
         # Wrangler v4 only reads CLOUDFLARE_API_TOKEN (not CF_API_TOKEN); the
         # step must fail the job when the deploy fails.
-        run: npx wrangler deploy --outdir /tmp/wrangler-deploy
+        #
+        # KAN-269: use secrets.CF_API_TOKEN — that token belongs to the account
+        # that OWNS this Worker (bda49e4e77e00609cb1ef68561b0d9eb). The previous
+        # Hermes-scoped token pointed at a different account and could never
+        # deploy this Worker (API 10007 "This Worker does not exist").
+        run: npx wrangler deploy --env production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

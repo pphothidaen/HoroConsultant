@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-269-CONSOLIDATE-ENTRYPOINT-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4c487857925c71b2c1406a7cafb3bf1e7cc10895",
+  "test_files": [
+    {
+      "path": "tests/test_kan269_worker_entrypoint_consolidation.py",
+      "sha256": "1706e961a9801195b2de20fc0735a250d11bd3c5f9efc59713d789e2c0885879"
+    },
+    {
+      "path": "tests/test_cloudflare_deploy.py",
+      "sha256": "74f3a9f5dfbc9c201741c14334192a3e523bd1922ec2ae2239e8ce280b440964"
+    },
+    {
+      "path": "tests/test_wrangler_hermes.py",
+      "sha256": "7040a440fb8f49fab46b443ef140ef4214517d3285c2ab625405b46fc9c9ea93"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan269_worker_entrypoint_consolidation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "11 failed, 4 passed; KAN269_ENTRYPOINT_DRIFT: both wrangler configs still set main = api/index.js while the live Worker runs project/static/_worker.js, and [env.production] omits the non-inheritable vars/kv_namespaces"
+    }
+  ],
+  "allowed_source_paths": [
+    "wrangler.toml",
+    "wrangler.hermes.toml",
+    ".github/workflows/workers-builds.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-269 deploy-topology contract before source work. The live Worker horoconsultant-production runs project/static/_worker.js (proven by its unique X-Cost-Guardrail / X-R2-Policy headers, plus /manifest.json -> 404 and /api/index -> 404, while the separate Pages artifact horoconsultant-pages.pages.dev serves those assets). No tracked pipeline reproduces that artifact: both wrangler configs on main set main = api/index.js, and the dashboard shows every version as 'Manually deployed Wrangler by pansakorn' with 'No builds exist yet'. Per the Cloudflare environments reference an environment deploys as <top-level-name>-<environment-name>, so name = horoconsultant with -e production already yields horoconsultant-production; only the entry point is wrong. The same reference states vars and kv_namespaces are non-inheritable, so [env.production] must declare them itself — it currently does not, leaving the production Worker without BACKEND_BASE_URL and without the CACHE binding. The contract tests that pinned main = api/index.js are updated in this same commit rather than deleted."
+}
