@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-272-COLD-START-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6de541d0d9c106cc4fff82aa4d0de94d04adbb0f",
+  "test_files": [
+    {
+      "path": "tests/worker_cold_start_behavior.test.mjs",
+      "sha256": "ffe67c77bb0a9385dd861c4ff62dc74a6f5e25c22cd70a57f2f569ff89ea117c"
+    },
+    {
+      "path": "tests/worker_backend_failfast_behavior.test.mjs",
+      "sha256": "8b0e2bd4ed64263bbd0df802cdb8c681d0ca0cf77550d0ba73d6f0fdd4fe54d8"
+    },
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "861f8f0cfb14e2044097a395cefff082e8e7ec30b5c6fd2cb5ce807abb069079"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_cold_start_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "4 failed, 6 passed; KAN272_COLD_START: a backend timeout and an upstream 5xx both collapse into the single backend_unreachable 502, so a transient cold start is indistinguishable from a real outage; failure responses carry no Cache-Control: no-store; there is no dedicated shorter liveness timeout"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_backend_failfast_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 9 passed; the superseded KAN-271 assertion still requires a 502 for an upstream 5xx"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-272 cold-start contract before source work. Render's free plan spins down after ~15 minutes idle and takes ~50 seconds to wake, while the Worker proxy timeout is 15000 ms - a ~35 s gap, so the first request after an idle period could never succeed and the caller simply hung until the abort fired. Keep-alive was evaluated and rejected: holding one free Render service warm 24/7 consumes roughly 730 of the 750 free instance-hours per calendar month, leaving no headroom, and it holds only while this is the sole service in the workspace; the existing cron is 6-hourly and cannot be relied on for warmth. Upgrading the plan is a paid change requiring explicit owner sign-off and is ruled out by the standing free-only constraint, so it was not selected. The chosen mitigation is to make the failure useful and honest rather than to lengthen the wait: distinguish a transient cold start (503 + code backend_waking + Retry-After) from a genuine outage (502 + code backend_unreachable + Retry-After), give liveness endpoints a shorter dedicated timeout so they answer fast, and mark failure responses Cache-Control: no-store so a transient error is never cached. Tests drive the real worker module with a stubbed global fetch, simulating an AbortError for the timeout path, so a change that merely renames a status cannot pass."
+}

@@ -69,14 +69,18 @@ test("Render 5xx does not fall back to the dead HF Space", async () => {
   assert.ok(!result.calls[0].url.startsWith(HF), "the paused HF Space must not be contacted");
 });
 
-test("Render 5xx surfaces one clear 502, not a proxied 503", async () => {
+test("Render 5xx surfaces one transient 503, not a proxied dead-origin 503", async () => {
+  // KAN-272 reclassified an upstream 5xx as a transient cold-start signal
+  // (503 + backend_waking + Retry-After), rather than a hard 502. The guarantee
+  // that matters here is unchanged: no second hop to a dead origin.
   const result = await callWorker({
     path: "/health",
     upstreams: [{ match: RENDER, status: 503 }],
   });
-  assert.equal(result.status, 502, "a dead upstream must not be reported as a 503 from it");
+  assert.equal(result.calls.length, 1, "must not contact a dead fallback");
+  assert.equal(result.status, 503);
   const body = JSON.parse(result.text);
-  assert.equal(body.code, "backend_unreachable");
+  assert.equal(body.code, "backend_waking");
 });
 
 test("Render network failure surfaces the same single 502", async () => {
