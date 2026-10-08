@@ -187,11 +187,13 @@ def _validate_unambiguous_names(names: tuple[str, ...], source: str) -> None:
 
 
 def _workflow_filesystem_names() -> tuple[str, ...]:
-    """Enumerate reviewed YAML extensions and reject ambiguous paths."""
+    """Enumerate reviewed YAML extensions and reject ambiguous paths.
+    Only checks .github/workflows/ (active), not .github/workflows/_archive/ (retired).
+    """
     yaml_like_paths = sorted(
         (
             path
-            for path in WORKFLOWS_DIR.rglob("*")
+            for path in WORKFLOWS_DIR.glob("*")  # Only direct children, not rglob
             if path.suffix.casefold() in WORKFLOW_FILE_SUFFIXES
         ),
         key=lambda path: _workflow_name_sort_key(
@@ -262,18 +264,18 @@ def active_workflows() -> tuple[tuple[str, str, dict[str, str]], ...]:
     _validate_unambiguous_names(configured_names, "configured inventory")
     filesystem_names = set(_workflow_filesystem_names())
 
-    expected_names = active_names | retired_names
-    if filesystem_names != expected_names:
+    # Only active workflows should be in filesystem (retired are in _archive/)
+    if filesystem_names != active_names:
         missing = sorted(
-            expected_names - filesystem_names,
+            active_names - filesystem_names,
             key=_workflow_name_sort_key,
         )
         unreviewed = sorted(
-            filesystem_names - expected_names,
+            filesystem_names - active_names,
             key=_workflow_name_sort_key,
         )
         raise RuntimeError(
-            "workflow inventory/filesystem mismatch "
+            "workflow inventory/filesystem mismatch (active only) "
             f"(missing={_ascii_text(missing)}, "
             f"unreviewed={_ascii_text(unreviewed)})"
         )
