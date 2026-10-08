@@ -1,4 +1,5 @@
-const BACKEND_BASE_URL = 'https://pphothidaen-horoconsultant-core-backend.hf.space';
+const RENDER_BACKEND_URL = 'https://horoconsultant-core-backend.onrender.com';
+const HF_FALLBACK_URL = 'https://pphothidaen-horoconsultant-core-backend.hf.space';
 const VERCEL_FALLBACK_ORIGIN = 'https://horo-consultant-psi.vercel.app';
 const CORS_ALLOWED_ORIGINS = [
   'https://horo-consultant-psi.vercel.app',
@@ -21,6 +22,39 @@ const PUBLIC_READ_PATHS = new Set(['/health', '/docs', '/openapi.json']);
 const PRIVILEGED_API_PATH = /^\/admin\/[\w.~!$&'()*+,;=:@/-]*$/;
 const PRIVILEGED_READ_PATHS = new Set(['/hitl/stats']);
 const ARTIFACT_PATH = /^\/artifacts\/[\w.~!$&'()*+,;=:@/-]*$/;
+
+function getPrimaryBackendUrl(env) {
+  return env?.BACKEND_BASE_URL || RENDER_BACKEND_URL;
+}
+
+function getFallbackBackendUrl() {
+  return HF_FALLBACK_URL;
+}
+
+async function tryFetchOrigin(origin, request, path, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const url = `${origin}${path}${new URL(request.url).search}`;
+    const response = await fetch(url, {
+      method: request.method,
+      headers: {
+        'accept': request.headers.get('accept') || '',
+        'authorization': request.headers.get('authorization') || '',
+        'content-type': request.headers.get('content-type') || '',
+      },
+      body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function isFailoverStatus(status) {
+  return status >= 500;
+}
 
 function isAllowedPath(path) {
   return PUBLIC_READ_PATHS.has(path) ||
@@ -68,29 +102,32 @@ async function kvCacheGet(env, key) {
   }
 }
 
-async function proxyToBackend(request, path) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
+async function proxyToBackend(request, path, env) {
+  const primaryBase = getPrimaryBackendUrl(env);
+  const fallbackBase = getFallbackBackendUrl();
+
+  // Try primary origin first
   try {
-    const url = `${BACKEND_BASE_URL}${path}${new URL(request.url).search}`;
-    const response = await fetch(url, {
-      method: request.method,
-      headers: {
-        'accept': request.headers.get('accept') || '',
-        'authorization': request.headers.get('authorization') || '',
-        'content-type': request.headers.get('content-type') || '',
-      },
-      body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body,
-      signal: controller.signal,
-    });
+    const response = await tryFetchOrigin(primaryBase, request, path, BACKEND_TIMEOUT_MS);
+    if (!isFailoverStatus(response.status)) {
+      return new Response(response.body, {
+        status: response.status,
+        headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'render' },
+      });
+    }
+  } catch (_) {
+    // Primary failed with network error — fall through to fallback
+  }
+
+  // Fallback to HF origin
+  try {
+    const response = await tryFetchOrigin(fallbackBase, request, path, BACKEND_TIMEOUT_MS);
     return new Response(response.body, {
       status: response.status,
-      headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json' },
+      headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'hf' },
     });
   } catch (err) {
     return new Response(JSON.stringify({ detail: 'Backend unavailable' }), { status: 502 });
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
@@ -117,7 +154,7 @@ async function handleWake(request, env) {
 
   // 1. Fast check if backend is already healthy
   try {
-    const probeRes = await fetch(`${BACKEND_BASE_URL}/health`, {
+    const probeRes = await fetch(`${getPrimaryBackendUrl(env)}/health`, {
       method: 'GET',
       signal: AbortSignal.timeout(3000),
     });
@@ -257,10 +294,13 @@ export default {
       }
 
       // Proxy to backend
-      const response = await proxyToBackend(request, path);
+      const response = await proxyToBackend(request, path, env);
 
-      // Write successful GET responses to KV cache
-      if (request.method === 'GET' && response.status === 200 && env.CACHE) {
+      // Write successful GET responses to KV cache.
+      // KAN-268: never cache liveness/telemetry endpoints — a cached 200 would
+      // keep reporting "healthy" for up to 24h after the backend went down.
+      const NO_CACHE_PATHS = new Set(['/health', '/api/v1/health', '/metrics']);
+      if (request.method === 'GET' && response.status === 200 && env.CACHE && !NO_CACHE_PATHS.has(path)) {
         try {
           const body = await response.clone().json();
           await kvCacheSet(env, cacheKey(request), { response: body });
@@ -278,7 +318,7 @@ export default {
 
   async scheduled(event, env, ctx) {
     // Cron trigger: midnight sync
-    const syncUrl = `${BACKEND_BASE_URL}/api/v1/sync`;
+    const syncUrl = `${getPrimaryBackendUrl(env)}/api/v1/sync`;
     ctx.waitUntil(fetch(syncUrl, { method: 'POST' }));
   },
 };
