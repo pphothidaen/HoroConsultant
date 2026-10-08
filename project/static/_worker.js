@@ -312,6 +312,36 @@ export default {
       return response;
     }
 
+    // Root service banner (KAN-270).
+    // `/` is deliberately NOT in isAllowedPath(): adding it there would also
+    // expose it to the generic proxy + KV cache path. Handled explicitly here,
+    // before the SPA fallback, because that fallback cannot resolve without a
+    // Pages asset layer — which is why `/` used to answer 404.
+    // The body intentionally discloses no backend origins or internal hosts.
+    if (path === '/') {
+      if (request.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers: corsHeaders(request) });
+      }
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return new Response(JSON.stringify({ detail: 'Method not allowed' }), {
+          status: 405,
+          headers: {
+            ...corsHeaders(request),
+            'content-type': 'application/json',
+            'Allow': 'GET, HEAD, OPTIONS',
+          },
+        });
+      }
+      return new Response(JSON.stringify({
+        service: 'HoroConsultant',
+        status: 'ok',
+        docs: '/docs',
+      }), {
+        status: 200,
+        headers: { ...corsHeaders(request), 'content-type': 'application/json' },
+      });
+    }
+
     // SPA fallback — serve from Pages
     return fetch(request);
   },

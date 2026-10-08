@@ -167,8 +167,10 @@ test("deny-list preserved: /admin/nope is rejected without touching a backend", 
 });
 
 test("unknown paths fall through to the Pages SPA, not to a backend", async () => {
+  // KAN-270 gave `/` its own handler, so `/` is no longer an "unknown path".
+  // Use a genuinely unhandled path to keep testing the SPA passthrough.
   const result = await callWorker({
-    path: "/",
+    path: "/some-unhandled-route",
     upstreams: [{ match: RENDER, status: 200 }],
   });
   assert.equal(result.calls.length, 1);
