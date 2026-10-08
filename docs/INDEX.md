@@ -3,7 +3,7 @@
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
 
-**Total documents:** 72
+**Total documents:** 74
 
 ## Document Registry
 
@@ -12,6 +12,8 @@
 | File | Path |
 |------|------|
 | `AI_AGENT_ECOSYSTEM_SYNC.md` | `AI_AGENT_ECOSYSTEM_SYNC.md` |
+| `ARCHITECTURE.md` | `ARCHITECTURE.md` |
+| `CD-STALL-RUNBOOK.md` | `CD-STALL-RUNBOOK.md` |
 | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` |
 | `GITHUB_SECRETS_WORKERS.md` | `GITHUB_SECRETS_WORKERS.md` |
 | `HITL_OPERATING_GUIDE.md` | `HITL_OPERATING_GUIDE.md` |
