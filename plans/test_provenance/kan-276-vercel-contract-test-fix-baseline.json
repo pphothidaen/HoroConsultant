@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-276-VERCEL-CONTRACT-TEST-FIX-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1d642f4332c8fdaa17adae0abd47909d1c75cc61",
+  "test_files": [
+    {
+      "path": "tests/api_index_vercel_contract.test.mjs",
+      "sha256": "47f43e71813cb64e9374186c7b20689e73eb06280c0a3363be0e11f6c2d15b74"
+    },
+    {
+      "path": "tests/vercel_preview_policy.test.mjs",
+      "sha256": "f8e067be41d89e33e614db50fd62fff6ffee88c92bb971d592bc1b179b0ca6d7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/api_index_vercel_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test expected vercel.json rewrites to not include / and /advanced routes; fails because vercel.json now includes these SPA routes"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/vercel_preview_policy.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test expected git.deploymentEnabled but vercel.json uses github.deploymentEnabled; fails due to config path mismatch"
+    }
+  ],
+  "allowed_source_paths": [
+    "vercel.json",
+    "tests/api_index_vercel_contract.test.mjs",
+    "tests/vercel_preview_policy.test.mjs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Updates vercel contract test to match actual vercel.json configuration including SPA routes (/, /advanced) and fixes vercel preview policy test to reference github.deploymentEnabled instead of git.deploymentEnabled."
+}
