@@ -96,7 +96,7 @@ def test_static_and_public_browser_assets_are_byte_identical_and_have_no_host_fa
     assert "const safeReason" in rendered
 
 
-def test_browser_routes_only_same_origin_or_hf_and_never_retries_an_upstream_response() -> None:
+def test_browser_routes_only_same_origin_and_rejects_hf_and_never_retries() -> None:
     same_origin = _browser_probe("https://ui.example", "/api/v1/health")
     hf_backend = _browser_probe("https://canonical-backend.hf.space", "/api/v1/health", status=503)
     relative = _browser_probe(None, "/api/v1/health")
@@ -105,10 +105,8 @@ def test_browser_routes_only_same_origin_or_hf_and_never_retries_an_upstream_res
     assert same_origin["calls"] == [
         {"url": "https://ui.example/api/v1/health", "options": {"signal": {}}}
     ]
-    assert hf_backend["base"] == "https://canonical-backend.hf.space"
-    assert [call["url"] for call in hf_backend["calls"]] == [
-        "https://canonical-backend.hf.space/api/v1/health"
-    ]
+    # KAN-276: HF backend is rejected (no .hf.space allowance)
+    assert hf_backend == {"error": "Invalid API endpoint configuration.", "calls": []}
     assert relative["base"] == ""
     assert [call["url"] for call in relative["calls"]] == ["/api/v1/health"]
 
@@ -131,6 +129,7 @@ def test_invalid_browser_target_fails_closed_with_path_free_public_error(configu
 
 @pytest.mark.parametrize("endpoint", ["https://outside.example/api", "//outside.example", "/api#fragment", "/api\\path"])
 def test_invalid_browser_path_fails_before_fetch(endpoint: str) -> None:
-    result = _browser_probe("https://canonical-backend.hf.space", endpoint)
+    # Use a valid same-origin config so we reach path validation
+    result = _browser_probe("https://ui.example", endpoint)
 
     assert result == {"error": "Invalid API request path.", "calls": []}

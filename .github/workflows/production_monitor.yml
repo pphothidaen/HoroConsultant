@@ -282,6 +282,43 @@ jobs:
             --timeout 15 \
             --json-output synthetic-health.json
 
+      - name: Notify on health degradation
+        if: ${{ !cancelled() && steps.synthetic.outcome == 'failure' }}
+        env:
+          HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          
+          report_path = Path("synthetic-health.json")
+          if not report_path.exists():
+              print("[INFO] No synthetic health report found")
+              sys.exit(0)
+          
+          with open(report_path) as f:
+              data = json.load(f)
+          
+          degraded = [r for r in data.get("results", []) if not r.get("healthy")]
+          if not degraded:
+              print("[OK] No degraded targets in report")
+              sys.exit(0)
+          
+          # Re-use the monitor's notification logic
+          sys.path.insert(0, "scripts")
+          from synthetic_health_monitor import notify_health_degradation
+          
+          ok = notify_health_degradation(data["results"], os.environ)
+          if ok:
+              print("[OK] Degradation notification sent")
+          else:
+              print("[WARNING] Notification channels not fully configured or delivery failed")
+          PY
+
       - name: Upload sanitized monitor evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

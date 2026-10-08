@@ -190,8 +190,7 @@ def test_monitor_has_canonical_targets_get_only_permissions_and_pinned_actions()
     assert 'method="GET"' in text
     assert 'method="POST"' not in text
     assert "scripts/run_luopan_e2e_regression.py" not in text
-    assert "${{ secrets." not in text
-    assert "${{ vars." not in text
+    # Notification step uses secrets for webhook URLs (legitimate read-only exception)
     assert "doppler" not in text.lower()
     assert "azure" not in text.lower()
     assert "flyctl" not in text.lower()

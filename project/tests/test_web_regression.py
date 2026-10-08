@@ -111,7 +111,8 @@ class TestWebRegressionUI:
         assert "updateVersionFooter" in res.text
         assert "fetchApi('/health" in res.text
         assert "function getApiBaseUrl()" in res.text
-        assert "parsed.hostname.endsWith('.hf.space')" in res.text
+        # KAN-276: .hf.space check removed - HF Static retired
+        assert "parsed.hostname.endsWith('.hf.space')" not in res.text
         assert "const base = getApiBaseUrl();" in res.text
         assert "return await fetch(`${base}${endpoint}`" in res.text
         assert "Invalid API endpoint configuration." in res.text

@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-173",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0099c5b0a5a7c5b06d3df470598c785b0153a3db",
+  "test_files": [
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "9689a6b4bb4b60305baedc93f543e1bce52b3eb209f50215689ed2cb57475e59"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_github_actions_regression.py::TestSpecificWorkflowsIntegrity::test_production_monitor_workflow"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test failure: production_monitor.yml lacks notification step; ${{ secrets }} assertion fails"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/production_monitor.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0099c5b0a5a7c5b06d3df470598c785b0153a3db",
+  "correction_reason": "Add test_github_actions_regression.py to manifest; sequence 2 supersedes sequence 1",
+  "rationale": "KAN-173 addresses monitoring alert gap: 51-min 503 had no notification. The fix adds a notification step to production_monitor.yml that triggers on synthetic health monitor failure. The synthetic_health_monitor.py already has notify_health_degradation() supporting webhook/Slack/Discord/Telegram. The test file project/tests/test_synthetic_health_monitor.py validates the monitor logic. This is a workflow/documentation change with existing test coverage; the new notification step reuses existing notification logic."
+}

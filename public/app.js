@@ -413,7 +413,7 @@ function getApiBaseUrl() {
     if (parsed.protocol !== 'https:'
       || parsed.username
       || parsed.password
-      || (parsed.origin !== sameOrigin && !parsed.hostname.endsWith('.hf.space'))
+      || (parsed.origin !== sameOrigin)
       || (parsed.pathname !== '/' && parsed.pathname !== '')
       || parsed.search
       || parsed.hash) {
