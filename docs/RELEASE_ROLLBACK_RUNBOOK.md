@@ -1,8 +1,8 @@
 # HoroConsultant Release and Rollback Runbook
 
-> **Version:** 2.0.0
+> **Version:** 3.0.0
 >
-> **Canonical targets:** Hugging Face Docker backend and Vercel UI/gateway
+> **Canonical targets:** Render Docker backend and Vercel UI (KAN-274 Option A, KAN-275/276)
 >
 > **Owners:** `devops` (execution), `qa_tester` (verification),
 > `code_reviewer` (independent verdict), and `orchestrator` (final decision)
@@ -17,15 +17,15 @@ The only canonical production lanes are:
 
 | Lane | Canonical target | Release mechanism |
 | :--- | :--- | :--- |
-| Backend | Hugging Face Space `pphothidaen/horoconsultant-core-backend`, `sdk: docker` | A successful main-bound Unified CI `workflow_run` starts the HF Docker publication workflow |
+| Backend | Render Service `horoconsultant-core-backend`, `https://horoconsultant-core-backend.onrender.com` (Docker) | `deploy-render.yml` workflow triggered on main push |
 | UI/gateway | `https://horo-consultant-psi.vercel.app` | Vercel's external Git integration deploys `main` independently |
 
-Azure Container Apps, Fly.io, and HF Static publication are retired,
-noncanonical release lanes. Historical records for them are audit-only. They
-must not be used as fallback targets, and this runbook intentionally contains
+Hugging Face Spaces (`.hf.space`), Azure Container Apps, and Fly.io are **retired**,
+noncanonical release lanes (KAN-275/276). Historical records for them are audit-only.
+They must not be used as fallback targets, and this runbook intentionally contains
 no executable publish or rollback instructions for them.
 
-The Vercel and HF lanes are independent. A successful deployment or healthy
+The Vercel and Render lanes are independent. A successful deployment or healthy
 response in one lane never proves the other lane is released.
 
 ## 2. Candidate-to-production sequence
@@ -54,10 +54,10 @@ pull-request run, a superseded run, or an ambiguous run is stale evidence.
   Also record the native Vercel deployment identifier and immutable URL when
   repository or release-owner policy requires them. Never substitute an
   unbound CLI republish for the Git-integrated record.
-- **HF Docker:** a successful Unified CI `workflow_run` whose `head_branch` is
-  `main` starts the HF workflow. Its source SHA must equal both the CI head SHA
-  and the current main event commit. Record the HF workflow run and its bound,
-  sanitized manifest and publisher receipt.
+- **Render Docker:** a successful `deploy-render.yml` workflow run whose
+  `head_branch` is `main` deploys the candidate. Its source SHA must equal both
+  the CI head SHA and the current main event commit. Record the Render workflow
+  run and its deployment status.
 
 Do not infer ordering between these lanes. Wait for both to converge on the
 same approved release identity within the declared deadline.
@@ -70,7 +70,7 @@ be accepted as candidate evidence. An earlier scheduled run is stale even if
 it is green.
 
 The accepted monitor run must be bound to the candidate checkout and must
-verify exactly two identity surfaces: the canonical HF Docker backend and the
+verify exactly two identity surfaces: the canonical Render Docker backend and the
 canonical Vercel UI. Record its run identifier, checked SHA, timestamps,
 reports, and conclusion.
 
@@ -83,16 +83,16 @@ is sufficient for a secret prerequisite.
 | :--- | :--- | :--- |
 | Candidate | Full SHA equals current remote `main` | Main moved, SHA is partial, or ancestry is ambiguous |
 | Unified CI | Exact candidate, `main`, green conclusion, and green `Test Provenance` | Run is missing, stale, incomplete, cancelled, or for another event/SHA |
-| HF pre-state | Authenticated current HF `main` revision and its remote tree | Revision/tree is unavailable, unbound, or changes before publish |
-| HF publish | Canonical target, Docker SDK, approved manifest, prior revision/tree, and sanitized bound publisher receipt | Manifest, receipt, prior tree, secret prerequisite, or binding is missing or invalid |
+| Render pre-state | Current Render service revision and deploy status | Revision/status is unavailable, unbound, or changes before deploy |
+| Render deploy | Canonical target, Docker SDK, approved manifest, prior revision, and sanitized bound deploy receipt | Manifest, receipt, prior revision, secret prerequisite, or binding is missing or invalid |
 | Vercel deployment | Candidate-bound GitHub deployment record for the canonical alias | Record is missing, stale, ambiguous, or names another target/SHA |
 | Native Vercel identity | Exact deployment ID and immutable URL when required by policy | Required identifier is unavailable or conflicts with the GitHub record |
-| Rollback coordinates | Prior HF revision/tree and exact prior Vercel deployment ID/URL | Either target lacks an exact, recoverable prior identity |
+| Rollback coordinates | Prior Render revision and exact prior Vercel deployment ID/URL | Either target lacks an exact, recoverable prior identity |
 | Review | Named reviewer verdict and orchestrator decision with timestamps | Decision is missing, indeterminate, or based on an incomplete bundle |
 
-An authenticated prior-tree and bound publisher receipt are mandatory whenever
-the HF publisher produces them. If the publisher cannot retrieve and validate
-the prior tree, stop; never fabricate it from local files, a historical
+An authenticated prior-tree and bound deploy receipt are mandatory whenever
+the Render deploy produces them. If the deploy cannot retrieve and validate
+the prior revision, stop; never fabricate it from local files, a historical
 artifact, or an unauthenticated listing.
 
 ## 4. Health and release identity
@@ -152,36 +152,36 @@ A source revert is a new release candidate, not a shortcut around these gates.
 It must pass the same remote-main, Test Provenance, Unified CI, independent
 deployment, convergence, identity, and review sequence.
 
-## 6. HF Docker rollback
+## 6. Render Docker rollback
 
-HF rollback is a new production mutation and requires separate, action-specific
+Render rollback is a new production mutation and requires separate, action-specific
 authorization. Deployment approval, incident severity, or a failed check does
 not authorize it.
 
 Before rollback, require all of the following:
 
-1. The exact canonical Space and `sdk: docker` are named in the authorization.
-2. The original immutable manifest and sanitized publish receipt validate
-   together. The receipt must be an eligible publish receipt with a recorded
-   `new_revision`, `new_tree_sha256`, `prior_revision`, and
-   `prior_tree_sha256`.
-3. The authenticated current HF head equals the publish receipt's
-   `new_revision`, and its tree digest equals `new_tree_sha256`. Any movement is
+1. The exact canonical Render service is named in the authorization.
+2. The original immutable manifest and sanitized deploy receipt validate
+   together. The receipt must be an eligible deploy receipt with a recorded
+   `new_revision`, `new_image_digest`, `prior_revision`, and
+   `prior_image_digest`.
+3. The authenticated current Render service equals the deploy receipt's
+   `new_revision`, and its image digest equals `new_image_digest`. Any movement is
    a rollback conflict.
-4. The prior revision and complete prior tree are retrievable and their digest
-   equals `prior_tree_sha256`.
+4. The prior revision and image digest are retrievable and their digest
+   equals `prior_image_digest`.
 5. The required managed secret is present and valid without being printed,
    copied into evidence, or exposed to a monitor.
 
-The authorized operator may use the publisher's `--rollback-from` interface
-only with that validated publish receipt, its matching `--manifest-path`, a
+The authorized operator may use the Render CLI rollback interface
+only with that validated deploy receipt, its matching `--manifest-path`, a
 distinct `--receipt-path` for the new rollback receipt, and the canonical
-`--space-id`/`--sdk` values. Generic republishing and an unbound historical
+`--service-id` values. Generic republishing and an unbound historical
 payload are prohibited.
 
 Success requires a newly written, validated rollback receipt whose action and
-status are `rollback` and `SUCCEEDED`, whose new tree exactly equals the recorded
-prior tree, and whose new revision is captured. Then re-run read-only health and
+status are `rollback` and `SUCCEEDED`, whose new image exactly equals the recorded
+prior image, and whose new revision is captured. Then re-run read-only health and
 closed-schema identity verification. On any failure, stop; do not retry the
 rollback automatically.
 
@@ -259,8 +259,8 @@ local evidence as a production release.
 ## 10. Current source references
 
 - [Unified CI and Test Provenance](../.github/workflows/ci.yml)
-- [HF Docker production workflow](../.github/workflows/hf_backend_deploy.yml)
+- [Render Docker production workflow](../.github/workflows/deploy-render.yml)
 - [Production Synthetic Monitoring](../.github/workflows/production_monitor.yml)
-- [HF Docker publisher and receipt-bound rollback](../scripts/publish_space_hf.py)
 - [Vercel main-only Git deployment policy](../vercel.json)
 - [Release handoff checklist](RELEASE_HANDOFF_CHECKLIST.md)
+- [CD Stall Runbook (KAN-173)](CD-STALL-RUNBOOK.md)
