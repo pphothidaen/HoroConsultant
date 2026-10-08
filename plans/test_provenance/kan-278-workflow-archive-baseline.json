@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-278-WORKFLOW-ARCHIVE",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "130d18b096094df7ed799bda8edabe47d46c683f",
+  "baseline_parent": "d0f4a984e766379e12079347e72ca83df49bb55b",
   "test_files": [
     {
       "path": "tests/test_release_ci_gates.py",
