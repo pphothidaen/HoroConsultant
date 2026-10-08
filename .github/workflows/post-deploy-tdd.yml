@@ -16,7 +16,7 @@ name: Post-Deploy TDD (Team Red + Team Blue)
 
 on:
   workflow_run:
-    workflows: ['deploy.yml', 'jira-governance.yml']
+    workflows: ['deploy-render.yml', 'jira-governance.yml']
     types: [completed]
   workflow_dispatch:
 

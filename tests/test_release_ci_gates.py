@@ -203,6 +203,15 @@ def test_cli_returns_fail_closed_exit_and_sanitized_output(monkeypatch, capsys, 
 
 def _workflow(name):
     # BaseLoader preserves GitHub's YAML 'on' key instead of YAML 1.1 boolean conversion.
+    # After KAN-278 archive, retired workflows live in .github/workflows/_archive/
+    candidates = [
+        ROOT / ".github/workflows" / name,
+        ROOT / ".github/workflows/_archive" / name,
+    ]
+    for p in candidates:
+        if p.exists():
+            return yaml.load(p.read_text(), Loader=yaml.BaseLoader)
+    # If not found, let the original path raise FileNotFoundError (preserves test failure signal)
     return yaml.load((ROOT / ".github/workflows" / name).read_text(), Loader=yaml.BaseLoader)
 
 
