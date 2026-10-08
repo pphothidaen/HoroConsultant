@@ -28,9 +28,14 @@ id = "07d1f31739eb418b944bf8d66f17a452"
 # env.ARTIFACTS and degrades gracefully without the binding. Re-add only after
 # R2 is enabled and the bucket horoconsultant-artifacts exists.
 
-# Cron triggers for periodic tasks
-[triggers]
-crons = ["0 0 * * *", "0 */6 * * *"]
+# KAN-273: cron triggers REMOVED. scheduled() POSTed /api/v1/sync, a route the
+# backend does not serve (absent from its 87-path OpenAPI document), so the cron
+# fired twice daily and silently 404'd. The sync itself is owned by the backend:
+# project/main.py registers an APScheduler job "midnight_gdrive_sync" driven by
+# AUTO_SYNC_CRON and gated on AUTO_SYNC_ENABLED (both set in Doppler). The Worker
+# cron was a redundant duplicate, so it was removed rather than given a new
+# endpoint. Re-add a trigger here only alongside a Worker-side job that has a
+# real target.
 
 [observability]
 enabled = true
