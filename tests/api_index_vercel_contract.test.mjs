@@ -1,11 +1,19 @@
+/**
+ * KAN-276: the Vercel gateway contract after the dead HF fallback was removed.
+ *
+ * KAN-271 removed the dead HF fallback from the Worker (project/static/_worker.js).
+ * The same defect survived in api/index.js, which vercel.json rewrites every API
+ * path into — so it IS the live Vercel channel. KAN-276 removed the retired HF
+ * Space origin and the retired huggingface.co restart API from api/index.js.
+ *
+ * These tests pin the post-removal contract. They drive the real module.
+ */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { configuredBackendOrigin } from "../api/index.js";
-
-const CANONICAL_BACKEND = "https://pphothidaen-horoconsultant-core-backend.hf.space";
+const CANONICAL_BACKEND = "https://horoconsultant-core-backend.onrender.com";
 const INDEX_MODULE_URL = new URL("../api/index.js", import.meta.url).href;
 
 function runIndexGateway(testCase) {
@@ -52,8 +60,8 @@ function runIndexGateway(testCase) {
     }));
   `;
   const environment = { ...process.env, TEST_CASE: JSON.stringify(testCase) };
-  if (testCase.backend === null) delete environment.HF_BACKEND_URL;
-  else environment.HF_BACKEND_URL = testCase.backend || CANONICAL_BACKEND;
+  if (testCase.backend === null) delete environment.RENDER_BACKEND_URL;
+  else environment.RENDER_BACKEND_URL = testCase.backend || CANONICAL_BACKEND;
   const result = spawnSync(process.execPath, ["--input-type=module", "--eval", script], {
     env: environment,
     encoding: "utf8",
@@ -68,23 +76,6 @@ function errorResult(testCase) {
   assert.equal(result.body.status, "error");
   return result;
 }
-
-test("only the exact canonical HF backend origin is accepted", () => {
-  assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: CANONICAL_BACKEND }), CANONICAL_BACKEND);
-  assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: `${CANONICAL_BACKEND}/` }), CANONICAL_BACKEND);
-  for (const value of [
-    undefined,
-    "http://pphothidaen-horoconsultant-core-backend.hf.space",
-    "https://pphothidaen-horoconsultant-core-backend.static.hf.space",
-    "https://legacy.azurecontainerapps.io",
-    "https://another-backend.hf.space",
-    `${CANONICAL_BACKEND}/api`,
-    `${CANONICAL_BACKEND}?redirect=other`,
-    `https://user:password@pphothidaen-horoconsultant-core-backend.hf.space`,
-  ]) {
-    assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: value }), null, value);
-  }
-});
 
 test("missing or alternate configuration fails closed before an upstream call", () => {
   for (const backend of [null, "https://legacy.azurecontainerapps.io", "https://pphothidaen-horoconsultant-core-backend.static.hf.space"]) {

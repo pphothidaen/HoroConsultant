@@ -68,9 +68,9 @@ function runGatewayProbe({ backend, status, payload }) {
   `;
   const environment = { ...process.env, AZURE_API_ORIGIN: "https://ignored.azure.example" };
   if (backend === null) {
-    delete environment.HF_BACKEND_URL;
+    delete environment.RENDER_BACKEND_URL;
   } else {
-    environment.HF_BACKEND_URL = backend;
+    environment.RENDER_BACKEND_URL = backend;
   }
   const result = spawnSync(process.execPath, ["--input-type=module", "--eval", script], {
     env: environment,
@@ -98,21 +98,23 @@ test("default CORS allowlist includes both canonical Vercel and Cloudflare Pages
   );
 });
 
-test("backend target accepts only an absolute HTTPS Hugging Face Space origin", () => {
-  assert.equal(
-    configuredBackendOrigin({ HF_BACKEND_URL: "https://horo-backend.hf.space" }),
-    "https://horo-backend.hf.space",
-  );
+test("backend target accepts only the canonical Render origin", () => {
+  const RENDER = "https://horoconsultant-core-backend.onrender.com";
+  assert.equal(configuredBackendOrigin({ RENDER_BACKEND_URL: RENDER }), RENDER);
+  assert.equal(configuredBackendOrigin({ RENDER_BACKEND_URL: `${RENDER}/` }), RENDER);
   for (const value of [
     undefined,
-    "http://horo-backend.hf.space",
-    "https://horo-backend.static.hf.space/path",
-    "https://horo-backend.hf.space/?unexpected=query",
-    "https://user:password@horo-backend.hf.space",
-    "https://horo-backend.azurecontainerapps.io",
-    "https://not-hf.example",
+    "http://horoconsultant-core-backend.onrender.com",
+    "https://horoconsultant-core-backend2.onrender.com",
+    "https://another.onrender.com",
+    `${RENDER}/api`,
+    `${RENDER}?redirect=other`,
+    "https://user:password@horoconsultant-core-backend.onrender.com",
+    // KAN-276: the retired HF Space origin must never be accepted again
+    "https://pphothidaen-horoconsultant-core-backend.hf.space",
+    "https://horo-backend.hf.space",
   ]) {
-    assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: value }), null, value);
+    assert.equal(configuredBackendOrigin({ RENDER_BACKEND_URL: value }), null, value);
   }
 });
 
@@ -127,9 +129,9 @@ test("gateway fails closed without a backend and exposes no alternate provider",
   });
 });
 
-test("gateway makes one HF request and replaces upstream 4xx or PII with a public error", () => {
+test("gateway makes one upstream request and replaces upstream 4xx or PII with a public error", () => {
   const result = runGatewayProbe({
-    backend: "https://canonical-backend.hf.space",
+    backend: "https://horoconsultant-core-backend.onrender.com",
     status: 422,
     payload: {
       detail: [{
@@ -140,7 +142,7 @@ test("gateway makes one HF request and replaces upstream 4xx or PII with a publi
     },
   });
 
-  assert.deepEqual(result.calls, ["https://canonical-backend.hf.space/health?subject=private%40example.invalid"]);
+  assert.deepEqual(result.calls, ["https://horoconsultant-core-backend.onrender.com/health?subject=private%40example.invalid"]);
   assert.equal(result.statusCode, 422);
   assert.deepEqual(result.body, {
     detail: "The API rejected the request data.",
@@ -219,7 +221,7 @@ test("api gateway wake endpoint rejects non-POST and handles unauthenticated sta
   try {
     await indexHandler({ method: "POST", url: "/api/index?path=/api/wake", headers: {} }, postRes);
     assert.equal(postRes.statusCode, 200);
-    assert.ok(["ready", "paused_unauthenticated"].includes(postRes.body?.status));
+    assert.ok(["ready", "unavailable"].includes(postRes.body?.status));
   } finally {
     if (savedToken) process.env.HF_TOKEN = savedToken;
   }

@@ -65,13 +65,15 @@ def _browser_probe(configured: object, endpoint: str, status: int = 200) -> dict
     return json.loads(completed.stdout)
 
 
-def test_gateway_and_health_have_one_hf_backend_route_without_azure_fallback() -> None:
+def test_gateway_and_health_have_one_render_backend_route_without_azure_or_hf_fallback() -> None:
     gateway = GATEWAY.read_text(encoding="utf-8")
     health = HEALTH.read_text(encoding="utf-8")
 
     assert "configuredBackendOrigin" in gateway
     assert 'parsed.protocol !== "https:"' in gateway
-    assert 'parsed.hostname.endsWith(".hf.space")' in gateway
+    # KAN-276: the HF Space origin was removed; only the canonical Render origin is accepted.
+    assert 'parsed.hostname.endsWith(".hf.space")' not in gateway
+    assert "CANONICAL_RENDER_BACKEND_ORIGIN" in gateway
     assert "AZURE_API_ORIGIN" not in gateway
     assert "proxyToAzure" not in gateway
     assert "proxyToBackend" in health
