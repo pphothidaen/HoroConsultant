@@ -1,10 +1,19 @@
+/**
+ * KAN-276: the Render failover contract after the dead HF fallback was removed.
+ *
+ * KAN-271 removed the dead HF fallback from the Worker (project/static/_worker.js).
+ * The same defect survived in api/index.js, which vercel.json rewrites every API
+ * path into — so it IS the live Vercel channel. KAN-276 removed the retired HF
+ * Space origin and the retired huggingface.co restart API from api/index.js.
+ *
+ * These tests pin the post-removal contract. They drive the real module.
+ */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 import { configuredBackendOrigins, configuredRenderBackendOrigin } from "../api/index.js";
 
-const CANONICAL_HF = "https://pphothidaen-horoconsultant-core-backend.hf.space";
 const CANONICAL_RENDER = "https://horoconsultant-core-backend.onrender.com";
 const INDEX_MODULE_URL = new URL("../api/index.js", import.meta.url).href;
 
@@ -23,12 +32,12 @@ test("only the exact canonical Render backend origin is accepted", () => {
   }
 });
 
-test("origins are ordered Render primary then HF fallback", () => {
+test("Render is the only configured upstream origin", () => {
   assert.deepEqual(
-    configuredBackendOrigins({ RENDER_BACKEND_URL: CANONICAL_RENDER, HF_BACKEND_URL: CANONICAL_HF }),
-    [CANONICAL_RENDER, CANONICAL_HF],
+    configuredBackendOrigins({ RENDER_BACKEND_URL: CANONICAL_RENDER, HF_BACKEND_URL: "https://pphothidaen-horoconsultant-core-backend.hf.space" }),
+    [CANONICAL_RENDER],
   );
-  assert.deepEqual(configuredBackendOrigins({ HF_BACKEND_URL: CANONICAL_HF }), [CANONICAL_HF]);
+  assert.deepEqual(configuredBackendOrigins({ HF_BACKEND_URL: "https://pphothidaen-horoconsultant-core-backend.hf.space" }), []);
   assert.deepEqual(configuredBackendOrigins({ RENDER_BACKEND_URL: CANONICAL_RENDER }), [CANONICAL_RENDER]);
   assert.deepEqual(configuredBackendOrigins({}), []);
 });
@@ -78,7 +87,6 @@ function runGateway(testCase) {
   `;
   const environment = { ...process.env, TEST_CASE: JSON.stringify(testCase) };
   environment.RENDER_BACKEND_URL = testCase.render === null ? "" : (testCase.render || CANONICAL_RENDER);
-  environment.HF_BACKEND_URL = testCase.hf === null ? "" : (testCase.hf || CANONICAL_HF);
   const result = spawnSync(process.execPath, ["--input-type=module", "--eval", script], {
     env: environment,
     encoding: "utf8",
@@ -87,33 +95,30 @@ function runGateway(testCase) {
   return JSON.parse(result.stdout);
 }
 
-test("Render 5xx fails over to the HF fallback origin", () => {
+test("Render 5xx surfaces a single public error", () => {
   const result = runGateway({
     url: "/api/index?path=/api/v1/calendar/month&year=2026&month=8",
     upstreams: [
       { match: CANONICAL_RENDER, status: 503 },
-      { match: CANONICAL_HF, status: 200, requestId: "hf-correlation" },
     ],
   });
-  assert.equal(result.statusCode, 200);
-  assert.equal(result.calls.length, 2);
+  assert.equal(result.statusCode, 503);
+  assert.equal(result.body.code, "backend_unavailable");
+  assert.equal(result.calls.length, 1);
   assert.equal(result.calls[0].url, `${CANONICAL_RENDER}/api/v1/calendar/month?year=2026&month=8`);
-  assert.equal(result.calls[1].url, `${CANONICAL_HF}/api/v1/calendar/month?year=2026&month=8`);
-  assert.deepEqual(result.body, { bytes: 2 });
 });
 
-test("Render network failure fails over to the HF fallback origin", () => {
+test("Render network failure surfaces a single public error", () => {
   const result = runGateway({
     url: "/api/index?path=/health",
     upstreams: [
       { match: CANONICAL_RENDER, throw: true },
-      { match: CANONICAL_HF, status: 200 },
     ],
   });
-  assert.equal(result.statusCode, 200);
-  assert.equal(result.calls.length, 2);
+  assert.equal(result.statusCode, 502);
+  assert.equal(result.body.code, "backend_unreachable");
+  assert.equal(result.calls.length, 1);
   assert.equal(result.calls[0].url, `${CANONICAL_RENDER}/health`);
-  assert.equal(result.calls[1].url, `${CANONICAL_HF}/health`);
 });
 
 test("Render 4xx passes through without falling back", () => {
@@ -128,26 +133,13 @@ test("Render 4xx passes through without falling back", () => {
   assert.equal(result.calls[0].url, `${CANONICAL_RENDER}/api/v1/bazi/interpret`);
 });
 
-test("HF-only configuration still makes exactly one upstream request", () => {
+test("no configured backend surfaces a single public error", () => {
   const result = runGateway({
     render: null,
     url: "/api/index?path=/health",
-    upstreams: [{ match: CANONICAL_HF, status: 200 }],
+    upstreams: [{ match: CANONICAL_RENDER, status: 200 }],
   });
-  assert.equal(result.statusCode, 200);
-  assert.equal(result.calls.length, 1);
-  assert.equal(result.calls[0].url, `${CANONICAL_HF}/health`);
-});
-
-test("all origins failing surfaces a single public error", () => {
-  const result = runGateway({
-    url: "/api/index?path=/health",
-    upstreams: [
-      { match: CANONICAL_RENDER, throw: true },
-      { match: CANONICAL_HF, throw: true },
-    ],
-  });
-  assert.equal(result.statusCode, 502);
-  assert.equal(result.body.code, "backend_unreachable");
-  assert.equal(result.calls.length, 2);
+  assert.equal(result.statusCode, 503);
+  assert.equal(result.body.code, "backend_not_configured");
+  assert.equal(result.calls.length, 0);
 });
