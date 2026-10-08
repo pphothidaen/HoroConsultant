@@ -1,0 +1,58 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-271-FAILFAST-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3d72c7521328cd290f4a9239e2c85f8c9df1237a",
+  "test_files": [
+    {
+      "path": "tests/worker_backend_failfast_behavior.test.mjs",
+      "sha256": "0f3636604ee8b0e02d322a1d7b26d25eabbea0e16ee14f2d08dfffe969ab7617"
+    },
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "c591b689239d0b5a28aadecf3589c7432e8b6995e31c31eb0d567a1dbd2c9922"
+    },
+    {
+      "path": "tests/test_kan268_backend_failover.py",
+      "sha256": "eeb4124f936c122641989f9e104a7e9e65925f5036a7bf7f598f07048e0ee112"
+    },
+    {
+      "path": "tests/test_cloudflare_worker_proxy.py",
+      "sha256": "b5ff55d6bc2f5ac22086b94b9d3d78348d89e0ccaf7f9985701fab155ca8bf0b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_backend_failfast_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "6 failed, 4 passed; KAN271_DEAD_FALLBACK: proxyToBackend still fails over to HF_FALLBACK_URL, so a Render 5xx spends a second 15s subrequest on the PAUSED HF Space and proxies that Space's 503 to the user instead of returning one clear backend_unreachable 502 with Retry-After; handleWake still calls the retired huggingface.co restart API"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan268_backend_failover.py",
+        "tests/test_cloudflare_worker_proxy.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "5 failed, 37 passed; the superseded KAN-268 fallback contract still asserts HF is a live fallback origin"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-271 fail-fast contract before source work. The Worker's fallback origin was the retired Hugging Face Space: HF API runtime.stage = PAUSED, hardware = None, and GET /health on it returns 503 'The space is paused'. HF_TOKEN was never configured, so handleWake() could only report paused_unauthenticated and could not revive it. The effect was that a Render outage made the Worker spend a second BACKEND_TIMEOUT_MS (15s) calling a permanently dead origin and then hand the user a 503 originating from that dead Space - converting an outage into a guaranteed failure and a ~30s wait. A Vercel fallback was evaluated and rejected: vercel.json rewrites API paths into /api/index, which runs api/index.js whose configuredBackendOrigins() resolves to Render primary with the same HF fallback, and Render and Vercel return byte-identical /api/v1/health bodies (same git_commit 'unknown', same version '1.0.0.unknown'), proving they share one upstream and therefore one failure domain. The chosen option is therefore to remove the dead origin from the request path and fail fast. Four test files are included because KAN-271 deliberately supersedes the KAN-268 fallback contract: tests/worker_render_failover_behavior.test.mjs, tests/test_kan268_backend_failover.py and tests/test_cloudflare_worker_proxy.py each asserted that HF was a live fallback, which is exactly the behaviour this ticket removes, so they are updated here rather than deleted. Tests drive the real worker module with a stubbed global fetch and assert the number of upstream calls, so a change that leaves the second hop in place cannot pass. Verified against the pre-change source: failfast 6 failed / 4 passed, render_failover 4 failed / 8 passed, python 5 failed / 37 passed."
+}

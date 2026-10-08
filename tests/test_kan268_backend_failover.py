@@ -47,20 +47,14 @@ class TestBackendOriginConfiguration:
         assert default_pattern, \
             "Render must be the default when env.BACKEND_BASE_URL is not set"
 
-    def test_hf_origin_is_fallback_only(self):
-        """HF origin must only appear as a fallback, not as the primary."""
+    def test_hf_origin_is_not_an_origin(self):
+        """KAN-271: the retired HF Space must not be an origin at all."""
         content = read_worker()
-        assert HF_ORIGIN in content, "HF origin must still be present as fallback"
-
-        # The old pattern: const BACKEND_BASE_URL = 'https://pphothidaen-...'
-        # must NOT exist
         old_pattern = f"const BACKEND_BASE_URL = '{HF_ORIGIN}'"
         assert old_pattern not in content, \
             "HF origin must not be the hardcoded primary BACKEND_BASE_URL"
-
-        # HF should be in a fallback variable
-        assert "HF_FALLBACK" in content or "fallback" in content.lower(), \
-            "HF origin must be in a fallback variable"
+        assert HF_ORIGIN not in content, \
+            "the retired HF Space must not appear as a backend origin"
 
     def test_wrangler_toml_uses_render_as_primary(self):
         """wrangler.toml must use Render origin as primary BACKEND_BASE_URL."""
@@ -108,33 +102,27 @@ class TestFailoverLogic:
         match = re.search(r'async function proxyToBackend\s*\(\s*request\s*,\s*path\s*,\s*env\s*\)', content)
         assert match, "proxyToBackend must accept (request, path, env) parameters"
 
-    def test_failover_tries_primary_then_fallback(self):
-        """Failover logic must try primary first, then fallback on failure."""
+    def test_single_origin_no_dead_fallback(self):
+        """KAN-271: one origin only — no fallback hop to a dead Space."""
         content = read_worker()
-        # Must have a pattern of trying primary, then fallback
-        # Look for the structure: try primary, catch/check, try fallback
         assert "tryFetchOrigin" in content or "fetchFromOrigin" in content, \
             "Worker must have a helper to fetch from a specific origin"
 
-        # The failover pattern: primary first, then fallback
         primary_pos = content.find("primaryBase")
-        fallback_pos = content.find("fallbackBase")
         assert primary_pos > 0, "Worker must reference primaryBase"
-        assert fallback_pos > 0, "Worker must reference fallbackBase"
-        assert primary_pos < fallback_pos, \
-            "Primary must be tried before fallback in the code flow"
+        # The dead fallback must be gone from the request path.
+        assert "fallbackBase" not in content, \
+            "the removed fallback must not still be referenced"
+        assert "backendUnreachableResponse" in content, \
+            "a failed primary must produce one explicit unreachable response"
 
     def test_response_marks_serving_origin(self):
-        """Response must include x-backend-origin header to mark which origin served it."""
+        """Response must include x-backend-origin marking which origin served it."""
         content = read_worker()
         assert "x-backend-origin" in content, \
             "Worker must set x-backend-origin header"
-
-        # Must set it to 'render' or 'hf'
         assert "'render'" in content or '"render"' in content, \
-            "Worker must mark render origin in x-backend-origin"
-        assert "'hf'" in content or '"hf"' in content, \
-            "Worker must mark hf origin in x-backend-origin"
+            "Worker must mark the render origin in x-backend-origin"
 
     def test_failover_on_5xx(self):
         """Failover must trigger on 5xx responses from primary."""
@@ -199,15 +187,16 @@ class TestWorkerModuleStructure:
     """Test the overall structure of the worker module."""
 
     def test_no_hardcoded_hf_as_sole_backend(self):
-        """_worker.js must not hardcode HF origin as the sole backend const."""
+        """_worker.js must not hardcode HF origin as a backend const."""
         content = read_worker()
         # The old pattern must be gone
         assert f"const BACKEND_BASE_URL = '{HF_ORIGIN}'" not in content, \
             "HF origin must not be the sole hardcoded backend"
 
-        # There should be separate consts for Render and HF
         assert "RENDER_BACKEND_URL" in content, "Must have RENDER_BACKEND_URL const"
-        assert "HF_FALLBACK_URL" in content, "Must have HF_FALLBACK_URL const"
+        # KAN-271: the HF fallback const was removed entirely.
+        assert "HF_FALLBACK_URL" not in content, \
+            "the retired HF fallback const must be gone"
 
     def test_get_primary_backend_url_function(self):
         """Worker must have getPrimaryBackendUrl function."""
