@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-278-WORKFLOW-ARCHIVE",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "130d18b096094df7ed799bda8edabe47d46c683f",
+  "baseline_parent": "cfe8bba751e870f66e8071da01640256c3dd0261",
   "test_files": [
     {
       "path": "tests/test_release_ci_gates.py",
@@ -45,5 +45,5 @@
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "KAN-278 archives 5 retired workflows (azure_deploy.yml, azure_cost_guard.yml, fly_deploy.yml, hf_backend_deploy.yml, deploy.yml) to .github/workflows/_archive/. Two blockers fixed: (1) post-deploy-tdd.yml workflow_run trigger updated from deploy.yml to deploy-render.yml; (2) test_release_ci_gates.py _workflow() helper updated to check both .github/workflows/ and .github/workflows/_archive/ for retired workflow files. Also updated 4 test files and trigger script to handle archived workflows. RED test = negative control verifying deploy.yml is absent from active workflows. All 261 tests pass."
+  "rationale": "KAN-278 archives 5 retired workflows (azure_deploy.yml, azure_cost_guard.yml, fly_deploy.yml, hf_backend_deploy.yml, deploy.yml) to .github/workflows/_archive/. Two blockers fixed: (1) post-deploy-tdd.yml workflow_run trigger updated from deploy.yml to deploy-render.yml; (2) test_release_ci_gates.py _workflow() helper updated to check both .github/workflows/ and .github/workflows/_archive/ for retired workflow files. Also updated 4 test files and trigger script to handle archived workflows. RED test = negative control verifying deploy.yml is absent from active workflows. All 261 tests pass. Squash-merged to main."
 }
