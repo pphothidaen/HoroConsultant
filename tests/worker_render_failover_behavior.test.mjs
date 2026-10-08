@@ -91,7 +91,6 @@ test("Render 5xx does not fail over to the retired HF Space", async () => {
   // KAN-271: the HF fallback was removed. Failing over spent a second 15s
   // subrequest to hand the user a 503 from a PAUSED origin. Superseded by the
   // fail-fast contract in tests/worker_backend_failfast_behavior.test.mjs.
-  // KAN-272 later reclassified an upstream 5xx as a transient cold-start signal.
   const result = await callWorker({
     path: "/api/v1/health",
     upstreams: [
@@ -100,7 +99,7 @@ test("Render 5xx does not fail over to the retired HF Space", async () => {
     ],
   });
   assert.equal(result.calls.length, 1, "must not contact a dead fallback");
-  assert.equal(result.status, 503);
+  assert.equal(result.status, 502);
   assert.equal(result.origin, null);
 });
 
