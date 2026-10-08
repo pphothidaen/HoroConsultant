@@ -1,4 +1,4 @@
-// api/health.js -- Vercel health gateway for the canonical HF Docker backend.
+// api/health.js -- Vercel health gateway for the canonical Render backend.
 import {
   correlationIdFor,
   proxyToBackend,
