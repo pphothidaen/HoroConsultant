@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-276",
   "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "8b64d8aa2730aebd5366d605859d74f0d92a9e34",
+  "baseline_parent": "5b2329880f52c6deec4c798ffd1c00f993c65c76",
   "test_files": [
     {
       "path": "project/tests/test_gateway_ui_release_contract.py",
@@ -30,7 +30,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "02fce09546f3876a283bab885ce17f679db12afc",
-  "correction_reason": "Sequence 2 updated three test files but missed a fourth: project/tests/test_gateway_ui_release_contract.py::test_gateway_and_health_have_one_hf_backend_route_without_azure_fallback still asserted that gateway.js contains 'parsed.hostname.endsWith(\".hf.space\")'. After the gateway.js fix (sequence 2 source commit) this assertion fails because the HF Space validation was intentionally removed. The test is updated to assert the opposite: the HF Space check is absent and CANONICAL_RENDER_BACKEND_ORIGIN is present. No source change needed — only the test contract.",
-  "rationale": "The release contract test for the gateway was not in the plan's scope and was not caught by the node suite (it is a Python test). CI caught it. The fix is test-only: update the assertion to match the corrected gateway.js contract (Render-only, no HF Space)."
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Correction history: Sequence 2 updated three test files but missed a fourth: project/tests/test_gateway_ui_release_contract.py::test_gateway_and_health_have_one_hf_backend_route_without_azure_fallback still asserted that gateway.js contains 'parsed.hostname.endsWith(\".hf.space\")'. After the gateway.js fix (sequence 2 source commit) this assertion fails because the HF Space validation was intentionally removed. The test is updated to assert the opposite: the HF Space check is absent and CANONICAL_RENDER_BACKEND_ORIGIN is present. No source change needed — only the test contract.  The release contract test for the gateway was not in the plan's scope and was not caught by the node suite (it is a Python test). CI caught it. The fix is test-only: update the assertion to match the corrected gateway.js contract (Render-only, no HF Space)."
 }
