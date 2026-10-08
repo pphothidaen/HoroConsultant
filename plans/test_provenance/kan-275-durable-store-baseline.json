@@ -3,21 +3,35 @@
   "ticket_id": "TICKET-KAN-275-DURABLE-STORE-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "5b2329880f52c6deec4c798ffd1c00f993c65c76",
+  "baseline_parent": "b855ec15fd9435c8934a1847e586df65f0c420dd",
   "test_files": [
-    { "path": "tests/test_kan275_durable_store.py", "sha256": "806522024d1108474dd21184a47502beba403a0d6db7effbc578ed82529e762c" }
+    {
+      "path": "tests/test_kan275_durable_store.py",
+      "sha256": "9f710c5ede0578251ed5160d2b19886c14c5f9896ff7f2add19708451d33ec85"
+    }
   ],
   "red_tests": [
     {
-      "command": ["python3", "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_kan275_durable_store.py"],
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan275_durable_store.py"
+      ],
       "expected_exit": 2,
       "failure_fingerprint": "ModuleNotFoundError: No module named 'scripts.durable_store'"
     }
   ],
-  "allowed_source_paths": ["scripts/durable_store.py", "scripts/sync_gdrive_vault.py"],
+  "allowed_source_paths": [
+    "scripts/durable_store.py",
+    "scripts/sync_gdrive_vault.py"
+  ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "Freeze the KAN-275 durable-bookkeeping contract before source work. The nightly sync wrote to a container-local path on Render's ephemeral free-tier filesystem and reported success while its output was discarded (same silent-success class as KAN-273). The store keeps bookkeeping only (idempotency key, lease with fencing token, heartbeat, last-success); the corpus is derived from Google Drive and is rebuildable."
+  "rationale": "Freeze the KAN-275 durable-bookkeeping contract before source work. The nightly sync wrote to a container-local path on Render's ephemeral free-tier filesystem and reported success while its output was discarded (same silent-success class as KAN-273). The store keeps bookkeeping only (idempotency key, lease with fencing token, heartbeat, last-success); the corpus is derived from Google Drive and is rebuildable. [KAN-275 post-merge repair: baseline_parent corrected from 5b2329880f52c6deec4c798ffd1c00f993c65c76 to the squash commit's parent b855ec15fd9435c8934a1847e586df65f0c420dd, and the pinned hash for tests/test_kan275_durable_store.py corrected from the pre-correction value 806522024d1108474dd21184a47502beba403a0d6db7effbc578ed82529e762c to 9f710c5ede0578251ed5160d2b19886c14c5f9896ff7f2add19708451d33ec85 (the content actually merged). The original value was frozen at the first RED commit and was never updated when sequence 2 rewrote the same file.]"
 }
