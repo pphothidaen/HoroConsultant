@@ -12,6 +12,11 @@ const CORS_ALLOWED_ORIGINS = [
   'https://horoconsultant-pages.pages.dev',
 ];
 const BACKEND_TIMEOUT_MS = 15000;
+// KAN-272: liveness/telemetry endpoints must answer fast. A cold Render free-tier
+// instance takes ~50s to wake, so waiting the full proxy timeout on /health just
+// makes the caller hang. A short probe fails quickly and honestly.
+const LIVENESS_TIMEOUT_MS = 5000;
+const LIVENESS_PATHS = new Set(['/health', '/api/v1/health', '/metrics']);
 const TURNSTILE_SECRET = '__TURNSTILE_SECRET__'; // Set via wrangler secret put TURNSTILE_SECRET
 
 // Cloudflare R2 Zero-Cost Monthly Free Tier Policy Limits ($0.00 Cost Guarantee)
@@ -106,23 +111,30 @@ async function kvCacheGet(env, key) {
 
 async function proxyToBackend(request, path, env) {
   const primaryBase = getPrimaryBackendUrl(env);
+  // KAN-272: liveness probes get a short timeout so they fail fast.
+  const timeoutMs = LIVENESS_PATHS.has(path) ? LIVENESS_TIMEOUT_MS : BACKEND_TIMEOUT_MS;
 
   // KAN-271: single origin, single attempt. No dead fallback hop.
   try {
-    const response = await tryFetchOrigin(primaryBase, request, path, BACKEND_TIMEOUT_MS);
+    const response = await tryFetchOrigin(primaryBase, request, path, timeoutMs);
     if (!isFailoverStatus(response.status)) {
       return new Response(response.body, {
         status: response.status,
         headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'render' },
       });
     }
-  } catch (_) {
-    // fall through to the single explicit failure below
+    // An upstream 5xx is most likely a cold start: transient and retryable.
+    return backendWakingResponse(request);
+  } catch (err) {
+    // A timeout means the backend did not answer in time — the signature of a
+    // Render free-tier cold start (~50s wake). Report it as transient so the
+    // caller retries instead of treating the service as broken.
+    if (err && err.name === 'AbortError') {
+      return backendWakingResponse(request);
+    }
+    // A connection failure is a genuine outage.
+    return backendUnreachableResponse(request);
   }
-
-  // The backend is down or unreachable. Report that honestly and quickly rather
-  // than spending a second timeout on an origin that cannot answer.
-  return backendUnreachableResponse(request);
 }
 
 function backendUnreachableResponse(request) {
@@ -136,6 +148,27 @@ function backendUnreachableResponse(request) {
       'content-type': 'application/json',
       'Retry-After': '30',
     },
+  });
+}
+
+function failureHeaders(request) {
+  return {
+    ...corsHeaders(request),
+    'content-type': 'application/json',
+    'Retry-After': '30',
+    // KAN-272: never let a transient failure be cached.
+    'Cache-Control': 'no-store',
+  };
+}
+
+// Transient: the backend is probably cold-starting and will answer shortly.
+function backendWakingResponse(request) {
+  return new Response(JSON.stringify({
+    code: 'backend_waking',
+    detail: 'The backend is starting up. Please retry shortly.',
+  }), {
+    status: 503,
+    headers: failureHeaders(request),
   });
 }
 

@@ -91,6 +91,7 @@ test("Render 5xx does not fail over to the retired HF Space", async () => {
   // KAN-271: the HF fallback was removed. Failing over spent a second 15s
   // subrequest to hand the user a 503 from a PAUSED origin. Superseded by the
   // fail-fast contract in tests/worker_backend_failfast_behavior.test.mjs.
+  // KAN-272: /api/v1/health is a liveness path, so 5xx -> 503 backend_waking (transient)
   const result = await callWorker({
     path: "/api/v1/health",
     upstreams: [
@@ -99,8 +100,9 @@ test("Render 5xx does not fail over to the retired HF Space", async () => {
     ],
   });
   assert.equal(result.calls.length, 1, "must not contact a dead fallback");
-  assert.equal(result.status, 502);
-  assert.equal(result.origin, null);
+  assert.equal(result.status, 503, "liveness path 5xx -> transient 503 backend_waking");
+  const text = await result.text;
+  assert.ok(text.includes("backend_waking"), "should be backend_waking");
 });
 
 test("Render network failure does not fail over to the retired HF Space", async () => {
