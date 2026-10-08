@@ -14,10 +14,11 @@ concurrency:
 
 jobs:
   monitor:
-    name: Verify Render backend and Vercel UI
+    name: Verify Render backend and Vercel UI (KAN-173, KAN-274, KAN-275/276)
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
+      # KAN-274 Option A: Render + Cloudflare D1 (HF Static retired per KAN-275/276)
       RENDER_BACKEND_URL: https://horoconsultant-core-backend.onrender.com
       VERCEL_STATIC_URL: https://horo-consultant-psi.vercel.app
 
