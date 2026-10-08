@@ -185,6 +185,8 @@ test("Vercel rewrites expose public routes plus protected Admin/HITL ingress", (
   const rewrites = new Map(vercel.rewrites.map(rule => [rule.source, rule.destination]));
 
   assert.deepEqual([...rewrites], [
+    ["/", "/lite.html"],
+    ["/advanced", "/index.html"],
     ["/health", "/api/index?path=/health"],
     ["/api/wake", "/api/index?path=/api/wake"],
     ["/api/v1/:path*", "/api/index?path=/api/v1/:path*"],
