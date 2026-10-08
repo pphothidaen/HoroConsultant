@@ -1,6 +1,10 @@
 const SERVICE_UNAVAILABLE = "Service is temporarily unavailable.";
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_UPSTREAM_TIMEOUT_MS = 60_000;
+// KAN-276: the single authorized backend. The retired HF Space origin was removed
+// from this module too — it was still the upstream for api/health.js, which made
+// live Vercel /api/health answer 503 permanently.
+const CANONICAL_RENDER_BACKEND_ORIGIN = "https://horoconsultant-core-backend.onrender.com";
 const DEFAULT_CORS_ORIGIN = "https://horo-consultant-psi.vercel.app";
 const CLOUDFLARE_PAGES_ORIGIN = "https://horoconsultant-pages.pages.dev";
 const DEFAULT_CORS_ALLOWED_ORIGINS = Object.freeze([
@@ -64,12 +68,18 @@ function canonicalHttpsOrigin(value) {
 }
 
 /**
- * Resolve the single configured HF Docker backend. Missing or malformed
- * configuration remains unavailable; the gateway never selects another host.
+ * KAN-276: resolve the single authorized backend origin (Render).
+ *
+ * The HF Space origin was removed from this module as well. It was never the
+ * deployed Worker's upstream, but it *was* the upstream for api/health.js, so
+ * live Vercel /api/health answered a permanent 503 with no way to recover.
+ *
+ * Kept under its original exported name because api/health.js and the contract
+ * tests import it; only the accepted origin changed.
  */
 export function configuredBackendOrigin(environment = process.env) {
-  const configured = typeof environment?.HF_BACKEND_URL === "string"
-    ? environment.HF_BACKEND_URL.trim()
+  const configured = typeof environment?.RENDER_BACKEND_URL === "string"
+    ? environment.RENDER_BACKEND_URL.trim()
     : "";
   if (!configured) return null;
 
@@ -78,7 +88,7 @@ export function configuredBackendOrigin(environment = process.env) {
     if (parsed.protocol !== "https:"
       || parsed.username
       || parsed.password
-      || !parsed.hostname.endsWith(".hf.space")
+      || parsed.origin !== CANONICAL_RENDER_BACKEND_ORIGIN
       || (parsed.pathname !== "/" && parsed.pathname !== "")
       || parsed.search
       || parsed.hash) {
@@ -354,7 +364,7 @@ export async function proxyToBackend(req, res, path, correlationId) {
     if (contentType) res.setHeader("content-type", contentType);
     return res.status(response.status).send(body);
   } catch (error) {
-    console.error("[ERROR] HF backend gateway request failed", {
+    console.error("[ERROR] backend gateway request failed", {
       correlation_id: correlationId,
       error_type: controller.signal.aborted ? "timeout" : (error && error.name ? error.name : "unknown"),
     });
