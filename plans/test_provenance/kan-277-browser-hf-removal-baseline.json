@@ -1,0 +1,50 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-277-BROWSER-HF-REMOVAL-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "03e721ee3145d7c7f5237007867ffa71168d7044",
+  "test_files": [
+    {
+      "path": "tests/admin_production_ingress_contract.test.mjs",
+      "sha256": "e7c7236584b80b5c8e9a841192792cc020aae9a848b77c3f24b3d831f180db3a"
+    },
+    {
+      "path": "tests/admin_production_ingress_scope_contract.test.mjs",
+      "sha256": "c8b2eca52879b392d305b156b3821ea6b62737acec0c525cb78668a0a2a20e5f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/admin_production_ingress_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test expected HF Static checks (static.hf.space/huggingface.co) in getHitlStudioPath, getApiBaseUrl, fetchApi; fails because KAN-277 removes these HF references from browser assets"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/admin_production_ingress_scope_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test expected HF Static checks in browser admin/HITL assets; fails because KAN-277 removes these HF references"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/admin.html",
+    "project/static/hitl.html",
+    "project/static/index.html",
+    "public/admin.html",
+    "public/hitl.html",
+    "public/index.html"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-277 removes retired HF Static Space references (static.hf.space/huggingface.co) from browser assets. The HF Space is retired (runtime.stage = PAUSED, hardware = None, GET /health returns 503). Red tests document expected failures for admin_production_ingress_contract and admin_production_ingress_scope_contract."
+}
