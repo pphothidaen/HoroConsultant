@@ -1,0 +1,18 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-274-DOCS-ARCHITECTURE-CDRUNBOOK-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "03e721ee3145d7c7f5237007867ffa71168d7044",
+  "test_files": [],
+  "red_tests": [],
+  "allowed_source_paths": [
+    "docs/ARCHITECTURE.md",
+    "docs/CD-STALL-RUNBOOK.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-274 is a documentation-only update adding ARCHITECTURE.md (KAN-274 Option A decision, KAN-173 watchdog, KAN-275/276 HF Static retired) and CD-STALL-RUNBOOK.md (KAN-173 watchdog operations runbook). No code changes, no test modifications required."
+}
