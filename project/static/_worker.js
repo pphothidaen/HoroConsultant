@@ -1,5 +1,11 @@
+// KAN-271: the HF Space fallback was REMOVED. The Space is retired (PAUSED,
+// hardware: None) and HF_TOKEN was never configured, so failing over to it only
+// spent a second 15s subrequest to hand the user a 503 from a dead origin.
+// A Vercel fallback was evaluated and rejected: vercel.json rewrites API paths
+// into api/index.js, which itself proxies to this same Render backend, so the
+// two share one failure domain and failing over would change nothing.
+// The honest behaviour is a single fast, explicit failure.
 const RENDER_BACKEND_URL = 'https://horoconsultant-core-backend.onrender.com';
-const HF_FALLBACK_URL = 'https://pphothidaen-horoconsultant-core-backend.hf.space';
 const VERCEL_FALLBACK_ORIGIN = 'https://horo-consultant-psi.vercel.app';
 const CORS_ALLOWED_ORIGINS = [
   'https://horo-consultant-psi.vercel.app',
@@ -25,10 +31,6 @@ const ARTIFACT_PATH = /^\/artifacts\/[\w.~!$&'()*+,;=:@/-]*$/;
 
 function getPrimaryBackendUrl(env) {
   return env?.BACKEND_BASE_URL || RENDER_BACKEND_URL;
-}
-
-function getFallbackBackendUrl() {
-  return HF_FALLBACK_URL;
 }
 
 async function tryFetchOrigin(origin, request, path, timeoutMs) {
@@ -104,9 +106,8 @@ async function kvCacheGet(env, key) {
 
 async function proxyToBackend(request, path, env) {
   const primaryBase = getPrimaryBackendUrl(env);
-  const fallbackBase = getFallbackBackendUrl();
 
-  // Try primary origin first
+  // KAN-271: single origin, single attempt. No dead fallback hop.
   try {
     const response = await tryFetchOrigin(primaryBase, request, path, BACKEND_TIMEOUT_MS);
     if (!isFailoverStatus(response.status)) {
@@ -116,19 +117,26 @@ async function proxyToBackend(request, path, env) {
       });
     }
   } catch (_) {
-    // Primary failed with network error — fall through to fallback
+    // fall through to the single explicit failure below
   }
 
-  // Fallback to HF origin
-  try {
-    const response = await tryFetchOrigin(fallbackBase, request, path, BACKEND_TIMEOUT_MS);
-    return new Response(response.body, {
-      status: response.status,
-      headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'hf' },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ detail: 'Backend unavailable' }), { status: 502 });
-  }
+  // The backend is down or unreachable. Report that honestly and quickly rather
+  // than spending a second timeout on an origin that cannot answer.
+  return backendUnreachableResponse(request);
+}
+
+function backendUnreachableResponse(request) {
+  return new Response(JSON.stringify({
+    code: 'backend_unreachable',
+    detail: 'The backend is unavailable. Please retry shortly.',
+  }), {
+    status: 502,
+    headers: {
+      ...corsHeaders(request),
+      'content-type': 'application/json',
+      'Retry-After': '30',
+    },
+  });
 }
 
 async function kvCacheSet(env, key, value, ttlSeconds = 86400) {
@@ -149,14 +157,16 @@ async function verifyTurnstile(token) {
   return data.success === true;
 }
 
+// KAN-271: /api/wake used to probe the backend and, on failure, call the
+// Hugging Face Space restart API. That Space is retired and HF_TOKEN was never
+// configured, so the branch could only ever report failure. Render's free plan
+// wakes on demand by itself, so the useful behaviour is: report whether the
+// backend is currently answering, and tell the caller to retry if it is not.
 async function handleWake(request, env) {
-  const hfToken = env?.HF_TOKEN || '';
-
-  // 1. Fast check if backend is already healthy
   try {
     const probeRes = await fetch(`${getPrimaryBackendUrl(env)}/health`, {
       method: 'GET',
-      signal: AbortSignal.timeout(3000),
+      signal: AbortSignal.timeout(5000),
     });
     if (probeRes.ok) {
       return new Response(JSON.stringify({
@@ -169,60 +179,18 @@ async function handleWake(request, env) {
     }
   } catch (_) {}
 
-  // 2. If HF_TOKEN not configured
-  if (!hfToken) {
-    return new Response(JSON.stringify({
-      status: 'paused_unauthenticated',
-      message: 'Backend is paused and HF_TOKEN is not configured in Cloudflare environment',
-      space_url: 'https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend',
-    }), {
-      status: 200,
-      headers: { ...corsHeaders(request), 'content-type': 'application/json' },
-    });
-  }
-
-  // 3. Trigger restart via Hugging Face Space API
-  try {
-    const restartRes = await fetch('https://huggingface.co/api/spaces/pphothidaen/horoconsultant-core-backend/restart', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hfToken}`,
-        'Content-Type': 'application/json',
-      },
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (restartRes.ok || restartRes.status === 200) {
-      return new Response(JSON.stringify({
-        status: 'waking',
-        message: 'Hugging Face Space restart triggered successfully',
-        estimated_seconds: 60,
-      }), {
-        status: 200,
-        headers: { ...corsHeaders(request), 'content-type': 'application/json' },
-      });
-    }
-
-    const errorText = await restartRes.text().catch(() => '');
-    return new Response(JSON.stringify({
-      status: 'trigger_failed',
-      message: `Hugging Face API returned HTTP ${restartRes.status}`,
-      detail: errorText.slice(0, 200),
-      space_url: 'https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend',
-    }), {
-      status: 200,
-      headers: { ...corsHeaders(request), 'content-type': 'application/json' },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({
-      status: 'trigger_error',
-      message: err.message || 'Failed to contact Hugging Face API',
-      space_url: 'https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend',
-    }), {
-      status: 200,
-      headers: { ...corsHeaders(request), 'content-type': 'application/json' },
-    });
-  }
+  return new Response(JSON.stringify({
+    status: 'waking',
+    message: 'Backend is not answering yet. Render wakes on demand; retry shortly.',
+    retry_after_seconds: 30,
+  }), {
+    status: 503,
+    headers: {
+      ...corsHeaders(request),
+      'content-type': 'application/json',
+      'Retry-After': '30',
+    },
+  });
 }
 
 export default {

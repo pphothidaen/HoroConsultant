@@ -83,18 +83,17 @@ class TestWorkerStructure:
         assert "async fetch(request, env)" in js, "Missing fetch handler signature"
 
     def test_worker_has_backend_base_url(self):
-        """Worker must define the backend origins: Render primary + HF fallback.
+        """Worker must define the Render backend origin.
 
-        KAN-268: the single hardcoded `const BACKEND_BASE_URL` was the bug —
-        it shadowed wrangler.toml and pinned the Worker to the retired HF Space.
+        KAN-268: the single hardcoded `const BACKEND_BASE_URL` was the bug — it
+        shadowed wrangler.toml and pinned the Worker to the retired HF Space.
+        KAN-271: the HF fallback was removed from the request path entirely.
         """
         js = read_worker_js()
         render = extract_string(js, "RENDER_BACKEND_URL")
-        fallback = extract_string(js, "HF_FALLBACK_URL")
         assert render is not None, "RENDER_BACKEND_URL not found"
         assert render.startswith("http"), f"Invalid RENDER_BACKEND_URL: {render}"
-        assert fallback is not None, "HF_FALLBACK_URL not found"
-        assert fallback.startswith("http"), f"Invalid HF_FALLBACK_URL: {fallback}"
+        assert "HF_FALLBACK_URL" not in js, "the retired HF fallback must be gone"
 
     def test_worker_has_cors_allowed_origins(self):
         """Worker must define CORS_ALLOWED_ORIGINS."""
@@ -236,10 +235,15 @@ class TestProxyToBackend:
         assert "setTimeout" in js, "Missing timeout handling"
 
     def test_proxy_returns_502_on_failure(self):
-        """Proxy should return 502 when backend is unavailable."""
+        """Proxy should return 502 when backend is unavailable.
+
+        KAN-271: the failure is now a single explicit response with a code and
+        Retry-After, instead of a second hop to a dead fallback origin.
+        """
         js = read_worker_js()
         assert "502" in js, "Missing 502 status for backend failure"
-        assert "Backend unavailable" in js
+        assert "backend_unreachable" in js, "failure must carry a stable error code"
+        assert "Retry-After" in js, "a retryable failure must advertise Retry-After"
 
 
 class TestWorkerFetchHandler:

@@ -87,7 +87,10 @@ test("env.BACKEND_BASE_URL overrides the primary origin", async () => {
   assert.equal(result.origin, "render");
 });
 
-test("Render 5xx fails over to the HF fallback", async () => {
+test("Render 5xx does not fail over to the retired HF Space", async () => {
+  // KAN-271: the HF fallback was removed. Failing over spent a second 15s
+  // subrequest to hand the user a 503 from a PAUSED origin. Superseded by the
+  // fail-fast contract in tests/worker_backend_failfast_behavior.test.mjs.
   const result = await callWorker({
     path: "/api/v1/health",
     upstreams: [
@@ -95,14 +98,12 @@ test("Render 5xx fails over to the HF fallback", async () => {
       { match: HF, status: 200 },
     ],
   });
-  assert.equal(result.calls.length, 2);
-  assert.equal(result.calls[0].url, `${RENDER}/api/v1/health`);
-  assert.equal(result.calls[1].url, `${HF}/api/v1/health`);
-  assert.equal(result.status, 200);
-  assert.equal(result.origin, "hf");
+  assert.equal(result.calls.length, 1, "must not contact a dead fallback");
+  assert.equal(result.status, 502);
+  assert.equal(result.origin, null);
 });
 
-test("Render network failure fails over to the HF fallback", async () => {
+test("Render network failure does not fail over to the retired HF Space", async () => {
   const result = await callWorker({
     path: "/health",
     upstreams: [
@@ -110,10 +111,8 @@ test("Render network failure fails over to the HF fallback", async () => {
       { match: HF, status: 200 },
     ],
   });
-  assert.equal(result.calls.length, 2);
-  assert.equal(result.calls[0].url, `${RENDER}/health`);
-  assert.equal(result.calls[1].url, `${HF}/health`);
-  assert.equal(result.origin, "hf");
+  assert.equal(result.calls.length, 1, "must not contact a dead fallback");
+  assert.equal(result.status, 502);
 });
 
 test("Render 4xx passes through without falling back", async () => {
@@ -129,6 +128,8 @@ test("Render 4xx passes through without falling back", async () => {
 });
 
 test("both origins failing surfaces a single 502", async () => {
+  // KAN-271: there is only one origin now. Kept as a regression guard that the
+  // failure is a single explicit 502 rather than a chained timeout.
   const result = await callWorker({
     path: "/health",
     upstreams: [
@@ -137,7 +138,7 @@ test("both origins failing surfaces a single 502", async () => {
     ],
   });
   assert.equal(result.status, 502);
-  assert.equal(result.calls.length, 2);
+  assert.equal(result.calls.length, 1);
 });
 
 test("the retired HF origin is never the primary", async () => {
@@ -187,11 +188,12 @@ test("wrangler configs point BACKEND_BASE_URL at Render, not the paused HF Space
   }
 });
 
-test("the worker source no longer hardcodes HF as the sole backend const", () => {
+test("the worker source has a single backend origin and marks the serving origin", () => {
   const source = readRepoFile("project/static/_worker.js");
   assert.ok(!source.includes(`const BACKEND_BASE_URL = '${HF}'`),
-    "HF must not remain the single hardcoded backend origin");
+    "HF must not remain a hardcoded backend origin");
   assert.ok(source.includes("RENDER_BACKEND_URL"), "worker must define RENDER_BACKEND_URL");
-  assert.ok(source.includes("HF_FALLBACK_URL"), "worker must define HF_FALLBACK_URL");
   assert.ok(source.includes("x-backend-origin"), "worker must mark the serving origin");
+  // KAN-271: the HF fallback was removed from the request path entirely.
+  assert.ok(!source.includes("HF_FALLBACK_URL"), "the retired HF fallback must be gone");
 });
