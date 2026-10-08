@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-270-ROOT-PATH-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "2048e30d772228123027d93e8c2a25480a15affb",
+  "test_files": [
+    {
+      "path": "tests/worker_root_path_behavior.test.mjs",
+      "sha256": "95a4f604938e79719844922a638f87bfa22bdf3a3cfbcb822de79058ad32ca0c"
+    },
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "00c14eb5bb6437a2d97a63da481e0c10be564ae0a1cdba0ae64418f3c277f199"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_root_path_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "6 failed, 4 passed; KAN270_ROOT_PATH: GET / is not handled by any explicit branch, so it falls through isAllowedPath() to the SPA passthrough and returns the passthrough body instead of a JSON service banner; OPTIONS / and non-GET / are likewise unhandled"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the KAN-270 root-path contract before source work. The live Worker answered GET / with 404 (Cloudflare's default page) because isAllowedPath() allow-lists only /health, /docs, /openapi.json, the API/privileged/artifact regexes, /metrics and /api/wake; / matched none, so control reached the SPA passthrough `return fetch(request)`, which cannot resolve without a Pages asset layer. The tests invoke the real worker module with a stubbed global fetch. One assertion deliberately detects the bug rather than the symptom: the stub returns the literal body 'passthrough' for any unplanned request, so a response reaching the SPA fallback is rejected even though its status is 200 — in production that same path yields the 404 users actually see. The remaining assertions pin the contract (JSON banner shape, no disclosure of backend origins, no upstream call, guardrail headers, OPTIONS 204, non-GET 405 with Allow, root never KV-cached) and confirm the deny-list and existing routes are unchanged. tests/worker_render_failover_behavior.test.mjs is included in this commit because it asserted the SPA passthrough using `/` as its 'unknown path' example; KAN-270 gives `/` an explicit handler, so that test now uses a genuinely unhandled path to keep covering the same behaviour. Both files are verified against the pre-change source: root_path 6 failed / 4 passed, render_failover 12 passed / 0 failed."
+}
