@@ -1004,12 +1004,32 @@ def verify_pr(
             allowed = manifest.get("allowed_source_paths")
             if isinstance(allowed, list) and [str(path) for path in allowed] not in allowed_sets:
                 allowed_sets.append([str(path) for path in allowed])
-            # During squash recovery, skip manifests whose baseline is not HEAD itself
-            # (squash merge destroys ancestry for all prior baselines)
+            # During squash recovery, manifests from the squash PR have baseline != head
+            # because the squash commit becomes HEAD. We must verify their baseline_parent
+            # points to the squash commit's parent, not the lost test commit.
             if post_squash_merge and baseline and baseline != head:
+                # Find the squash commit (HEAD) and its parent
+                squash_parent = _git(repo, "rev-parse", f"{head}^", check=False).stdout.strip()
+                if not squash_parent:
+                    report.add(
+                        "PR_PROVENANCE_ERROR",
+                        f"cannot determine parent of squash commit {head}",
+                        manifest_path,
+                    )
+                    continue
+                # Validate manifest's baseline_parent matches squash parent
+                manifest_parent = manifest.get("baseline_parent")
+                if isinstance(manifest_parent, str) and manifest_parent != squash_parent:
+                    report.add(
+                        "BASELINE_PARENT_SQUASH_MISMATCH",
+                        f"manifest baseline_parent ({manifest_parent}) does not match squash commit parent ({squash_parent})",
+                        manifest_path,
+                    )
+                # Verify this manifest against the squash parent as the effective baseline
                 report.notes.append(
-                    f"SQUASH_MERGE_RECOVERY: skip manifest {manifest_path} (baseline {baseline} not HEAD)"
+                    f"SQUASH_MERGE_RECOVERY: verifying manifest {manifest_path} against squash parent {squash_parent}"
                 )
+                records.append((manifest_path, manifest, squash_parent))
                 continue
             records.append((manifest_path, manifest, baseline))
         except GuardFailure as exc:

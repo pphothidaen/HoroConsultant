@@ -345,11 +345,5 @@ export default {
 
     // SPA fallback — serve from Pages
     return fetch(request);
-  },
-
-  async scheduled(event, env, ctx) {
-    // Cron trigger: midnight sync
-    const syncUrl = `${getPrimaryBackendUrl(env)}/api/v1/sync`;
-    ctx.waitUntil(fetch(syncUrl, { method: 'POST' }));
-  },
+  }
 };
