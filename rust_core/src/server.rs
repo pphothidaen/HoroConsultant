@@ -5,10 +5,16 @@
  * Only parity-qualified BaZi, true-solar-time, and health requests execute in
  * Rust. Every retained Python route is matched against a closed allowlist and
  * forwarded byte-for-byte to the localhost Uvicorn worker.
+ *
+ * KAN-71: The routing table is auto-generated from Python FastAPI route
+ * definitions via build.rs. See src/generated_routes.rs.
  */
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
+
+// KAN-71: Include auto-generated routing table from Python route definitions
+include!("generated_routes.rs");
 
 use axum::{
     body::{to_bytes, Body, Bytes},

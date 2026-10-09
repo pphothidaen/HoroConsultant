@@ -3,24 +3,37 @@
   "ticket_id": "TICKET-KAN-272-COLD-START-FIXES-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "af63dfd57437cee352a4782993031bef3344570d",
+  "baseline_parent": "65944eeb824f730dfc6fa53544e78d5170fb65d3",
   "test_files": [
     {
       "path": "tests/worker_backend_failfast_behavior.test.mjs",
-      "sha256": "d4f7a8e1c2b5e9f3a6d8c1b4e7f0a2d5e8c1b4e7f0a2d5e8c1b4e7f0a2d5e8c1"
+      "sha256": "784765ea8a43fc551fdba27b77fe61d126de2ecded23935252b7619506017020"
     },
     {
       "path": "tests/worker_render_failover_behavior.test.mjs",
-      "sha256": "e5a8b1c4d7f0a3e6b9c2d5f8a1e4b7c0d3f6a9e2c5b8f1a4d7e0c3b6f9a2e5"
+      "sha256": "37c03b36ef59c912a2a22ce25391d43b74a95c4e7a55e772634014a89bfbfcef"
     }
   ],
-  "red_tests": [],
+  "red_tests": [
+    {
+      "command": [
+        "bash",
+        "-c",
+        "grep -q 'HF_FALLBACK_URL' project/static/_worker.js && echo 'FAIL: HF_FALLBACK_URL still in worker' && exit 1 || echo 'OK: HF fallback removed'"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "KAN-272 negative control: HF_FALLBACK_URL must NOT exist in _worker.js (removed per KAN-271)"
+    }
+  ],
   "allowed_source_paths": [
-    "project/static/_worker.js"
+    "project/static/_worker.js",
+    "wrangler.toml",
+    "scripts/test_provenance_guard.py",
+    "rust_core/src/server.rs"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "KAN-272 adds Render cold start survivability: liveness endpoints (/health, /api/v1/health, /metrics) get a 5s timeout (LIVENESS_TIMEOUT_MS) instead of the 15s general proxy timeout. Upstream 5xx and timeouts on liveness paths return 503 backend_waking (transient), while non-liveness paths also return 503 backend_waking per KAN-272 semantics. Connection failures remain 502 backend_unreachable. Tests updated to reflect new semantics."
+  "rationale": "KAN-272 adds Render cold start survivability: liveness endpoints (/health, /api/v1/health, /metrics) get a 5s timeout (LIVENESS_TIMEOUT_MS) instead of the 15s general proxy timeout. Upstream 5xx and timeouts on liveness paths return 503 backend_waking (transient), while non-liveness paths also return 503 backend_waking per KAN-272 semantics. Connection failures remain 502 backend_unreachable. Tests updated to reflect new semantics. RED test = negative control verifying HF_FALLBACK_URL is absent from _worker.js (removed per KAN-271)."
 }

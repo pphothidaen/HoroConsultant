@@ -25,6 +25,7 @@ EXPECTED_ACTIVE = (
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
     "ci.yml",
+    "cloudflare-worker-monitor.yml",
     "deploy-render.yml",
     "kaggle_dataset_auto_sync.yml",
     "kaggle_finetune.yml",

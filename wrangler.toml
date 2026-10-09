@@ -22,6 +22,13 @@ ENVIRONMENT = "production"
 binding = "CACHE"
 id = "07d1f31739eb418b944bf8d66f17a452"
 
+# D1 database for durable sync bookkeeping (KAN-275)
+# Database: horo-sync-state (eafa3062-4418-4831-94f6-5a8f23701cdd)
+[[d1_databases]]
+binding = "SYNC_STATE"
+database_name = "horo-sync-state"
+database_id = "eafa3062-4418-4831-94f6-5a8f23701cdd"
+
 # NOTE: no R2 bucket binding here. R2 is not enabled on this Cloudflare
 # account (deploy fails with API error 10042 "Please enable R2"), so any R2
 # entry fails `wrangler deploy` outright. project/static/_worker.js guards
@@ -56,3 +63,8 @@ vars = { ENVIRONMENT = "production", BACKEND_BASE_URL = "https://horoconsultant-
 [[env.production.kv_namespaces]]
 binding = "CACHE"
 id = "07d1f31739eb418b944bf8d66f17a452"
+
+[[env.production.d1_databases]]
+binding = "SYNC_STATE"
+database_name = "horo-sync-state"
+database_id = "eafa3062-4418-4831-94f6-5a8f23701cdd"

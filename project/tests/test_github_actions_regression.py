@@ -28,6 +28,7 @@ EXPECTED_WORKFLOW_FILES = [
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
     "ci.yml",
+    "cloudflare-worker-monitor.yml",
     "code-review.yml",
     "deploy-render.yml",
     "deploy-vercel.yml",

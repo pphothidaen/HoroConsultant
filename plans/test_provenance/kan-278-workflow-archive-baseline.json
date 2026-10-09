@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-278-WORKFLOW-ARCHIVE",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "d0f4a984e766379e12079347e72ca83df49bb55b",
+  "baseline_parent": "65944eeb824f730dfc6fa53544e78d5170fb65d3",
   "test_files": [
     {
       "path": "tests/test_release_ci_gates.py",
@@ -11,7 +11,7 @@
     },
     {
       "path": "project/tests/test_github_actions_regression.py",
-      "sha256": "17d42cfe5612c5082b31fd30c57359c93ff51dec77b9319d6cb9099c2f62a72e"
+      "sha256": "9689a6b4bb4b60305baedc93f543e1bce52b3eb209f50215689ed2cb57475e59"
     },
     {
       "path": "project/tests/test_azure_release.py",
