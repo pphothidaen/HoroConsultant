@@ -1027,82 +1027,99 @@ def verify_pr(
             # During squash recovery, manifests from the squash PR have baseline != head
             # because the squash commit becomes HEAD. We must verify their baseline_parent
             # points to the squash commit's parent, not the lost test commit.
+            # ONLY apply this logic if the baseline commit is NOT an ancestor of HEAD
+            # (meaning it was squash-merged and lost from linear history).
             if post_squash_merge and baseline and baseline != head:
-                # Find the squash merge that brought in this manifest into main.
-                # The manifest was added in 'baseline' commit, which was squash-merged.
-                # We need to find the merge commit that:
-                # 1. Is an ancestor of HEAD (on main)
-                # 2. Has 'baseline' as one of its parents (direct or indirect)
-                # 3. Is the FINAL squash merge into main (not intermediate merges)
-                
-                # Get all merge commits between baseline and head
-                merge_commits = _git(
-                    repo,
-                    "rev-list",
-                    "--merges",
-                    f"{baseline}..{head}",
-                ).stdout.splitlines()
-                
-                # Find the squash merge: a merge commit on main that has baseline
-                # as an ancestor (through one of its parents)
-                squash_commit = None
-                for merge in merge_commits:
-                    # Check if this merge commit is on main (ancestor of HEAD)
-                    # and if baseline is an ancestor of one of its parents
-                    if _is_ancestor(repo, merge, head):
-                        parents = _git(repo, "rev-parse", f"{merge}^@", check=False).stdout.strip().split()
-                        for parent in parents:
-                            if _is_ancestor(repo, baseline, parent):
+                # Check if baseline is an ancestor of HEAD
+                # If yes, it's a regular commit - use normal verification
+                # If no, it was squash-merged - find the squash merge that brought it in
+                baseline_is_ancestor = _is_ancestor(repo, baseline, head)
+
+                if not baseline_is_ancestor:
+                    # Baseline was squash-merged - find the squash merge
+                    # Find the squash merge that brought in this manifest into main.
+                    # The manifest was added in 'baseline' commit, which was squash-merged.
+                    # We need to find the merge commit that:
+                    # 1. Is an ancestor of HEAD (on main)
+                    # 2. Has 'baseline' as an ancestor (through one of its parents)
+                    # 3. Is the FINAL squash merge into main (not intermediate merges)
+
+                    # Get all merge commits between baseline and head
+                    merge_commits = _git(
+                        repo,
+                        "rev-list",
+                        "--merges",
+                        f"{baseline}..{head}",
+                    ).stdout.splitlines()
+
+                    # Find the squash merge: a merge commit on main that has baseline
+                    # as an ancestor (through one of its parents)
+                    squash_commit = None
+                    for merge in merge_commits:
+                        # Check if this merge commit is on main (ancestor of HEAD)
+                        # and if baseline is an ancestor of one of its parents
+                        if _is_ancestor(repo, merge, head):
+                            parents = _git(repo, "rev-parse", f"{merge}^@", check=False).stdout.strip().split()
+                            for parent in parents:
+                                if _is_ancestor(repo, baseline, parent):
+                                    squash_commit = merge
+                                    break
+                        if squash_commit:
+                            break
+
+                    # Fallback: if no merge commit found with baseline as ancestor of parent,
+                    # use the first merge commit in the ancestry path that's on main
+                    if not squash_commit:
+                        for merge in merge_commits:
+                            if _is_ancestor(repo, merge, head):
                                 squash_commit = merge
                                 break
-                    if squash_commit:
-                        break
-                
-                # Fallback: if no merge commit found with baseline as ancestor of parent,
-                # use the first merge commit in the ancestry path that's on main
-                if not squash_commit:
-                    for merge in merge_commits:
-                        if _is_ancestor(repo, merge, head):
-                            squash_commit = merge
-                            break
-                
-                # Final fallback: use HEAD^ if we can't find a specific squash merge
-                if not squash_commit:
-                    squash_commit = _git(repo, "rev-parse", f"{head}^", check=False).stdout.strip()
-                
-                if not squash_commit:
-                    report.add(
-                        "PR_PROVENANCE_ERROR",
-                        f"cannot determine squash commit for manifest added in {baseline}",
-                        manifest_path,
+
+                    # Final fallback: use HEAD^ if we can't find a specific squash merge
+                    if not squash_commit:
+                        squash_commit = _git(repo, "rev-parse", f"{head}^", check=False).stdout.strip()
+
+                    if not squash_commit:
+                        report.add(
+                            "PR_PROVENANCE_ERROR",
+                            f"cannot determine squash commit for manifest added in {baseline}",
+                            manifest_path,
+                        )
+                        continue
+
+                    squash_parent = _git(repo, "rev-parse", f"{squash_commit}^", check=False).stdout.strip()
+                    if not squash_parent:
+                        report.add(
+                            "PR_PROVENANCE_ERROR",
+                            f"cannot determine parent of squash commit {squash_commit}",
+                            manifest_path,
+                        )
+                        continue
+
+                    squash_parent_for_verify = squash_parent
+                    # Validate manifest's baseline_parent matches squash parent
+                    manifest_parent = manifest.get("baseline_parent")
+                    if isinstance(manifest_parent, str) and manifest_parent != squash_parent:
+                        report.add(
+                            "BASELINE_PARENT_SQUASH_MISMATCH",
+                            f"manifest baseline_parent ({manifest_parent}) does not match squash commit parent ({squash_parent})",
+                            manifest_path,
+                        )
+                    # Verify this manifest against the squash parent as the effective baseline
+                    # but use the original manifest add commit for test hash comparison
+                    report.notes.append(
+                        f"SQUASH_MERGE_RECOVERY: verifying manifest {manifest_path} against squash parent {squash_parent} (squash commit: {squash_commit})"
                     )
+                    records.append((manifest_path, manifest, baseline, squash_parent))
                     continue
-                
-                squash_parent = _git(repo, "rev-parse", f"{squash_commit}^", check=False).stdout.strip()
-                if not squash_parent:
-                    report.add(
-                        "PR_PROVENANCE_ERROR",
-                        f"cannot determine parent of squash commit {squash_commit}",
-                        manifest_path,
+                else:
+                    # Baseline is a regular commit (ancestor of HEAD) - use normal verification
+                    # but still record that we're in post-squash-merge mode for downstream logic
+                    report.notes.append(
+                        f"POST_SQUASH_MERGE: manifest {manifest_path} baseline {baseline} is ancestor of HEAD (regular commit)"
                     )
+                    records.append((manifest_path, manifest, baseline, None))
                     continue
-                
-                squash_parent_for_verify = squash_parent
-                # Validate manifest's baseline_parent matches squash parent
-                manifest_parent = manifest.get("baseline_parent")
-                if isinstance(manifest_parent, str) and manifest_parent != squash_parent:
-                    report.add(
-                        "BASELINE_PARENT_SQUASH_MISMATCH",
-                        f"manifest baseline_parent ({manifest_parent}) does not match squash commit parent ({squash_parent})",
-                        manifest_path,
-                    )
-                # Verify this manifest against the squash parent as the effective baseline
-                # but use the original manifest add commit for test hash comparison
-                report.notes.append(
-                    f"SQUASH_MERGE_RECOVERY: verifying manifest {manifest_path} against squash parent {squash_parent} (squash commit: {squash_commit})"
-                )
-                records.append((manifest_path, manifest, baseline, squash_parent))
-                continue
             records.append((manifest_path, manifest, baseline, None))
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
