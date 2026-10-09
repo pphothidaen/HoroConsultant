@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-273-PYTHON39-COMPAT-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "2c450af5c7a444821d4cd4a452a4782aaa71ad8a",
+  "test_files": [
+    {
+      "path": "tests/test_cloudflare_cron_triggers.py",
+      "sha256": "93ec301d0a60b93849c56b2ecf7fff0533c04f0378df3fdd7aed68a7393e088f"
+    },
+    {
+      "path": "tests/test_kan273_remove_dead_cron.py",
+      "sha256": "4c7d75d9c102dcbfde518f7106792e2b5c3a793d907f505837f591962100c2e9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "bash",
+        "-c",
+        "grep -q 'import tomllib' tests/test_cloudflare_cron_triggers.py && echo 'FAIL: raw tomllib import still present' && exit 1 || echo 'OK: Python 3.9 compatible'"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "KAN-273 negative control: test_cloudflare_cron_triggers.py must use try/except tomllib/tomli pattern for Python 3.9 compatibility"
+    },
+    {
+      "command": [
+        "bash",
+        "-c",
+        "grep -q 'import tomllib' tests/test_kan273_remove_dead_cron.py && echo 'FAIL: raw tomllib import still present' && exit 1 || echo 'OK: Python 3.9 compatible'"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "KAN-273 negative control: test_kan273_remove_dead_cron.py must use try/except tomllib/tomli pattern for Python 3.9 compatibility"
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/test_cloudflare_cron_triggers.py",
+    "tests/test_kan273_remove_dead_cron.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fix tomllib imports for Python 3.9 compatibility in test_cloudflare_cron_triggers.py and test_kan273_remove_dead_cron.py. Python 3.9 requires tomli backport instead of stdlib tomllib."
+}

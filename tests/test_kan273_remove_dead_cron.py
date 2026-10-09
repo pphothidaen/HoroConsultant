@@ -1,5 +1,4 @@
-"""
-KAN-273: The Worker cron targeted an endpoint that does not exist.
+"""KAN-273: The Worker cron targeted an endpoint that does not exist.
 
 `scheduled()` POSTed to `<primary>/api/v1/sync`. That path is not in the backend
 route table at all — the OpenAPI document lists 87 paths and none contain "sync".
@@ -18,8 +17,13 @@ Assertions read the *parsed* TOML rather than raw text, because these files carr
 commented-out reference blocks for other workers that legitimately mention crons.
 """
 import re
-import tomllib
 from pathlib import Path
+
+# tomllib is stdlib in Python 3.11+; tomli is the backport for 3.9-3.10
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 import pytest
 

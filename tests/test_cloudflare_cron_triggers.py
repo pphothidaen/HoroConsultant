@@ -14,8 +14,13 @@ Assertions parse the TOML rather than grepping it, because wrangler.hermes.toml
 carries a commented reference block for a different worker that mentions crons.
 """
 import re
-import tomllib
 from pathlib import Path
+
+# tomllib is stdlib in Python 3.11+; tomli is the backport for 3.9-3.10
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).parent.parent
 WRANGLER_PATH = REPO_ROOT / "wrangler.toml"
