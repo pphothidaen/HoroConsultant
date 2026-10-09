@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-279-REVIEW-SYSTEM-BASELINE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "55297a58ae83c08eeefa71a01f8ec46474231154",
+  "test_files": [
+    {
+      "path": "tests/test_cross_functional_review_system.py",
+      "sha256": "bcfbe88e8abbe42a3b9f9e3656bcfe1c4804cba501b8da8ac53e296cd88761d6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cross_functional_review_system.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "8 failed; missing source file (review/integration source absent from baseline HEAD)"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/integration_validator.py",
+    "scripts/integration_coordination.py",
+    "scripts/integration_test.py",
+    ".hermes/scripts/cross_functional_review.py",
+    ".hermes/reviews/KAN-279-cross-functional-review.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test-first baseline for KAN-279, the structured cross-functional review system (4-phase CLI + integration validation suite). RED evidence was captured in an isolated detached worktree checked out at baseline HEAD where the source scripts do not exist: all 8 tests fail with exit 1 (missing source file assertions). GREEN in the main worktree after source admission: 8/8 pass. KAN-279 replaces the earlier incorrect KAN-277 attribution; KAN-277 is the unrelated platform-wide architecture review ticket."
+}
