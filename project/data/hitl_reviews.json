@@ -2222,6 +2222,36 @@
       "confidence_score": 0.95,
       "highlights": [],
       "model_used": "mock-llm"
+    },
+    "unified-reading-148aa00932431efba47a": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-10-10T15:34:58.422068"
+    },
+    "unified-reading-c17344e029ef33af650f": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-10-10T15:35:07.945782"
+    },
+    "unified-reading-5ff41d4ab250fb7f90e6": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-10-10T15:35:17.106785"
+    },
+    "unified-reading-81f648d8fc7fe4ce444a": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-10-10T15:35:26.732475"
+    },
+    "unified-reading-1fc258e210a81b76d473": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-10-10T15:35:36.139838"
     }
   },
   "stats": {
@@ -2230,7 +2260,7 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-09-25T22:54:58.522899",
+  "last_updated": "2026-10-10T15:35:36.156969",
   "automation": {
     "threshold": 50,
     "step": 50,

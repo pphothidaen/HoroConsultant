@@ -1,0 +1,20 @@
+{
+  "fencing_counter": 2,
+  "heartbeat": {
+    "run_key": "sync-2026-10-10",
+    "step": "ingest",
+    "detail": "starting",
+    "at": 1791575910.110367
+  },
+  "last_success": {
+    "run_key": "sync-2026-10-10",
+    "vectors": 135,
+    "completed_at": 1791575910.343461,
+    "heartbeat": {
+      "run_key": "sync-2026-10-10",
+      "step": "ingest",
+      "detail": "starting",
+      "at": 1791575910.110367
+    }
+  }
+}
