@@ -1,0 +1,30 @@
+{
+  "timestamp_utc": "2026-10-09T04:23:27Z",
+  "all_critical_healthy": true,
+  "healthy_count": 2,
+  "target_count": 2,
+  "results": [
+    {
+      "target": "Cloudflare Worker /health",
+      "url": "https://horoconsultant-production.pansakorn.workers.dev/health",
+      "status": 200,
+      "latency_ms": 581.5,
+      "healthy": true,
+      "latency_degraded": false,
+      "critical": true,
+      "error": null
+    },
+    {
+      "target": "Cloudflare Worker /metrics",
+      "url": "https://horoconsultant-production.pansakorn.workers.dev/metrics",
+      "status": 200,
+      "latency_ms": 1024.0,
+      "healthy": true,
+      "latency_degraded": false,
+      "critical": false,
+      "error": null
+    }
+  ]
+}
+# Production deployment artifacts
+# Production deployment artifacts - updated Sat Oct 10 22:53:39 +07 2026

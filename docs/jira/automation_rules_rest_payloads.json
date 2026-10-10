@@ -1,0 +1,190 @@
+{
+  "rule1_auto_set_priority_and_effort": {
+    "name": "Auto-set Priority & Effort Label",
+    "description": "Sets priority and effort label based on audit severity labels (audit-critical, audit-high, audit-medium, audit-low)",
+    "trigger": {
+      "type": "jira.issue.created",
+      "configuration": {
+        "projectKey": "KAN"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "labels in (audit-critical, audit-high, audit-medium, audit-low)"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.edit",
+        "configuration": {
+          "fields": {
+            "priority": {
+              "smartValues": "{{#if(issue.labels.includes('audit-critical'))}}Highest{{/if}}{{#if(issue.labels.includes('audit-high'))}}High{{/if}}{{#if(issue.labels.includes('audit-medium'))}}Medium{{/if}}{{#if(issue.labels.includes('audit-low'))}}Low{{/if}}"
+            },
+            "labels": {
+              "smartValues": "{{#if(issue.labels.includes('audit-critical'))}}effort-13{{/if}}{{#if(issue.labels.includes('audit-high'))}}effort-8{{/if}}{{#if(issue.labels.includes('audit-medium'))}}effort-5{{/if}}{{#if(issue.labels.includes('audit-low'))}}effort-3{{/if}}"
+            }
+          }
+        }
+      }
+    ],
+    "enabled": true
+  },
+  "rule2_auto_assign_agent_label": {
+    "name": "Auto-assign Agent Label by File Path",
+    "description": "Adds agent label based on file path mentioned in issue description",
+    "trigger": {
+      "type": "jira.issue.created",
+      "configuration": {
+        "projectKey": "KAN"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "description ~ \"project/*\""
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.edit",
+        "configuration": {
+          "fields": {
+            "labels": {
+              "smartValues": "{{#if(issue.description.contains('project/core/') || issue.description.contains('rust_core/'))}}agent-codex1{{/if}}{{#if(issue.description.contains('project/routers/'))}}agent-codex2{{/if}}{{#if(issue.description.contains('tests/'))}}agent-codex3{{/if}}{{#if(issue.description.contains('docs/'))}}agent-lead_ba{{/if}}"
+            }
+          }
+        }
+      }
+    ],
+    "enabled": true
+  },
+  "rule3_auto_transition_parent": {
+    "name": "Auto-transition Parent to Done",
+    "description": "Transitions parent task to Done when all sub-tasks are Done",
+    "trigger": {
+      "type": "jira.issue.transitioned",
+      "configuration": {
+        "toStatus": "Done",
+        "projectKey": "KAN"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "parent is not EMPTY AND parent.subtasks.unresolved = 0"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.transition",
+        "configuration": {
+          "issue": "parent",
+          "transition": "Done"
+        }
+      }
+    ],
+    "enabled": true
+  },
+  "rule4_auto_add_effort_label": {
+    "name": "Auto-add Effort Label by Priority",
+    "description": "Adds effort label based on issue priority (Highest=13, High=8, Medium=5, Low=3)",
+    "trigger": {
+      "type": "jira.issue.created",
+      "configuration": {
+        "projectKey": "KAN"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "priority in (Highest, High, Medium, Low) AND labels not in (effort-13, effort-8, effort-5, effort-3)"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.edit",
+        "configuration": {
+          "fields": {
+            "labels": {
+              "smartValues": "{{#if(issue.priority.name == 'Highest')}}effort-13{{/if}}{{#if(issue.priority.name == 'High')}}effort-8{{/if}}{{#if(issue.priority.name == 'Medium')}}effort-5{{/if}}{{#if(issue.priority.name == 'Low')}}effort-3{{/if}}"
+            }
+          }
+        }
+      }
+    ],
+    "enabled": true
+  },
+  "rule5_auto_link_subtask": {
+    "name": "Auto-link Sub-task by Finding ID Pattern",
+    "description": "Sets parent based on finding ID pattern in summary (A=KAN-39, B=KAN-40, C=KAN-41)",
+    "trigger": {
+      "type": "jira.issue.created",
+      "configuration": {
+        "projectKey": "KAN",
+        "issueType": "Sub-task"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "summary ~ '^[ABC][0-9]'"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.edit",
+        "configuration": {
+          "fields": {
+            "parent": {
+              "smartValues": "{{#if(issue.summary.startsWith('A'))}}KAN-39{{/if}}{{#if(issue.summary.startsWith('B'))}}KAN-40{{/if}}{{#if(issue.summary.startsWith('C'))}}KAN-41{{/if}}"
+            }
+          }
+        }
+      }
+    ],
+    "enabled": true
+  },
+  "rule6_auto_assign_team": {
+    "name": "Auto-assign Team by Agent Label",
+    "description": "Sets Team field based on agent-* label (DevCore, DevAPI, QA, Security, Management, BA)",
+    "trigger": {
+      "type": "jira.issue.created",
+      "configuration": {
+        "projectKey": "KAN"
+      }
+    },
+    "conditions": [
+      {
+        "type": "jira.jql.condition",
+        "configuration": {
+          "jql": "labels ~ \"agent-*\""
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "jira.issue.edit",
+        "configuration": {
+          "fields": {
+            "team": {
+              "smartValues": "{{#if(issue.labels.anyMatch('agent-codex1'))}}DevCore{{/if}}{{#if(issue.labels.anyMatch('agent-codex2'))}}DevAPI{{/if}}{{#if(issue.labels.anyMatch('agent-codex3'))}}QA{{/if}}{{#if(issue.labels.anyMatch('agent-code_reviewer'))}}Security{{/if}}{{#if(issue.labels.anyMatch('agent-agy1|agent-ba_auditor'))}}Management{{/if}}{{#if(issue.labels.anyMatch('agent-lead_ba|agent-ba_intake'))}}BA{{/if}}"
+            }
+          }
+        }
+      }
+    ],
+    "enabled": true
+  }
+}
