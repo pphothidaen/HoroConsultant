@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-280-RUST-BUILD-DOC-COMMENT-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9152336c20b2aefc0a2dcf43d0fcbcaa1d650964",
+  "test_files": [
+    {
+      "path": "rust_core/tests/test_gateway_contract.rs",
+      "sha256": "2a25cc84ec5802a6af0b1fe6920578da9a534637e8f71851ebedb6957d9c4f73"
+    },
+    {
+      "path": "rust_core/tests/test_runtime_contract.rs",
+      "sha256": "f05b5f3046632e1a514ebb38c8367c3b4f4a6fcf5243f52acafb73ad6328f16f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--no-default-features",
+        "--features",
+        "server",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "expected_exit": 101,
+      "failure_fingerprint": "doc comment syntax error: //! comments not allowed in build.rs outside lib crate root"
+    }
+  ],
+  "allowed_source_paths": [
+    "rust_core/build.rs"
+  ],
+  "test_owner_role": "developer_core",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-280: Fix doc comment syntax in build.rs to pass cargo clippy -D warnings. Changed //! to // in generate_rust_source function. The clippy check serves as the RED test (fails before fix, passes after). This is a build-time code generator fix; the generated output is tested indirectly via integration tests in test_gateway_contract.rs and test_runtime_contract.rs."
+}
