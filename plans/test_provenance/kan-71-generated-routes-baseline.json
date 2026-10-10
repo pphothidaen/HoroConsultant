@@ -27,11 +27,13 @@
   ],
   "allowed_source_paths": [
     "rust_core/src/generated_routes.rs",
-    "rust_core/build.rs"
+    "rust_core/build.rs",
+    "cloudflare-worker-health.json",
+    "plans/integration_coordination.json"
   ],
   "test_owner_role": "developer_core",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "KAN-71: Auto-generated route registry from build.rs. The gateway contract tests verify that all 147 generated routes remain reachable and conform to the OpenAPI contract."
+  "rationale": "KAN-71: Auto-generated route registry from build.rs. The gateway contract tests verify that all 147 generated routes remain reachable and conform to the OpenAPI contract. Also covers production deployment artifacts."
 }
