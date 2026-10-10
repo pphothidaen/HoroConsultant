@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-258-API-AUTH-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9152336c20b2aefc0a2dcf43d0fcbcaa1d650964",
+  "test_files": [
+    {
+      "path": "tests/test_kan258_api_auth.py",
+      "sha256": "972e68abc717ad4d2c095b0df0abbb4a9f0a97cddb1721ee69c241b59795fb22"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_kan258_api_auth.py"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'tests.test_kan258_api_auth' or tests fail because auth middleware not applied to all API routes"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/main.py",
+    "project/admin_router.py"
+  ],
+  "test_owner_role": "developer_core",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-258: Add authentication middleware to all unauthenticated API endpoints. Currently only /admin/* and /hitl/stats are protected. Need to protect: /api/*, /calculate/*, /route/*, /debate/*, /mcp/*, /hitl/* (except stats), astrology endpoints, v2/v3 endpoints, synastry, calendar, simulation, luopan_dream, chat, visual, jira, mlops, unified_reading. Use Google ID Token verification via existing _verify_google_bearer_token and admin_allowed_emails."
+}

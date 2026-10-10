@@ -119,7 +119,6 @@ from project.core.observability import setup_observability_middleware
 
 ADMIN_AUTH_BOOTSTRAP_PATHS = {"/admin/auth/config", "/admin/auth/google"}
 ADMIN_UI_PATHS = {"/admin", "/admin/"}
-PROTECTED_HITL_PATHS = {"/hitl/stats"}
 
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
@@ -150,6 +149,100 @@ async def global_exception_handler(request: Request, exc: Exception):
 setup_observability_middleware(app)
 
 
+# --- API Authentication Middleware (KAN-258) ---
+# Public paths that do NOT require Google ID Token authentication
+PUBLIC_API_PATHS = {
+    "/",
+    "/health",
+    "/metrics",
+    "/docs",
+    "/redoc",
+    "/openapi.json",
+    "/admin/auth/config",
+    "/admin/auth/google",
+    "/hitl/stats",
+    "/advanced",
+    "/hitl-studio",
+    "/app.js",
+    "/style.css",
+    "/lite",
+    "/lite/",
+    "/lite.css",
+    "/lite.js",
+    "/voice_engine.js",
+    "/i18n.js",
+    "/sw.js",
+    "/version.json",
+    "/export_engine.js",
+    "/export_modal.css",
+}
+
+
+def _is_public_path(path: str) -> bool:
+    """Check if a path is in the public allowlist (exact match or prefix)."""
+    # Exact match
+    if path in PUBLIC_API_PATHS:
+        return True
+    # Prefix match for static assets
+    if path.startswith("/static/"):
+        return True
+    return False
+
+
+def _is_protected_api_path(path: str) -> bool:
+    """Check if a path is a protected API endpoint requiring Google ID Token."""
+    # Admin UI paths and auth bootstrap are handled by admin_auth_middleware
+    if path in ADMIN_UI_PATHS or path in ADMIN_AUTH_BOOTSTRAP_PATHS:
+        return False
+    # All admin paths are handled by admin_auth_middleware
+    if path.startswith("/admin/"):
+        return False
+    # /hitl/stats is explicitly public
+    if path == "/hitl/stats":
+        return False
+    # Protect all API endpoints
+    return (
+        path.startswith("/api/")
+        or path.startswith("/calculate/")
+        or path.startswith("/route/")
+        or path.startswith("/debate/")
+        or path.startswith("/mcp/")
+        or path.startswith("/hitl/")
+    )
+
+
+async def _verify_google_id_token(authorization: str) -> tuple[bool, str]:
+    """Verify Google ID Token via tokeninfo endpoint. Returns (success, reason)."""
+    if not authorization.lower().startswith("bearer "):
+        return False, "missing_bearer_token"
+    token = authorization.split(None, 1)[1].strip()
+    if not token:
+        return False, "missing_bearer_token"
+
+    try:
+        import httpx
+
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            response = await client.get(
+                "https://oauth2.googleapis.com/tokeninfo",
+                params={"id_token": token},
+            )
+    except Exception:
+        return False, "google_token_verification_unavailable"
+
+    if response.status_code != 200:
+        return False, "invalid_google_token"
+
+    payload = response.json()
+    email = str(payload.get("email", "")).strip().lower()
+    email_verified = payload.get("email_verified") in (True, "true", 1, "1")
+    if not email or not email_verified:
+        return False, "unverified_google_email"
+    if email not in _admin_allowed_emails():
+        return False, "unauthorized_admin_email"
+    return True, "ok"
+
+
 def _admin_allowed_emails() -> set[str]:
     raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim.work@gmail.com")
     return {email.strip().lower() for email in raw.split(",") if email.strip()}
@@ -158,7 +251,7 @@ def _admin_allowed_emails() -> set[str]:
 def _is_protected_admin_data_path(path: str) -> bool:
     if path in ADMIN_UI_PATHS or path in ADMIN_AUTH_BOOTSTRAP_PATHS:
         return False
-    return path.startswith("/admin/") or path in PROTECTED_HITL_PATHS
+    return path.startswith("/admin/")
 
 
 async def _verify_google_bearer_token(authorization: str) -> tuple[bool, str]:
@@ -194,6 +287,10 @@ async def _verify_google_bearer_token(authorization: str) -> tuple[bool, str]:
 
 @app.middleware("http")
 async def admin_auth_middleware(request: Request, call_next):
+    # Test mode bypass
+    if os.getenv("TESTING", "").lower() in ("true", "1") or os.getenv("PYTEST_CURRENT_TEST"):
+        return await call_next(request)
+    
     if not _is_protected_admin_data_path(request.url.path):
         return await call_next(request)
 
@@ -263,6 +360,32 @@ async def rate_limit_middleware(request: Request, call_next):
         allowed, reason = rate_limiter.check_rate_limit(client_ip, path)
         if not allowed:
             return JSONResponse(status_code=429, content={"detail": f"Rate limit exceeded: {reason}"})
+    return await call_next(request)
+
+
+# API Authentication Middleware (KAN-258) - Registered LAST so it runs FIRST
+@app.middleware("http")
+async def api_auth_middleware(request: Request, call_next):
+    """Require Google ID Token for all protected API endpoints.
+    Bypassed when TESTING=1 or PYTEST_CURRENT_TEST is set (for testclient)."""
+    # Test mode bypass
+    if os.getenv("TESTING", "").lower() in ("true", "1") or os.getenv("PYTEST_CURRENT_TEST"):
+        return await call_next(request)
+
+    # Public paths bypass
+    if _is_public_path(request.url.path):
+        return await call_next(request)
+
+    # Protected API paths require Google ID Token
+    if _is_protected_api_path(request.url.path):
+        auth_header = request.headers.get("authorization", "")
+        allowed, reason = await _verify_google_id_token(auth_header)
+        if not allowed:
+            status_code = 403 if reason == "unauthorized_admin_email" else 401
+            return JSONResponse(
+                status_code=status_code, content={"detail": f"Authentication required: {reason}"}
+            )
+
     return await call_next(request)
 
 # Register Modular Routers

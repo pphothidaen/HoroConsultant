@@ -43,6 +43,10 @@ jobs:
             base_commit="$(git merge-base HEAD "origin/$BASE_REF")"
           elif [[ -n "$BEFORE_SHA" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
             base_commit="$BEFORE_SHA"
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" && -n "${{ github.head_ref }}" ]]; then
+            # For workflow_dispatch on feature branches, compare against main
+            git fetch --no-tags origin main
+            base_commit="$(git merge-base HEAD origin/main)"
           else
             base_commit="$(git rev-parse HEAD^)"
           fi
