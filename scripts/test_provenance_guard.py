@@ -28,7 +28,7 @@ from typing import Any, Iterable
 
 SCHEMA_VERSION = "test-provenance-v1"
 MANIFEST_PREFIX = "plans/test_provenance/"
-TEST_PREFIXES = ("tests/", "project/tests/", "TDD-HORO-v3.0/tests/", "tools/agent-broker/Tests/")
+TEST_PREFIXES = ("tests/", "project/tests/", "rust_core/tests/", "TDD-HORO-v3.0/tests/", "tools/agent-broker/Tests/")
 DOC_PREFIXES = ("docs/", "plans/", ".agents/", ".agy/", ".antigravity/", ".claude/", ".codex/", ".github/workflows/")
 # Branches that always require full provenance verification.
 PROTECTED_BRANCHES = frozenset({"main", "master", "release/*"})
