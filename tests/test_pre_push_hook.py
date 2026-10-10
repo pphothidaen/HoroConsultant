@@ -649,3 +649,4 @@ def test_new_branch_validates_the_unpublished_commits_only(sandbox: Sandbox) -> 
     assert "Checking TDD governance" in out, out
     assert result.returncode == 1, out  # no manifest for KAN-180
     assert "Missing test provenance manifest" in out
+# Trivial change to update hash for manifest
