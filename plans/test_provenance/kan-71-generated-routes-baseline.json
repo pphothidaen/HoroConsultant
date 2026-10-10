@@ -10,6 +10,21 @@
       "sha256": "2a25cc84ec5802a6af0b1fe6920578da9a534637e8f71851ebedb6957d9c4f73"
     }
   ],
+  "red_tests": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--no-default-features",
+        "--features",
+        "server",
+        "--",
+        "test_all_42_openapi_paths_and_44_operations_remain_reachable"
+      ],
+      "expected_exit": 101,
+      "failure_fingerprint": "test_all_42_openapi_paths_and_44_operations_remain_reachable: FAILED - not all 147 generated routes reachable before generation fix"
+    }
+  ],
   "allowed_source_paths": [
     "rust_core/src/generated_routes.rs",
     "rust_core/build.rs"
