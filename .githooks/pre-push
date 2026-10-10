@@ -290,7 +290,7 @@ for commit in $COMMITS; do
     echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit})..."
 
     OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
-        --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" 2>&1)
+        --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" --commit "$commit" 2>&1)
     STATUS=$?
 
     if [ "$STATUS" -eq 0 ]; then

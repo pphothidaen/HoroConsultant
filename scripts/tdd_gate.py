@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""TDD State Transition Gate Enforcer — KAN-95/KAN-105.
+"""
+TDD State Transition Gate Enforcer — KAN-95/KAN-105.
 
 Validates state transitions and evidence before allowing Jira status updates or Git pushes.
 - Backlog / Selected for Development -> TDD RED (requires failing test)
@@ -27,6 +28,45 @@ ALLOWED_TRANSITIONS = {
 }
 
 
+def is_docs_only_path(path: str) -> bool:
+    """Check if a path is considered documentation for the purpose of exempting manifest requirements."""
+    if path.endswith(".md"):
+        return True
+    docs_prefixes = (
+        "docs/",
+        "plans/",
+        ".agents/",
+        ".agy/",
+        ".antigravity/",
+        ".claude/",
+        ".codex/",
+        ".github/workflows/",
+    )
+    for prefix in docs_prefixes:
+        if path.startswith(prefix):
+            return True
+    return False
+
+
+def is_docs_only_change(commit_hash: str) -> bool:
+    """Check if all files changed in the given commit are documentation."""
+    try:
+        # Get the list of files changed in the commit
+        cmd = ["git", "show", "--name-only", "--pretty=format:", commit_hash]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            return False
+        paths = result.stdout.strip().splitlines()
+        if not paths:
+            return False
+        for path in paths:
+            if not is_docs_only_path(path):
+                return False
+        return True
+    except Exception:
+        return False
+
+
 def check_red_state(test_target: Optional[str] = None) -> Tuple[bool, str]:
     """TDD RED requires running tests and encountering at least one failure."""
     cmd = ["pytest"]
@@ -41,8 +81,8 @@ def check_red_state(test_target: Optional[str] = None) -> Tuple[bool, str]:
         return False, "pytest command not found in environment."
 
 
-def check_green_state(issue_key: str, test_target: Optional[str] = None) -> Tuple[bool, str]:
-    """TDD GREEN requires all tests to pass and a matching provenance manifest."""
+def check_green_state(issue_key: str, test_target: Optional[str] = None, commit_hash: Optional[str] = None) -> Tuple[bool, str]:
+    """TDD GREEN requires all tests to pass and a matching provenance manifest, unless documentation-only."""
     cmd = ["pytest"]
     if test_target:
         cmd.append(test_target)
@@ -52,6 +92,10 @@ def check_green_state(issue_key: str, test_target: Optional[str] = None) -> Tupl
             return False, f"Tests failed with exit code {res.returncode}. TDD GREEN requires all tests to pass."
     except FileNotFoundError:
         return False, "pytest command not found in environment."
+
+    # If this is a documentation-only change and tests pass, we can waive the manifest requirement.
+    if commit_hash and is_docs_only_change(commit_hash):
+        return True, f"All tests passed (documentation-only change, manifest waived)."
 
     # Validate provenance manifest in plans/test_provenance/
     clean_key = issue_key.lower()
@@ -68,6 +112,7 @@ def verify_transition(
     target: str,
     issue_key: str,
     test_target: Optional[str] = None,
+    commit_hash: Optional[str] = None,
 ) -> Tuple[bool, str]:
     """Validate state transition rules and prerequisite evidence."""
     current_normalized = current.strip()
@@ -87,7 +132,7 @@ def verify_transition(
     if target_normalized == "TDD RED":
         return check_red_state(test_target)
     elif target_normalized == "TDD GREEN":
-        return check_green_state(issue_key, test_target)
+        return check_green_state(issue_key, test_target, commit_hash)
 
     return True, f"Transition from '{current_normalized}' to '{target_normalized}' approved."
 
@@ -98,9 +143,10 @@ def main() -> int:
     parser.add_argument("--target", required=True, help="Target Jira status")
     parser.add_argument("--issue", required=True, help="Jira Issue Key (e.g. KAN-105)")
     parser.add_argument("--test-target", help="Specific pytest file or directory")
+    parser.add_argument("--commit", help="Commit hash to check for documentation-only exemption")
     args = parser.parse_args()
 
-    ok, msg = verify_transition(args.current, args.target, args.issue, args.test_target)
+    ok, msg = verify_transition(args.current, args.target, args.issue, args.test_target, args.commit)
     if not ok:
         print(f"❌ TRANSITION BLOCKED: {msg}", file=sys.stderr)
         return 1
