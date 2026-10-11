@@ -4153,8 +4153,37 @@ mis-reported as a "pre-existing flaky test" and is a genuine environment-depende
 | `KAN-178` | `READY` | `qa_tester`; `qa-e2e-testing` | `tests/test_jira_label_gate.py`, `plans/test_provenance/ticket-provenance-hermetic-jira-gate-001.json`. RED: fail under injected `JIRA_API_TOKEN`/`JIRA_EMAIL`. GREEN: `monkeypatch` deletes `JIRA_API_TOKEN`/`JIRA_EMAIL`/`JIRA_BASE_URL`. Accept: 22 passed in *both* credential states. Must precede all other lanes for clean suite signal. |
 | `KAN-179` | `BLOCKED_ON_HOOK_CONTRACT_DECISION` | `developer_api`; `sdlc-aisdlc-workflow` | `.githooks/commit-msg`, `tests/test_commit_msg_trailer_hook.py`, optional `scripts/commit_msg_trailer.py`. Append `Test-Baseline: <baseline>` **only** when exactly one `plans/test_provenance/*.json` manifest is staged; zero or multiple candidates leaves the message byte-identical. Never guess a SHA. `AGENTS.md` ownership: open decision whether to amend the read-only hook contract (line 5) or add a separate `prepare-commit-msg` hook. |
 | `KAN-180` | `BLOCKED_BY_KAN-179` | `devops`; `devops-deployment` | `.githooks/pre-push`, `tests/test_pre_push_hook.py`. Adopt the interpreter block from `.githooks/commit-msg:9-16` (`.venv/bin/python3` first) to fix the false `tomllib` report caused by bare `python3` resolving to system 3.9.6. Validate every commit in the pushed range from hook stdin, not `git log -1`. Preserve fail-closed on real gate failure. Sequential after `KAN-179` (shared `.githooks/` path). |
-| `KAN-181` | `READY` | `orchestrator`; `agile-governance` | Attribution remediation only: record the true ticket per commit, file/link the correct tickets, and add scope validation to `jira_label_gate.py` so a label-only match cannot satisfy `commit-msg`. No history rewrite. |
+| `KAN-181` | `DONE (code merged PR #118; manifests 001-003; scope warn-only, exit contract 0/1/2 held)` | `orchestrator`; `agile-governance` | Attribution closeout: appendix below maps each mis-cited commit to its true ticket; scope validation merged as warn-only in `scripts/jira_label_gate.py` (`8676b38d` + `e29b4451`). No history rewrite. |
 | `TICKET-PROVENANCE-CLOSEOUT-20260929` | `BLOCKED_BY_ALL_ABOVE` | `orchestrator`; `agile-governance` | Full suite (5138 collected) with zero failures, `sync_ai_agent_ecosystem.py --check` exit 0, `verify-pr` PASSED, then Rule 22 archival to `plans/archive/2026-09-29-kan-provenance/` and `ReleaseNotes.md` republication. |
+
+<!-- KAN-181-ATTRIBUTION-APPENDIX-20261011:START -->
+## KAN-181 attribution appendix -- 2026-10-11 (lead_ba closeout)
+
+Forward-only correction; merged history is never amended or force-pushed.
+Jira scope verified live via `twg` (auth from `~/.config/twg/auth.conf`):
+KAN-130 Sprint K FEAT 1 WorkerRuntime (Backlog), KAN-131 AT-01 RuntimeBackend ABC
+(Backlog), KAN-132 Sprint K FEAT 2 Evidence Contract (Backlog), KAN-133 Sprint K
+FEAT 3 Leases/Fencing (Backlog). None owns the governance/provenance work below.
+
+| commit | cited (wrong) | true ticket | evidence |
+|---|---|---|---|
+| `33445cc0` HMAC-signed fail-closed CI failure webhook + injection hardening | KAN-130 | NEEDS_HITL (governance webhook; file/link Jira) | subject=webhook/HMAC; KAN-130 summary=WorkerRuntime abstraction |
+| `38f31b30` document two incompatible webhook receivers | KAN-130 | NEEDS_HITL (governance webhook docs) | subject=webhook receivers; KAN-130 summary=WorkerRuntime abstraction |
+| `da5d5c07` isolate test subprocesses from CWD shadowing, scoped PAT handling | KAN-131 | TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-001/003 family | manifest `ticket-kan-131-subprocess-cwd-hygiene-001.json` + `003.json` pins this work |
+| `2a57db49` replace shared /tmp subprocess CWDs with private per-invocation dirs | KAN-131 | TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-001/003 family | same manifest family; subject matches CWD hygiene scope |
+| `b5889733` remove shared /tmp CWD from installed-wheel contract test | KAN-131 | TICKET-KAN-131-SUBPROCESS-CWD-HYGIENE-001/003 family | same manifest family; subject matches CWD hygiene scope |
+| `b0620a4c` guard that no git ref can carry a live credential | KAN-132 | NEEDS_HITL (secret-safety governance; file/link Jira) | subject=credential guard; KAN-132 summary=Evidence Contract v1.0 |
+| `b8a8e9d1` correct live-token exposure status (never in git) | KAN-132 | NEEDS_HITL (secret-safety handoff docs) | subject=token exposure docs; KAN-132 summary=Evidence Contract v1.0 |
+| `02c3861a` freeze diff-coverage TDD contracts | KAN-133 | TICKET-KAN-133-DIFF-COVERAGE | manifest `ticket-kan-133-diff-coverage-001.json` pins this work |
+| `22571990` add --diff-coverage WARN to verify-pr | KAN-133 | TICKET-KAN-133-DIFF-COVERAGE | same manifest; subject matches diff-coverage scope |
+
+Scope gate: merged warn-only (`scope_tokens`/`scope_overlap`, `[WARN]` names ticket
+summary + commit subject, never changes exit 0/1/2) via `8676b38d`, wired through
+real CLI/hook path via `e29b4451`, pinned via `cf4b0a91`; suites
+`tests/test_jira_label_gate.py` (22 passed) + `tests/test_jira_label_scope.py`
+(42 passed); manifests
+`plans/test_provenance/ticket-kan-181-label-scope-validation-001/002/003.json`.
+<!-- KAN-181-ATTRIBUTION-APPENDIX-20261011:END -->
 
 <!-- KAN-183 verification trigger -->
 
