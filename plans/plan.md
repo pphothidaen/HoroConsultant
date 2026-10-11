@@ -2509,3 +2509,13 @@ Close the remaining KAN-264 open items: migrate `sync-jira.yml` off the Teamwork
 - Out of scope (human operator): Atlassian 3LO OAuth app provisioning and `JIRA_CLIENT_ID`/`JIRA_SECRET`/`JIRA_REFRESH_TOKEN` secrets; `sync-from-jira` job stays documented as inert.
 - Lane commits local only (no push); pure ASCII documentation; existing dirty worktree preserved.
 <!-- KAN-264-DROP-TWG-20261005:END -->
+
+<!-- KAN-181-CLOSEOUT-20261011:START -->
+## KAN-181 closeout mirror -- 2026-10-11 (lead_ba)
+
+Status: DONE (code merged PR #118; manifests 001-003; scope warn-only).
+Canonical record: `ATOMIC_TICKET.md` section `KAN-181-ATTRIBUTION-APPENDIX-20261011`
+(9-commit true-ticket map; 4 NEEDS_HITL for Jira filing: webhook x2, credential-guard x2).
+Scope gate: warn-only `scope_tokens`/`scope_overlap`, exit contract 0/1/2 held;
+suites 22 + 42 passed. No history rewrite.
+<!-- KAN-181-CLOSEOUT-20261011:END -->
