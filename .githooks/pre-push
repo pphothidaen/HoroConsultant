@@ -255,6 +255,7 @@ if [ "$HAVE_RANGE" -eq 0 ] && [ "$HAVE_INPUT" -eq 0 ]; then
     fi
     COMMITS="$HEAD_SHA"
     DOCS_EXEMPT=0
+    MANUAL_INVOCATION=1
 elif [ "$HAVE_RANGE" -eq 0 ]; then
     # Git supplied ref updates but none of them carry commits that are not
     # already published. There is genuinely nothing to validate; do not fall
@@ -262,7 +263,11 @@ elif [ "$HAVE_RANGE" -eq 0 ]; then
     exit 0
 else
     collect_paths "$COMMITS"
+    echo "DEBUG: CHANGED_PATHS='$CHANGED_PATHS'" >&2
+    echo "DEBUG: DOCS_EXEMPT before eval=$DOCS_EXEMPT" >&2
     evaluate_docs_exemption || true
+    echo "DEBUG: DOCS_EXEMPT after eval=$DOCS_EXEMPT" >&2
+    MANUAL_INVOCATION=0
 fi
 
 if [ ! -f "$GATE_SCRIPT" ]; then
@@ -289,15 +294,22 @@ for commit in $COMMITS; do
     [ -n "$ISSUE_KEY" ] || continue
     echo "🔍 Pre-push Gate: Checking TDD governance and provenance for ${ISSUE_KEY} (${commit})..."
 
-    OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
-        --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" 2>&1)
+    if [ "$MANUAL_INVOCATION" -eq 1 ]; then
+        # Manual invocation: strict mode, no commit flag, no docs exemption
+        OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
+            --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" 2>&1)
+    else
+        # Normal push range: per-commit validation with docs exemption
+        OUTPUT=$("$PYTHON" "$GATE_SCRIPT" --current "TDD RED" --target "TDD GREEN" \
+            --issue "$ISSUE_KEY" --test-target "$TEST_TARGET" --commit "$commit" 2>&1)
+    fi
     STATUS=$?
 
     if [ "$STATUS" -eq 0 ]; then
         printf '%s\n' "$OUTPUT"
         echo "✅ Pre-push Gate: Passed for ${ISSUE_KEY}"
     elif [ "$DOCS_EXEMPT" -eq 1 ] &&
-        printf '%s' "$OUTPUT" | grep -q "Missing test provenance manifest" &&
+        printf '%s' "$OUTPUT" | grep -q "provenance manifest waived" &&
         "$PYTHON" -m pytest -q "$TEST_TARGET" >/dev/null 2>&1; then
         # (B) The only unmet requirement is the manifest, and the suite passes.
         echo "ℹ️  Pre-push Gate: provenance manifest waived for ${ISSUE_KEY} — every path in this push is documentation, and the test suite passes."
