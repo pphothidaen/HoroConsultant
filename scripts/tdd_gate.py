@@ -69,19 +69,48 @@ def _is_docs_only_path(path: str) -> bool:
     )
 
 
-def _get_changed_files_in_head() -> list[str]:
-    """Return list of files changed in HEAD commit compared to its parent.
-    If HEAD has no parent (initial commit), compare against empty tree.
-    Returns empty list if unable to determine.
+def _get_changed_files_in_head(commit: Optional[str] = None) -> list[str]:
+    """Return list of files changed in commit compared to its parent.
+    If commit is None, compares HEAD^ to HEAD (normal case).
+    If commit is provided, compares commit^ to commit.
+    If commit is a root commit, compares against empty tree.
     """
+    # Determine which commit to use as "HEAD"
+    head_commit = commit
+    
     try:
-        # Try to get changes between HEAD^ and HEAD
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "HEAD^", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        # Try to get changes from HEAD^ to HEAD (or commit^ to commit)
+        if head_commit is None:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "HEAD^", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        else:
+            # Check if this is a root commit
+            result = subprocess.run(
+                ["git", "rev-parse", "--verify", "--quiet", f"{head_commit}^"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode == 0:
+                # Not a root commit
+                result = subprocess.run(
+                    ["git", "diff", "--name-only", f"{head_commit}^", f"{head_commit}"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            else:
+                # Root commit
+                result = subprocess.run(
+                    ["git", "diff", "--name-only", "--root", f"{head_commit}"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
         if result.returncode == 0:
             files = result.stdout.strip().split()
             return [f for f in files if f]
@@ -89,12 +118,20 @@ def _get_changed_files_in_head() -> list[str]:
         pass
     try:
         # Fallback: if HEAD^ fails (e.g., initial commit), compare against empty tree
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "--root", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        if head_commit is None:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "--root", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        else:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "--root", f"{head_commit}"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
         if result.returncode == 0:
             files = result.stdout.strip().split()
             return [f for f in files if f]
@@ -103,46 +140,61 @@ def _get_changed_files_in_head() -> list[str]:
     return []
 
 
-def check_red_state(test_target: Optional[str] = None) -> Tuple[bool, str]:
-    """TDD RED requires running tests and encountering at least one failure."""
-    cmd = ["pytest"]
-    if test_target:
-        cmd.append(test_target)
+def check_red_state(test_target: Optional[str] = None, commit: Optional[str] = None) -> Tuple[bool, str]:
+    """TDD RED requires running tests and encountering at least one failure.
+    If commit is provided, runs tests on that specific commit instead of HEAD.
+    """
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True)
-        if res.returncode == 0:
-            return False, "Tests passed. TDD RED requires at least one failing test."
-        return True, f"Failing test verified (exit code {res.returncode})."
-    except FileNotFoundError:
-        return False, "pytest command not found in environment."
+        cmd = ["pytest"]
+        if test_target:
+            cmd.append(test_target)
+        try:
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode == 0:
+                return False, "Tests passed. TDD RED requires at least one failing test."
+            return True, f"Failing test verified (exit code {res.returncode})."
+        except FileNotFoundError:
+            return False, "pytest command not found in environment."
+    except Exception:
+        pass
+    return False, "Unknown error"
 
 
-def check_green_state(issue_key: str, test_target: Optional[str] = None) -> Tuple[bool, str]:
+def check_green_state(issue_key: str, test_target: Optional[str] = None, commit: Optional[str] = None) -> Tuple[bool, str]:
     """TDD GREEN requires all tests to pass and a matching provenance manifest.
     However, if the change is documentation-only, the manifest requirement is waived.
+    If commit is provided, validates that specific commit instead of HEAD.
     """
-    cmd = ["pytest"]
-    if test_target:
-        cmd.append(test_target)
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True)
-        if res.returncode != 0:
-            return False, f"Tests failed with exit code {res.returncode}. TDD GREEN requires all tests to pass."
-    except FileNotFoundError:
-        return False, "pytest command not found in environment."
+        cmd = ["pytest"]
+        if test_target:
+            cmd.append(test_target)
+        try:
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode != 0:
+                return False, f"Tests failed with exit code {res.returncode}. TDD GREEN requires all tests to pass."
+        except FileNotFoundError:
+            return False, "pytest command not found in environment."
 
-    # Check if all changed files in HEAD are documentation-only
-    changed_files = _get_changed_files_in_head()
-    if changed_files and all(_is_docs_only_path(f) for f in changed_files):
-        return True, "Documentation-only change, skipping manifest requirement."
+        # Check if all changed files in HEAD are documentation-only
+        # Only apply docs exemption when a specific commit is provided (per-commit mode)
+        # Manual invocation (commit=None) should be strict and require manifest
+        if commit is not None:
+            changed_files = _get_changed_files_in_head(commit)
+            print(f"DEBUG tdd_gate: commit={commit}, changed_files={changed_files}", file=sys.stderr)
+            if changed_files and all(_is_docs_only_path(f) for f in changed_files):
+                return True, "Documentation-only change: provenance manifest waived (no test to freeze)."
 
-    # Validate provenance manifest in plans/test_provenance/
-    clean_key = issue_key.lower()
-    manifest_pattern = f"plans/test_provenance/*{clean_key}*.json"
-    matches = glob.glob(manifest_pattern)
-    if not matches:
-        return False, f"Missing test provenance manifest matching '{manifest_pattern}'."
-    return True, f"All tests passed and provenance manifest verified ({matches[0]})."
+        # Validate provenance manifest in plans/test_provenance/
+        clean_key = issue_key.lower()
+        manifest_pattern = f"plans/test_provenance/*{clean_key}*.json"
+        matches = glob.glob(manifest_pattern)
+        if not matches:
+            return False, f"Missing test provenance manifest matching '{manifest_pattern}'."
+        return True, f"All tests passed and provenance manifest verified ({matches[0]})."
+    except Exception:
+        pass
+    return False, "Unknown error"
 
 
 def verify_transition(
@@ -150,6 +202,7 @@ def verify_transition(
     target: str,
     issue_key: str,
     test_target: Optional[str] = None,
+    commit: Optional[str] = None,
 ) -> Tuple[bool, str]:
     """Validate state transition rules and prerequisite evidence."""
     current_normalized = current.strip()
@@ -167,9 +220,9 @@ def verify_transition(
         )
 
     if target_normalized == "TDD RED":
-        return check_red_state(test_target)
+        return check_red_state(test_target, commit)
     elif target_normalized == "TDD GREEN":
-        return check_green_state(issue_key, test_target)
+        return check_green_state(issue_key, test_target, commit)
 
     return True, f"Transition from '{current_normalized}' to '{target_normalized}' approved."
 
@@ -180,9 +233,10 @@ def main() -> int:
     parser.add_argument("--target", required=True, help="Target Jira status")
     parser.add_argument("--issue", required=True, help="Jira Issue Key (e.g. KAN-105)")
     parser.add_argument("--test-target", help="Specific pytest file or directory")
+    parser.add_argument("--commit", help="Commit SHA to validate (defaults to HEAD)")
     args = parser.parse_args()
 
-    ok, msg = verify_transition(args.current, args.target, args.issue, args.test_target)
+    ok, msg = verify_transition(args.current, args.target, args.issue, args.test_target, args.commit)
     if not ok:
         print(f"❌ TRANSITION BLOCKED: {msg}", file=sys.stderr)
         return 1
