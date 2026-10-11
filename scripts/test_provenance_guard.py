@@ -674,7 +674,7 @@ def verify_history(
     if isinstance(supersedes, str) and GIT_SHA_RE.fullmatch(supersedes):
         try:
             superseded = _resolve_commit(repo, supersedes)
-            if not _is_ancestor(repo, superseded, actual_parent):
+            if actual_parent and not _is_ancestor(repo, superseded, actual_parent):
                 report.add("SUPERSEDED_BASELINE_NOT_ANCESTOR", "superseded baseline is not in prior history")
         except GuardFailure:
             report.add("SUPERSEDED_BASELINE_INVALID", "superseded baseline cannot be resolved")
