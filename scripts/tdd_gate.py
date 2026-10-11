@@ -17,6 +17,41 @@ import subprocess
 import sys
 from typing import Optional, Tuple
 
+# Documentation prefixes and files exempt from test provenance requirements
+# These are copied from scripts/test_provenance_guard.py (with fix for leading space in .githooks/pre-push)
+DOC_PREFIXES = (
+    "docs/",
+    "plans/",
+    ".agents/",
+    ".agy/",
+    ".antigravity/",
+    ".claude/",
+    ".codex/",
+    ".github/workflows/",
+)
+DOC_FILES = {
+    "README.md",
+    "HOWTO.md",
+    "atomic_tasks.md",
+    "ATOMIC_TICKET.md",
+    "CLAUDE.md",
+    "HANDOFF.md",
+    "AGY.md",
+    "AGENTS.md",
+    "project_tickets.md",
+    ".agents/AGENTS.md",
+    ".agents/LESSONS_LEARNED.md",
+    "vercel.json",
+    "requirements.txt",
+    "pyproject.toml",
+    "scripts/test_provenance_guard.py",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "ReleaseNotes.md",
+    "gitbook-docs.yaml",
+    ".githooks/pre-push",  # Fixed: removed leading space
+    "scripts/tdd_gate.py",
+}
+
 ALLOWED_TRANSITIONS = {
     "Backlog": ["TDD RED", "Selected for Development"],
     "Selected for Development": ["TDD RED", "Backlog"],
@@ -25,6 +60,47 @@ ALLOWED_TRANSITIONS = {
     "Review": ["Done", "TDD RED"],
     "Done": [],
 }
+
+
+def _is_docs_only_path(path: str) -> bool:
+    """Return True if the path is considered documentation-only."""
+    return path.endswith(".md") or path in DOC_FILES or any(
+        path.startswith(prefix) for prefix in DOC_PREFIXES
+    )
+
+
+def _get_changed_files_in_head() -> list[str]:
+    """Return list of files changed in HEAD commit compared to its parent.
+    If HEAD has no parent (initial commit), compare against empty tree.
+    Returns empty list if unable to determine.
+    """
+    try:
+        # Try to get changes between HEAD^ and HEAD
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD^", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            files = result.stdout.strip().split()
+            return [f for f in files if f]
+    except Exception:
+        pass
+    try:
+        # Fallback: if HEAD^ fails (e.g., initial commit), compare against empty tree
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "--root", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            files = result.stdout.strip().split()
+            return [f for f in files if f]
+    except Exception:
+        pass
+    return []
 
 
 def check_red_state(test_target: Optional[str] = None) -> Tuple[bool, str]:
@@ -42,7 +118,9 @@ def check_red_state(test_target: Optional[str] = None) -> Tuple[bool, str]:
 
 
 def check_green_state(issue_key: str, test_target: Optional[str] = None) -> Tuple[bool, str]:
-    """TDD GREEN requires all tests to pass and a matching provenance manifest."""
+    """TDD GREEN requires all tests to pass and a matching provenance manifest.
+    However, if the change is documentation-only, the manifest requirement is waived.
+    """
     cmd = ["pytest"]
     if test_target:
         cmd.append(test_target)
@@ -53,13 +131,17 @@ def check_green_state(issue_key: str, test_target: Optional[str] = None) -> Tupl
     except FileNotFoundError:
         return False, "pytest command not found in environment."
 
+    # Check if all changed files in HEAD are documentation-only
+    changed_files = _get_changed_files_in_head()
+    if changed_files and all(_is_docs_only_path(f) for f in changed_files):
+        return True, "Documentation-only change, skipping manifest requirement."
+
     # Validate provenance manifest in plans/test_provenance/
     clean_key = issue_key.lower()
     manifest_pattern = f"plans/test_provenance/*{clean_key}*.json"
     matches = glob.glob(manifest_pattern)
     if not matches:
         return False, f"Missing test provenance manifest matching '{manifest_pattern}'."
-
     return True, f"All tests passed and provenance manifest verified ({matches[0]})."
 
 
