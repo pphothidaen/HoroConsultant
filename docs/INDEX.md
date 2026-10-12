@@ -3,7 +3,7 @@
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
 
-**Total documents:** 74
+**Total documents:** 79
 
 ## Document Registry
 
@@ -91,8 +91,13 @@
 
 | File | Path |
 |------|------|
+| `FINAL_SUMMARY.md` | `jira/FINAL_SUMMARY.md` |
+| `api_token_setup.md` | `jira/api_token_setup.md` |
 | `capacity_tracking.md` | `jira/capacity_tracking.md` |
 | `dashboard_config.md` | `jira/dashboard_config.md` |
+| `remaining_ui_tasks.md` | `jira/remaining_ui_tasks.md` |
+| `rest_api_workflow.md` | `jira/rest_api_workflow.md` |
+| `twg_commands_reference.md` | `jira/twg_commands_reference.md` |
 
 ### `session-handoff/`
 
