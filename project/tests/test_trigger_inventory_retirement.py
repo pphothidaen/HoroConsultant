@@ -129,7 +129,7 @@ def test_exact_inventory_matches_documentation_and_workflow_filesystem(trigger_m
     assert retired_files == EXPECTED_FILESYSTEM_RETIRED
 
     assert configured_active == EXPECTED_ACTIVE
-    assert len(configured_active) == len(set(configured_active)) == 30
+    assert len(configured_active) == len(set(configured_active)) == 31
     assert configured_retired == frozenset(EXPECTED_RETIRED)
     assert documented_active == EXPECTED_ACTIVE
     assert documented_retired == EXPECTED_RETIRED
@@ -261,9 +261,9 @@ def test_main_dispatches_exactly_thirty_active_workflows_with_ascii_output(
     trigger_module.main()
     output = capsys.readouterr().out
 
-    assert "Total Active Workflows to Trigger: 30" in output
+    assert "Total Active Workflows to Trigger: 31" in output
     assert set(file for file, _title, _inputs in dispatches) == set(EXPECTED_ACTIVE)
-    assert len(dispatches) == 30
+    assert len(dispatches) == 31
     assert "\\u2014 \\U0001f680" in output
     assert output.isascii()
 

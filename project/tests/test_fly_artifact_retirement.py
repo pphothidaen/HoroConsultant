@@ -19,6 +19,7 @@ EXPECTED_ACTIVE_WORKFLOW_NAMES = {
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
     "ci.yml",
+    "cloudflare-worker-monitor.yml",
     "deploy-vercel.yml",
     "dod-production-gate.yml",
     "gemini-bridge-tests.yml",
@@ -116,7 +117,7 @@ def test_inventory_has_exactly_twelve_active_and_five_retired_workflows(
     active_names = [workflow[0] for workflow in active]
     configured_names = [workflow[0] for workflow in trigger_module.WORKFLOWS]
 
-    assert len(active_names) == 30
+    assert len(active_names) == 31
     assert len(active_names) == len(set(active_names))
     assert set(active_names) == EXPECTED_ACTIVE_WORKFLOW_NAMES
     assert set(configured_names) == EXPECTED_ACTIVE_WORKFLOW_NAMES
@@ -192,10 +193,10 @@ def test_trigger_cli_output_is_ascii_and_uses_the_active_inventory(
     output = capsys.readouterr().out
 
     assert output.isascii()
-    assert "Total Active Workflows to Trigger: 30" in output
+    assert "Total Active Workflows to Trigger: 31" in output
     assert "fly_deploy.yml" not in output
     assert set(dispatched) == EXPECTED_ACTIVE_WORKFLOW_NAMES
-    assert len(dispatched) == 30
+    assert len(dispatched) == 31
     assert "Unicode \\u2014 \\U0001f680" in output
     assert "caf\\xe9" in output
 
