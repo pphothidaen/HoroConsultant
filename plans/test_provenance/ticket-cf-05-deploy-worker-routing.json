@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CF-05-DEPLOY-ROUTING-SCRIPT",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "910bdede498335772fe72bf36e2a52145017d857",
+  "test_files": [
+    {
+      "path": "tests/test_deploy_worker_script.py",
+      "sha256": "9235faff995a42f9b43aa9764a55bcb6206c6a6a884f965d25be5181b2016c9c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "bash",
+        "scripts/deploy-worker.sh"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "[ERROR] Invalid argument count: 0 (expected 1 or 2)."
+    }
+  ],
+  "allowed_source_paths": [
+    "ATOMIC_TICKET.md",
+    "plans/plan.md",
+    "plans/intake/sprint_cloudflare_multi_account_pipeline.md",
+    "scripts/deploy-worker.sh",
+    "tests/test_deploy_worker_script.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test baseline for Cloudflare multi-account worker deploy routing script hardening (TICKET-CF-05)."
+}
