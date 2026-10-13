@@ -1,5 +1,73 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Cloudflare Multi-Account Workers CI/CD & Secret Synchronization — 2026-10-13
+
+GOAL: Establish isolated multi-account CI/CD deployment pipelines across three Cloudflare accounts (`pansakorn.pho@gmail.com`, `gemini.web.bridge@gmail.com`, and `taijustarrett417@gmail.com`), resolve Cloudflare API Error 10007, synchronize Doppler `prd` and GitHub Actions secrets, validate CI deployment workflows via dry-run bundling, verify Cloudflare test suites, and harden deployment script routing.
+
+Shared interface contract [FROZEN]:
+- Invariants: INVARIANT-CF-01 to INVARIANT-CF-06 active.
+- Multi-Account Topology:
+  - Account `bda49e4e77e00609cb1ef68561b0d9eb` (`pansakorn.pho@gmail.com`): Workers `horoconsultant`, `hermes-harness-hooks`, `hermes-harness-hooks-staging` | Secrets `CF_API_TOKEN`, `CF_API_TOKEN_HERMES` | Workflows `workers-builds.yml`, `workers-hermes.yml`.
+  - Account `d91b1a43a188b73be61833adee445111` (`gemini.web.bridge@gmail.com`): Worker `prod` (`prod.gemini-web-bridge.workers.dev`) | Secret `CF_API_TOKEN_GEMINI` | Workflow `workers-gemini.yml`.
+  - Account `db2b77716a826311bbf9d104e125f540` (`taijustarrett417@gmail.com`): Worker `aipass-web-bridge` (Durable Object `EXT_HUB`) | Secret `CF_API_TOKEN_AIPASS` | Workflow `workers-aipass.yml`.
+- Runner Environment Mapping: `CLOUDFLARE_API_TOKEN` populated dynamically from designated secret prior to Wrangler invocation.
+- Secret Naming Contract: Existing secret names in Doppler `horo-consultant/prd` and GitHub Actions must remain intact.
+- Stop Conditions: Cross-account token mismatch, Cloudflare API Error 10007, or missing `CF_API_TOKEN_HERMES` halts execution fail-closed.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-CF-01-PROVISION-HERMES-TOKEN` | `BLOCKED_HITL`; devops | Provision custom Cloudflare API token for account `bda49e4e77e00609cb1ef68561b0d9eb` (`pansakorn.pho@gmail.com`) with permissions `Workers Scripts: Edit`, `KV Storage: Edit`, `Zone Settings: Read`, `R2 Storage: Edit`, `D1: Edit` and populate GitHub Secret `CF_API_TOKEN_HERMES`. Exclusive scope: GitHub secret `CF_API_TOKEN_HERMES`. | Blocker: Account session isolation. Empirical finding: Token "Hermes CI Workers Deployment" created via Kapture MCP (Tab 562588142) and verified Active via `/client/v4/user/tokens/verify`, but bound to session account `d91b1a43a188b73be61833adee445111` (`gemini.web.bridge@gmail.com`). Target account `bda49e4e77e00609cb1ef68561b0d9eb` (`pansakorn.pho@gmail.com`) requires Option A (admin invite) or Option B (session switch). Acceptance: `npx wrangler whoami --config wrangler.hermes.toml` confirms account ID `bda49e4e77e00609cb1ef68561b0d9eb` without Error 10007. Stop condition: Fail immediately if token cannot access `bda49e4e77e00609cb1ef68561b0d9eb` or Error 10007 occurs. | `devops-deployment` |
+| `TICKET-CF-02-SYNC-DOPPLER-SECRETS` | `DONE` (for `CF_API_TOKEN_GEMINI`); devops | Validate and synchronize non-colliding secrets in Doppler project `horo-consultant` config `prd` (`CF_API_TOKEN_HERMES`, `CF_API_TOKEN_GEMINI`, `CF_API_TOKEN`, `CF_API_TOKEN_AIPASS`). Exclusive scope: Doppler prd sync. | Acceptance MET for `CF_API_TOKEN_GEMINI`: Doppler secret `CF_API_TOKEN_GEMINI` active in `horo-consultant` `prd` (verified active, no unsaved banners) and GitHub Secret updated at 2026-10-13T15:50:01Z in `pphothidaen/HoroConsultant`. Hermes sync pending TICKET-CF-01 unblock. Stop condition: Zero plain-text secret leakage in logs; fail closed on Doppler sync failure. | `devops-deployment` |
+| `TICKET-CF-03-CI-WORKFLOW-VALIDATION` | `DONE` (4/4 workflows verified with valid bundles); qa_tester | Validate 4 GitHub Actions workflows: `.github/workflows/workers-builds.yml`, `.github/workflows/workers-hermes.yml`, `.github/workflows/workers-gemini.yml`, `.github/workflows/workers-aipass.yml`. Verify runner environment variable mapping (`CLOUDFLARE_API_TOKEN`) and run dry-run bundling. Exclusive scope: `.github/workflows/workers-*.yml` dry-run. | Acceptance MET: All 4 Cloudflare deployment workflows passed dry-run bundling cleanly with Exit Code 0: (1) `workers-builds.yml` (Main Worker `wrangler.toml`): Total Upload: 9.97 KiB / gzip: 2.96 KiB, bindings: KV CACHE, D1 SYNC_STATE, env vars; (2) `workers-hermes.yml` (Hermes Worker `wrangler.hermes.toml`): Total Upload: 9.97 KiB / gzip: 2.96 KiB, bindings: KV CACHE, env vars; (3) `workers-gemini.yml` (Gemini Worker `wrangler.gemini.toml` in standalone repo `gemini-web-bridge`): Total Upload: 2449.38 KiB / gzip: 688.13 KiB, bindings: DO BRIDGE_DO, KV ARTIFACT_KV, env vars; (4) `workers-aipass.yml` (AIPass Worker `aipass-web-bridge/cloudflare/wrangler.toml`): Total Upload: 38.18 KiB / gzip: 9.10 KiB, bindings: DO EXT_HUB. Full test suite: 58/58 tests PASS (100%) across `test_cloudflare_deploy.py`, `test_wrangler_hermes.py`, `test_kan269_worker_entrypoint_consolidation.py`, `test_wrangler_gemini.py`, `test_deploy_worker_script.py`. | `qa-api-ui-e2e` |
+| `TICKET-CF-04-REGRESSION-SUITE-VERIFY` | `DONE` (35/35 tests PASS); qa_tester | Execute full Cloudflare test suite: `pytest tests/test_kan269_worker_entrypoint_consolidation.py tests/test_cloudflare_deploy.py tests/test_wrangler_hermes.py`. Exclusive scope: `tests/test_cloudflare_deploy.py`, `tests/test_wrangler_hermes.py`. | Acceptance MET: 100% test pass rate across Cloudflare deployment and configuration test suites (35/35 tests PASS) with pure ASCII test logs. Zero regressions. | `qa-regression-provenance` |
+| `TICKET-CF-05-DEPLOY-ROUTING-SCRIPT` | `DONE` (`scripts/deploy-worker.sh` hardened with `--check`, root/horo routing, token fallback); developer | Verify and harden multi-account deployment routing in `scripts/deploy-worker.sh` across targets `horo`/`root`, `hermes`, `gemini`, and `aipass`. Ensure runner environment token mapping and fail-closed preflight checks. Exclusive scope: `scripts/deploy-worker.sh`. | Acceptance MET: `scripts/deploy-worker.sh` hardened with preflight syntax/config validation (`--check`), root/horo routing, and automatic fallback from `CF_API_TOKEN_*` to `CLOUDFLARE_API_TOKEN` with zero cross-account leakage. | `sdlc-aisdlc-workflow` |
+
+### Empirical Evidence & Findings — TICKET-CF-01 (Kapture MCP Automation)
+- [OK] Automated Token Creation via Kapture MCP (Tab 562588142):
+  - Token Name: "Hermes CI Workers Deployment"
+  - Permissions: Workers Scripts (Edit), Workers KV Storage (Edit), Workers R2 Storage (Edit), D1 (Edit), Account Settings (Read)
+  - Scope: All accounts (*)
+  - Execution Result: Token successfully created on Cloudflare dashboard via Kapture MCP browser automation.
+- [WARNING] Live API Verification & Cross-Account Boundary:
+  - Token Status: Active (verified via Cloudflare API `GET /client/v4/user/tokens/verify`).
+  - Account Binding: Bound to user account `d91b1a43a188b73be61833adee445111` (`gemini.web.bridge@gmail.com`).
+  - Target Account Inaccessibility: Account `bda49e4e77e00609cb1ef68561b0d9eb` (`pansakorn.pho@gmail.com`) is NOT accessible by this token because the active Chrome browser session was authenticated under `gemini.web.bridge@gmail.com`.
+- [INFO] Unblock Options for TICKET-CF-01:
+  - Option A (Recommended): Account `bda49e4e77e00609cb1ef68561b0d9eb` invites `gemini.web.bridge@gmail.com` as Administrator. Once accepted, this token automatically gains access to `bda49e4e77e00609cb1ef68561b0d9eb`.
+  - Option B: User switches Cloudflare login session in Chrome to `pansakorn.pho@gmail.com`, and Kapture MCP re-generates the token under that account.
+
+### Empirical Evidence & Findings — Gemini Bridge Sync & Verification
+- [OK] GitHub Secrets Sync (devops):
+  - Secret `CF_API_TOKEN_GEMINI` successfully uploaded and configured in repository `pphothidaen/HoroConsultant` via devops specialist.
+  - Verified via GitHub API: `CF_API_TOKEN_GEMINI` updated at 2026-10-13T15:50:01Z.
+- [OK] Doppler Secrets Sync (devops):
+  - Secret `CF_API_TOKEN_GEMINI` successfully added and saved into Doppler project `horo-consultant` config `prd` (verified active, no unsaved banners).
+- [OK] QA Pipeline & Dry-Run Verification (qa_tester):
+  - Dry-Run Deployment: Executed dry-run deployment using provisioned token against `gemini-web-bridge/cloudflare-worker/wrangler.toml`: Exit Code 0 (Total upload: 2449.38 KiB / gzip: 688.13 KiB, Durable Object `BRIDGE_DO` and KV `ARTIFACT_KV` bindings active).
+  - Test Suite Pass Rate:
+    - `tests/test_wrangler_gemini.py`: 13/13 PASS (100%)
+    - `tests/test_deploy_worker_script.py`: 10/10 PASS (100%)
+    - `scripts/deploy-worker.sh --check`: PASS (100%)
+  - Decoupled Project Finding: `HoroConsultant/wrangler.gemini.toml` targets `src/index.js` which is hosted in standalone project `/Users/kimlenglim/Project/gemini-web-bridge/cloudflare-worker`, confirming project separation.
+
+### Empirical Evidence & Findings — All 4 Cloudflare Workflows Dry-Run Bundling & Test Suite (TICKET-CF-03)
+- [OK] Dry-Run Bundling Across All 4 Workflows (qa_tester):
+  - `workers-builds.yml` (Main Worker `wrangler.toml`): Total Upload: 9.97 KiB / gzip: 2.96 KiB, bindings: KV CACHE, D1 SYNC_STATE, environment variables. Exit code 0.
+  - `workers-hermes.yml` (Hermes Worker `wrangler.hermes.toml`): Total Upload: 9.97 KiB / gzip: 2.96 KiB, bindings: KV CACHE, environment variables. Exit code 0.
+  - `workers-gemini.yml` (Gemini Worker `wrangler.gemini.toml` in standalone repo `gemini-web-bridge`): Total Upload: 2449.38 KiB / gzip: 688.13 KiB, bindings: DO BRIDGE_DO, KV ARTIFACT_KV, environment variables. Exit code 0.
+  - `workers-aipass.yml` (AIPass Worker `aipass-web-bridge/cloudflare/wrangler.toml`): Total Upload: 38.18 KiB / gzip: 9.10 KiB, bindings: DO EXT_HUB. Exit code 0.
+- [OK] Full Cloudflare Test Suite:
+  - 58/58 tests PASS (100%) across `tests/test_cloudflare_deploy.py`, `tests/test_wrangler_hermes.py`, `tests/test_kan269_worker_entrypoint_consolidation.py`, `tests/test_wrangler_gemini.py`, `tests/test_deploy_worker_script.py`.
+
+**Definition of Done (Sprint)**:
+1. `CF_API_TOKEN_HERMES` provisioned by account owner and synced to GitHub Actions and Doppler `prd`.
+2. All 4 deployment workflows verified with `npx wrangler deploy --dry-run` producing valid bundles.
+3. 100% test pass rate across Cloudflare test suite (`test_cloudflare_deploy.py`, `test_wrangler_hermes.py`, `test_kan269_worker_entrypoint_consolidation.py`).
+4. `scripts/deploy-worker.sh` routes all 3 accounts accurately with fail-closed token validation.
+5. Zero plain-text secret leakage across logs, manifests, and git history.
+
+---
+
 ## Sprint K: Jira + Hermes Control Plane & Decoupled WorkerRuntime — 2026-09-25 (revision 3)
 
 GOAL: Implement a production-grade, fail-closed Autonomous Agent Execution Platform combining Jira Cloud (SSOT / Workflow Audit), Hermes Agent (Control Plane & Durable Session State), Unified WorkerRuntime (Hybrid herdr on macOS / tmux on Linux/CI), Monotonic Fencing Tokens + Renewable Leases, and Deterministic Evidence Gate v1.0.
