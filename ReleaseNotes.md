@@ -1,3 +1,77 @@
+# HoroConsultant Release Notes — v1.7.0-prod (Horo Lite Default Landing Page, Edge Routing & Cloudflare Multi-Account Workers CI/CD Pipeline)
+
+|> **Release**: `v1.7.0-prod` — Horo Lite Default Landing Page, Edge Routing & Cloudflare Multi-Account Workers CI/CD Pipeline
+|> **Release Date**: 2026-10-14 (Asia/Bangkok)
+|> **Release Authority**: Master Orchestrator / Lead Business Analyst
+|> **Sprint Verdict**: `CERTIFIED_COMPLETE (4 PRs merged, PyTest KAN-120 6/6 PASS, Cloudflare test suite 58/58 PASS, Node.js contract tests 76/76 PASS, DoD Production Gate 5/5 PASS, Vercel Production Deploy SUCCESS)`
+
+---
+
+## Executive Summary
+
+This production release establishes **Horo Lite** (`lite.html`) as the premier default landing page on Vercel edge deployment (`https://horo-consultant-psi.vercel.app/`), resolving the legacy `/lite` HTTP 404 issue while retaining seamless access to the Advanced BaZi Dashboard (`/advanced`) and keeping 100% of existing backend API proxy rewrites intact. Concurrently, it delivers an enterprise-grade, isolated multi-account CI/CD deployment pipeline across three distinct Cloudflare accounts, eliminating cross-account token collisions (Cloudflare API Error 10007), synchronizing Doppler `prd` and GitHub Actions secrets, and anchoring Sprint K WorkerRuntime & Jira autonomous execution capabilities.
+
+Key achievements across the dual workstreams:
+1. **Horo Lite Default Edge Routing**: Configured Vercel CDN edge redirects (`/` and `/lite` -> `/lite.html`), verified HTTP 307 temporary redirects with zero client cache staleness, preserved `/advanced` -> `/index.html` dashboard access, maintained 100% frozen `/api/*` and `/health` proxies, and verified live rendering via Kapture MCP visual audit.
+2. **Cloudflare Multi-Account Pipeline**: Established decoupled, account-isolated deployment workflows across three Cloudflare accounts (`pansakorn.pho@gmail.com`, `gemini.web.bridge@gmail.com`, and `taijustarrett417@gmail.com`), rolled native Hermes deployment tokens, synchronized Doppler `horo-consultant/prd` secrets with zero credential leakage, and hardened `scripts/deploy-worker.sh` with preflight verification and fallback semantics.
+3. **Sprint K Autonomous Worker Runtime**: Consolidated Cloudflare Worker entry points, unified Hermes harness hooks, and reinforced Jira autonomous execution integrations.
+4. **Zero Regressions & 1-Branch Invariant**: All 4 PRs (#198, #200, #201, #202) were squash-merged into `main`, ephemeral branches pruned, and DoD Production Gate CI/CD run 38570439856 confirmed green.
+
+## Architectural Deliverables
+
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `vercel.json` | Vercel Edge / CDN | Added edge redirect rules for `/` and `/lite` to `/lite.html`; preserved existing backend proxy `rewrites` array (`/api/*`, `/health`, `/admin/*`) 100% intact. |
+| `scripts/deploy-worker.sh` | DevOps / CI/CD | Hardened multi-account target routing (`horo`, `hermes`, `gemini`, `aipass`) with preflight syntax checks (`--check`) and non-colliding token resolution. |
+| `wrangler.toml` | Cloudflare Worker | Primary worker configuration targeting `horoconsultant` on account `bda49e4e77e00609cb1ef68561b0d9eb` with KV `CACHE` and D1 `SYNC_STATE`. |
+| `wrangler.hermes.toml` | Cloudflare Worker | Hermes harness hooks worker configuration bound natively to account `bda49e4e77e00609cb1ef68561b0d9eb`. |
+| `wrangler.gemini.toml` | Cloudflare Worker | Isolated configuration for Gemini Web Bridge worker on account `d91b1a43a188b73be61833adee445111`. |
+| `tests/test_kan120_default_page_horo_lite.py` | Test Suite | Updated TDD assertions to validate edge redirect routing for `/` and `/lite` to `/lite.html` and rewrite of `/advanced` to `/index.html`. |
+| `tests/test_cloudflare_deploy.py` | Test Suite | Deployment validation suite for multi-account Cloudflare Wrangler configs and dry-run bundling. |
+| `tests/test_wrangler_hermes.py` | Test Suite | Contract test suite verifying Hermes worker topology and KV bindings. |
+| `plans/plan.md` | Governance / Agile | Master sprint plan updated with Horo Lite edge routing topology, deliverables matrix, and completion receipts. |
+| `ATOMIC_TICKET.md` | Governance / Agile | Atomic ticket registry updated for all sprint tickets with full verification receipts. |
+
+## Verification Matrix
+
+| Test Suite / Gate | Scope & Criteria | Result | Evidence / Run Reference |
+|---|---|---|---|
+| `tests/test_kan120_default_page_horo_lite.py` | Horo Lite edge redirect & contract assertions | 6/6 PASS (100%) | TDD contract verified |
+| Cloudflare Test Suite | `test_cloudflare_deploy.py`, `test_wrangler_hermes.py`, `test_kan269_worker_entrypoint_consolidation.py`, `test_wrangler_gemini.py`, `test_deploy_worker_script.py` | 58/58 PASS (100%) | Multi-account dry-run bundling verified |
+| Node.js Contract Tests | `tests/api_index_vercel_contract.test.mjs` & contract suite | 76/76 PASS (100%) | Zero API proxy regressions |
+| AI Agent Ecosystem Sync | `python3 scripts/sync_ai_agent_ecosystem.py --check` | PASS (100% clean) | Exit Code 0 |
+| DoD Production Gate | Comprehensive 5/5 criteria gate on `main` | PASSED (100%) | GitHub Actions Run 38570439856 |
+| Vercel Production Deploy | Production deployment to Vercel edge | SUCCESS (100%) | GitHub Actions Run 38570481454 |
+| **Total** | **Unified Cross-Stack Verification** | **PASS** | **100% Certified** |
+
+## Milestone Rollup (100% DONE)
+
+| PR | Ticket | Focus | Commit | Status |
+|---|---|---|---|---|
+| #198 | KAN-181 | Branch hygiene closeout: purge merged local and remote branches | `35260419` | MERGED [OK] |
+| #200 | KAN-181 | Cloudflare multi-account token roll under native account & Doppler prd sync | `8cf6b15b` | MERGED [OK] |
+| #201 | KAN-120 | Configure edge redirects in `vercel.json` to make Horo Lite default landing page & update tests | `d2dc5caa` | MERGED [OK] |
+| #202 | KAN-120 | Record Horo Lite release receipts and Definition of Done completion | `0fbe405e` | MERGED [OK] |
+
+## Live Production Endpoints
+
+- **Vercel Edge Deployment**: `https://horo-consultant-psi.vercel.app`
+  - `/` -> HTTP 307 temporary redirect to `/lite.html` (Default Horo Lite experience)
+  - `/lite` -> HTTP 307 temporary redirect to `/lite.html` (resolves 404 issue)
+  - `/lite.html` -> HTTP 200 OK (direct static Horo Lite)
+  - `/advanced` -> HTTP 200 OK (Advanced BaZi Dashboard)
+  - `/health` -> HTTP 200 OK (Edge health check proxy)
+- **Cloudflare Gemini Web Bridge Worker**: `https://prod.gemini-web-bridge.workers.dev/health` — HTTP 200 OK (Cloud Hub v4.7.35, Durable Objects active, Extension bridge connected)
+- **Cloudflare Hermes Worker**: `wrangler.hermes.toml` — Native account `bda49e4e77e00609cb1ef68561b0d9eb`, verified dry-run deploy 0 errors
+- **Visual Audit**: Confirmed via Kapture MCP browser session on `https://horo-consultant-psi.vercel.app/` rendering Horo Lite UI cleanly
+
+## Archived Plans List
+
+- `plans/archive/2026-10-14-horo-lite-and-cf-multi-account/sprint_cloudflare_multi_account_pipeline.md`: Multi-account Cloudflare Workers CI/CD and Doppler synchronization intake specification.
+- `plans/archive/2026-10-14-horo-lite-and-cf-multi-account/plan_horo_lite_default_page.md`: Horo Lite default landing page and Vercel edge routing architecture plan.
+
+---
+
 # HoroConsultant Release Notes -- Governance Hooks Fail-Open, Path Ruleset TIER_MEDIUM & Test Provenance Resilience (KAN-100, KAN-105, KAN-122)
 
 |> **Release**: `Governance Hooks Fail-Open, Path Ruleset TIER_MEDIUM & Test Provenance Resilience (KAN-100, KAN-105, KAN-122)` -- Governance hooks fail-open design for Jira API verification, path-based ruleset TIER_MEDIUM classification contract, test provenance manifest baseline restamp for post-squash-merge CI resilience
