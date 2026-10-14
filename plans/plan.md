@@ -1,21 +1,21 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
-## Sprint: Horo Lite Full Reading & Infographic Synthesis — Phase D Closeout & Phase E Readiness (DONE) — 2026-10-14
+## Sprint: Horo Lite Full Reading & Infographic Synthesis — Phase E: Horo Lite Form & Single-Action Flow (DOING) — 2026-10-14
 
-Status: Phase A DONE; Phase B DONE; Phase C DONE; Phase D DONE; Phase E READY (DoR Unblocked)
-Task ID: `TICKET-HLITE-004-CLOSEOUT`
-Lane ID: `LANE-HLITE-MGMT-008`
+Status: Phase A DONE; Phase B DONE; Phase C DONE; Phase D DONE; Phase E DOING (Active Lane LANE-HLITE-MGMT-009)
+Task ID: `TICKET-HLITE-005`
+Lane ID: `LANE-HLITE-MGMT-009`
 Authorized By: Owner explicit authorization ("continue Phase D and then E")
 
 ### 1. Executive Summary & Sprint Goal
-[INFO] Expose `POST /api/v3/unified-reading` in `project/routers/unified_reading_router.py`, orchestrating deterministic core engines (annual timing, past pattern calibrator), Horo v3.0 multi-tradition consensus arbitration, mandatory fail-closed HITL routing, and LLM copy translation (strictly forbidding altering scores, dates, or facts); latency SLA < 300ms deterministic, < 2.5s with translation; wire router into `project/routers/v3_engine_router.py`, `api/index.js`, and `project/main.py`.
+[INFO] Refine and harden simplified Horo Lite input experience in `public/lite.html`, `public/lite.css`, and `public/lite.js`: clean single-column form with birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year; advanced settings disclosure for raw coords/tz/engine; single primary action button "คำนวณผังดวง & ตีความด้วย AI" connecting to `POST /api/v3/unified-reading`; ensure accessible labels (`for` matching input ID), ARIA landmarks, WCAG compliance, and zero layout distortion.
 
-Establish a strict, auditable unified reading orchestration architecture supporting:
-1. Orchestration of deterministic core calculations: Thai Suriyayart natal/transits, BaZi Liu Yue 60-JiaZi monthly cycles (`project/core/annual_timing_engine.py`), and non-sensitive past pattern candidate detection (`project/core/past_pattern_calibrator.py`).
-2. Multi-tradition consensus arbitration (`project/debate/consensus_matrix.py`) producing bounded consensus score [0.0, 1.0].
-3. Mandatory fail-closed HITL routing payload (`hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`) triggered when `consensus_score < 0.75`, cross-tradition conflicts are detected, `force_human_review = True`, or uncertain birth time exceeds valid factors.
-4. Non-generative LLM copy translation mode translating approved astrological claims to natural Thai copy while strictly forbidding altering scores, dates, or facts.
-5. High performance adhering to latency SLAs: deterministic core path < 300ms, LLM copy translation < 2.5s.
+Establish a clean, accessible, mobile-first Horo Lite form and single-action flow supporting:
+1. Simplified single-column input form: birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, and target year.
+2. Advanced settings progressive disclosure for raw coordinates (latitude, longitude), timezone offset, and astrological engine preferences.
+3. Single primary action button ("คำนวณผังดวง & ตีความด้วย AI") initiating payload dispatch directly to `POST /api/v3/unified-reading` without client-side calculation duplication.
+4. Accessibility and DOM contracts: semantic labels with `for` matching input IDs, ARIA landmarks, WCAG contrast compliance, and zero layout distortion across responsive viewports.
+5. High performance adhering to form interaction responsiveness and smooth asynchronous reading load states.
 6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
 
 ### 2. Core Execution Invariants [FROZEN]
@@ -24,7 +24,7 @@ Establish a strict, auditable unified reading orchestration architecture support
 - **`INVARIANT-HLITE-03`**: **Non-Sensitive Past Patterns**: Past patterns must strictly exclude sensitive trauma events (death, illness, crime, divorce, pregnancy); must only present non-sensitive life themes (education, career shift, relocation, financial pressure).
 - **`INVARIANT-HLITE-04`**: **Fail-Closed HITL Low-Consensus**: When `consensus_score < 0.75`, `hitl_routing.status` must be set to `"QUEUED_FOR_HUMAN_REVIEW"`.
 - **`INVARIANT-HLITE-05`**: **Pure ASCII Logging**: All execution traces, logs, and evidence manifests must use pure ASCII characters ([OK], [INFO], [WARNING], [ERROR]).
-- **`INVARIANT-HLITE-06`**: **Single-Editor Boundary**: `developer_api` exclusively owns `project/routers/unified_reading_router.py`, `project/routers/v3_engine_router.py`, `api/index.js`, `project/main.py`; `qa_tester` exclusively owns `tests/test_horo_lite_unified_reading.py` and `plans/test_provenance/**`; `lead_ba` exclusively owns `ATOMIC_TICKET.md`, `plans/plan.md`, and `plans/intake/**`.
+- **`INVARIANT-HLITE-06`**: **Single-Editor Boundary**: `ux_ui_designer` exclusively owns `public/lite.html`, `public/lite.css`, `public/lite.js`; `qa_tester` exclusively owns `tests/test_horo_lite_unified_reading.py` and `plans/test_provenance/**`; `lead_ba` exclusively owns `ATOMIC_TICKET.md`, `plans/plan.md`, and `plans/intake/**`.
 
 ### 3. Sprint Deliverables Matrix
 
@@ -38,10 +38,19 @@ Establish a strict, auditable unified reading orchestration architecture support
 | **TICKET-HLITE-003-QA** | Phase C (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for consensus arbitration and HITL triggers, freeze test provenance manifest | `DONE` (Phase C test contracts & boundary assertions verified in `tests/test_horo_lite_unified_reading.py`; 13/13 tests PASS 100%; 129/129 total regression tests PASS; core latency 0.072ms avg [< 50ms SLA]; baseline commit `2c81795c78946797df2032b3330606c6bd4653fc`; provenance manifests verified; AI ecosystem sync clean) |
 | **TICKET-HLITE-004** | Phase D (`developer_api`) | Expose `POST /api/v3/unified-reading` in `project/routers/unified_reading_router.py`, orchestrate deterministic core engines, consensus matrix, and LLM copy translation | `DONE` (`POST /api/v3/unified-reading` implemented in `project/routers/unified_reading_router.py`; orchestrated deterministic core engines [annual timing, past patterns], multi-tradition consensus arbitration, and copy transformer; non-generative Thai translation with strict score/date immutability; wired in `project/routers/v3_engine_router.py`, `api/index.js`, and `project/main.py`; deterministic latency ~20ms [< 300ms SLA]; feature commit `d68109584c56b914e988c2a39e65d166b7808945`; 14/14 tests PASS, 6/6 Node gateway tests PASS, 33/33 total tests PASS; verified provenance) |
 | **TICKET-HLITE-004-QA** | Phase D (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for API endpoint contract, latency SLA (<300ms deterministic / <2.5s LLM), and frozen response schema | `DONE` (Phase D API router test contracts & extended boundary matrix verified in `tests/test_horo_lite_unified_reading.py`; 14/14 tests PASS 100%; 6/6 Node gateway tests PASS; 33/33 total tests PASS; core latency ~20ms [< 300ms SLA]; baseline commit `b95ca2c045c343deebc51a1bc3b4c25368aed2db`; provenance manifests `ticket-hlite-004-router-baseline.json` & sequence 10 verified; AI ecosystem sync clean) |
-| **TICKET-HLITE-005** | Phase E (`ux_ui_designer`) | Implement Horo Lite Form & Single-Action Flow in `public/lite.html`, `public/lite.css`, and `public/lite.js` | `READY` (Authorized in sequence: "continue Phase D and then E"; DoR unblocked by Phase D completion; ux_ui_designer assigned; exclusive scope `public/lite.html`, `public/lite.css`, `public/lite.js`) |
-| **TICKET-HLITE-005-QA** | Phase E (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for Horo Lite Form DOM structure, accessibility, and geocoding integration | `READY` (Paired QA lane with `TICKET-HLITE-005` READY; DoR verified; DOM structure and geocoding contract assertions in `tests/test_horo_lite_unified_reading.py`) |
+| **TICKET-HLITE-005** | Phase E (`ux_ui_designer`) | Implement Horo Lite Form & Single-Action Flow in `public/lite.html`, `public/lite.css`, and `public/lite.js` | `DOING` (Authorized in sequence: "continue Phase D and then E"; ux_ui_designer actively refining and hardening Horo Lite input experience in `public/lite.html`, `public/lite.css`, `public/lite.js`; paired QA `TICKET-HLITE-005-QA`) |
+| **TICKET-HLITE-005-QA** | Phase E (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for Horo Lite Form DOM structure, accessibility, and geocoding integration | `DOING` (Paired QA lane with `TICKET-HLITE-005` DOING; validating DOM structure, accessibility attributes, geocoding contract assertions in `tests/test_horo_lite_unified_reading.py`) |
 
-### 4. Definition of Done (Phase D — COMPLETED)
+### 4. Definition of Done (Phase E — IN PROGRESS)
+1. Clean single-column form implemented in `public/lite.html`, `public/lite.css`, and `public/lite.js` (birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year).
+2. Advanced settings disclosure for raw coordinates, timezone offset, and engine details.
+3. Single primary action button "คำนวณผังดวง & ตีความด้วย AI" wires cleanly to `POST /api/v3/unified-reading` without client-side calculation duplication.
+4. DOM contracts satisfied: accessible labels (`for` attribute matching input ID), ARIA landmarks, WCAG compliance, zero layout distortion.
+5. Contract tests in `tests/test_horo_lite_unified_reading.py` (`test_lite_form_dom_contract`, `test_lite_routes_and_assets_respond_200`, `test_export_formats_and_privacy_default`) pass 100% with zero regressions.
+6. Test provenance manifest registered and verified (`plans/test_provenance/ticket-hlite-005-ui-baseline.json`).
+7. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+
+### 5. Definition of Done (Phase D — COMPLETED)
 1. `POST /api/v3/unified-reading` implemented in `project/routers/unified_reading_router.py` consuming `UnifiedReadingRequest` and emitting `UnifiedReadingResponse`. [OK]
 2. Core engines orchestrated: natal chart, deterministic annual timing (`project/core/annual_timing_engine.py`), past pattern calibrator (`project/core/past_pattern_calibrator.py`), and multi-tradition consensus matrix (`project/debate/consensus_matrix.py`). [OK]
 3. Mandatory fail-closed HITL routing payload packaged when `consensus_score < 0.75`, tradition conflict, `force_human_review=True`, or uncertain birth time. [OK]
@@ -52,7 +61,7 @@ Establish a strict, auditable unified reading orchestration architecture support
 8. Test provenance manifests registered and verified (`plans/test_provenance/ticket-hlite-004-router-baseline.json` [VERIFIED] and `sprint_horo_v3_infographic_migration.json` sequence 10 [VERIFIED]). [OK]
 9. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 5. Definition of Done (Phase C — COMPLETED)
+### 6. Definition of Done (Phase C — COMPLETED)
 1. Multi-tradition consensus matrix (`project/debate/consensus_matrix.py`) integrated with annual timing engine (`project/core/annual_timing_engine.py`). [OK]
 2. Monthly claims arbitrated across traditions (Thai Suriyayart transits and BaZi 60-JiaZi cycles) with consensus score calculation bounded in [0.0, 1.0]. [OK]
 3. Mandatory fail-closed HITL routing wired to queue when `consensus_score < 0.75`, cross-tradition conflict detected, `force_human_review=True`, or uncertain birth time. [OK]
@@ -60,7 +69,7 @@ Establish a strict, auditable unified reading orchestration architecture support
 5. Test provenance manifests updated and verified (`plans/test_provenance/ticket-hlite-003-consensus-baseline.json` and `sprint_horo_v3_infographic_migration.json` sequence 9). [OK]
 6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 6. Definition of Done (Phase B — COMPLETED)
+### 7. Definition of Done (Phase B — COMPLETED)
 1. Deterministic annual timing engine implemented in `project/core/annual_timing_engine.py` producing 12 months of Career, Finance, and Love scores bounded in [1, 10] with traceable reasons. [OK]
 2. Past pattern calibrator implemented in `project/core/past_pattern_calibrator.py` generating 3-5 non-sensitive past pattern candidates (education, work-role change, relocation, financial pressure). [OK]
 3. `unknown_hour=True` handling reduces factors cleanly and outputs valid score ranges without false precision. [OK]
@@ -69,7 +78,7 @@ Establish a strict, auditable unified reading orchestration architecture support
 6. Test provenance manifests updated and verified (`ticket-hlite-002-timing-baseline.json` and `sprint_horo_v3_infographic_migration.json` sequence 8). [OK]
 7. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 7. Definition of Done (Phase A — COMPLETED)
+### 8. Definition of Done (Phase A — COMPLETED)
 1. Versioned Pydantic schemas (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`) defined in `project/core/unified_reading_engine.py`. [OK]
 2. Field validation rules enforce:
    - Canonical 12 topics ordering and structure. [OK]
@@ -79,7 +88,7 @@ Establish a strict, auditable unified reading orchestration architecture support
 3. Contract tests in `tests/test_horo_lite_unified_reading.py` pass 100% (9/9 PASS). [OK]
 4. Zero regressions in legacy test suites (24/24 PASS) and pure ASCII logging throughout. [OK]
 
-### 8. Empirical Verification & Evidence — Phase D Closeout
+### 9. Empirical Verification & Evidence — Phase D Closeout
 - [OK] **Unified Reading API Router & Engine Orchestration (`developer_api`)**:
   - Implemented `POST /api/v3/unified-reading` in `project/routers/unified_reading_router.py` consuming `UnifiedReadingRequest` and returning `UnifiedReadingResponse`.
   - Orchestrated deterministic natal chart calculations, deterministic annual timing (`project/core/annual_timing_engine.py`), non-sensitive past pattern candidate calibration (`project/core/past_pattern_calibrator.py`), and multi-tradition consensus arbitration (`project/debate/consensus_matrix.py`).
@@ -98,7 +107,7 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Executed AI Agent Ecosystem sync check: Exit code 0 (100% clean).
   - Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
 
-### 9. Empirical Verification & Evidence — Phase C Closeout
+### 10. Empirical Verification & Evidence — Phase C Closeout
 - [OK] **Multi-Tradition Consensus Matrix & Fail-Closed HITL Routing (`developer_core`)**:
   - Integrated `project/debate/consensus_matrix.py` and `project/core/annual_timing_engine.py` to arbitrate monthly claims across traditions (Thai Suriyayart and BaZi cycles) with bounded consensus score calculation in [0.0, 1.0].
   - Wired mandatory fail-closed HITL routing payload (`hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`) triggered on `consensus_score < 0.75`, tradition conflicts, `force_human_review=True`, or uncertain birth time (`unknown_hour=True`).
@@ -114,7 +123,7 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Executed AI Agent Ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`): Exit code 0 (100% clean).
   - All logs and manifests adhere to pure ASCII tags ([OK], [INFO], [WARNING], [ERROR]).
 
-### 10. Empirical Verification & Evidence — Phase B Closeout
+### 11. Empirical Verification & Evidence — Phase B Closeout
 - [OK] **Deterministic Annual Timing & Past Pattern Engine (`developer_core`)**:
   - Implemented `project/core/annual_timing_engine.py` producing 12 months of Career, Finance, and Love scores bounded in [1, 10] with traceable reasons based on Thai Suriyayart transit cycles and BaZi 60-JiaZi monthly pillars.
   - Implemented `project/core/past_pattern_calibrator.py` and `project/core/bazi.py` generating 3-5 non-sensitive past pattern candidates (education, career shift, relocation, financial pressure) strictly excluding sensitive trauma categories.
@@ -131,7 +140,7 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Executed AI Agent Ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`): Exit code 0 (100% clean).
   - All logs and manifests adhere to pure ASCII tags ([OK], [INFO], [WARNING], [ERROR]).
 
-### 11. Empirical Verification & Evidence — Phase A Closeout
+### 12. Empirical Verification & Evidence — Phase A Closeout
 - [OK] **Hardened Pydantic v2 Schemas (`developer_core`)**:
   - Implemented versioned schemas in `project/core/unified_reading_engine.py` (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`).
   - Strict validators enforce 12 canonical topic modules sequence, monthly score range [1, 10] with non-empty rationale, and non-sensitive past pattern candidate categories.
@@ -147,7 +156,7 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Executed `python3 scripts/sync_ai_agent_ecosystem.py --check`: Exit code 0 (100% clean).
   - Verified pure ASCII output throughout.
 
-### 12. Phase D Resolution Summary (TICKET-HLITE-004 & TICKET-HLITE-004-QA) — DONE
+### 13. Phase D Resolution Summary (TICKET-HLITE-004 & TICKET-HLITE-004-QA) — DONE
 - **Status**: `DONE` (Owner explicit authorization: "continue Phase D and then E"; implementation & QA verified).
 - **Assigned Specialist**: `developer_api`
 - **Paired QA Lane**: `TICKET-HLITE-004-QA` (`qa_tester`)
@@ -162,7 +171,7 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Copy translation invariant: strictly unmutated scores, dates, and facts (`facts_mutable_by_llm=False`).
   - Fail-closed HITL routing: 100% verified on `consensus_score < 0.75`, tradition conflict, `force_human_review=True`, and `unknown_hour=True`.
 
-### 13. Phase C Resolution Summary (TICKET-HLITE-003 & TICKET-HLITE-003-QA) — DONE
+### 14. Phase C Resolution Summary (TICKET-HLITE-003 & TICKET-HLITE-003-QA) — DONE
 - **Status**: `DONE` (Owner explicit approval: "approve Phase C" granted; implementation & QA verified).
 - **Assigned Specialist**: `developer_core`
 - **Paired QA Lane**: `TICKET-HLITE-003-QA` (`qa_tester`)
@@ -176,9 +185,10 @@ Establish a strict, auditable unified reading orchestration architecture support
   - Latency SLA: 0.072ms average (< 50ms SLA).
   - Fail-closed HITL routing: 100% verified on `consensus_score < 0.75`, tradition conflict, `force_human_review=True`, and `unknown_hour=True`.
 
-### 14. Phase E Execution Specification & Definition of Ready (TICKET-HLITE-005) — READY
-- **Status**: `READY` (Authorized in sequence: "continue Phase D and then E"; DoR unblocked by Phase D completion).
+### 15. Phase E Execution Specification & Active Lane Registration (TICKET-HLITE-005) — DOING
+- **Status**: `DOING` (Owner authorized: "continue Phase D and then E"; active in `LANE-HLITE-MGMT-009`).
 - **Task ID**: `TICKET-HLITE-005`
+- **Lane ID**: `LANE-HLITE-MGMT-009`
 - **Assigned Specialist**: `ux_ui_designer`
 - **Paired QA Lane**: `TICKET-HLITE-005-QA` (`qa_tester`)
 - **Exclusive Writable Scope**:
@@ -186,18 +196,18 @@ Establish a strict, auditable unified reading orchestration architecture support
   - `qa_tester`: `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`
   - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
 - **Execution Objectives**:
-  1. Build Horo Lite Form & Single-Action Flow in `public/lite.html`, `public/lite.css`, and `public/lite.js`.
-  2. Provide single high-contrast action button ("คำนวณผังดวง & ตีความด้วย AI").
-  3. Support simplified inputs: birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year, optional focus query.
-  4. Raw coordinates, timezone, and engine details hidden in Advanced disclosure.
-  5. Connect directly to `POST /api/v3/unified-reading` without client-side calculation duplication.
+  1. Refine and harden simplified Horo Lite input experience in `public/lite.html`, `public/lite.css`, and `public/lite.js`.
+  2. Clean single-column form: birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year, and optional focus query.
+  3. Advanced settings progressive disclosure for raw coordinates (latitude, longitude), timezone offset, and engine details.
+  4. Single primary high-contrast action button: "คำนวณผังดวง & ตีความด้วย AI" connecting to `POST /api/v3/unified-reading` without client-side calculation duplication.
+  5. DOM contract & accessibility compliance: accessible labels (`for` matching input ID), ARIA landmarks, WCAG compliance, zero layout distortion.
 - **Definition of Ready (DoR) Criteria**:
   1. [OK] **Phase D Pre-requisite Completed**: Phase D (`TICKET-HLITE-004` and `TICKET-HLITE-004-QA`) is 100% DONE, verified with zero regressions, and committed (`d68109584c56b914e988c2a39e65d166b7808945`). Endpoint `POST /api/v3/unified-reading` is live and serving unified reading payloads.
   2. [OK] **Form Contract & Layout Specification**: Form design, mobile-first responsive layout, and single high-contrast action flow defined.
   3. [OK] **Input Contract & Sanitization**: Simplified inputs (birth date, time with unknown toggle, birthplace geocoding, gender, target year, focus query) mapped directly to `UnifiedReadingRequest` schema without client-side duplicate calculation.
   4. [OK] **Single-Editor Resource Boundaries**: Explicitly mapped; `ux_ui_designer` owns `public/lite.html`, `public/lite.css`, `public/lite.js`; zero overlap with core engines or routers.
   5. [OK] **Test-First Contract**: `test_lite_form_dom_contract`, `test_lite_routes_and_assets_respond_200`, `test_export_formats_and_privacy_default` in `tests/test_horo_lite_unified_reading.py`.
-  6. [OK] **Authorization Gate**: Owner explicit authorization confirmed ("continue Phase D and then E"). Status transitioned to `READY`.
+  6. [OK] **Authorization Gate**: Owner explicit authorization confirmed ("continue Phase D and then E"). Status transitioned from `READY` to `DOING`.
 
 ---
 
