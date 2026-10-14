@@ -3,6 +3,7 @@ from __future__ import annotations
 from html.parser import HTMLParser
 from copy import deepcopy
 from datetime import date
+import json
 from pathlib import Path
 import re
 from time import perf_counter
@@ -690,6 +691,263 @@ def test_past_pattern_candidate_generation() -> None:
         assert not any(fragment in searchable for fragment in forbidden_fragments), (
             f"PAST_PATTERN_FORBIDDEN_SENSITIVE_FRAGMENT: {searchable}"
         )
+
+
+def test_annual_timing_extreme_boundaries_and_determinism() -> None:
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import UnifiedReadingRequest
+
+    # Boundary coordinates and target year extremes
+    boundary_cases = [
+        {"birth_date": "1900-01-01", "target_year": 1900, "lat": -90.0, "lon": -180.0},
+        {"birth_date": "1900-01-01", "target_year": 1900, "lat": 90.0, "lon": 180.0},
+        {"birth_date": "1990-05-15", "target_year": 2026, "lat": -90.0, "lon": 180.0},
+        {"birth_date": "1990-05-15", "target_year": 2026, "lat": 90.0, "lon": -180.0},
+        {"birth_date": "2026-01-01", "target_year": 2199, "lat": -90.0, "lon": -180.0},
+        {"birth_date": "2026-01-01", "target_year": 2199, "lat": 90.0, "lon": 180.0},
+        {"birth_date": "1985-06-20", "target_year": 2026, "lat": 0.0, "lon": 0.0},
+    ]
+
+    for case in boundary_cases:
+        req = UnifiedReadingRequest.model_validate({
+            "birth_date": case["birth_date"],
+            "birth_time": "12:00",
+            "unknown_hour": False,
+            "birth_place": "Boundary Station",
+            "latitude": case["lat"],
+            "longitude": case["lon"],
+            "timezone": "UTC",
+            "target_year": case["target_year"],
+        })
+        t0 = perf_counter()
+        result = calculate_annual_timing(req)
+        elapsed_ms = (perf_counter() - t0) * 1000
+        assert elapsed_ms < 50.0, f"ANNUAL_TIMING_BOUNDARY_LATENCY_VIOLATION: {elapsed_ms:.2f}ms >= 50ms"
+
+        # Completeness: exactly 12 months with Career, Finance, Love scores in [1..10]
+        months = _annual_months(result)
+        assert len(months) == 12, "ANNUAL_TIMING_MONTHS_COUNT_NOT_12"
+        assert [int(_field(m, "month")) for m in months] == list(range(1, 13))
+
+        for month in months:
+            for domain in ("career", "finance", "love"):
+                score = _field(month, f"{domain}_score")
+                assert isinstance(score, int), f"{domain}_score must be int"
+                assert 1 <= score <= 10, f"ANNUAL_TIMING_{domain.upper()}_SCORE_OUT_OF_BOUNDS: {score}"
+
+            # Astrological rationale: non-empty reasons and score_basis for all 12 months
+            reasons = _field(month, "reasons")
+            assert isinstance(reasons, list) and len(reasons) > 0, "ANNUAL_TIMING_REASONS_EMPTY"
+            assert all(isinstance(r, str) and r.strip() for r in reasons), "ANNUAL_TIMING_REASONS_BLANK"
+
+            score_basis = _field(month, "score_basis")
+            assert isinstance(score_basis, dict) and len(score_basis) > 0, "ANNUAL_TIMING_SCORE_BASIS_EMPTY"
+
+    # Determinism: run 20 times with identical input, assert 100% byte-identical outputs
+    baseline_req = UnifiedReadingRequest.model_validate(_phase_b_request_payload())
+    outputs: list[bytes] = []
+    durations: list[float] = []
+
+    for _ in range(20):
+        t0 = perf_counter()
+        res = calculate_annual_timing(baseline_req)
+        durations.append((perf_counter() - t0) * 1000)
+        outputs.append(json.dumps(_plain(res), sort_keys=True).encode("utf-8"))
+
+    for i in range(1, 20):
+        assert outputs[i] == outputs[0], f"DETERMINISM_VIOLATION: Run {i} output differs from Run 0"
+
+    # Latency SLA: assert execution time < 50ms
+    max_duration = max(durations)
+    assert max_duration < 50.0, f"ANNUAL_TIMING_LATENCY_SLA_VIOLATED: {max_duration:.2f}ms >= 50ms"
+
+
+def test_annual_timing_unknown_hour_uncertainty_contract() -> None:
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import MonthlyScoreItem, UnifiedReadingRequest
+    from project.routers.unified_reading_router import create_unified_reading
+
+    # Test unknown_hour=True with None birth_time and with dummy birth_time (time invariance)
+    for dummy_time in (None, "09:30"):
+        payload = _phase_b_request_payload(unknown_hour=True)
+        payload["birth_time"] = dummy_time
+        unknown_req = UnifiedReadingRequest.model_validate(payload)
+
+        result = calculate_annual_timing(unknown_req)
+        assert result.get("overall_confidence") in {"LOW", "ESTIMATED", "MEDIUM"}
+        assert result.get("overall_confidence") != "HIGH", "FALSE_PRECISION_OVERALL_HIGH"
+
+        months = _annual_months(result)
+        assert len(months) == 12
+        for month in months:
+            conf = str(_field(month, "confidence", "")).upper()
+            assert conf in {"LOW", "ESTIMATED", "MEDIUM"}
+            assert conf != "HIGH", "FALSE_PRECISION_MONTHLY_HIGH"
+
+            # Raw engine must strictly reject false precision (no single point scores without ranges)
+            assert _field(month, "career_score") is None, "FALSE_PRECISION_CAREER_SCORE_EXPOSED"
+            assert _field(month, "finance_score") is None, "FALSE_PRECISION_FINANCE_SCORE_EXPOSED"
+            assert _field(month, "love_score") is None, "FALSE_PRECISION_LOVE_SCORE_EXPOSED"
+
+            # Assert score ranges [min, max] where max >= min and 1 <= min <= max <= 10
+            for domain in ("career", "finance", "love"):
+                rng = _field(month, f"{domain}_score_range")
+                assert isinstance(rng, list | tuple) and len(rng) == 2, f"{domain}_score_range missing or invalid"
+                min_score, max_score = rng
+                assert isinstance(min_score, int) and isinstance(max_score, int)
+                assert 1 <= min_score <= max_score <= 10, (
+                    f"RANGE_INVERTED_OR_OUT_OF_BOUNDS: [{min_score}, {max_score}]"
+                )
+
+    # API router contract: confidence in {"LOW", "MEDIUM"}, ranges present and valid
+    api_req = UnifiedReadingRequest.model_validate(_phase_b_request_payload(unknown_hour=True))
+    api_response = create_unified_reading(api_req)
+    for score_item in api_response.monthly_scores:
+        assert score_item.confidence in {"LOW", "MEDIUM"}
+        assert score_item.confidence != "HIGH", "API_FALSE_PRECISION_HIGH_CONFIDENCE"
+        for domain in ("career", "finance", "love"):
+            rng = getattr(score_item, f"{domain}_score_range")
+            assert rng is not None and len(rng) == 2
+            assert 1 <= rng[0] <= rng[1] <= 10
+
+    # Negative controls: inverted score ranges and out-of-bound ranges strictly rejected
+    base_item = deepcopy(_monthly_scores()[0])
+    base_item["career_score_range"] = [9, 2]
+    with pytest.raises(ValidationError, match="career_score_range bounds must satisfy"):
+        MonthlyScoreItem.model_validate(base_item)
+
+    base_item["career_score_range"] = [0, 5]
+    with pytest.raises(ValidationError, match="career_score_range bounds must satisfy"):
+        MonthlyScoreItem.model_validate(base_item)
+
+    base_item["career_score_range"] = [4, 11]
+    with pytest.raises(ValidationError, match="career_score_range bounds must satisfy"):
+        MonthlyScoreItem.model_validate(base_item)
+
+
+def test_past_pattern_infant_and_child_boundaries() -> None:
+    from project.core.past_pattern_calibrator import generate_past_pattern_candidates
+    from project.core.unified_reading_engine import (
+        ALLOWED_PAST_PATTERN_THEMES,
+        PastPatternCandidate,
+        UnifiedReadingRequest,
+    )
+    from project.routers.unified_reading_router import create_unified_reading
+
+    sensitive_tokens = {
+        "death",
+        "dead",
+        "die",
+        "illness",
+        "disease",
+        "trauma",
+        "bereavement",
+        "medical",
+        "pregnancy",
+        "pregnant",
+        "accident",
+        "crime",
+        "divorce",
+        "fatal",
+        "suicide",
+        "hospital",
+        "surgery",
+        "cancer",
+        "injury",
+    }
+
+    # 1. Child / infant case (target_year - birth_year < 8)
+    child_cases = [
+        {"birth_date": "2026-01-01", "target_year": 2026, "desc": "infant age 0"},
+        {"birth_date": "2023-05-10", "target_year": 2026, "desc": "toddler age 3"},
+        {"birth_date": "2020-06-15", "target_year": 2026, "desc": "child age 6"},
+        {"birth_date": "2019-12-31", "target_year": 2026, "desc": "boundary child age 7"},
+    ]
+
+    for case in child_cases:
+        child_req = UnifiedReadingRequest.model_validate({
+            "birth_date": case["birth_date"],
+            "birth_time": "12:00",
+            "unknown_hour": False,
+            "birth_place": "Bangkok, Thailand",
+            "latitude": 13.7563,
+            "longitude": 100.5018,
+            "timezone": "Asia/Bangkok",
+            "target_year": case["target_year"],
+        })
+        raw_result = generate_past_pattern_candidates(child_req)
+        assert _pattern_candidates(raw_result) == [], (
+            f"INFANT_CHILD_CANDIDATES_NOT_EMPTY for {case['desc']}"
+        )
+
+        response = create_unified_reading(child_req)
+        assert response.past_patterns == [], f"RESPONSE_PAST_PATTERNS_NOT_EMPTY for {case['desc']}"
+        assert response.insufficient_history_reason is not None, (
+            f"INSUFFICIENT_HISTORY_REASON_MISSING for {case['desc']}"
+        )
+        assert len(response.insufficient_history_reason.strip()) > 0, (
+            f"INSUFFICIENT_HISTORY_REASON_EMPTY for {case['desc']}"
+        )
+
+    # 2. Adult case: 3 to 5 candidates, age/year sorted, strictly non-sensitive themes
+    adult_cases = [
+        {"birth_date": "1990-05-15", "target_year": 2026, "desc": "adult age 36"},
+        {"birth_date": "2008-01-01", "target_year": 2026, "desc": "young adult age 18"},
+        {"birth_date": "1950-07-20", "target_year": 2026, "desc": "senior age 76"},
+    ]
+
+    for case in adult_cases:
+        adult_req = UnifiedReadingRequest.model_validate({
+            "birth_date": case["birth_date"],
+            "birth_time": "14:30",
+            "unknown_hour": False,
+            "birth_place": "Bangkok, Thailand",
+            "latitude": 13.7563,
+            "longitude": 100.5018,
+            "timezone": "Asia/Bangkok",
+            "target_year": case["target_year"],
+        })
+        raw_result = generate_past_pattern_candidates(adult_req)
+        candidates = _pattern_candidates(raw_result)
+
+        assert 3 <= len(candidates) <= 5, (
+            f"ADULT_CANDIDATE_COUNT_OUT_OF_RANGE: {len(candidates)} for {case['desc']}"
+        )
+
+        # Assert age/year sorted
+        for i in range(len(candidates) - 1):
+            curr_yr = _field(candidates[i], "year_range")[0]
+            next_yr = _field(candidates[i + 1], "year_range")[0]
+            assert curr_yr <= next_yr, f"CANDIDATES_NOT_YEAR_SORTED: {curr_yr} > {next_yr}"
+
+            curr_age = _field(candidates[i], "age_range")[0]
+            next_age = _field(candidates[i + 1], "age_range")[0]
+            assert curr_age <= next_age, f"CANDIDATES_NOT_AGE_SORTED: {curr_age} > {next_age}"
+
+        # Assert strictly non-sensitive themes
+        for candidate in candidates:
+            theme = _field(candidate, "theme")
+            assert theme in ALLOWED_PAST_PATTERN_THEMES, f"UNAPPROVED_THEME: {theme}"
+            assert _field(candidate, "sensitive_category") is False
+
+            # Negative control: assert NO sensitive tokens anywhere in basis, theme, or rationale
+            payload_str = json.dumps(_plain(candidate)).lower()
+            for token in sensitive_tokens:
+                assert token not in payload_str, (
+                    f"SENSITIVE_TOKEN_LEAK: found {token!r} in candidate {payload_str}"
+                )
+
+    # 3. Negative control: schema rejects sensitive categories or themes
+    for token in ("death", "illness", "trauma", "medical", "pregnancy"):
+        bad_candidate = deepcopy(_past_patterns()[0])
+        bad_candidate["theme"] = token
+        with pytest.raises(ValidationError, match="outside the non-sensitive allowlist"):
+            PastPatternCandidate.model_validate(bad_candidate)
+
+    bad_candidate_flag = deepcopy(_past_patterns()[0])
+    bad_candidate_flag["sensitive_category"] = True
+    with pytest.raises(ValidationError, match="Sensitive past patterns are not allowed"):
+        PastPatternCandidate.model_validate(bad_candidate_flag)
 
 
 def test_horo_v3_consensus_arbitration_and_hitl_triggers() -> None:

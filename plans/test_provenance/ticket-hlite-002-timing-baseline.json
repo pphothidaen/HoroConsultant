@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-002",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0fd05cefd6624a283019b2d7bb688c94f942c985",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "e1545b014f2cabce6e6d1de83e45d96ed3ec7002882a069859fe3fe158782f22"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_annual_timing_extreme_boundaries_and_determinism or test_annual_timing_unknown_hour_uncertainty_contract or test_past_pattern_infant_and_child_boundaries",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: INFANT_CHILD_CANDIDATES_NOT_EMPTY or ANNUAL_TIMING_BOUNDARY_LATENCY_VIOLATION or FALSE_PRECISION"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py",
+    "project/core/past_pattern_calibrator.py",
+    "project/routers/unified_reading_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase B deterministic annual timing and past-pattern calibration in tests/test_horo_lite_unified_reading.py: boundary coordinates, boundary target years, 20-run bitwise determinism (<50ms SLA), unknown-hour uncertainty contracts (score ranges and non-HIGH confidence), infant/child boundary handling (<8 years), and pessimistic sensitive topic negative controls."
+}
