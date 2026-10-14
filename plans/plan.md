@@ -1,5 +1,53 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Sprint: Horo Lite Default Landing Page & Clean Routing — 2026-10-14
+
+Status: DOING (Phase 1 & Phase 2 DONE; Phase 3 READY)
+Task ID: `TICKET-PLAN-DEFAULT-HOROLITE-001`
+Lane ID: `TICKET-PLAN-DEFAULT-HOROLITE-001-LANE`
+
+### 1. Executive Summary & Sprint Goal
+[INFO] Establish Horo Lite (`lite.html`) as the default landing page on Vercel edge deployment (`https://horo-consultant-psi.vercel.app/`). Ensure clean, modern URL routing where:
+1. Root request `https://horo-consultant-psi.vercel.app/` routes seamlessly to Horo Lite (`/lite.html`).
+2. Clean slug request `https://horo-consultant-psi.vercel.app/lite` (without `.html`) routes directly to Horo Lite (`/lite.html`) rather than returning 404 Not Found.
+3. Explicit path `https://horo-consultant-psi.vercel.app/lite.html` serves Horo Lite directly.
+4. Advanced BaZi Dashboard remains accessible via `https://horo-consultant-psi.vercel.app/advanced` (routing to `/index.html`).
+5. All backend API and administrative proxy rewrites (`/api/v1/*`, `/api/v2/*`, `/api/v3/*`, `/health`, `/admin/*`, etc.) remain 100% frozen and intact in `vercel.json`.
+
+### 2. Core Execution Invariants [FROZEN]
+- **`INVARIANT-UI-01`**: **API Contract Invariance**: Existing `rewrites` array in `vercel.json` governing `/api/*`, `/health`, `/admin/*`, `/docs`, and `/openapi.json` must remain intact without regressions.
+- **`INVARIANT-UI-02`**: **Clean Slug & Root Parity**: Requests to `/` and `/lite` must resolve to `/lite.html` at the edge without 404 error responses.
+- **`INVARIANT-UI-03`**: **Advanced Mode Preserved**: Requesting `/advanced` must serve `/index.html` (Full BaZi Dashboard) ensuring bidirectional mode switching.
+- **`INVARIANT-UI-04`**: **TDD Regression Gate**: `tests/test_kan120_default_page_horo_lite.py` must be updated to validate the edge routing rules and pass 100% alongside full regression suites.
+- **`INVARIANT-UI-05`**: **Zero Plain-Text Secrets**: No credentials or environment secrets committed or logged.
+
+### 3. Edge Routing Topology
+
+| Incoming Request URL Path | Vercel Edge Handling | Target Resource / Destination | Expected HTTP Behavior |
+| :--- | :--- | :--- | :--- |
+| `/` | `redirects` (or `rewrites`) | `/lite.html` | Serves Horo Lite default view |
+| `/lite` | `redirects` (or `rewrites`) | `/lite.html` | Serves Horo Lite (resolves 404 issue) |
+| `/lite.html` | Static File | `public/lite.html` | HTTP 200 OK |
+| `/advanced` | `rewrites` | `/index.html` | Serves Advanced BaZi Dashboard |
+| `/api/*`, `/health`, `/admin/*` | `rewrites` | `/api/index?path=...` | Edge proxy to backend handlers |
+
+### 4. Sprint Deliverables Matrix
+
+| Ticket | Phase & Lane | Deliverables & Artifacts | Status |
+|---|---|---|---|
+| **TICKET-UI-DEFAULT-HOROLITE-01-ROUTING** | Phase 1 (`developer`) | Configure Vercel redirects for `/` and `/lite` to `/lite.html` in `vercel.json` while keeping existing API rewrites intact; update `tests/test_kan120_default_page_horo_lite.py` | `DONE` |
+| **TICKET-UI-DEFAULT-HOROLITE-02-VERIFY** | Phase 2 (`qa_tester`) | Execute test suite: `pytest tests/test_kan120_default_page_horo_lite.py`, Node contract tests (`npm test` 76/76 PASS), and AI ecosystem integrity sync | `DONE` |
+| **TICKET-UI-DEFAULT-HOROLITE-03-RELEASE** | Phase 3 (`devops`) | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`) | `READY` |
+
+### 5. Definition of Done (Sprint)
+1. `vercel.json` configures edge routing so `/` and `/lite` route to `/lite.html`, and `/advanced` routes to `/index.html`.
+2. Existing API proxy rewrites (`/api/*`, `/health`, `/admin/*`) preserved 100% intact.
+3. `tests/test_kan120_default_page_horo_lite.py` updated and passing 100%.
+4. Node contract tests (76/76) and PyTest regression suites pass with zero regressions.
+5. Production deployment to Vercel verified live on `https://horo-consultant-psi.vercel.app` for `/`, `/lite`, `/lite.html`, and `/advanced`.
+
+---
+
 ## Sprint: Cloudflare Multi-Account Workers CI/CD & Secret Synchronization — 2026-10-13
 
 Status: DONE (All 5 Cloudflare sprint tickets DONE, multi-account topology fully unblocked & verified)

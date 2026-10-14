@@ -1,5 +1,44 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Horo Lite Default Landing Page & Clean Routing — 2026-10-14
+
+GOAL: Establish Horo Lite (`lite.html`) as the default landing page on Vercel (`https://horo-consultant-psi.vercel.app/`), eliminate 404 on `/lite`, retain `/advanced` for full BaZi dashboard, preserve all existing API proxy rewrites, update TDD test assertions in `tests/test_kan120_default_page_horo_lite.py`, and verify live production edge routing.
+
+Shared interface contract [FROZEN]:
+- Invariants: INVARIANT-UI-01 to INVARIANT-UI-05 active.
+- Edge Routing Contract:
+  - Root `/` and slug `/lite` route to `/lite.html`.
+  - `/lite.html` serves static `public/lite.html`.
+  - `/advanced` rewrites to `/index.html`.
+  - API rewrites (`/api/v1/*`, `/api/v2/*`, `/api/v3/*`, `/health`, `/admin/*`) unchanged in `vercel.json`.
+- Stop Conditions: Any regression in API route proxying, 404 response on `/lite`, or test failure in `test_kan120_default_page_horo_lite.py` halts release.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-UI-DEFAULT-HOROLITE-01-ROUTING` | `DONE` (`vercel.json` edge redirects configured for `/` and `/lite` to `/lite.html`; `tests/test_kan120_default_page_horo_lite.py` updated); developer | Configure edge redirects for `/` and `/lite` to `/lite.html` in `vercel.json` while maintaining existing `rewrites` array intact; update test assertions in `tests/test_kan120_default_page_horo_lite.py`. Exclusive scope: `vercel.json`, `tests/test_kan120_default_page_horo_lite.py`. | Dependencies: None. Acceptance MET: `vercel.json` updated with edge redirects for `/` and `/lite` to `/lite.html` preserving existing API proxy rewrites intact; `tests/test_kan120_default_page_horo_lite.py` updated with `test_vercel_redirects_root_and_lite` asserting redirect rules. Zero regressions. | `frontend-modernization`, `sdlc-aisdlc-workflow` |
+| `TICKET-UI-DEFAULT-HOROLITE-02-VERIFY` | `DONE` (6/6 pytest PASS, 76/76 Node contract PASS, ecosystem sync clean); qa_tester | Execute full test validation: `pytest tests/test_kan120_default_page_horo_lite.py`, Node contract tests (`npm test` 76/76 PASS), and AI ecosystem sync check. Exclusive scope: Test verification and provenance. | Dependencies: `TICKET-UI-DEFAULT-HOROLITE-01-ROUTING`. Acceptance MET: 6/6 pytest passed (100%), 76/76 Node.js Vercel contract tests passed (100%), `python3 scripts/sync_ai_agent_ecosystem.py --check` exited 0 (100% clean). Pure ASCII test logs; zero regressions in route handling. | `qa-regression-provenance`, `qa-api-ui-e2e` |
+| `TICKET-UI-DEFAULT-HOROLITE-03-RELEASE` | `READY`; devops | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`). Exclusive scope: Git PR lifecycle and Vercel production verification. | Dependencies: `TICKET-UI-DEFAULT-HOROLITE-02-VERIFY`. Acceptance: PR merged into `main`; GitHub Actions CI/CD passes; Vercel deployment returns HTTP 200 on `/`, `/lite.html`, and `/advanced`, and cleanly handles `/lite` without 404. Stop condition: 404 on `/lite` or CI/CD gate failure halts promotion. | `devops-deployment`, `github-pr-automation` |
+
+**Definition of Done (Sprint)**:
+1. `vercel.json` updated with edge redirects for `/` and `/lite` to `/lite.html` with all API rewrites intact.
+2. `tests/test_kan120_default_page_horo_lite.py` updated and 100% green.
+3. Node test suites (76/76) and pytest regression suites pass with 0 regressions.
+4. Production deployment on Vercel verified live: `/` -> Horo Lite, `/lite` -> Horo Lite (no 404), `/lite.html` -> HTTP 200, `/advanced` -> HTTP 200 (Advanced Dashboard).
+5. Repository branch hygiene and clean single `main` branch invariant maintained.
+
+### Empirical Evidence & Findings — Horo Lite Default Landing Page & Clean Routing
+- [OK] Edge Redirects & Test Update (TICKET-UI-DEFAULT-HOROLITE-01-ROUTING):
+  - `vercel.json` configured with edge redirects mapping `/` and `/lite` to `/lite.html` while keeping existing API proxy rewrites intact.
+  - `tests/test_kan120_default_page_horo_lite.py` updated with `test_vercel_redirects_root_and_lite`.
+- [OK] Test Suite & AI Ecosystem Verification (TICKET-UI-DEFAULT-HOROLITE-02-VERIFY):
+  - `pytest tests/test_kan120_default_page_horo_lite.py`: 6/6 tests PASS (100%).
+  - Node.js contract tests (`npm test`): 76/76 tests PASS (100%).
+  - AI ecosystem integrity check (`python3 scripts/sync_ai_agent_ecosystem.py --check`): Exit code 0 (100% clean).
+- [INFO] Transition to Phase 3 Release (TICKET-UI-DEFAULT-HOROLITE-03-RELEASE):
+  - Dependencies satisfied. Ticket transitioned to `READY` for devops specialist to execute branch creation, PR lifecycle, CI/CD validation, merge to `main`, and live production endpoint verification.
+
+---
+
 ## Sprint: Cloudflare Multi-Account Workers CI/CD & Secret Synchronization — 2026-10-13
 
 GOAL: Establish isolated multi-account CI/CD deployment pipelines across three Cloudflare accounts (`pansakorn.pho@gmail.com`, `gemini.web.bridge@gmail.com`, and `taijustarrett417@gmail.com`), resolve Cloudflare API Error 10007, synchronize Doppler `prd` and GitHub Actions secrets, validate CI deployment workflows via dry-run bundling, verify Cloudflare test suites, and harden deployment script routing.
