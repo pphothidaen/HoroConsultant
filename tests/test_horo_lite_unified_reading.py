@@ -1415,6 +1415,162 @@ def test_unified_reading_api_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def test_unified_reading_api_endpoint_extended_matrix(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setenv("TESTING", "true")
+    monkeypatch.setenv("SKIP_FAISS_WARMUP", "true")
+    monkeypatch.setenv("HORO_LITE_LLM_TRANSLATION_ENABLED", "false")
+    monkeypatch.setenv("UNIFIED_READING_LLM_TRANSLATION_ENABLED", "false")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+
+    from project.core.unified_reading_engine import (
+        ALLOWED_PAST_PATTERN_THEMES,
+        CANONICAL_TOPIC_IDS,
+        UnifiedReadingResponse,
+    )
+    from project.main import app
+
+    with TestClient(app) as client:
+        # 1. Standard payload verification and deterministic latency SLA < 300ms
+        std_payload = _phase_b_request_payload()
+        started = perf_counter()
+        resp = client.post("/api/v3/unified-reading", json=std_payload)
+        elapsed_ms = (perf_counter() - started) * 1000
+
+        assert resp.status_code == 200, f"Standard payload returned HTTP {resp.status_code}: {resp.text}"
+        assert elapsed_ms < 300, f"Deterministic path latency SLA violated: {elapsed_ms:.2f}ms >= 300ms"
+
+        data = resp.json()
+        validated = UnifiedReadingResponse.model_validate(data)
+        plain_data = _plain(validated)
+
+        # 2. Assert 12 topics returned in exact canonical sequence (CANONICAL_TOPIC_IDS)
+        topics = plain_data["topics"]
+        assert len(topics) == 12, f"Expected 12 canonical topics, got {len(topics)}"
+        assert tuple(t["topic_id"] for t in topics) == CANONICAL_TOPIC_IDS, (
+            f"Topic IDs {tuple(t['topic_id'] for t in topics)} do not match CANONICAL_TOPIC_IDS {CANONICAL_TOPIC_IDS}"
+        )
+        assert [t["order"] for t in topics] == list(range(1, 13))
+        for t in topics:
+            assert t["title"] and isinstance(t["title"], str), f"Missing title in topic {t['topic_id']}"
+            assert t["summary"] and isinstance(t["summary"], str), f"Missing summary in topic {t['topic_id']}"
+            assert t["guidance"] and isinstance(t["guidance"], str), f"Missing guidance in topic {t['topic_id']}"
+            assert t["confidence"] in {"HIGH", "MEDIUM", "LOW"}, f"Invalid confidence {t['confidence']} in topic {t['topic_id']}"
+            assert t["evidence_refs"] and len(t["evidence_refs"]) >= 1, f"Missing evidence_refs in topic {t['topic_id']}"
+
+        # 3. Assert 12 months scores returned with career, finance, love in [1..10] and reasons
+        monthly_scores = plain_data["monthly_scores"]
+        assert len(monthly_scores) == 12, f"Expected 12 monthly scores, got {len(monthly_scores)}"
+        assert [m["month"] for m in monthly_scores] == list(range(1, 13))
+        for m in monthly_scores:
+            for domain in ("career", "finance", "love"):
+                score = m[f"{domain}_score"]
+                assert isinstance(score, int) and 1 <= score <= 10, (
+                    f"Month {m['month']} {domain}_score {score} is not an integer in [1..10]"
+                )
+            assert m["reasons"] and isinstance(m["reasons"], list) and len(m["reasons"]) >= 1, (
+                f"Month {m['month']} missing reasons list"
+            )
+            assert all(isinstance(r, str) and r.strip() for r in m["reasons"]), (
+                f"Month {m['month']} contains empty or non-string reason"
+            )
+            assert m["score_basis"] and isinstance(m["score_basis"], dict) and len(m["score_basis"]) >= 1, (
+                f"Month {m['month']} missing score_basis dict"
+            )
+
+        # 4. Assert past patterns (0 to 5 candidates), non-sensitive
+        past_patterns = plain_data["past_patterns"]
+        assert isinstance(past_patterns, list)
+        assert 0 <= len(past_patterns) <= 5, f"Past pattern candidates count {len(past_patterns)} not in [0..5]"
+        for pattern in past_patterns:
+            assert pattern["sensitive_category"] is False, f"Sensitive past pattern detected: {pattern.get('pattern_id')}"
+            assert pattern["theme"] in ALLOWED_PAST_PATTERN_THEMES, f"Unallowed theme {pattern.get('theme')}"
+            assert pattern["deterministic_basis"], f"Missing deterministic basis in past pattern {pattern.get('pattern_id')}"
+            year_range = pattern["year_range"]
+            assert len(year_range) == 2 and year_range[0] <= year_range[1] < plain_data["target_year"]
+
+        # Boundary check: Young person / child payload yields 0 candidates (clean boundary within [0..5])
+        child_payload = dict(std_payload, birth_date="2022-01-01", target_year=2026)
+        child_resp = client.post("/api/v3/unified-reading", json=child_payload)
+        assert child_resp.status_code == 200, f"Child payload failed: {child_resp.text}"
+        child_data = child_resp.json()
+        assert len(child_data["past_patterns"]) == 0, "Child payload must return 0 past pattern candidates"
+        assert child_data["insufficient_history_reason"] is not None
+
+        # 5. Assert HTTP 422 Unprocessable Entity on invalid inputs
+        # 5a. Future birth relative to target year
+        invalid_future_payloads = [
+            dict(std_payload, birth_date="2030-01-01", target_year=2026),
+            dict(std_payload, birth_date="2027-12-31", target_year=2026),
+        ]
+        for bad_p in invalid_future_payloads:
+            bad_resp = client.post("/api/v3/unified-reading", json=bad_p)
+            assert bad_resp.status_code == 422, (
+                f"Expected HTTP 422 for future birth date relative to target year, got {bad_resp.status_code}: {bad_resp.text}"
+            )
+
+        # 5b. Invalid coordinates (latitude not in [-90, 90], longitude not in [-180, 180])
+        invalid_coord_payloads = [
+            dict(std_payload, latitude=90.001),
+            dict(std_payload, latitude=-90.001),
+            dict(std_payload, longitude=180.001),
+            dict(std_payload, longitude=-180.001),
+            dict(std_payload, latitude=999.0),
+        ]
+        for bad_p in invalid_coord_payloads:
+            bad_resp = client.post("/api/v3/unified-reading", json=bad_p)
+            assert bad_resp.status_code == 422, (
+                f"Expected HTTP 422 for invalid coordinate, got {bad_resp.status_code}: {bad_resp.text}"
+            )
+
+        # 5c. Invalid target year (target_year not in [1900, 2200])
+        invalid_year_payloads = [
+            dict(std_payload, birth_date="1800-01-01", target_year=1899),
+            dict(std_payload, target_year=2201),
+            dict(std_payload, target_year=1500),
+        ]
+        for bad_p in invalid_year_payloads:
+            bad_resp = client.post("/api/v3/unified-reading", json=bad_p)
+            assert bad_resp.status_code == 422, (
+                f"Expected HTTP 422 for invalid target_year, got {bad_resp.status_code}: {bad_resp.text}"
+            )
+
+        # 6. Assert fail-closed HITL routing: force_human_review=True or unknown_hour=True results in QUEUED_FOR_HUMAN_REVIEW
+        # 6a. force_human_review=True
+        hitl_forced_payload = dict(std_payload, force_human_review=True)
+        resp_forced = client.post("/api/v3/unified-reading", json=hitl_forced_payload)
+        assert resp_forced.status_code == 200, f"Forced HITL request failed: {resp_forced.text}"
+        forced_data = resp_forced.json()
+        assert forced_data["hitl_routing"]["status"] == "QUEUED_FOR_HUMAN_REVIEW", (
+            f"Expected QUEUED_FOR_HUMAN_REVIEW for force_human_review=True, got {forced_data['hitl_routing']['status']}"
+        )
+        assert forced_data["hitl_flags"]["force_human_review"] is True
+        assert forced_data["hitl_flags"]["required_human_review"] is True
+
+        # 6b. unknown_hour=True
+        hitl_unknown_payload = dict(std_payload, unknown_hour=True, birth_time=None)
+        resp_unknown = client.post("/api/v3/unified-reading", json=hitl_unknown_payload)
+        assert resp_unknown.status_code == 200, f"Unknown hour request failed: {resp_unknown.text}"
+        unknown_data = resp_unknown.json()
+        assert unknown_data["hitl_routing"]["status"] == "QUEUED_FOR_HUMAN_REVIEW", (
+            f"Expected QUEUED_FOR_HUMAN_REVIEW for unknown_hour=True, got {unknown_data['hitl_routing']['status']}"
+        )
+        assert unknown_data["hitl_flags"]["uncertain_birth_time"] is True
+        assert unknown_data["hitl_flags"]["required_human_review"] is True
+
+        # 7. Assert LLM facts immutability: llm_metadata.facts_mutable_by_llm == False
+        for tested_data in (plain_data, forced_data, unknown_data, child_data):
+            llm_meta = tested_data["llm_metadata"]
+            assert llm_meta.get("facts_mutable_by_llm") is False, (
+                f"Facts immutability violated: {llm_meta.get('facts_mutable_by_llm')}"
+            )
+            assert llm_meta.get("network_call_performed") in (False, None)
+            assert llm_meta.get("deterministic_facts_source") == "project.core.annual_timing_engine"
+
+
 def test_lite_form_dom_contract() -> None:
     lite_html_path = PUBLIC_DIR / "lite.html"
     lite_css_path = PUBLIC_DIR / "lite.css"

@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-003",
-  "sequence": 9,
+  "ticket_id": "TICKET-HLITE-004",
+  "sequence": 10,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "730d852641852d3caf2c2e0beb910aad2f5aae99",
+  "baseline_parent": "8767a28b7f8f48db9c9173c4d3352d9ae67db968",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "0c1635a30d84395a3777049c0bed3865fc5adb13307428d293f10ae08b802e61"
+      "sha256": "77aee45a0de1fad9803d4e29f3ef7fa73aa9e8d8258e6dca4de9db8f2a85dcff"
     }
   ],
   "red_tests": [
@@ -18,21 +18,22 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_horo_v3_consensus_arbitration_boundary_matrix or test_horo_v3_consensus_arbitration_and_hitl_triggers",
+        "test_unified_reading_api_endpoint_extended_matrix",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: LOW_CONSENSUS_FLAG_NOT_TRUE or TRADITION_CONFLICT_NOT_SET_FOR_DOMAIN or CLEAN_BASELINE_STATUS_MUST_BE_NOT_REQUIRED or SCOPE_AUDIT_PASS_GATE_CHECK_NOT_TRUE"
+      "failure_fingerprint": "AssertionError: UNIFIED_READING_LATENCY_EXCEEDED_300MS or Canonical topic sequence mismatch or Expected HTTP 422 or QUEUED_FOR_HUMAN_REVIEW"
     }
   ],
   "allowed_source_paths": [
-    "project/core/annual_timing_engine.py",
-    "project/debate/consensus_matrix.py",
-    "project/hitl_router.py"
+    "project/routers/unified_reading_router.py",
+    "project/routers/v3_engine_router.py",
+    "api/index.js",
+    "project/main.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "730d852641852d3caf2c2e0beb910aad2f5aae99",
-  "correction_reason": "Advance Horo Lite baseline from Phase B (TICKET-HLITE-002) to Phase C (TICKET-HLITE-003) multi-tradition consensus matrix arbitration and mandatory fail-closed HITL routing verification.",
-  "rationale": "Record verified test provenance baseline for Horo Lite Phase C (TICKET-HLITE-003) multi-tradition consensus arbitration and fail-closed HITL routing in tests/test_horo_lite_unified_reading.py: boundary arbitration across thai_suriyayart, bazi_liu_yue, and zi_wei traditions over 12 months, low consensus (<0.75) queuing, isolated domain conflicts (career, finance, love), force_human_review flag, uncertain_birth_time flag, clean baseline status (NOT_REQUIRED), live probe passing against GET /hitl/scope-audit?source_domain=metaphysical-domain-engine (pass_gate_check=True), and fail-closed response schema validation. Verification: 13/13 PASS on tests/test_horo_lite_unified_reading.py, zero regressions across test suite (43/43 PASS regression suite, 5/5 PASS KAN-120 suite)."
+  "supersedes": "8767a28b7f8f48db9c9173c4d3352d9ae67db968",
+  "correction_reason": "Advance Horo Lite baseline from Phase C (TICKET-HLITE-003) to Phase D (TICKET-HLITE-004) Unified Reading API Router and deterministic copy transformer contract verification.",
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase D (TICKET-HLITE-004) Unified Reading API router and copy transformer in tests/test_horo_lite_unified_reading.py: POST /api/v3/unified-reading contract verification via FastAPI TestClient, deterministic latency SLA (<300ms), 12 canonical topics in exact sequence (CANONICAL_TOPIC_IDS), 12 monthly scores in range [1..10] with reasons, non-sensitive past patterns (0..5 candidates) with child boundary calibration, HTTP 422 Unprocessable Entity error boundary matrix (future birth relative to target year, invalid latitude/longitude coordinates, invalid target year), fail-closed HITL routing triggers (force_human_review=True, unknown_hour=True) resolving to QUEUED_FOR_HUMAN_REVIEW, and LLM facts immutability (facts_mutable_by_llm=False). Verification: 14/14 PASS on tests/test_horo_lite_unified_reading.py."
 }
