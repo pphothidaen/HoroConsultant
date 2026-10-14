@@ -38,6 +38,7 @@ Lane ID: `TICKET-PLAN-DEFAULT-HOROLITE-001-LANE`
 | **TICKET-UI-DEFAULT-HOROLITE-01-ROUTING** | Phase 1 (`developer`) | Configure Vercel redirects for `/` and `/lite` to `/lite.html` in `vercel.json` while keeping existing API rewrites intact; update `tests/test_kan120_default_page_horo_lite.py` | `DONE` |
 | **TICKET-UI-DEFAULT-HOROLITE-02-VERIFY** | Phase 2 (`qa_tester`) | Execute test suite: `pytest tests/test_kan120_default_page_horo_lite.py`, Node contract tests (`npm test` 76/76 PASS), and AI ecosystem integrity sync | `DONE` |
 | **TICKET-UI-DEFAULT-HOROLITE-03-RELEASE** | Phase 3 (`devops`) | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`) | `DONE` |
+| **TICKET-RULE22-RELEASE-1.7.0** | Phase 4 (`business_analyst`) | Compile ReleaseNotes.md v1.7.0-prod, archive sprint intake & implementation plans to plans/archive/2026-10-14-horo-lite-and-cf-multi-account/, update governance registries | `DONE` |
 
 ### 5. Definition of Done (Sprint)
 1. `vercel.json` configures edge routing so `/` and `/lite` route to `/lite.html`, and `/advanced` routes to `/index.html`.
