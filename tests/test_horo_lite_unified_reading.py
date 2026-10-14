@@ -1048,6 +1048,264 @@ def test_horo_v3_consensus_arbitration_and_hitl_triggers() -> None:
     assert _hitl_routing(low_conflict_result).get("status") == "QUEUED_FOR_HUMAN_REVIEW"
 
 
+def test_horo_v3_consensus_arbitration_boundary_matrix(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setenv("TESTING", "true")
+    monkeypatch.setenv("SKIP_FAISS_WARMUP", "true")
+    monkeypatch.setenv("HORO_LITE_LLM_TRANSLATION_ENABLED", "false")
+    monkeypatch.setenv("UNIFIED_READING_LLM_TRANSLATION_ENABLED", "false")
+
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import UnifiedReadingRequest, UnifiedReadingResponse
+    from project.debate.consensus_matrix import (
+        DEFAULT_TRADITIONS_CONSIDERED,
+        arbitrate_monthly_consensus,
+    )
+    from project.main import app
+
+    base_payload = _phase_b_request_payload()
+    base_request = UnifiedReadingRequest.model_validate(base_payload)
+
+    # 1. Verify multi-tradition claim arbitration across 12 months with thai_suriyayart, bazi_liu_yue, and zi_wei
+    base_result = calculate_annual_timing(base_request)
+    base_metadata = _consensus_metadata(base_result)
+
+    assert base_metadata.get("engine_version") == "horo_v3_consensus", "ENGINE_VERSION_NOT_HORO_V3_CONSENSUS"
+    assert (
+        base_metadata.get("consensus_matrix_source") == "project.debate.consensus_matrix"
+    ), "CONSENSUS_MATRIX_SOURCE_MARKER_MISSING"
+
+    traditions = base_metadata.get("traditions_considered")
+    assert isinstance(traditions, list), "TRADITIONS_CONSIDERED_NOT_A_LIST"
+    expected_traditions = {"thai_suriyayart", "bazi_liu_yue", "zi_wei"}
+    assert expected_traditions.issubset(set(traditions)), (
+        f"TRADITIONS_CONSIDERED_INCOMPLETE: expected {expected_traditions}, got {traditions}"
+    )
+
+    monthly_claims = _arbitrated_monthly_claims(base_metadata)
+    assert len(monthly_claims) == 12, f"MONTHLY_CLAIMS_COUNT_NOT_12: {len(monthly_claims)}"
+    assert {_field(c, "month") for c in monthly_claims} == set(range(1, 13))
+
+    for claim in monthly_claims:
+        m = _field(claim, "month")
+        t_claims = _field(claim, "tradition_claims")
+        assert isinstance(t_claims, dict), f"TRADITION_CLAIMS_NOT_DICT: month {m}"
+        for tradition_key in expected_traditions:
+            assert tradition_key in t_claims, f"MISSING_TRADITION_{tradition_key.upper()}_IN_MONTH_{m}"
+            t_data = t_claims[tradition_key]
+            for domain in ("career_score", "finance_score", "love_score"):
+                score = t_data.get(domain)
+                assert isinstance(score, int | float) and 1 <= score <= 10, (
+                    f"INVALID_SCORE_IN_{tradition_key}_{domain}_MONTH_{m}: {score}"
+                )
+        agreement = claim.get("agreement_score")
+        assert isinstance(agreement, int | float) and 0.0 <= float(agreement) <= 1.0, (
+            f"INVALID_MONTH_AGREEMENT_SCORE_IN_MONTH_{m}: {agreement}"
+        )
+        domain_agreements = claim.get("domain_agreements")
+        assert isinstance(domain_agreements, dict), f"DOMAIN_AGREEMENTS_NOT_DICT: month {m}"
+        for domain in ("career_score", "finance_score", "love_score"):
+            assert domain in domain_agreements, f"MISSING_DOMAIN_AGREEMENT_{domain}_MONTH_{m}"
+            d_score = domain_agreements[domain]
+            assert isinstance(d_score, int | float) and 0.0 <= float(d_score) <= 1.0, (
+                f"INVALID_DOMAIN_AGREEMENT_{domain}_MONTH_{m}: {d_score}"
+            )
+        assert claim.get("arbitrated_claim"), f"ARBITRATED_CLAIM_MISSING_IN_MONTH_{m}"
+
+    # 2. Test low consensus threshold (< 0.75): assert QUEUED_FOR_HUMAN_REVIEW and low_consensus=True
+    low_consensus_claims = [
+        {
+            "month": month,
+            "tradition_claims": {
+                "thai_suriyayart": {"career_score": 9, "finance_score": 9, "love_score": 9, "claim": "strong surge"},
+                "bazi_liu_yue": {"career_score": 2, "finance_score": 2, "love_score": 2, "claim": "severe clash"},
+                "zi_wei": {"career_score": 3, "finance_score": 3, "love_score": 3, "claim": "low support"},
+            },
+        }
+        for month in range(1, 13)
+    ]
+    low_req = base_request.model_copy(
+        update={
+            "consensus_fixture_id": "qa_low_consensus_boundary_matrix_2026",
+            "tradition_monthly_claims": low_consensus_claims,
+        }
+    )
+    low_res = calculate_annual_timing(low_req)
+    low_meta = _consensus_metadata(low_res)
+    low_flags = _hitl_flags(low_res)
+    low_routing = _hitl_routing(low_res)
+
+    consensus_score = float(low_meta.get("consensus_score", 1.0))
+    assert consensus_score < 0.75, f"CONSENSUS_SCORE_NOT_BELOW_0_75: {consensus_score}"
+    assert low_flags.get("low_consensus") is True, "LOW_CONSENSUS_FLAG_NOT_TRUE"
+    assert low_flags.get("required_human_review") is True, "REQUIRED_HUMAN_REVIEW_NOT_TRUE_ON_LOW_CONSENSUS"
+    assert low_routing.get("status") == "QUEUED_FOR_HUMAN_REVIEW", "HITL_ROUTING_STATUS_NOT_QUEUED_ON_LOW_CONSENSUS"
+    assert "low_consensus" in low_routing.get("trigger_reasons", []), "TRIGGER_REASONS_MISSING_LOW_CONSENSUS"
+
+    # 3. Test domain-specific conflict: assert QUEUED_FOR_HUMAN_REVIEW and tradition_conflict=True if ANY domain has conflict
+    for conflicting_domain in ("career_score", "finance_score", "love_score"):
+        domain_conflict_claims = []
+        for month in range(1, 13):
+            t_claims = {
+                "thai_suriyayart": {"career_score": 7, "finance_score": 7, "love_score": 7},
+                "bazi_liu_yue": {"career_score": 7, "finance_score": 7, "love_score": 7},
+                "zi_wei": {"career_score": 7, "finance_score": 7, "love_score": 7},
+            }
+            # Inject extreme conflict ONLY into conflicting_domain in month 7
+            if month == 7:
+                t_claims["thai_suriyayart"][conflicting_domain] = 9
+                t_claims["bazi_liu_yue"][conflicting_domain] = 2
+                t_claims["zi_wei"][conflicting_domain] = 3
+            domain_conflict_claims.append({
+                "month": month,
+                "tradition_claims": t_claims,
+            })
+        dc_req = base_request.model_copy(
+            update={
+                "consensus_fixture_id": f"qa_domain_conflict_{conflicting_domain}_2026",
+                "tradition_monthly_claims": domain_conflict_claims,
+            }
+        )
+        dc_res = calculate_annual_timing(dc_req)
+        dc_flags = _hitl_flags(dc_res)
+        dc_routing = _hitl_routing(dc_res)
+        dc_meta = _consensus_metadata(dc_res)
+
+        assert dc_flags.get("tradition_conflict") is True, (
+            f"TRADITION_CONFLICT_NOT_SET_FOR_DOMAIN_{conflicting_domain}"
+        )
+        assert dc_flags.get("required_human_review") is True, (
+            f"REQUIRED_HUMAN_REVIEW_NOT_SET_FOR_DOMAIN_{conflicting_domain}"
+        )
+        assert dc_routing.get("status") == "QUEUED_FOR_HUMAN_REVIEW", (
+            f"ROUTING_NOT_QUEUED_FOR_DOMAIN_{conflicting_domain}"
+        )
+        assert "tradition_conflict" in dc_routing.get("trigger_reasons", []), (
+            f"TRIGGER_REASON_TRADITION_CONFLICT_MISSING_FOR_{conflicting_domain}"
+        )
+        assert dc_meta.get("arbitration_status") == "ARBITRATED_WITH_CONFLICTS"
+        conflict_months = [c.get("month") for c in dc_meta.get("tradition_conflicts", [])]
+        assert 7 in conflict_months, f"MONTH_7_NOT_FOUND_IN_CONFLICT_MONTHS: {conflict_months}"
+
+    # 4. Test force review trigger: assert QUEUED_FOR_HUMAN_REVIEW and force_human_review=True
+    force_req = base_request.model_copy(update={"force_human_review": True})
+    force_res = calculate_annual_timing(force_req)
+    force_flags = _hitl_flags(force_res)
+    force_routing = _hitl_routing(force_res)
+
+    assert force_flags.get("force_human_review") is True, "FORCE_HUMAN_REVIEW_FLAG_NOT_TRUE"
+    assert force_flags.get("required_human_review") is True, "REQUIRED_HUMAN_REVIEW_NOT_TRUE_ON_FORCE"
+    assert force_routing.get("status") == "QUEUED_FOR_HUMAN_REVIEW", "ROUTING_STATUS_NOT_QUEUED_ON_FORCE"
+    assert "force_human_review" in force_routing.get("trigger_reasons", []), (
+        "TRIGGER_REASON_FORCE_HUMAN_REVIEW_MISSING"
+    )
+
+    # 5. Test uncertain birth time trigger: assert QUEUED_FOR_HUMAN_REVIEW and uncertain_birth_time=True
+    uncertain_req = UnifiedReadingRequest.model_validate(_phase_b_request_payload(unknown_hour=True))
+    uncertain_res = calculate_annual_timing(uncertain_req)
+    uncertain_flags = _hitl_flags(uncertain_res)
+    uncertain_routing = _hitl_routing(uncertain_res)
+
+    assert uncertain_flags.get("uncertain_birth_time") is True, "UNCERTAIN_BIRTH_TIME_FLAG_NOT_TRUE"
+    assert uncertain_flags.get("required_human_review") is True, "REQUIRED_HUMAN_REVIEW_NOT_TRUE_ON_UNCERTAIN_TIME"
+    assert uncertain_routing.get("status") == "QUEUED_FOR_HUMAN_REVIEW", "ROUTING_STATUS_NOT_QUEUED_ON_UNCERTAIN_TIME"
+    assert "uncertain_birth_time" in uncertain_routing.get("trigger_reasons", []), (
+        "TRIGGER_REASON_UNCERTAIN_BIRTH_TIME_MISSING"
+    )
+
+    # 6. Test clean baseline: assert NOT_REQUIRED strictly when no triggers are present
+    clean_claims = [
+        {
+            "month": month,
+            "tradition_claims": {
+                "thai_suriyayart": {
+                    "career_score": 7,
+                    "finance_score": 7,
+                    "love_score": 7,
+                    "claim": "high agreement thai transit claim",
+                },
+                "bazi_liu_yue": {
+                    "career_score": 7,
+                    "finance_score": 7,
+                    "love_score": 7,
+                    "claim": "high agreement bazi cycle claim",
+                },
+                "zi_wei": {
+                    "career_score": 7,
+                    "finance_score": 7,
+                    "love_score": 7,
+                    "claim": "high agreement zi wei star claim",
+                },
+            },
+        }
+        for month in range(1, 13)
+    ]
+    clean_req = base_request.model_copy(
+        update={
+            "force_human_review": False,
+            "unknown_hour": False,
+            "tradition_monthly_claims": clean_claims,
+            "consensus_fixture_id": "qa_clean_agreed_baseline_2026",
+        }
+    )
+    clean_res = calculate_annual_timing(clean_req)
+    clean_flags = _hitl_flags(clean_res)
+    clean_routing = _hitl_routing(clean_res)
+    clean_meta = _consensus_metadata(clean_res)
+
+    assert clean_flags.get("required_human_review") is False, "CLEAN_BASELINE_REQUIRED_HUMAN_REVIEW_MUST_BE_FALSE"
+    assert clean_flags.get("low_consensus") is False, "CLEAN_BASELINE_LOW_CONSENSUS_MUST_BE_FALSE"
+    assert clean_flags.get("tradition_conflict") is False, "CLEAN_BASELINE_TRADITION_CONFLICT_MUST_BE_FALSE"
+    assert clean_flags.get("conflict_detected") is False, "CLEAN_BASELINE_CONFLICT_DETECTED_MUST_BE_FALSE"
+    assert clean_flags.get("force_human_review") is False, "CLEAN_BASELINE_FORCE_HUMAN_REVIEW_MUST_BE_FALSE"
+    assert clean_flags.get("uncertain_birth_time") is False, "CLEAN_BASELINE_UNCERTAIN_BIRTH_TIME_MUST_BE_FALSE"
+    assert clean_routing.get("status") == "NOT_REQUIRED", "CLEAN_BASELINE_STATUS_MUST_BE_NOT_REQUIRED"
+    assert clean_routing.get("required_human_review") is False, "CLEAN_BASELINE_ROUTING_REQUIRED_MUST_BE_FALSE"
+    assert clean_routing.get("trigger_reasons") == [], f"CLEAN_BASELINE_TRIGGER_REASONS_NOT_EMPTY: {clean_routing.get('trigger_reasons')}"
+    assert clean_routing.get("reason") == "automated_synthesis_sufficient", (
+        f"CLEAN_BASELINE_REASON_UNEXPECTED: {clean_routing.get('reason')}"
+    )
+    assert clean_meta.get("arbitration_status") == "ARBITRATED", "CLEAN_BASELINE_STATUS_NOT_ARBITRATED"
+    assert clean_meta.get("tradition_conflicts") == [], "CLEAN_BASELINE_TRADITION_CONFLICTS_NOT_EMPTY"
+
+    # 7. Test live probe: assert metaphysical scope audit compliance with pass_gate_check=True
+    with TestClient(app) as client:
+        probe_response = client.get("/hitl/scope-audit?source_domain=metaphysical-domain-engine")
+        assert probe_response.status_code == 200, f"SCOPE_AUDIT_PROBE_HTTP_{probe_response.status_code}"
+        probe_data = probe_response.json()
+        assert probe_data.get("scope_domain") == "metaphysical-domain-engine", (
+            f"SCOPE_DOMAIN_MISMATCH: {probe_data.get('scope_domain')}"
+        )
+        summary = probe_data.get("summary", {})
+        assert summary.get("pass_gate_check") is True, f"SCOPE_AUDIT_PASS_GATE_CHECK_NOT_TRUE: {summary}"
+        assert summary.get("missing_required_human_gate") == 0, (
+            f"SCOPE_AUDIT_MISSING_GATE_VIOLATION: {summary.get('missing_required_human_gate')}"
+        )
+
+    # 8. Pessimistic Negative Controls: fail-closed schema validation on UnifiedReadingResponse
+    # 8a: Fail-closed trigger: if review is required, routing status CANNOT be NOT_REQUIRED
+    invalid_leak_response = _response_payload()
+    invalid_leak_response["hitl_flags"]["low_consensus"] = True
+    invalid_leak_response["hitl_flags"]["required_human_review"] = True
+    invalid_leak_response["hitl_routing"]["status"] = "NOT_REQUIRED"
+    with pytest.raises(ValidationError, match="HITL routing cannot be NOT_REQUIRED when review is required"):
+        UnifiedReadingResponse.model_validate(invalid_leak_response)
+
+    # 8b: Fail-closed trigger: if review is NOT required, routing status MUST be NOT_REQUIRED
+    invalid_block_response = _response_payload()
+    invalid_block_response["hitl_flags"]["low_consensus"] = False
+    invalid_block_response["hitl_flags"]["tradition_conflict"] = False
+    invalid_block_response["hitl_flags"]["force_human_review"] = False
+    invalid_block_response["hitl_flags"]["uncertain_birth_time"] = False
+    invalid_block_response["hitl_flags"]["required_human_review"] = False
+    invalid_block_response["consensus_metadata"]["consensus_score"] = 0.9
+    invalid_block_response["consensus_metadata"]["tradition_conflicts"] = []
+    invalid_block_response["hitl_routing"]["status"] = "QUEUED_FOR_HUMAN_REVIEW"
+    with pytest.raises(ValidationError, match="HITL routing status must be NOT_REQUIRED when review is not required"):
+        UnifiedReadingResponse.model_validate(invalid_block_response)
+
+
 def test_unified_reading_api_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     from fastapi.testclient import TestClient
 

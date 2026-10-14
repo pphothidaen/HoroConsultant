@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-002",
-  "sequence": 8,
+  "ticket_id": "TICKET-HLITE-003",
+  "sequence": 9,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "0fd05cefd6624a283019b2d7bb688c94f942c985",
+  "baseline_parent": "730d852641852d3caf2c2e0beb910aad2f5aae99",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "e1545b014f2cabce6e6d1de83e45d96ed3ec7002882a069859fe3fe158782f22"
+      "sha256": "0c1635a30d84395a3777049c0bed3865fc5adb13307428d293f10ae08b802e61"
     }
   ],
   "red_tests": [
@@ -18,21 +18,21 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_annual_timing_extreme_boundaries_and_determinism or test_annual_timing_unknown_hour_uncertainty_contract or test_past_pattern_infant_and_child_boundaries",
+        "test_horo_v3_consensus_arbitration_boundary_matrix or test_horo_v3_consensus_arbitration_and_hitl_triggers",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: INFANT_CHILD_CANDIDATES_NOT_EMPTY or ANNUAL_TIMING_BOUNDARY_LATENCY_VIOLATION or FALSE_PRECISION"
+      "failure_fingerprint": "AssertionError: LOW_CONSENSUS_FLAG_NOT_TRUE or TRADITION_CONFLICT_NOT_SET_FOR_DOMAIN or CLEAN_BASELINE_STATUS_MUST_BE_NOT_REQUIRED or SCOPE_AUDIT_PASS_GATE_CHECK_NOT_TRUE"
     }
   ],
   "allowed_source_paths": [
     "project/core/annual_timing_engine.py",
-    "project/core/past_pattern_calibrator.py",
-    "project/routers/unified_reading_router.py"
+    "project/debate/consensus_matrix.py",
+    "project/hitl_router.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "dad9a327e1d554bc0601b44cdef638cec4af2265",
-  "correction_reason": "Advance Horo Lite baseline from Phase A (TICKET-HLITE-001) to Phase B (TICKET-HLITE-002) deterministic annual timing and past-pattern calibration verification.",
-  "rationale": "Record verified test provenance baseline for Horo Lite Phase B (TICKET-HLITE-002) deterministic annual timing and past-pattern calibration in tests/test_horo_lite_unified_reading.py: boundary coordinates, boundary target years, 20-run bitwise determinism (<50ms SLA), unknown-hour uncertainty contracts (score ranges and non-HIGH confidence), infant/child boundary handling (<8 years), and pessimistic sensitive topic negative controls. Verification: 12/12 PASS on tests/test_horo_lite_unified_reading.py with zero regressions across bazi and kan120 suites."
+  "supersedes": "730d852641852d3caf2c2e0beb910aad2f5aae99",
+  "correction_reason": "Advance Horo Lite baseline from Phase B (TICKET-HLITE-002) to Phase C (TICKET-HLITE-003) multi-tradition consensus matrix arbitration and mandatory fail-closed HITL routing verification.",
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase C (TICKET-HLITE-003) multi-tradition consensus arbitration and fail-closed HITL routing in tests/test_horo_lite_unified_reading.py: boundary arbitration across thai_suriyayart, bazi_liu_yue, and zi_wei traditions over 12 months, low consensus (<0.75) queuing, isolated domain conflicts (career, finance, love), force_human_review flag, uncertain_birth_time flag, clean baseline status (NOT_REQUIRED), live probe passing against GET /hitl/scope-audit?source_domain=metaphysical-domain-engine (pass_gate_check=True), and fail-closed response schema validation. Verification: 13/13 PASS on tests/test_horo_lite_unified_reading.py."
 }
