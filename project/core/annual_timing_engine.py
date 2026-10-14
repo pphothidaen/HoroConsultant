@@ -56,7 +56,10 @@ def _request_seed(request: Any) -> int:
     birth = _birth_date(request)
     longitude_bucket = int(round((float(getattr(request, "longitude", 0.0)) + 180.0) * 10))
     latitude_bucket = int(round((float(getattr(request, "latitude", 0.0)) + 90.0) * 10))
-    unknown_hour = bool(getattr(request, "unknown_hour", False))
+    unknown_hour = (
+        bool(getattr(request, "unknown_hour", False))
+        or getattr(request, "birth_time", None) is None
+    )
     # When birth hour is unknown, ignore any supplied birth_time to ensure
     # scores are time-invariant.  Use the noon default (720 minutes // 30 = 24).
     if unknown_hour:
@@ -322,6 +325,7 @@ def calculate_annual_timing(request: Any) -> dict[str, Any]:
 
     return {
         "target_year": target_year,
+        "confidence": "ESTIMATED" if unknown_hour else "HIGH",
         "overall_confidence": "ESTIMATED" if unknown_hour else "HIGH",
         "monthly_scores": months,
         "engine_version": "annual_timing_bazi_transit.v2",

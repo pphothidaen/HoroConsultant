@@ -36,7 +36,10 @@ def _seed(request: Any) -> int:
     birth = _birth_date(request)
     longitude_bucket = int(round((float(getattr(request, "longitude", 0.0)) + 180.0) * 10))
     latitude_bucket = int(round((float(getattr(request, "latitude", 0.0)) + 90.0) * 10))
-    unknown_hour = bool(getattr(request, "unknown_hour", False))
+    unknown_hour = (
+        bool(getattr(request, "unknown_hour", False))
+        or getattr(request, "birth_time", None) is None
+    )
     # When birth hour is unknown, ignore any supplied birth_time to ensure
     # past-pattern candidates are time-invariant.
     if unknown_hour:
@@ -135,8 +138,17 @@ def generate_past_pattern_candidates(request: Any) -> dict[str, Any]:
             }
         )
 
+    insufficient_reason: str | None = None
+    if not candidates:
+        insufficient_reason = (
+            f"Person is approximately {target_year - birth.year} years old at target year "
+            f"{target_year}; insufficient history for past-pattern analysis "
+            f"(minimum age ~8 required)"
+        )
+
     return {
         "target_year": target_year,
         "candidates": candidates,
+        "insufficient_history_reason": insufficient_reason,
         "engine_version": "past_pattern_calibrator.v1",
     }

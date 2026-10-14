@@ -34,5 +34,5 @@
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "Record verified test provenance baseline for Horo Lite Phase B deterministic annual timing and past-pattern calibration in tests/test_horo_lite_unified_reading.py: boundary coordinates, boundary target years, 20-run bitwise determinism (<50ms SLA), unknown-hour uncertainty contracts (score ranges and non-HIGH confidence), infant/child boundary handling (<8 years), and pessimistic sensitive topic negative controls."
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase B deterministic annual timing and past-pattern calibration in tests/test_horo_lite_unified_reading.py: boundary coordinates, boundary target years, 20-run bitwise determinism (<50ms SLA), unknown-hour uncertainty contracts (score ranges and non-HIGH confidence), infant/child boundary handling (<8 years), and pessimistic sensitive topic negative controls. Verification: 12/12 PASS on tests/test_horo_lite_unified_reading.py with zero regressions across bazi and kan120 suites."
 }
