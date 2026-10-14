@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4ca3dd2d5f8d87a44c7888d796c52ffbdc9dae8c",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "23ee73df3d637d69b69eb900447d0c5c45f62f0679c59cbfa747777d2286c7fc"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_unified_reading_schema_contract or test_unified_reading_pessimistic_negative_controls",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ValidationError: Value error, Topics must match the canonical order"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/unified_reading_engine.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase A schema contracts (UnifiedReadingRequest, TopicModule, MonthlyScoreItem, PastPatternCandidate, UnifiedReadingResponse) in tests/test_horo_lite_unified_reading.py with pessimistic negative boundary controls and fail-closed HITL routing enforcement."
+}

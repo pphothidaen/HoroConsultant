@@ -429,6 +429,19 @@ def test_unified_reading_schema_contract() -> None:
     with pytest.raises(ValidationError):
         UnifiedReadingResponse.model_validate(invalid_topic_count)
 
+    invalid_topics_order = deepcopy(_response_payload())
+    invalid_topics_order["topics"][0], invalid_topics_order["topics"][1] = (
+        invalid_topics_order["topics"][1],
+        invalid_topics_order["topics"][0],
+    )
+    with pytest.raises(ValidationError, match="Topics must match the canonical order"):
+        UnifiedReadingResponse.model_validate(invalid_topics_order)
+
+    invalid_topic_sequence = deepcopy(_response_payload())
+    invalid_topic_sequence["topics"][1]["order"] = 1
+    with pytest.raises(ValidationError, match="Topic order must be exactly 1 through 12"):
+        UnifiedReadingResponse.model_validate(invalid_topic_sequence)
+
     invalid_score_bounds = deepcopy(_response_payload())
     invalid_score_bounds["monthly_scores"][0]["career_score"] = 0
     invalid_score_bounds["monthly_scores"][1]["finance_score"] = 11
@@ -447,8 +460,139 @@ def test_unified_reading_schema_contract() -> None:
     invalid_hitl_low_consensus["hitl_flags"]["low_consensus"] = True
     invalid_hitl_low_consensus["hitl_flags"]["required_human_review"] = True
     invalid_hitl_low_consensus["hitl_routing"]["status"] = "NOT_REQUIRED"
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match="HITL routing cannot be NOT_REQUIRED"):
         UnifiedReadingResponse.model_validate(invalid_hitl_low_consensus)
+
+    invalid_hitl_routing_mismatch = deepcopy(_response_payload())
+    invalid_hitl_routing_mismatch["hitl_routing"]["status"] = "QUEUED_FOR_HUMAN_REVIEW"
+    with pytest.raises(ValidationError, match="HITL routing status must be NOT_REQUIRED"):
+        UnifiedReadingResponse.model_validate(invalid_hitl_routing_mismatch)
+
+
+def test_unified_reading_pessimistic_negative_controls() -> None:
+    from project.core.unified_reading_engine import (
+        MonthlyScoreItem,
+        PastPatternCandidate,
+        TopicModule,
+        UnifiedReadingRequest,
+        UnifiedReadingResponse,
+    )
+
+    # 1. UnifiedReadingRequest boundary controls
+    future_birth = deepcopy(_request_payload())
+    future_birth["birth_date"] = "2030-01-01"
+    future_birth["target_year"] = 2026
+    with pytest.raises(ValidationError, match="must not be after target_year"):
+        UnifiedReadingRequest.model_validate(future_birth)
+
+    for invalid_lat in (-90.1, 90.1):
+        bad_lat = deepcopy(_request_payload())
+        bad_lat["latitude"] = invalid_lat
+        with pytest.raises(ValidationError):
+            UnifiedReadingRequest.model_validate(bad_lat)
+
+    for invalid_lon in (-180.1, 180.1):
+        bad_lon = deepcopy(_request_payload())
+        bad_lon["longitude"] = invalid_lon
+        with pytest.raises(ValidationError):
+            UnifiedReadingRequest.model_validate(bad_lon)
+
+    for invalid_year in (1899, 2201):
+        bad_year = deepcopy(_request_payload())
+        bad_year["target_year"] = invalid_year
+        with pytest.raises(ValidationError):
+            UnifiedReadingRequest.model_validate(bad_year)
+
+    # 2. TopicModule boundary controls
+    for bad_order in (0, 13):
+        bad_topic = deepcopy(_topic_modules()[0])
+        bad_topic["order"] = bad_order
+        with pytest.raises(ValidationError):
+            TopicModule.model_validate(bad_topic)
+
+    for bad_refs in ([], [""]):
+        bad_topic = deepcopy(_topic_modules()[0])
+        bad_topic["evidence_refs"] = bad_refs
+        with pytest.raises(ValidationError):
+            TopicModule.model_validate(bad_topic)
+
+    bad_conf = deepcopy(_topic_modules()[0])
+    bad_conf["confidence"] = "UNSURE"
+    with pytest.raises(ValidationError):
+        TopicModule.model_validate(bad_conf)
+
+    # 3. MonthlyScoreItem score bounds & range controls
+    for bad_score in (-1, 0, 11, 20):
+        bad_item = deepcopy(_monthly_scores()[0])
+        bad_item["career_score"] = bad_score
+        with pytest.raises(ValidationError):
+            MonthlyScoreItem.model_validate(bad_item)
+
+    for bad_range in ([9, 2], [0, 6], [5, 11], [5], [1, 2, 3]):
+        bad_range_item = deepcopy(_monthly_scores()[0])
+        bad_range_item["career_score_range"] = bad_range
+        with pytest.raises(ValidationError):
+            MonthlyScoreItem.model_validate(bad_range_item)
+
+    for bad_reasons in ([], ["  "]):
+        bad_reason_item = deepcopy(_monthly_scores()[0])
+        bad_reason_item["reasons"] = bad_reasons
+        with pytest.raises(ValidationError):
+            MonthlyScoreItem.model_validate(bad_reason_item)
+
+    bad_basis_item = deepcopy(_monthly_scores()[0])
+    bad_basis_item["score_basis"] = {}
+    with pytest.raises(ValidationError):
+        MonthlyScoreItem.model_validate(bad_basis_item)
+
+    # 4. PastPatternCandidate sensitive themes & range validation
+    forbidden_themes = ("illness", "trauma", "bereavement", "medical", "death", "pregnancy", "accident")
+    for theme in forbidden_themes:
+        bad_pattern = deepcopy(_past_patterns()[0])
+        bad_pattern["theme"] = theme
+        with pytest.raises(ValidationError, match="outside the non-sensitive allowlist"):
+            PastPatternCandidate.model_validate(bad_pattern)
+
+    inverted_year = deepcopy(_past_patterns()[0])
+    inverted_year["year_range"] = [2022, 2020]
+    with pytest.raises(ValidationError, match="year_range must be"):
+        PastPatternCandidate.model_validate(inverted_year)
+
+    inverted_age = deepcopy(_past_patterns()[0])
+    inverted_age["age_range"] = [32, 30]
+    with pytest.raises(ValidationError, match="age_range must be"):
+        PastPatternCandidate.model_validate(inverted_age)
+
+    invalid_feedback_options = deepcopy(_past_patterns()[0])
+    invalid_feedback_options["allowed_feedback"] = ["yes", "no"]
+    with pytest.raises(ValidationError, match="choices must match the contract"):
+        PastPatternCandidate.model_validate(invalid_feedback_options)
+
+    invalid_user_feedback = deepcopy(_past_patterns()[0])
+    invalid_user_feedback["user_feedback"] = "ไม่แน่ใจเลย"
+    with pytest.raises(ValidationError, match="feedback value is not allowed"):
+        PastPatternCandidate.model_validate(invalid_user_feedback)
+
+    # 5. Fail-closed HITL routing controls
+    for trigger_key in ("tradition_conflict", "force_human_review", "uncertain_birth_time"):
+        mismatched_hitl = deepcopy(_response_payload())
+        mismatched_hitl["hitl_flags"][trigger_key] = True
+        mismatched_hitl["hitl_flags"]["required_human_review"] = True
+        mismatched_hitl["hitl_routing"]["status"] = "NOT_REQUIRED"
+        with pytest.raises(ValidationError, match="HITL routing cannot be NOT_REQUIRED"):
+            UnifiedReadingResponse.model_validate(mismatched_hitl)
+
+    low_consensus_no_flag = deepcopy(_response_payload())
+    low_consensus_no_flag["consensus_metadata"]["consensus_score"] = 0.60
+    low_consensus_no_flag["hitl_flags"]["required_human_review"] = False
+    with pytest.raises(ValidationError, match="HITL review must be required"):
+        UnifiedReadingResponse.model_validate(low_consensus_no_flag)
+
+    # 6. Immutable LLM facts guard
+    mutable_llm = deepcopy(_response_payload())
+    mutable_llm["llm_metadata"]["facts_mutable_by_llm"] = True
+    with pytest.raises(ValidationError, match="deterministic facts immutable"):
+        UnifiedReadingResponse.model_validate(mutable_llm)
 
 
 def test_deterministic_annual_timing_12_months() -> None:
