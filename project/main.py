@@ -1,5 +1,5 @@
 """
-project/main.py — FastAPI Application Entry Point
+project/main.py -- FastAPI Application Entry Point
 Computational Metaphysics Engine
 """
 
@@ -97,7 +97,7 @@ async def lifespan(app: FastAPI):
         from project.core.observability import periodic_grafana_metrics_worker
         interval = int(os.getenv("GRAFANA_EXPORT_INTERVAL_SECONDS", "300"))
         asyncio.create_task(periodic_grafana_metrics_worker(interval_seconds=interval))
-        logger.info(f"📊 Started Periodic Grafana Metrics Exporter (Interval: {interval}s)")
+        logger.info(f"[METRICS] Started Periodic Grafana Metrics Exporter (Interval: {interval}s)")
 
     yield
 
