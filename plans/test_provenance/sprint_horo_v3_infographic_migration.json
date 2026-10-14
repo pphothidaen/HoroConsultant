@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-004",
-  "sequence": 10,
+  "ticket_id": "TICKET-HLITE-005",
+  "sequence": 11,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "8767a28b7f8f48db9c9173c4d3352d9ae67db968",
+  "baseline_parent": "ae4d5469f575c4bcfe3840906ca7dc44efe874ce",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "77aee45a0de1fad9803d4e29f3ef7fa73aa9e8d8258e6dca4de9db8f2a85dcff"
+      "sha256": "beb7b2cc319ace01076338e82ae001afbbcb0c66ac08a16a8c795e30c8310505"
     }
   ],
   "red_tests": [
@@ -18,22 +18,21 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_unified_reading_api_endpoint_extended_matrix",
+        "test_lite_form_dom_contract or test_lite_form_accessibility_and_dom_negative_matrix",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: UNIFIED_READING_LATENCY_EXCEEDED_300MS or Canonical topic sequence mismatch or Expected HTTP 422 or QUEUED_FOR_HUMAN_REVIEW"
+      "failure_fingerprint": "AssertionError: LITE_FORM_UNLABELLED_CONTROL or LITE_FORM_PRIMARY_ACTION_BUTTON_MISSING or LITE_FORM_SINGLE_SUBMIT_ACTION_VIOLATION or LITE_FORM_PRIMARY_ACTION_TEXT_MISMATCH or LITE_FORM_ADVANCED_DISCLOSURE_MUST_BE_COLLAPSED or LITE_FORM_BIRTH_DATE_CONTROL_MISSING_OR_UNBOUND or LITE_FORM_DANGLING_LABEL_TARGET"
     }
   ],
   "allowed_source_paths": [
-    "project/routers/unified_reading_router.py",
-    "project/routers/v3_engine_router.py",
-    "api/index.js",
-    "project/main.py"
+    "public/lite.html",
+    "public/lite.css",
+    "public/lite.js"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "8767a28b7f8f48db9c9173c4d3352d9ae67db968",
-  "correction_reason": "Advance Horo Lite baseline from Phase C (TICKET-HLITE-003) to Phase D (TICKET-HLITE-004) Unified Reading API Router and deterministic copy transformer contract verification.",
-  "rationale": "Record verified test provenance baseline for Horo Lite Phase D (TICKET-HLITE-004) Unified Reading API router and copy transformer in tests/test_horo_lite_unified_reading.py: POST /api/v3/unified-reading contract verification via FastAPI TestClient, deterministic latency SLA (<300ms), 12 canonical topics in exact sequence (CANONICAL_TOPIC_IDS), 12 monthly scores in range [1..10] with reasons, non-sensitive past patterns (0..5 candidates) with child boundary calibration, HTTP 422 Unprocessable Entity error boundary matrix (future birth relative to target year, invalid latitude/longitude coordinates, invalid target year), fail-closed HITL routing triggers (force_human_review=True, unknown_hour=True) resolving to QUEUED_FOR_HUMAN_REVIEW, and LLM facts immutability (facts_mutable_by_llm=False). Verification: 14/14 PASS on tests/test_horo_lite_unified_reading.py, zero regressions across test suite (6/6 PASS Node gateway contract, 5/5 PASS KAN-120 suite)."
+  "supersedes": "ae4d5469f575c4bcfe3840906ca7dc44efe874ce",
+  "correction_reason": "Advance Horo Lite baseline from Phase D (TICKET-HLITE-004) to Phase E (TICKET-HLITE-005) Form & Single-Action Flow DOM, contract, and accessibility verification.",
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase E (TICKET-HLITE-005) Form & Single-Action Flow DOM and accessibility contract verification in tests/test_horo_lite_unified_reading.py: Clean single-column form structure (<form id='lite-form' class='lite-form'>, <main class='lite-shell' aria-labelledby='page-title'>, semantic sections), required inputs contract (birth date with bday autocomplete, birth time picker, unknown hour checkbox toggle with aria-describedby hint element, birthplace search with geocoding datalist autocomplete, gender selector with canonical options, target year with bounds [1900..2200]), collapsed-by-default Advanced disclosure (<details class='advanced-panel'> containing raw coordinates, timezone, engine_mode), single primary submit button ('คำนวณผังดวง & ตีความด้วย AI' with id='submit-reading'), universal accessible labelling contract for all form controls (label[for], aria-label, aria-labelledby) with zero dangling label targets, responsive CSS single-column layout rule, JS single API target (/api/v3/unified-reading) without duplicated local astrology logic, physical static asset verification (lite.html, lite.css, lite.js, export_engine.js, export_modal.css, app.js), HTTP route status 200 contract with non-empty payload, and comprehensive fail-closed pessimistic negative control matrix across all DOM failure modes. Verification: 15/15 PASS on tests/test_horo_lite_unified_reading.py, zero regressions across test suite."
 }

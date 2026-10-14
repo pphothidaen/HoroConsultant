@@ -39,10 +39,12 @@ class _LiteHtmlParser(HTMLParser):
         self._stack: list[int] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        parent_tags = [self.elements[idx]["tag"] for idx in self._stack]
         element = {
             "tag": tag.lower(),
             "attrs": {name.lower(): value or "" for name, value in attrs},
             "text": "",
+            "parent_tags": parent_tags,
         }
         self.elements.append(element)
         if tag.lower() not in {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}:
@@ -1571,6 +1573,230 @@ def test_unified_reading_api_endpoint_extended_matrix(monkeypatch: pytest.Monkey
             assert llm_meta.get("deterministic_facts_source") == "project.core.annual_timing_engine"
 
 
+def _audit_lite_form_dom(
+    html: str,
+    css: str | None = None,
+    js: str | None = None,
+) -> dict[str, Any]:
+    parser = _parse_lite_html(html)
+
+    # 1. Single-column clean form structure & landmarks
+    forms = [
+        el for el in parser.elements
+        if el["tag"] == "form" and el["attrs"].get("id") == "lite-form"
+    ]
+    assert len(forms) == 1, (
+        f"LITE_FORM_ELEMENT_MISSING_OR_DUPLICATE: found {len(forms)} form elements with id='lite-form'"
+    )
+    form_el = forms[0]
+    assert "lite-form" in form_el["attrs"].get("class", ""), "LITE_FORM_CLASS_MISSING"
+
+    mains = [el for el in parser.elements if el["tag"] == "main"]
+    assert len(mains) == 1, f"LITE_MAIN_LANDMARK_MISSING: found {len(mains)} main tags"
+    assert "lite-shell" in mains[0]["attrs"].get("class", ""), "LITE_MAIN_CLASS_MISSING"
+    assert mains[0]["attrs"].get("aria-labelledby") or mains[0]["attrs"].get("aria-label"), (
+        "LITE_MAIN_ACCESSIBLE_LANDMARK_NAME_MISSING"
+    )
+
+    form_sections = [
+        el for el in parser.elements
+        if el["tag"] == "section" and "form" in el.get("parent_tags", [])
+    ]
+    assert len(form_sections) >= 2, "LITE_FORM_SECTIONS_MISSING: expected >= 2 form sections"
+    for sec in form_sections:
+        assert sec["attrs"].get("aria-labelledby") or sec["attrs"].get("aria-label"), (
+            "LITE_FORM_SECTION_LANDMARK_ACCESSIBILITY_MISSING"
+        )
+
+    # 2. Required inputs verification
+    label_targets = _label_targets(parser)
+
+    # 2a. Birth date (date type, required, autocomplete=bday)
+    birth_date = _find_control(
+        parser,
+        field_name="birth_date",
+        tokens=("birth_date", "birth-date", "birthdate"),
+        types=("date",),
+    )
+    assert "required" in birth_date["attrs"], "LITE_FORM_BIRTH_DATE_REQUIRED_MISSING"
+    assert birth_date["attrs"].get("autocomplete") in {"bday", ""}, (
+        "LITE_FORM_BIRTH_DATE_AUTOCOMPLETE_UNEXPECTED"
+    )
+
+    # 2b. Time picker with unknown hour toggle
+    birth_time = _find_control(
+        parser,
+        field_name="birth_time",
+        tokens=("birth_time", "birth-time", "birthtime"),
+        types=("time",),
+    )
+    assert _control_is_accessibly_labelled(birth_time, parser, label_targets), (
+        "LITE_FORM_BIRTH_TIME_ACCESSIBLE_LABEL_MISSING"
+    )
+
+    unknown_time = _find_control(
+        parser,
+        field_name="unknown_birth_time",
+        tokens=("unknown_hour", "unknown-time", "unknown_birth_time", "unknownbirthtime"),
+        types=("checkbox",),
+    )
+    hint_id = unknown_time["attrs"].get("aria-describedby")
+    assert hint_id, "LITE_FORM_UNKNOWN_HOUR_HINT_DESCRIPTOR_MISSING"
+    assert any(el["attrs"].get("id") == hint_id for el in parser.elements), (
+        f"LITE_FORM_UNKNOWN_HOUR_HINT_ELEMENT_NOT_FOUND: {hint_id}"
+    )
+
+    # 2c. Birthplace search with geocoding datalist / autocomplete
+    birth_place = _find_control(
+        parser,
+        field_name="birthplace_geocoding",
+        tokens=("birth_place", "birth-place", "birthplace", "location", "geocode", "place-search"),
+        types=("search", "text"),
+    )
+    assert "required" in birth_place["attrs"], "LITE_FORM_BIRTHPLACE_REQUIRED_MISSING"
+    datalist_id = birth_place["attrs"].get("list")
+    assert datalist_id, "LITE_FORM_BIRTHPLACE_GEOCODING_DATALIST_MISSING"
+    assert any(
+        el["tag"] == "datalist" and el["attrs"].get("id") == datalist_id
+        for el in parser.elements
+    ), f"LITE_FORM_BIRTHPLACE_DATALIST_TARGET_MISSING: {datalist_id}"
+
+    # 2d. Gender selector
+    gender = _find_control(
+        parser,
+        field_name="gender",
+        tokens=("gender", "sex"),
+        tags=("select", "input"),
+    )
+    if gender["tag"] == "select":
+        options = [
+            el["attrs"].get("value")
+            for el in parser.elements
+            if el["tag"] == "option" and el["attrs"].get("value")
+        ]
+        assert "female" in options and "male" in options, "LITE_FORM_GENDER_CANONICAL_OPTIONS_MISSING"
+
+    # 2e. Target year
+    target_year = _find_control(
+        parser,
+        field_name="target_year",
+        tokens=("target_year", "target-year", "targetyear", "year"),
+        types=("number", "text"),
+    )
+    assert "required" in target_year["attrs"], "LITE_FORM_TARGET_YEAR_REQUIRED_MISSING"
+    if "min" in target_year["attrs"] and "max" in target_year["attrs"]:
+        assert int(target_year["attrs"]["min"]) <= 1900, "LITE_FORM_TARGET_YEAR_MIN_INVALID"
+        assert int(target_year["attrs"]["max"]) >= 2200, "LITE_FORM_TARGET_YEAR_MAX_INVALID"
+
+    # 3. Advanced disclosure for raw longitude/latitude/timezone/engine
+    details_blocks = _details_blocks(parser)
+    assert details_blocks, "LITE_FORM_ADVANCED_DETAILS_DISCLOSURE_MISSING"
+    for block in details_blocks:
+        assert "open" not in block["attrs"], "LITE_FORM_ADVANCED_DISCLOSURE_MUST_BE_COLLAPSED"
+
+    advanced_panel = [
+        el for el in details_blocks
+        if "advanced" in el["attrs"].get("class", "").lower() or "advanced" in _attr_blob(el)
+    ]
+    assert advanced_panel, "LITE_FORM_ADVANCED_PANEL_CLASS_MISSING"
+    summaries = [
+        el for el in parser.elements
+        if el["tag"] == "summary" and "details" in el.get("parent_tags", [])
+    ]
+    assert summaries, "LITE_FORM_ADVANCED_SUMMARY_MISSING"
+
+    for raw_field, raw_types in (
+        ("latitude", ("number", "text")),
+        ("longitude", ("number", "text")),
+        ("timezone", ("text",)),
+        ("engine_mode", None),
+    ):
+        ctrl = _find_control(
+            parser,
+            field_name=f"advanced_{raw_field}",
+            tokens=(raw_field, raw_field.replace("_", "-")),
+            tags=("input", "select"),
+            types=raw_types,
+        )
+        assert "details" in ctrl.get("parent_tags", []), (
+            f"LITE_FORM_ADVANCED_CONTROL_{raw_field.upper()}_NOT_INSIDE_DETAILS"
+        )
+
+    # 4. Single primary submit button ("คำนวณผังดวง & ตีความด้วย AI")
+    submit_buttons = [
+        el for el in parser.elements
+        if el["tag"] == "button"
+        and "form" in el.get("parent_tags", [])
+        and el["attrs"].get("type", "submit") == "submit"
+    ]
+    assert len(submit_buttons) > 0, "LITE_FORM_PRIMARY_ACTION_BUTTON_MISSING"
+    assert len(submit_buttons) == 1, (
+        f"LITE_FORM_SINGLE_SUBMIT_ACTION_VIOLATION: expected exactly 1 submit button, got {len(submit_buttons)}"
+    )
+    primary_btn = submit_buttons[0]
+    btn_text = primary_btn["text"].strip()
+    assert "คำนวณผังดวง & ตีความด้วย AI" in btn_text, (
+        f"LITE_FORM_PRIMARY_ACTION_TEXT_MISMATCH: expected 'คำนวณผังดวง & ตีความด้วย AI' in '{btn_text}'"
+    )
+
+    # 5. Accessibility: all form controls must be accessibly labelled
+    form_controls = [
+        el for el in parser.elements
+        if el["tag"] in {"input", "select", "textarea"}
+        and "form" in el.get("parent_tags", [])
+        and el["attrs"].get("type") != "hidden"
+    ]
+    assert len(form_controls) >= 8, f"LITE_FORM_EXPECTED_MIN_8_CONTROLS: got {len(form_controls)}"
+    for ctrl in form_controls:
+        ctrl_id = ctrl["attrs"].get("id")
+        ctrl_name = ctrl["attrs"].get("name")
+        assert ctrl_id, f"LITE_FORM_CONTROL_MISSING_ID: tag={ctrl['tag']}"
+        assert ctrl_name, f"LITE_FORM_CONTROL_MISSING_NAME: id={ctrl_id}"
+        assert _control_is_accessibly_labelled(ctrl, parser, label_targets), (
+            f"LITE_FORM_UNLABELLED_CONTROL: <{ctrl['tag']} id='{ctrl_id}' name='{ctrl_name}'> missing accessible label"
+        )
+
+    all_element_ids = {el["attrs"]["id"] for el in parser.elements if el["attrs"].get("id")}
+    for label_target in label_targets:
+        assert label_target in all_element_ids, (
+            f"LITE_FORM_DANGLING_LABEL_TARGET: label for='{label_target}' points to non-existent ID"
+        )
+
+    # 6. CSS contract verification (if provided)
+    if css is not None:
+        css_lower = css.lower()
+        has_focus = ":focus" in css_lower or ":focus-visible" in css_lower
+        assert has_focus, "LITE_CSS_ACCESSIBLE_FOCUS_STYLE_MISSING"
+        has_responsive_single_col = bool(
+            re.search(r"@media[^{]*\{[^}]*grid-template-columns\s*:\s*1fr", css_lower)
+            or re.search(r"grid-template-columns\s*:\s*1fr", css_lower)
+        )
+        assert has_responsive_single_col, "LITE_CSS_RESPONSIVE_SINGLE_COLUMN_RULE_MISSING"
+
+    # 7. JS contract verification (if provided)
+    if js is not None:
+        assert "/api/v3/unified-reading" in js, "LITE_JS_UNIFIED_READING_API_CALL_MISSING"
+        forbidden_local_logic = {
+            "calcFourPillars",
+            "calculate_annual_timing",
+            "calculateAnnualTiming",
+            "generate_past_pattern_candidates",
+        }
+        for fn in forbidden_local_logic:
+            assert fn not in js, f"LITE_JS_LOCAL_ASTROLOGY_LOGIC_DUPLICATED: {fn}"
+        assert not re.search(r"for\s*\([^)]*month[^)]*<=\s*12[^)]*\).*score", js, re.I | re.S), (
+            "LITE_JS_DIRECT_MONTHLY_SCORING_LOOP_DETECTED"
+        )
+
+    return {
+        "status": "PASS",
+        "form_id": form_el["attrs"]["id"],
+        "controls_verified_count": len(form_controls),
+        "submit_button_text": btn_text,
+        "details_blocks_count": len(details_blocks),
+    }
+
+
 def test_lite_form_dom_contract() -> None:
     lite_html_path = PUBLIC_DIR / "lite.html"
     lite_css_path = PUBLIC_DIR / "lite.css"
@@ -1583,134 +1809,123 @@ def test_lite_form_dom_contract() -> None:
     html = lite_html_path.read_text(encoding="utf-8")
     css = lite_css_path.read_text(encoding="utf-8")
     js = lite_js_path.read_text(encoding="utf-8")
-    parser = _parse_lite_html(html)
 
-    stylesheet_hrefs = [
-        element["attrs"].get("href", "")
-        for element in parser.elements
-        if element["tag"] == "link"
-        and "stylesheet" in element["attrs"].get("rel", "").lower()
-    ]
-    script_srcs = [
-        element["attrs"].get("src", "")
-        for element in parser.elements
-        if element["tag"] == "script"
-    ]
-    assert any(href.endswith("lite.css") for href in stylesheet_hrefs), (
-        "LITE_HTML_STYLESHEET_REFERENCE_MISSING"
-    )
-    assert any(src.endswith("lite.js") for src in script_srcs), "LITE_HTML_SCRIPT_REFERENCE_MISSING"
+    # 1. Execute full DOM, contract, and accessibility audit on actual production assets
+    receipt = _audit_lite_form_dom(html, css, js)
+    assert receipt["status"] == "PASS"
+    assert receipt["form_id"] == "lite-form"
+    assert receipt["controls_verified_count"] >= 8
+    assert "คำนวณผังดวง & ตีความด้วย AI" in receipt["submit_button_text"]
 
-    birth_date = _find_control(
-        parser,
-        field_name="birth_date",
-        tokens=("birth_date", "birth-date", "birthdate"),
-        types=("date",),
+    # 2. Negative controls: verify fail-closed rejection on invalid markup
+    # 2a. Rejection of unlabelled input control
+    unlabelled_markup = html.replace(
+        "</form>",
+        '<div class="field"><input id="unlabelled_rogue" name="unlabelled_rogue" type="text"></div></form>',
     )
-    assert birth_date["attrs"].get("autocomplete") in {"bday", ""}, (
-        "LITE_FORM_BIRTH_DATE_AUTOCOMPLETE_UNEXPECTED"
-    )
-    _find_control(
-        parser,
-        field_name="birth_time",
-        tokens=("birth_time", "birth-time", "birthtime"),
-        types=("time",),
-    )
-    _find_control(
-        parser,
-        field_name="unknown_birth_time",
-        tokens=("unknown_hour", "unknown-time", "unknown_birth_time", "unknownbirthtime"),
-        types=("checkbox",),
-    )
-    _find_control(
-        parser,
-        field_name="birthplace_geocoding",
-        tokens=("birth_place", "birth-place", "birthplace", "location", "geocode", "place-search"),
-        types=("search", "text"),
-    )
-    _find_control(
-        parser,
-        field_name="gender",
-        tokens=("gender", "sex"),
-        tags=("select", "input"),
-    )
-    _find_control(
-        parser,
-        field_name="target_year",
-        tokens=("target_year", "target-year", "targetyear", "year"),
-        types=("number", "text"),
-    )
+    with pytest.raises(AssertionError, match="LITE_FORM_UNLABELLED_CONTROL"):
+        _audit_lite_form_dom(unlabelled_markup, css, js)
 
-    optional_profile_controls = [
-        element
-        for element in parser.elements
-        if element["tag"] in {"input", "textarea"}
-        and any(
-            token in _attr_blob(element)
-            for token in (
-                "display_name",
-                "display-name",
-                "displayname",
-                "focus_question",
-                "focus-question",
-                "primary_focus_question",
-            )
-        )
-    ]
-    label_targets = _label_targets(parser)
-    for control in optional_profile_controls:
-        assert control["attrs"].get("id") and control["attrs"].get("name"), (
-            "LITE_FORM_OPTIONAL_PROFILE_CONTROL_ID_NAME_MISSING"
-        )
-        assert _control_is_accessibly_labelled(control, parser, label_targets), (
-            "LITE_FORM_OPTIONAL_PROFILE_CONTROL_ACCESSIBLE_LABEL_MISSING"
-        )
+    # 2b. Rejection of missing primary action submit button
+    no_btn_markup = re.sub(r'<button id="submit-reading"[^>]*>.*?</button>', '', html, flags=re.DOTALL)
+    with pytest.raises(AssertionError, match="LITE_FORM_PRIMARY_ACTION_BUTTON_MISSING"):
+        _audit_lite_form_dom(no_btn_markup, css, js)
 
-    advanced_blocks = _details_blocks(parser)
-    assert advanced_blocks, "LITE_FORM_ADVANCED_DETAILS_DISCLOSURE_MISSING"
-    advanced_text = "\n".join(
-        f"{block['text']} {' '.join(block['attrs'].values())}".lower()
-        for block in advanced_blocks
-        if "open" not in block["attrs"]
+    # 2c. Rejection of multiple submit actions (single primary action enforcement)
+    multi_btn_markup = html.replace(
+        "</button>",
+        '</button><button id="submit-secondary" name="submit-secondary" type="submit">คำนวณผังดวง &amp; ตีความด้วย AI สำรอง</button>',
     )
-    for token in ("latitude", "longitude", "timezone"):
-        assert token in advanced_text, f"LITE_FORM_ADVANCED_{token.upper()}_NOT_COLLAPSED"
-    assert "engine" in advanced_text or "advanced" in advanced_text or "การคำนวณ" in advanced_text, (
-        "LITE_FORM_ADVANCED_ENGINE_CONTROLS_NOT_COLLAPSED"
-    )
+    with pytest.raises(AssertionError, match="LITE_FORM_SINGLE_SUBMIT_ACTION_VIOLATION"):
+        _audit_lite_form_dom(multi_btn_markup, css, js)
 
-    button_texts = [
-        element["text"].strip()
-        for element in parser.elements
-        if element["tag"] == "button"
-    ]
-    assert any("คำนวณผังดวง & ตีความด้วย AI" in text for text in button_texts), (
-        "LITE_FORM_PRIMARY_ACTION_TEXT_MISSING"
-    )
+    # 2d. Rejection of mismatching primary action text
+    wrong_text_markup = html.replace("คำนวณผังดวง &amp; ตีความด้วย AI", "Submit Astrology Reading")
+    with pytest.raises(AssertionError, match="LITE_FORM_PRIMARY_ACTION_TEXT_MISMATCH"):
+        _audit_lite_form_dom(wrong_text_markup, css, js)
 
-    assert "/api/v3/unified-reading" in js, "LITE_JS_UNIFIED_READING_API_CALL_MISSING"
-    forbidden_local_logic = {
-        "calcFourPillars",
-        "calculate_annual_timing",
-        "calculateAnnualTiming",
-        "generate_past_pattern_candidates",
-    }
-    for function_name in forbidden_local_logic:
-        assert function_name not in js, f"LITE_JS_LOCAL_ASTROLOGY_LOGIC_DUPLICATED: {function_name}"
-    assert not re.search(r"for\s*\([^)]*month[^)]*<=\s*12[^)]*\).*score", js, re.I | re.S), (
-        "LITE_JS_DIRECT_MONTHLY_SCORING_LOOP_DETECTED"
-    )
+    # 2e. Rejection of advanced disclosure open by default
+    open_adv_markup = html.replace('<details class="advanced-panel">', '<details class="advanced-panel" open>')
+    with pytest.raises(AssertionError, match="LITE_FORM_ADVANCED_DISCLOSURE_MUST_BE_COLLAPSED"):
+        _audit_lite_form_dom(open_adv_markup, css, js)
 
-    css_lower = css.lower()
-    has_focus_style = ":focus" in css_lower or ":focus-visible" in css_lower
-    has_high_contrast_style = bool(
-        re.search(r"color\s*:\s*#[0-9a-f]{3,6}", css_lower)
-        and re.search(r"background(?:-color)?\s*:\s*#[0-9a-f]{3,6}", css_lower)
-        and re.search(r"border(?:-color)?\s*:\s*#[0-9a-f]{3,6}", css_lower)
+    # 2f. Rejection of missing required inputs (e.g. birth_date)
+    missing_birth_date = re.sub(r'<input id="birth_date"[^>]*>', '', html)
+    with pytest.raises(AssertionError, match="LITE_FORM_BIRTH_DATE_CONTROL_MISSING_OR_UNBOUND"):
+        _audit_lite_form_dom(missing_birth_date, css, js)
+
+    # 2g. Rejection of dangling label target
+    dangling_label_markup = html.replace('id="gender_at_birth"', 'id="gender_renamed"')
+    with pytest.raises(AssertionError, match="LITE_FORM_DANGLING_LABEL_TARGET|LITE_FORM_GENDER_CONTROL_MISSING_OR_UNBOUND"):
+        _audit_lite_form_dom(dangling_label_markup, css, js)
+
+
+def test_lite_form_accessibility_and_dom_negative_matrix() -> None:
+    lite_html_path = PUBLIC_DIR / "lite.html"
+    lite_css_path = PUBLIC_DIR / "lite.css"
+    lite_js_path = PUBLIC_DIR / "lite.js"
+
+    html = lite_html_path.read_text(encoding="utf-8")
+    css = lite_css_path.read_text(encoding="utf-8")
+    js = lite_js_path.read_text(encoding="utf-8")
+
+    # 1. Main landmark and form landmark fail-closed guards
+    no_form = html.replace('<form id="lite-form"', '<div id="lite-form"')
+    with pytest.raises(AssertionError, match="LITE_FORM_ELEMENT_MISSING_OR_DUPLICATE"):
+        _audit_lite_form_dom(no_form, css, js)
+
+    no_form_class = html.replace('class="lite-form"', 'class="generic-form"')
+    with pytest.raises(AssertionError, match="LITE_FORM_CLASS_MISSING"):
+        _audit_lite_form_dom(no_form_class, css, js)
+
+    no_main = html.replace('<main class="lite-shell"', '<div class="lite-shell"')
+    with pytest.raises(AssertionError, match="LITE_MAIN_LANDMARK_MISSING"):
+        _audit_lite_form_dom(no_main, css, js)
+
+    # 2. Unlabelled textarea and select controls
+    unlabelled_textarea = html.replace(
+        '<label for="primary_focus_question">คำถามที่อยากโฟกัส</label>', ''
     )
-    assert has_focus_style or has_high_contrast_style, (
-        "LITE_CSS_ACCESSIBLE_FOCUS_OR_HIGH_CONTRAST_STYLE_MISSING"
+    with pytest.raises(AssertionError, match="LITE_FORM_UNLABELLED_CONTROL"):
+        _audit_lite_form_dom(unlabelled_textarea, css, js)
+
+    unlabelled_select = html.replace(
+        '<label for="gender_at_birth">เพศกำเนิด</label>', ''
+    ).replace('aria-label="เพศกำเนิด"', '')
+    with pytest.raises(AssertionError, match="LITE_FORM_GENDER_ACCESSIBLE_LABEL_MISSING|LITE_FORM_UNLABELLED_CONTROL"):
+        _audit_lite_form_dom(unlabelled_select, css, js)
+
+    rogue_unlabelled_select = html.replace(
+        '</form>',
+        '<div class="field"><select id="rogue_select" name="rogue_select"><option value="1">1</option></select></div></form>',
     )
+    with pytest.raises(AssertionError, match="LITE_FORM_UNLABELLED_CONTROL"):
+        _audit_lite_form_dom(rogue_unlabelled_select, css, js)
+
+    # 3. Control missing id or name attribute
+    missing_name = html.replace('name="birth_date"', '')
+    with pytest.raises(AssertionError, match="LITE_FORM_CONTROL_MISSING_NAME|LITE_FORM_BIRTH_DATE_CONTROL_MISSING_OR_UNBOUND"):
+        _audit_lite_form_dom(missing_name, css, js)
+
+    # 4. Geocoding datalist target missing
+    missing_datalist = re.sub(r'<datalist id="thai-place-defaults">.*?</datalist>', '', html, flags=re.DOTALL)
+    with pytest.raises(AssertionError, match="LITE_FORM_BIRTHPLACE_DATALIST_TARGET_MISSING"):
+        _audit_lite_form_dom(missing_datalist, css, js)
+
+    # 5. Target year boundary bounds corruption
+    invalid_min_year = html.replace('min="1900"', 'min="1950"')
+    with pytest.raises(AssertionError, match="LITE_FORM_TARGET_YEAR_MIN_INVALID"):
+        _audit_lite_form_dom(invalid_min_year, css, js)
+
+    # 6. Advanced panel summary missing
+    no_summary = re.sub(r'<summary>.*?</summary>', '', html)
+    with pytest.raises(AssertionError, match="LITE_FORM_ADVANCED_SUMMARY_MISSING"):
+        _audit_lite_form_dom(no_summary, css, js)
+
+    # 7. Advanced panel required raw control missing (timezone)
+    missing_tz = re.sub(r'<input id="timezone"[^>]*>', '', html)
+    with pytest.raises(AssertionError, match="LITE_FORM_ADVANCED_TIMEZONE_CONTROL_MISSING_OR_UNBOUND"):
+        _audit_lite_form_dom(missing_tz, css, js)
 
 
 def test_lite_routes_and_assets_respond_200(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1722,6 +1937,26 @@ def test_lite_routes_and_assets_respond_200(monkeypatch: pytest.MonkeyPatch) -> 
 
     from project.main import app
 
+    # 1. Physical static asset verification: files exist, are regular files, non-empty, and load cleanly
+    static_assets = {
+        "lite.html": ("<!doctype html>", "<main class=\"lite-shell\"", "<form id=\"lite-form\""),
+        "lite.css": (":root", ".lite-form", ":focus"),
+        "lite.js": ("/api/v3/unified-reading",),
+        "export_engine.js": ("window.horoLiteExport",),
+        "export_modal.css": (":root",),
+        "app.js": ("function",),
+    }
+
+    for file_name, required_tokens in static_assets.items():
+        file_path = PUBLIC_DIR / file_name
+        assert file_path.exists(), f"STATIC_ASSET_MISSING: public/{file_name} must exist"
+        assert file_path.is_file(), f"STATIC_ASSET_NOT_FILE: public/{file_name} is not a regular file"
+        content = file_path.read_text(encoding="utf-8")
+        assert len(content.strip()) > 0, f"STATIC_ASSET_EMPTY: public/{file_name} must not be empty"
+        for token in required_tokens:
+            assert token in content, f"STATIC_ASSET_TOKEN_MISSING: public/{file_name} missing '{token}'"
+
+    # 2. HTTP route and asset response verification
     endpoint_expectations = [
         ("/lite", "text/html"),
         ("/lite.css", "text/css"),
@@ -1734,11 +1969,12 @@ def test_lite_routes_and_assets_respond_200(monkeypatch: pytest.MonkeyPatch) -> 
     with TestClient(app) as client:
         for endpoint, expected_mime in endpoint_expectations:
             response = client.get(endpoint)
-            assert response.status_code == 200, f"{endpoint}_HTTP_STATUS_NOT_200"
+            assert response.status_code == 200, f"{endpoint}_HTTP_STATUS_NOT_200: got {response.status_code}"
             content_type = response.headers.get("content-type", "")
             assert re.search(re.escape(expected_mime), content_type, re.I), (
-                f"{endpoint}_CONTENT_TYPE_MISSING: {content_type}"
+                f"{endpoint}_CONTENT_TYPE_MISSING: expected {expected_mime}, got {content_type}"
             )
+            assert len(response.text.strip()) > 0, f"{endpoint}_RESPONSE_BODY_EMPTY"
 
 
 def test_export_formats_and_privacy_default() -> None:
