@@ -23,7 +23,7 @@ def _numeric_scores(value: Any) -> list[float]:
 
     scores: list[float] = []
     for key, item in value.items():
-        if key.endswith("_score") and isinstance(item, int | float):
+        if key.endswith("_score") and isinstance(item, int | float) and not isinstance(item, bool):
             scores.append(float(item))
         elif isinstance(item, dict):
             scores.extend(_numeric_scores(item))
@@ -46,7 +46,9 @@ def _extract_domain_scores(
             continue
         for domain in _DOMAIN_KEYS:
             val = claim.get(domain)
-            if isinstance(val, int | float):
+            if val is None and domain.endswith("_score"):
+                val = claim.get(domain[:-6])
+            if isinstance(val, int | float) and not isinstance(val, bool):
                 domain_scores[domain].append(float(val))
     return domain_scores
 
@@ -55,7 +57,7 @@ def _domain_agreement(scores: list[float], total_traditions: int) -> float:
     """Agreement for a single domain across traditions.
 
     * If fewer than 2 numeric scores exist the domain has missing evidence
-      and agreement is unknown — returns 0.5 (below the 0.75 HITL threshold)
+      and agreement is unknown -- returns 0.5 (below the 0.75 HITL threshold)
       to force human review rather than certifying high agreement.
     * If some but not all traditions contributed, agreement is capped at 0.85.
     * Otherwise, 1 - spread/10 (clamped to [0, 1]).
@@ -64,7 +66,7 @@ def _domain_agreement(scores: list[float], total_traditions: int) -> float:
         # Missing evidence: agreement is unknown, not high
         return 0.5
     if len(scores) < total_traditions:
-        # Some traditions missing — cap agreement below full certainty
+        # Some traditions missing -- cap agreement below full certainty
         spread = max(scores) - min(scores)
         return min(0.85, max(0.0, 1.0 - (spread / 10.0)))
     spread = max(scores) - min(scores)

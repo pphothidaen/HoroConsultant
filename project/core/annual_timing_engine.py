@@ -116,10 +116,14 @@ def _build_hitl_payload(
     unknown_hour: bool,
     seed: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    consensus_score = float(metadata["consensus_score"])
-    tradition_conflict = bool(metadata["tradition_conflicts"])
+    consensus_score = float(metadata.get("consensus_score", 0.0))
+    tradition_conflict = bool(metadata.get("tradition_conflicts"))
     force_human_review = bool(getattr(request, "force_human_review", False))
-    uncertain_birth_time = unknown_hour
+    uncertain_birth_time = bool(
+        unknown_hour
+        or getattr(request, "unknown_hour", False)
+        or getattr(request, "birth_time", None) is None
+    )
     low_consensus = consensus_score < 0.75
     required_human_review = (
         low_consensus
