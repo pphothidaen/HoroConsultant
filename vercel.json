@@ -4,6 +4,10 @@
   "buildCommand": "",
   "outputDirectory": "public",
   "installCommand": "",
+  "redirects": [
+    {"source": "/", "destination": "/lite.html", "permanent": false},
+    {"source": "/lite", "destination": "/lite.html", "permanent": false}
+  ],
   "rewrites": [
     {"source": "/", "destination": "/lite.html"},
     {"source": "/advanced", "destination": "/index.html"},
