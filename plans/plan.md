@@ -1,10 +1,10 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
-## Sprint: Horo Lite Full Reading & Infographic Synthesis — Phase B: Deterministic Annual-Timing & Past Pattern Calibration — 2026-10-14
+## Sprint: Horo Lite Full Reading & Infographic Synthesis — Phase B: Deterministic Annual-Timing & Past Pattern Calibration (COMPLETED) & Phase C Ready — 2026-10-14
 
-Status: Phase A DONE (TICKET-HLITE-001 & TICKET-HLITE-001-QA 100% verified); Phase B DOING (TICKET-HLITE-002 & TICKET-HLITE-002-QA active)
-Task ID: `TICKET-HLITE-002`
-Lane ID: `LANE-HLITE-MGMT-003` / `LANE-HLITE-CORE-002` / `TICKET-HLITE-002-QA`
+Status: Phase A DONE; Phase B DONE (TICKET-HLITE-002 & TICKET-HLITE-002-QA 100% verified); Phase C READY (Pending Owner Authorization)
+Task ID: `TICKET-HLITE-002-CLOSEOUT` / `TICKET-HLITE-003`
+Lane ID: `LANE-HLITE-MGMT-004`
 Authorized By: Owner explicit authorization ("approve to start and delegate for Phase B")
 
 ### 1. Executive Summary & Sprint Goal
@@ -33,19 +33,21 @@ Establish a strict, auditable timing and calibration model supporting:
 |---|---|---|---|
 | **TICKET-HLITE-001** | Phase A (`developer_core`) | Implement versioned Pydantic schemas (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`) in `project/core/unified_reading_engine.py` | `DONE` (Pydantic v2 schemas hardened; 12 canonical topics order, 1-10 monthly scores, non-sensitive past patterns, fail-closed HITL routing validated; 9/9 and 24/24 tests PASS; verified provenance) |
 | **TICKET-HLITE-001-QA** | Phase A (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` against schema definitions | `DONE` (Pessimistic negative control tests in `tests/test_horo_lite_unified_reading.py`; 9/9 tests PASS 100%; 24/24 combined tests PASS; test provenance manifests verified; AI ecosystem sync clean) |
-| **TICKET-HLITE-002** | Phase B (`developer_core`) | Deterministic annual timing (`project/core/annual_timing_engine.py`), past pattern candidate generation (`project/core/past_pattern_calibrator.py`), and BaZi helper functions (`project/core/bazi.py`) | `DOING` (In Progress; assigned `developer_core`) |
-| **TICKET-HLITE-002-QA** | Phase B (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for deterministic 12-month annual timing and past pattern candidate generation | `DOING` (In Progress; paired QA lane) |
+| **TICKET-HLITE-002** | Phase B (`developer_core`) | Deterministic annual timing (`project/core/annual_timing_engine.py`), past pattern candidate generation (`project/core/past_pattern_calibrator.py`), and BaZi helper functions (`project/core/bazi.py`) | `DONE` (Deterministic annual timing & past pattern calibrator implemented; 12 months scores in [1, 10]; 3-5 non-sensitive patterns; unknown_hour score ranges; commit `99050d0a`; latency < 0.2ms [SLA < 50ms]) |
+| **TICKET-HLITE-002-QA** | Phase B (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for deterministic 12-month annual timing and past pattern candidate generation | `DONE` (12/12 tests PASS in `tests/test_horo_lite_unified_reading.py`; 31/31 combined regression PASS; baseline commit `0ab80c1a`; verified provenance `ticket-hlite-002-timing-baseline.json` & sequence 8) |
+| **TICKET-HLITE-003** | Phase C (`developer_core`) | Horo v3.0 multi-tradition consensus arbitration & mandatory fail-closed HITL routing integration | `READY` (Pending Owner Authorization) |
+| **TICKET-HLITE-003-QA** | Phase C (`qa_tester`) | Verify contract tests in `tests/test_horo_lite_unified_reading.py` for consensus arbitration and HITL triggers | `READY` (Pending Owner Authorization) |
 
-### 4. Definition of Done (Phase B — In Progress)
-1. Deterministic annual timing engine implemented in `project/core/annual_timing_engine.py` producing 12 months of Career, Finance, and Love scores bounded in [1, 10] with traceable reasons.
-2. Past pattern calibrator implemented in `project/core/past_pattern_calibrator.py` generating 3-5 non-sensitive past pattern candidates (education, work-role change, relocation, financial pressure).
-3. `unknown_hour=True` handling reduces factors cleanly and outputs valid score ranges without false precision.
-4. Core execution runtime verified <50ms.
-5. `tests/test_horo_lite_unified_reading.py` test contracts pass 100% (`test_deterministic_annual_timing_12_months`, `test_past_pattern_candidate_generation`).
-6. Test provenance manifest updated and verified.
-7. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+### 4. Definition of Done (Phase B — COMPLETED)
+1. Deterministic annual timing engine implemented in `project/core/annual_timing_engine.py` producing 12 months of Career, Finance, and Love scores bounded in [1, 10] with traceable reasons. [OK]
+2. Past pattern calibrator implemented in `project/core/past_pattern_calibrator.py` generating 3-5 non-sensitive past pattern candidates (education, work-role change, relocation, financial pressure). [OK]
+3. `unknown_hour=True` handling reduces factors cleanly and outputs valid score ranges without false precision. [OK]
+4. Core execution runtime verified <0.2ms (well within SLA <50ms). [OK]
+5. `tests/test_horo_lite_unified_reading.py` test contracts pass 100% (12/12 tests PASS). [OK]
+6. Test provenance manifests updated and verified (`ticket-hlite-002-timing-baseline.json` and `sprint_horo_v3_infographic_migration.json` sequence 8). [OK]
+7. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 5. Definition of Done (Phase A) — COMPLETED
+### 5. Definition of Done (Phase A — COMPLETED)
 1. Versioned Pydantic schemas (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`) defined in `project/core/unified_reading_engine.py`. [OK]
 2. Field validation rules enforce:
    - Canonical 12 topics ordering and structure. [OK]
@@ -55,7 +57,24 @@ Establish a strict, auditable timing and calibration model supporting:
 3. Contract tests in `tests/test_horo_lite_unified_reading.py` pass 100% (9/9 PASS). [OK]
 4. Zero regressions in legacy test suites (24/24 PASS) and pure ASCII logging throughout. [OK]
 
-### 6. Empirical Verification & Evidence — Phase A Closeout
+### 6. Empirical Verification & Evidence — Phase B Closeout
+- [OK] **Deterministic Annual Timing & Past Pattern Engine (`developer_core`)**:
+  - Implemented `project/core/annual_timing_engine.py` producing 12 months of Career, Finance, and Love scores bounded in [1, 10] with traceable reasons based on Thai Suriyayart transit cycles and BaZi 60-JiaZi monthly pillars.
+  - Implemented `project/core/past_pattern_calibrator.py` and `project/core/bazi.py` generating 3-5 non-sensitive past pattern candidates (education, career shift, relocation, financial pressure) strictly excluding sensitive trauma categories.
+  - Handled `unknown_hour=True` factor reduction, score ranges, and uncertainty indicators without false precision.
+  - Feature implementation committed at `99050d0af002d57bd60428b2f8b0ae73c57c0225`.
+- [OK] **Test Contracts, Boundaries & Latency SLA (`qa_tester`)**:
+  - Contract baseline frozen at commit `0ab80c1ac0837488bbc2de26400d48cb02ea2378`.
+  - Added boundary tests (`test_annual_timing_extreme_boundaries_and_determinism`, `test_annual_timing_unknown_hour_uncertainty_contract`, `test_past_pattern_infant_and_child_boundaries`).
+  - Unit & contract test pass rate: 12/12 tests in `tests/test_horo_lite_unified_reading.py` PASS (100%).
+  - Combined regression suite: 31/31 tests PASS with zero regressions.
+  - Core Latency SLA: Verified < 0.2ms (well within < 50ms SLA threshold; 20-run bitwise determinism confirmed).
+- [OK] **Test Provenance & Ecosystem Integrity**:
+  - Provenance manifests verified: `plans/test_provenance/ticket-hlite-002-timing-baseline.json` (sequence 1, VERIFIED) and `plans/test_provenance/sprint_horo_v3_infographic_migration.json` (sequence 8, VERIFIED).
+  - Executed AI Agent Ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`): Exit code 0 (100% clean).
+  - All logs and manifests adhere to pure ASCII tags ([OK], [INFO], [WARNING], [ERROR]).
+
+### 7. Empirical Verification & Evidence — Phase A Closeout
 - [OK] **Hardened Pydantic v2 Schemas (`developer_core`)**:
   - Implemented versioned schemas in `project/core/unified_reading_engine.py` (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`).
   - Strict validators enforce 12 canonical topic modules sequence, monthly score range [1, 10] with non-empty rationale, and non-sensitive past pattern candidate categories.
@@ -71,19 +90,29 @@ Establish a strict, auditable timing and calibration model supporting:
   - Executed `python3 scripts/sync_ai_agent_ecosystem.py --check`: Exit code 0 (100% clean).
   - Verified pure ASCII output throughout.
 
-### 7. Definition of Ready (Phase B — TICKET-HLITE-002) — MET & AUTHORIZED
-1. **Schema Contract Foundation**: Versioned schemas (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`) in `project/core/unified_reading_engine.py` verified and frozen. [OK]
-2. **Provenance Baseline Verified**: `plans/test_provenance/ticket-hlite-001-schema-contract-baseline.json` and `sprint_horo_v3_infographic_migration.json` verified. [OK]
-3. **Single-Editor Resource Boundary Assigned**: [OK]
-   - `developer_core`: `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`, `project/core/bazi.py`
+### 8. Definition of Ready (Phase C — TICKET-HLITE-003) — READY FOR OWNER AUTHORIZATION
+1. **Phase B Baseline Preconditions**:
+   - Phase B deterministic annual timing and past pattern calibration fully implemented and verified. [OK]
+   - 12/12 tests PASS in `tests/test_horo_lite_unified_reading.py` and 31/31 combined regression suite PASS. [OK]
+   - Test provenance manifests verified (`ticket-hlite-002-timing-baseline.json` and `sprint_horo_v3_infographic_migration.json` sequence 8). [OK]
+2. **Consensus Arbitration & HITL Contract Definition**:
+   - Multi-tradition cross-validation: Thai Suriyayart transit calculations arbitrated with BaZi Liu Yue 60-JiaZi monthly cycles via `project/debate/consensus_matrix.py`.
+   - Mandatory fail-closed HITL routing: Automatically queue payload to `/hitl/queue` (`hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`) when:
+     a. `consensus_score < 0.75`.
+     b. Detected tradition conflicts between Thai Suriyayart and BaZi.
+     c. `force_human_review = True`.
+     d. `unknown_hour = True` with factor reduction exceeding certainty thresholds.
+   - Live probe maintenance: `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine` must maintain `pass_gate_check = true`.
+3. **Single-Editor Resource Boundaries**:
+   - `developer_core`: `project/core/unified_reading_engine.py`, `project/hitl_router.py`, `project/debate/consensus_matrix.py`
    - `qa_tester`: `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`
    - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
-4. **Execution Invariants & Acceptance Contract**: [OK]
-   - Exactly 12 months with Career, Finance, and Love scores bounded strictly in [1, 10] and traceable rationale.
-   - 3-5 non-sensitive candidate past patterns within valid age/year ranges (education, work-role change, relocation, financial pressure); zero sensitive trauma categories.
-   - `unknown_hour=True` factor reduction and score ranges.
-   - Core runtime target <50ms.
-5. **Precondition Gate**: Owner explicit authorization confirmed ("approve to start and delegate for Phase B"). [OK]
+4. **Performance & Latency SLA**:
+   - Multi-tradition consensus calculation + HITL routing evaluation must execute within SLA (<100ms).
+5. **Pure ASCII Policy**:
+   - All execution traces, logs, and evidence manifests must use pure ASCII tags ([OK], [INFO], [WARNING], [ERROR]).
+6. **Precondition Gate**:
+   - Requires explicit owner authorization ("approve to start and delegate for Phase C") prior to initiating implementation.
 
 ---
 
@@ -1302,7 +1331,7 @@ graph TD
 **Recorded**: `2026-09-04T15:18:27+07:00` (Asia/Bangkok)
 **Status**: `APPROVED`
 **Requirement-change authority**: Owner prompt command dated `2026-09-04`; Owner authorization for Phase A dated `2026-10-14`; Owner explicit authorization for Phase B ("approve to start and delegate for Phase B") dated `2026-10-14`.
-**Authorized current phase**: Phase A DONE (TICKET-HLITE-001 complete and verified); Phase B DOING (TICKET-HLITE-002 & TICKET-HLITE-002-QA active) on 2026-10-14.
+**Authorized current phase**: Phase A DONE (TICKET-HLITE-001 complete and verified); Phase B DONE (TICKET-HLITE-002 & TICKET-HLITE-002-QA complete and verified); Phase C READY (Pending Owner Authorization) on 2026-10-14.
 **Canonical Ticket Registry**: See [`ATOMIC_TICKET.md`](../ATOMIC_TICKET.md#sprint-sprint-horo-v3-infographic-20260904----horo-lite-unified-consensus-reading--mobile-infographic-synthesis) for active ticket status, exclusive ownership, and acceptance criteria.
 **Canonical Intake Report**: See [`plans/intake/sprint_horo_v3_infographic_migration.md`](intake/sprint_horo_v3_infographic_migration.md) for 9-dimension grill assessment and HITL scope audit evidence.
 **Implementation Plan**: See [`docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md`](../docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md) for TDD steps, failing/passing tests, and verification matrix.
