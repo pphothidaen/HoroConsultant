@@ -2,7 +2,7 @@
 
 ## Sprint: Horo Lite Default Landing Page & Clean Routing — 2026-10-14
 
-Status: DOING (Phase 1 & Phase 2 DONE; Phase 3 READY)
+Status: DONE (All 3 sprint tickets DONE, PR #201 squash-merged to main, live edge routing verified 100%)
 Task ID: `TICKET-PLAN-DEFAULT-HOROLITE-001`
 Lane ID: `TICKET-PLAN-DEFAULT-HOROLITE-001-LANE`
 
@@ -37,7 +37,7 @@ Lane ID: `TICKET-PLAN-DEFAULT-HOROLITE-001-LANE`
 |---|---|---|---|
 | **TICKET-UI-DEFAULT-HOROLITE-01-ROUTING** | Phase 1 (`developer`) | Configure Vercel redirects for `/` and `/lite` to `/lite.html` in `vercel.json` while keeping existing API rewrites intact; update `tests/test_kan120_default_page_horo_lite.py` | `DONE` |
 | **TICKET-UI-DEFAULT-HOROLITE-02-VERIFY** | Phase 2 (`qa_tester`) | Execute test suite: `pytest tests/test_kan120_default_page_horo_lite.py`, Node contract tests (`npm test` 76/76 PASS), and AI ecosystem integrity sync | `DONE` |
-| **TICKET-UI-DEFAULT-HOROLITE-03-RELEASE** | Phase 3 (`devops`) | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`) | `READY` |
+| **TICKET-UI-DEFAULT-HOROLITE-03-RELEASE** | Phase 3 (`devops`) | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`) | `DONE` |
 
 ### 5. Definition of Done (Sprint)
 1. `vercel.json` configures edge routing so `/` and `/lite` route to `/lite.html`, and `/advanced` routes to `/index.html`.

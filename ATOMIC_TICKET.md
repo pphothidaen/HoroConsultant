@@ -17,7 +17,7 @@ Shared interface contract [FROZEN]:
 |---|---|---|---|---|
 | `TICKET-UI-DEFAULT-HOROLITE-01-ROUTING` | `DONE` (`vercel.json` edge redirects configured for `/` and `/lite` to `/lite.html`; `tests/test_kan120_default_page_horo_lite.py` updated); developer | Configure edge redirects for `/` and `/lite` to `/lite.html` in `vercel.json` while maintaining existing `rewrites` array intact; update test assertions in `tests/test_kan120_default_page_horo_lite.py`. Exclusive scope: `vercel.json`, `tests/test_kan120_default_page_horo_lite.py`. | Dependencies: None. Acceptance MET: `vercel.json` updated with edge redirects for `/` and `/lite` to `/lite.html` preserving existing API proxy rewrites intact; `tests/test_kan120_default_page_horo_lite.py` updated with `test_vercel_redirects_root_and_lite` asserting redirect rules. Zero regressions. | `frontend-modernization`, `sdlc-aisdlc-workflow` |
 | `TICKET-UI-DEFAULT-HOROLITE-02-VERIFY` | `DONE` (6/6 pytest PASS, 76/76 Node contract PASS, ecosystem sync clean); qa_tester | Execute full test validation: `pytest tests/test_kan120_default_page_horo_lite.py`, Node contract tests (`npm test` 76/76 PASS), and AI ecosystem sync check. Exclusive scope: Test verification and provenance. | Dependencies: `TICKET-UI-DEFAULT-HOROLITE-01-ROUTING`. Acceptance MET: 6/6 pytest passed (100%), 76/76 Node.js Vercel contract tests passed (100%), `python3 scripts/sync_ai_agent_ecosystem.py --check` exited 0 (100% clean). Pure ASCII test logs; zero regressions in route handling. | `qa-regression-provenance`, `qa-api-ui-e2e` |
-| `TICKET-UI-DEFAULT-HOROLITE-03-RELEASE` | `READY`; devops | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`). Exclusive scope: Git PR lifecycle and Vercel production verification. | Dependencies: `TICKET-UI-DEFAULT-HOROLITE-02-VERIFY`. Acceptance: PR merged into `main`; GitHub Actions CI/CD passes; Vercel deployment returns HTTP 200 on `/`, `/lite.html`, and `/advanced`, and cleanly handles `/lite` without 404. Stop condition: 404 on `/lite` or CI/CD gate failure halts promotion. | `devops-deployment`, `github-pr-automation` |
+| `TICKET-UI-DEFAULT-HOROLITE-03-RELEASE` | `DONE` (PR #201 merged d2dc5caa; CI/CD Run 38570439856 PASS; Vercel Deploy Run 38570481454 PASS; live edge verified); devops | Branch creation, atomic commit, PR lifecycle, trigger CI/CD, merge to `main`, and perform live endpoint verification on production Vercel deployment (`/`, `/lite`, `/lite.html`, `/advanced`). Exclusive scope: Git PR lifecycle and Vercel production verification. | Dependencies: `TICKET-UI-DEFAULT-HOROLITE-02-VERIFY`. Acceptance MET: PR #201 squash-merged into main at commit d2dc5caa; 1-branch invariant preserved (ephemeral branch deleted, origin pruned); CI/CD & DoD Production Gate run 38570439856 passed 5/5 criteria (100% SUCCESS); Vercel Production Deploy run 38570481454 passed (100% SUCCESS); Empirical edge endpoints verified: `/` -> 307 to `/lite.html`, `/lite` -> 307 to `/lite.html` (zero 404), `/lite.html` -> 200 OK, `/advanced` -> 200 OK (Advanced Dashboard); Kapture MCP visual audit confirmed Horo Lite rendering on root URL. | `devops-deployment`, `github-pr-automation` |
 
 **Definition of Done (Sprint)**:
 1. `vercel.json` updated with edge redirects for `/` and `/lite` to `/lite.html` with all API rewrites intact.
@@ -34,8 +34,17 @@ Shared interface contract [FROZEN]:
   - `pytest tests/test_kan120_default_page_horo_lite.py`: 6/6 tests PASS (100%).
   - Node.js contract tests (`npm test`): 76/76 tests PASS (100%).
   - AI ecosystem integrity check (`python3 scripts/sync_ai_agent_ecosystem.py --check`): Exit code 0 (100% clean).
-- [INFO] Transition to Phase 3 Release (TICKET-UI-DEFAULT-HOROLITE-03-RELEASE):
-  - Dependencies satisfied. Ticket transitioned to `READY` for devops specialist to execute branch creation, PR lifecycle, CI/CD validation, merge to `main`, and live production endpoint verification.
+- [OK] Production Release & Live Edge Verification (TICKET-UI-DEFAULT-HOROLITE-03-RELEASE):
+  - PR #201 (`[KAN-120] feat(ui): configure edge redirects to make Horo Lite default landing page`) squash-merged into `main` at commit `d2dc5caa`.
+  - Repository branch hygiene maintained: ephemeral branch deleted, `origin` pruned (1-branch invariant preserved).
+  - CI/CD & DoD Production Gate (Run 38570439856) passed 5/5 criteria (100% SUCCESS).
+  - Vercel Production Deploy (Run 38570481454) passed (100% SUCCESS).
+  - Live Edge Endpoint Verification:
+    * `https://horo-consultant-psi.vercel.app/` -> HTTP 307 redirect to `/lite.html` (Horo Lite default view).
+    * `https://horo-consultant-psi.vercel.app/lite` -> HTTP 307 redirect to `/lite.html` (no 404).
+    * `https://horo-consultant-psi.vercel.app/lite.html` -> HTTP 200 OK (direct Horo Lite).
+    * `https://horo-consultant-psi.vercel.app/advanced` -> HTTP 200 OK (Advanced BaZi dashboard).
+  - Kapture MCP visual audit confirmed Horo Lite rendering cleanly on root URL.
 
 ---
 
