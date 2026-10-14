@@ -40,7 +40,8 @@ Synchronize Doppler `horo-consultant/prd` secrets with GitHub Actions secrets, v
 | **TICKET-CF-03-CI-WORKFLOW-VALIDATION** | Phase 3 (`qa_tester`) | Validate 4 GitHub Actions workflows (`workers-builds.yml`, `workers-hermes.yml`, `workers-gemini.yml`, `workers-aipass.yml`) via `npx wrangler deploy --dry-run` and bundle artifact inspection | `DONE` (4/4 workflows verified with valid bundles; Exit Code 0 dry-runs across all workflows; 58/58 tests PASS) |
 | **TICKET-CF-04-REGRESSION-SUITE-VERIFY** | Phase 3 (`qa_tester`) | Execute pytest regression suite: `tests/test_kan269_worker_entrypoint_consolidation.py`, `tests/test_cloudflare_deploy.py`, `tests/test_wrangler_hermes.py` (100% pass rate) | `DONE` (35/35 tests PASS) |
 | **TICKET-CF-05-DEPLOY-ROUTING-SCRIPT** | Phase 2 (`developer`) | Harden `scripts/deploy-worker.sh` for multi-account routing (`hermes`, `gemini`, `aipass`), runner environment token mapping (`CLOUDFLARE_API_TOKEN`), and fail-closed preflight checks | `DONE` (`scripts/deploy-worker.sh` hardened with `--check`, root/horo routing, token fallback) |
-| **TICKET-DOCS-INDEX-SYNC-001** | Phase 4 (`devops`) | Synchronize `docs/INDEX.md` with 5 Jira documents, refresh PR #192 from latest `main` without `[skip ci]`, trigger automated code review, squash-merge to `main`, and verify DoD gate | `TODO` |
+| **TICKET-DOCS-INDEX-SYNC-001** | Phase 4 (`devops`) | Synchronize `docs/INDEX.md` with 5 Jira documents, refresh PR from latest `main` without `[skip ci]`, trigger automated code review, squash-merge to `main`, and verify DoD gate | `DONE` (Merged via PRs #196, #197; DoD Gate Run 38517954767 PASS) |
+| **TICKET-CLEANUP-MERGED-BRANCHES-001** | Phase 5 (`devops`) | Safely prune 5 local and 6 remote merged branches, verify zero unmerged commit loss, verify repository hygiene and production CI/CD | `DONE` (Audit Pass: 5 local & 6 remote branches purged; main/origin/main clean; Run 38517954767 & Vercel Run 38517972407 GREEN) |
 
 ### 5. Empirical Verification & HITL Unblock Pathways (TICKET-CF-01)
 
@@ -97,15 +98,23 @@ Synchronize Doppler `horo-consultant/prd` secrets with GitHub Actions secrets, v
 
 ### 8. Final DoD Gate Resolution — Documentation Index Synchronization (TICKET-DOCS-INDEX-SYNC-001)
 
-[WARNING] **DoD Gate Failure Root Cause**:
-- `python3 scripts/verify_doc_index.py` failed on `main` due to 5 Jira documents added in PR #180 (`docs/jira/FINAL_SUMMARY.md`, `api_token_setup.md`, `remaining_ui_tasks.md`, `rest_api_workflow.md`, `twg_commands_reference.md`) missing from `docs/INDEX.md`.
-- PR #192 attempted remediation using `[skip ci]`, which caused `auto-code-review.yml` to be skipped and left `reviewDecision` as `REVIEW_REQUIRED`.
+[OK] **DoD Gate Resolution & Integration Evidence**:
+- `docs/INDEX.md` synchronized with all 5 Jira markdown documents from PR #180.
+- Rebased and integrated via PRs #196 (`fix/workflow-inventory-assertions`) and #197 (`feat/index-md-update-origin`), cleanly merged to `origin/main`.
+- Stale superseded PRs #191-#195 closed.
+- Production CI/CD and DoD Production Gate (Run 38517954767) on `origin/main` (commit `faa50637`) PASSED (100% GREEN).
 
-[INFO] **Resolution Plan & Execution Scope**:
-- Update `docs/INDEX.md` to index all 5 Jira markdown documents.
-- Refresh / rebase PR #192 from latest `main` without `[skip ci]` tag.
-- Trigger full CI/CD suite and ensure `auto-code-review.yml` runs and reaches `APPROVED`.
-- Squash-merge PR #192 into `main` and execute DoD production gate verification.
+### 9. Branch Cleanup & Hygiene Phase (TICKET-CLEANUP-MERGED-BRANCHES-001)
+
+[OK] **Branch Integration Audit**:
+- Prerequisite branches (`feat/cf-multi-account-pipeline`, `fix/index-md-jira-docs`, `fix/workflow-inventory-assertions`, `fix/index-md-final*`, `feat/index-md-update-origin`) 100% incorporated and merged into `origin/main` via PRs #190, #196, and #197.
+- Zero pending diffs or unmerged unique commits.
+
+[OK] **AUDIT PASS (`ba_auditor`) & Completion Evidence**:
+- 5 local branches purged: `feat/index-md-update-origin`, `fix/index-md-final`, `fix/index-md-final-pr`, `fix/index-md-final-v2`, `fix/update-index-md`.
+- 6 remote merged branches purged: `origin/feat/cf-multi-account-pipeline`, `origin/feat/index-md-update-origin`, `origin/fix/index-md-final`, `origin/fix/index-md-final-pr`, `origin/fix/index-md-jira-docs`, `origin/fix/workflow-inventory-assertions`.
+- Branch registry clean: only `main` (local) and `origin/main` (remote) exist. Zero unmerged commits lost.
+- Production verification: DoD Gate Run 38517954767 and Vercel Deploy Run 38517972407 verified green.
 
 ---
 
