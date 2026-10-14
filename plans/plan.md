@@ -61,6 +61,9 @@ Synchronize Doppler `horo-consultant/prd` secrets with GitHub Actions secrets, v
 - **Option A (Recommended)**: Account `bda49e4e77e00609cb1ef68561b0d9eb` invites `gemini.web.bridge@gmail.com` as Administrator. Once accepted, the existing token ("Hermes CI Workers Deployment") automatically gains access to account `bda49e4e77e00609cb1ef68561b0d9eb` without requiring re-creation.
 - **Option B**: User switches Cloudflare login session in Chrome to `pansakorn.pho@gmail.com`, then Kapture MCP generates the token directly under that account.
 
+[WARNING] **Kapture MCP Invitation Polling (Tab 562588142)**:
+- Checked `/user/invites` (0 pending invites found). `TICKET-CF-01` remains isolated as `BLOCKED_HITL`, waiting for owner `pansakorn.pho@gmail.com` to invite `gemini.web.bridge@gmail.com` as Administrator via Cloudflare Members Management (`https://dash.cloudflare.com/bda49e4e77e00609cb1ef68561b0d9eb/members`).
+
 ### 6. Empirical Verification & Evidence — Gemini Bridge Pipeline & Secrets
 
 [OK] **GitHub Secrets Sync (devops)**:
@@ -115,6 +118,25 @@ Synchronize Doppler `horo-consultant/prd` secrets with GitHub Actions secrets, v
 - 6 remote merged branches purged: `origin/feat/cf-multi-account-pipeline`, `origin/feat/index-md-update-origin`, `origin/fix/index-md-final`, `origin/fix/index-md-final-pr`, `origin/fix/index-md-jira-docs`, `origin/fix/workflow-inventory-assertions`.
 - Branch registry clean: only `main` (local) and `origin/main` (remote) exist. Zero unmerged commits lost.
 - Production verification: DoD Gate Run 38517954767 and Vercel Deploy Run 38517972407 verified green.
+
+### 10. Post-Merge Governance & Production Gate Verification (PR #198)
+
+[OK] **Pull Request #198 Lifecycle**:
+- PR URL: https://github.com/pphothidaen/HoroConsultant/pull/198 (`[KAN-181] chore(governance): record branch cleanup completion and brainstorm decision record`)
+- Status: MERGED & CLOSED (Squash & Merge) into `origin/main` at commit SHA `35260419` (`35260419e4f5597a76082982d6143c7b6059d6e4`).
+- Files Merged: `ATOMIC_TICKET.md`, `plans/plan.md`, `brainstorm_decision_kan_181.md`.
+
+[OK] **Branch Registry Invariant & Hygiene**:
+- Branch `chore/governance-branch-cleanup-sync` purged from remote `origin` and pruned locally (`git remote prune origin`).
+- Clean Registry Invariant: Exactly 1 branch (`main` / `origin/main`) remains active across local and remote.
+- Working Tree: Clean, synchronized at `35260419`.
+
+[OK] **Production CI/CD & DoD Verification on `origin/main`**:
+- DoD Production Gate (Run 38520764812): SUCCESS (5/5 criteria passed: Test Provenance Guard, Test suite, Index.md up-to-date, Rust-Python route sync contract, ALL CRITERIA PASSED).
+- Vercel Production Deploy (Run 38520791199): SUCCESS (deployed to `https://horo-consultant-psi.vercel.app`).
+- Unified CI & Quality Audit Pipeline (Run 38520067165): SUCCESS.
+- Gitleaks Secret Scan (Run 38520067182): SUCCESS (0 leaks).
+- AI Agent Ecosystem Sync (Run 38520067147): SUCCESS (100% agent/skill sync).
 
 ---
 
