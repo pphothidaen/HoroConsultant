@@ -39,6 +39,7 @@ Shared interface contract [FROZEN]:
 - [INFO] Unblock Options for TICKET-CF-01:
   - Option A (Recommended): Account `bda49e4e77e00609cb1ef68561b0d9eb` invites `gemini.web.bridge@gmail.com` as Administrator. Once accepted, this token automatically gains access to `bda49e4e77e00609cb1ef68561b0d9eb`.
   - Option B: User switches Cloudflare login session in Chrome to `pansakorn.pho@gmail.com`, and Kapture MCP re-generates the token under that account.
+- [WARNING] Kapture MCP Invitation Monitor (Tab 562588142): Checked `/user/invites` (0 pending invites). `TICKET-CF-01` remains isolated as `BLOCKED_HITL`, waiting for owner `pansakorn.pho@gmail.com` to invite `gemini.web.bridge@gmail.com` as Administrator via Cloudflare Members Management (`https://dash.cloudflare.com/bda49e4e77e00609cb1ef68561b0d9eb/members`).
 
 ### Empirical Evidence & Findings — Gemini Bridge Sync & Verification
 - [OK] GitHub Secrets Sync (devops):
@@ -74,6 +75,22 @@ Shared interface contract [FROZEN]:
 - [OK] Branch registry clean: only `main` (local) and `origin/main` (remote) exist. Zero unmerged commits lost.
 - [OK] Production verification: DoD Gate Run 38517954767 and Vercel Deploy Run 38517972407 verified green.
 
+### Empirical Context & Findings — PR #198 Governance Merge & Production Verification
+- [OK] Pull Request #198 Lifecycle:
+  - PR: https://github.com/pphothidaen/HoroConsultant/pull/198 (`[KAN-181] chore(governance): record branch cleanup completion and brainstorm decision record`)
+  - Status: MERGED & CLOSED (Squash & Merge) into `origin/main` at commit SHA `35260419` (`35260419e4f5597a76082982d6143c7b6059d6e4`).
+  - Files Merged: `ATOMIC_TICKET.md`, `plans/plan.md`, `brainstorm_decision_kan_181.md`.
+- [OK] Branch Registry Invariant & Hygiene:
+  - Ephemeral branch `chore/governance-branch-cleanup-sync` purged from remote `origin` and pruned locally (`git remote prune origin`).
+  - Clean Registry Invariant: Exactly 1 branch (`main` / `origin/main`) remains active across local and remote.
+  - Working Tree: Clean, synchronized at commit `35260419`.
+- [OK] Production CI/CD & DoD Verification on `origin/main` (commit `35260419`):
+  - DoD Production Gate (Run 38520764812): SUCCESS (5/5 criteria passed: Test Provenance Guard, Test suite, Index.md up-to-date, Rust-Python route sync contract, ALL CRITERIA PASSED).
+  - Vercel Production Deploy (Run 38520791199): SUCCESS (deployed to `https://horo-consultant-psi.vercel.app`).
+  - Unified CI & Quality Audit Pipeline (Run 38520067165): SUCCESS.
+  - Gitleaks Secret Scan (Run 38520067182): SUCCESS (0 leaks).
+  - AI Agent Ecosystem Sync (Run 38520067147): SUCCESS (100% agent/skill sync).
+
 **Definition of Done (Sprint)**:
 1. `CF_API_TOKEN_HERMES` provisioned by account owner and synced to GitHub Actions and Doppler `prd`.
 2. All 4 deployment workflows verified with `npx wrangler deploy --dry-run` producing valid bundles.
@@ -82,6 +99,7 @@ Shared interface contract [FROZEN]:
 5. Zero plain-text secret leakage across logs, manifests, and git history.
 6. Documentation index verified cleanly (`python3 scripts/verify_doc_index.py` exits 0) with PRs #196, #197 merged to `main` and DoD gate passing (Run 38517954767 GREEN).
 7. All merged local and remote feature/fix branches cleanly pruned with zero unmerged commit loss.
+8. Governance records and brainstorm decision records synchronized to `main` via PR #198 (commit `35260419`) with 100% GREEN production DoD gate (Run 38520764812) and Vercel deploy (Run 38520791199).
 
 ---
 
