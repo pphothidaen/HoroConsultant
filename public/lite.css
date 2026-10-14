@@ -1,8 +1,8 @@
 :root {
   --element-wood: #2d6a4f;
   --element-fire: #c1121f;
-  --element-earth: #d4a017;
-  --element-metal: #6b7280;
+  --element-earth: #92400e;
+  --element-metal: #475569;
   --element-water: #023e8a;
   --surface-page: #f8fafc;
   --surface-panel: #ffffff;
@@ -25,6 +25,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --element-wood: #4ade80;
+    --element-fire: #f87171;
+    --element-earth: #fbbf24;
+    --element-metal: #cbd5e1;
+    --element-water: #60a5fa;
     --surface-page: #0f172a;
     --surface-panel: #172033;
     --surface-muted: #111827;
@@ -42,6 +47,22 @@
     --success-bg: #052e16;
     --success-text: #bbf7d0;
     color-scheme: dark;
+  }
+
+  .element-strip span {
+    background-color: var(--surface-muted);
+  }
+
+  .element-strip [data-element="wood"] { color: #86efac; background-color: color-mix(in srgb, var(--element-wood) 22%, transparent); }
+  .element-strip [data-element="fire"] { color: #fca5a5; background-color: color-mix(in srgb, var(--element-fire) 22%, transparent); }
+  .element-strip [data-element="earth"] { color: #fde047; background-color: color-mix(in srgb, var(--element-earth) 22%, transparent); }
+  .element-strip [data-element="metal"] { color: #e2e8f0; background-color: color-mix(in srgb, var(--element-metal) 22%, transparent); }
+  .element-strip [data-element="water"] { color: #93c5fd; background-color: color-mix(in srgb, var(--element-water) 22%, transparent); }
+
+  .status-message.is-warning {
+    border-left-color: var(--element-earth);
+    background-color: #422006;
+    color: #fef08a;
   }
 }
 
@@ -300,7 +321,14 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible,
-.chip:focus-visible {
+.chip:focus-visible,
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+summary:focus,
+.chip:focus {
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
@@ -424,7 +452,7 @@ textarea:invalid {
 }
 
 .topic-confidence.is-medium {
-  color: #ca8a04;
+  color: var(--element-earth);
 }
 
 .topic-confidence.is-low {
