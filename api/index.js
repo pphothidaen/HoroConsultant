@@ -1,6 +1,7 @@
 // api/index.js -- Least-privilege Vercel gateway for the canonical Render backend.
 
 import { applyCorsPolicy } from "./gateway.js";
+import { createUnifiedReading } from "./unified_reading_engine.js";
 
 const DEFAULT_BACKEND_TIMEOUT_MS = 8_000;
 const MAX_BACKEND_TIMEOUT_MS = 30_000;
@@ -287,10 +288,6 @@ async function proxyRequest(request, response, correlationId) {
   if (pathRequiresAuthorization(target) && !hasBearerAuthorization(request)) {
     return sendGatewayError(response, 401, "authorization_required", correlationId);
   }
-  if (!BACKEND_ORIGINS.length) {
-    return sendGatewayError(response, 503, "backend_not_configured", correlationId);
-  }
-
   let body;
   try {
     body = await readRequestBody(request);
@@ -299,6 +296,29 @@ async function proxyRequest(request, response, correlationId) {
       return sendGatewayError(response, error.status, error.code, correlationId);
     }
     return sendGatewayError(response, 400, "invalid_request_body", correlationId);
+  }
+
+  const targetPath = target.split("?", 1)[0];
+  const isUnifiedReading = targetPath === "/api/v3/unified-reading";
+
+  function executeEdgeUnifiedReadingFallback(targetCorrelationId) {
+    try {
+      const reading = createUnifiedReading(body);
+      response.setHeader("x-request-id", targetCorrelationId);
+      response.setHeader("x-fallback-edge", "unified-reading-v1");
+      return response.status(200).json(reading);
+    } catch (fallbackError) {
+      const fallbackStatus = fallbackError.status || 422;
+      const fallbackCode = fallbackError.code || "invalid_request_data";
+      return sendGatewayError(response, fallbackStatus, fallbackCode, targetCorrelationId);
+    }
+  }
+
+  if (!BACKEND_ORIGINS.length) {
+    if (isUnifiedReading) {
+      return executeEdgeUnifiedReadingFallback(correlationId);
+    }
+    return sendGatewayError(response, 503, "backend_not_configured", correlationId);
   }
 
   const lastOriginIndex = BACKEND_ORIGINS.length - 1;
@@ -323,6 +343,9 @@ async function proxyRequest(request, response, correlationId) {
 
       if (!upstream.ok) {
         const status = upstream.status >= 400 && upstream.status <= 599 ? upstream.status : 502;
+        if (isUnifiedReading && status >= 500 && status <= 599) {
+          return executeEdgeUnifiedReadingFallback(upstreamId);
+        }
         const code = status < 500 ? "upstream_request_rejected" : "backend_unavailable";
         return sendGatewayError(response, status, code, upstreamId);
       }
@@ -337,6 +360,11 @@ async function proxyRequest(request, response, correlationId) {
       clearTimeout(timeoutId);
     }
   }
+
+  if (isUnifiedReading) {
+    return executeEdgeUnifiedReadingFallback(correlationId);
+  }
+
   return sendGatewayError(
     response,
     timedOut ? 504 : 502,

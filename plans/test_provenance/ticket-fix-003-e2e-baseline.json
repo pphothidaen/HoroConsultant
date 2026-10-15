@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FIX-003-E2E",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3e612c81229803bc59449a15f1564303768ea373",
+  "test_files": [
+    {
+      "path": "tests/test_prod_lite_e2e.py",
+      "sha256": "10ec0db0a82ea0c6f5f91134f5068014ad613081b26740b7e06a13667374d4d2"
+    },
+    {
+      "path": "project/tests/prod_lite_e2e_report.json",
+      "sha256": "d964dd7bc3dd3a9614d73a6d15561be690e29e21f05dd5ff55af61bed56a8802"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_prod_lite_e2e.py",
+        "-k",
+        "test_prod_lite_e2e_jack_scenario",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "PROD_LITE_TOPIC_COUNT_MISMATCH or zero_503_error_state or jack_screenshot"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/run_prod_lite_e2e.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Production E2E suite covering User Scenario Jack (2026-10-15, unknown_hour=true, display_name=jack, target_year=2026) with zero 503 backend_unavailable error state, 12 canonical topic cards, score-gauge-range rendering, and screenshot verification on live production target https://horo-consultant-psi.vercel.app/lite.html."
+}

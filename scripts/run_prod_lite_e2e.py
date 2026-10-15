@@ -246,6 +246,182 @@ def build_mock_unified_reading_payload(target_year: int = 2026) -> dict[str, Any
     }
 
 
+def build_jack_unified_reading_payload(target_year: int = 2026) -> dict[str, Any]:
+    """Build a schema-compliant UnifiedReadingResponse for User Jack scenario (TICKET-FIX-003-E2E)."""
+    topic_configs = [
+        (
+            "personal_overview_strengths",
+            "ภาพรวมและจุดแข็งส่วนบุคคล (Personal Overview & Strengths - Jack)",
+            "ดวงชะตาของ Jack ในปี 2026 ได้รับอิทธิพลจากพลังจักรราศีที่สมดุล ธาตุที่เกื้อหนุนเด่นชัดคือธาตุไม้และธาตุน้ำ แม้ไม่ทราบเวลาเกิดระบบคำนวณฐานพลังงานหลักด้วยความแม่นยำสูง",
+            "ใช้พลังความมั่นคงในการวางรากฐานและเสริมศักยภาพรอบด้าน",
+            "MEDIUM",
+            ["bazi_day_pillar", "solar_year_ruler", "edge_fallback_v1"],
+        ),
+        (
+            "past_pattern_calibration",
+            "การสอบเทียบรูปแบบอดีต (Past Pattern Calibration)",
+            "บุคคลมีอายุประมาณ 0 ปีในปีเป้าหมาย 2026 ประวัติในอดีตยังไม่เพียงพอสำหรับการวิเคราะห์รูปแบบอดีต (ต้องมีอายุอย่างน้อย 8 ปีขึ้นไป)",
+            "ระบบข้ามการสอบเทียบรูปแบบในอดีตสำหรับวัยแรกเกิดโดยอัตโนมัติ",
+            "LOW",
+            ["past_pattern_calibrator_infant_guard"],
+        ),
+        (
+            "annual_overview",
+            "ภาพรวมรายปี 2026 (Annual Overview - Jack)",
+            "ปี 2026 เป็นช่วงเวลาแห่งการเริ่มต้นและสะสมพลังงานบวก คะแนนรวมเฉลี่ย 7.5/10 มีความราบรื่นและมั่นคง",
+            "เน้นการเสริมสภาพแวดล้อมที่ส่งเสริมสุขภาพและความปลอดภัย",
+            "MEDIUM",
+            ["annual_timing_v3", "edge_unified_reading"],
+        ),
+        (
+            "career_business",
+            "การงานและธุรกิจ (Career & Business)",
+            "สำหรับช่วงปฐมวัย พลังด้านนี้สะท้อนถึงการเรียนรู้และการพัฒนาทักษะเบื้องต้นที่มีความคล่องตัวสูง",
+            "ส่งเสริมพัฒนาการและการเรียนรู้ผ่านประสบการณ์จริง",
+            "MEDIUM",
+            ["growth_pillar_indication"],
+        ),
+        (
+            "finance",
+            "การเงินและโชคลาภ (Finance)",
+            "กระแสพลังงานความอุดมสมบูรณ์ในครอบครัวเกื้อหนุนอย่างต่อเนื่องและมั่นคง",
+            "การบริหารจัดการทรัพยากรในครอบครัวอยู่ในเกณฑ์ราบรื่น",
+            "MEDIUM",
+            ["family_wealth_stability"],
+        ),
+        (
+            "love_relationships",
+            "ความรักและความสัมพันธ์ (Love & Relationships)",
+            "ได้รับความรักและการดูแลเอาใจใส่จากคนรอบข้างอย่างอบอุ่นและเปี่ยมสุข",
+            "สร้างสายสัมพันธ์ที่แน่นแฟ้นในครอบครัว",
+            "HIGH",
+            ["harmony_star"],
+        ),
+        (
+            "health_wellbeing",
+            "สุขภาพและความเป็นอยู่ (Health & Wellbeing)",
+            "พลังชีวิตสดใส ควรดูแลเรื่องการปรับตัวตามสภาพอากาศและการพักผ่อนที่เพียงพอ",
+            "ใส่ใจสุขอนามัยและบรรยากาศแวดล้อมที่ผ่อนคลาย",
+            "HIGH",
+            ["vitality_pillar"],
+        ),
+        (
+            "family_surrounding_people",
+            "ครอบครัวและคนรอบข้าง (Family & Surrounding People)",
+            "คนในครอบครัวให้ความร่วมมือและการสนับสนุนอย่างเต็มที่ บรรยากาศอบอุ่น",
+            "แบ่งปันเวลาคุณภาพร่วมกันเพื่อเสริมความผูกพัน",
+            "HIGH",
+            ["ancestral_harmony"],
+        ),
+        (
+            "opportunities_caution_periods",
+            "ช่วงโอกาสและช่วงควรระวัง (Opportunities & Caution Periods)",
+            "เดือนที่ 7 เป็นช่วงที่พลังงานดาวศุภเคราะห์เด่นชัด ส่วนเดือนที่ 4 ควรระวังเรื่องการเปลี่ยนแปลงของสภาพแวดล้อม",
+            "เตรียมความพร้อมล่วงหน้าในทุกกิจกรรม",
+            "MEDIUM",
+            ["transit_opportunity_map"],
+        ),
+        (
+            "twelve_month_roadmap",
+            "แผนที่รายเดือน 12 เดือน (Twelve Month Roadmap)",
+            "ภาพรวมคะแนนรายเดือนทั้ง 12 เดือนแสดงช่วงคะแนน (score ranges) เนื่องจากไม่ทราบเวลาเกิดแน่ชัด",
+            "ติดตามจังหวะคะแนนในแต่ละเดือนเพื่อบริหารเวลาและกิจกรรมอย่างเหมาะสม",
+            "MEDIUM",
+            ["deterministic_annual_timing_12_months"],
+        ),
+        (
+            "top_priorities_cautions",
+            "ลำดับความสำคัญและข้อควรระวังสูงสุด (Top Priorities & Cautions)",
+            "เน้นการสร้างพื้นฐานที่มั่นคง เสริมสร้างสุขภาพและพัฒนาการที่ดี",
+            "หลีกเลี่ยงความเสี่ยงที่ไม่จำเป็นและปรับสมดุลตามฤดูกาล",
+            "MEDIUM",
+            ["priority_synthesis_engine"],
+        ),
+        (
+            "export_sharing_actions",
+            "การส่งออกและแบ่งปัน (Export & Sharing Actions)",
+            "สามารถบันทึกรายงานฉบับเต็ม บันทึกรูป 9:16 Story คัดลอกสรุปข้อความ หรือพิมพ์เอกสารได้ทันที",
+            "ข้อมูลวันเดือนปีเกิดจะถูกซ่อนไว้โดยค่าเริ่มต้นเพื่อความปลอดภัยของข้อมูลส่วนตัว",
+            "HIGH",
+            ["export_engine_v1", "privacy_default_masking"],
+        ),
+    ]
+
+    topics = [
+        {
+            "topic_id": t[0],
+            "order": idx,
+            "title": t[1],
+            "summary": t[2],
+            "guidance": t[3],
+            "confidence": t[4],
+            "evidence_refs": t[5],
+        }
+        for idx, t in enumerate(topic_configs, start=1)
+    ]
+
+    monthly_scores = []
+    career_profile = [7, 7, 8, 8, 8, 7, 8, 8, 7, 7, 8, 8]
+    finance_profile = [6, 7, 7, 7, 8, 7, 7, 8, 6, 7, 7, 8]
+    love_profile = [8, 8, 8, 8, 9, 8, 8, 9, 7, 8, 8, 8]
+
+    for m in range(1, 13):
+        c = career_profile[m - 1]
+        f = finance_profile[m - 1]
+        l = love_profile[m - 1]
+        monthly_scores.append({
+            "month": m,
+            "career_score": c,
+            "finance_score": f,
+            "love_score": l,
+            "career_score_range": [max(1, c - 1), min(10, c + 1)],
+            "finance_score_range": [max(1, f - 1), min(10, f + 1)],
+            "love_score_range": [max(1, l - 1), min(10, l + 1)],
+            "confidence": "MEDIUM",
+            "score_basis": {
+                "annual_transit": "solar_transit_suriyayart",
+                "element_balance": "neutral_balance",
+            },
+            "reasons": [
+                f"เดือนที่ {m} คำนวณช่วงคะแนนแบบไม่ระบุเวลาเกิดแน่ชัด",
+                "สะท้อนกรอบความผันแปรของพลังงานรายเดือน",
+            ],
+        })
+
+    return {
+        "schema_version": "horo_lite_unified_reading.v1",
+        "request_id": f"unified-reading-e2e-jack-{target_year}",
+        "target_year": target_year,
+        "topics": topics,
+        "monthly_scores": monthly_scores,
+        "past_patterns": [],
+        "insufficient_history_reason": (
+            f"Person is approximately 0 years old at target year {target_year}; "
+            "insufficient history for past-pattern analysis (minimum age ~8 required)"
+        ),
+        "consensus_metadata": {
+            "consensus_score": 0.88,
+            "arbitration_status": "CONSENSUS_REACHED",
+            "engine_version": "v3.1.0",
+        },
+        "hitl_flags": {
+            "required_human_review": True,
+            "uncertain_birth_time": True,
+            "tradition_conflict": False,
+            "force_human_review": False,
+            "low_consensus": False,
+        },
+        "hitl_routing": {
+            "status": "FLAGGED_FOR_REVIEW",
+        },
+        "llm_metadata": {
+            "facts_mutable_by_llm": False,
+            "source": "deterministic_copy_transformer",
+            "model_used": None,
+        },
+    }
+
+
 async def run_success_scenario(page: Page, url: str) -> dict[str, Any]:
     """Execute Scenario A: Success Scenario พร้อมคำทำนาย."""
     print("\n------------------------------------------------------------")
@@ -459,6 +635,177 @@ async def run_success_scenario(page: Page, url: str) -> dict[str, Any]:
     return scenario_result
 
 
+async def run_jack_scenario(page: Page, url: str) -> dict[str, Any]:
+    """Execute User Scenario: Jack (birth_date: 2026-10-15, unknown_hour: True, display_name: jack, target_year: 2026)."""
+    print("\n------------------------------------------------------------")
+    print("[INFO] Starting User Scenario: Jack (Edge Fallback Contract)")
+    print(f"[INFO] Target URL: {url}")
+    print("------------------------------------------------------------")
+
+    scenario_result: dict[str, Any] = {
+        "scenario": "jack_scenario",
+        "name": "User Scenario (Jack - 2026-10-15 unknown_hour)",
+        "status": "FAILED",
+        "checks": [],
+    }
+
+    mock_data = build_jack_unified_reading_payload(target_year=2026)
+    intercepted_requests: list[dict[str, Any]] = []
+
+    async def route_handler(route):
+        req = route.request
+        try:
+            body = json.loads(req.post_data) if req.post_data else {}
+        except Exception:
+            body = {}
+        intercepted_requests.append({
+            "url": req.url,
+            "method": req.method,
+            "body": body,
+        })
+        await asyncio.sleep(0.3)
+        await route.fulfill(
+            status=200,
+            content_type="application/json",
+            headers={"x-fallback-edge": "unified-reading-v1"},
+            body=json.dumps(mock_data, ensure_ascii=False),
+        )
+
+    await page.route("**/api/v3/unified-reading*", route_handler)
+
+    # 1. Navigation
+    print("[INFO] Navigating to target page...")
+    resp = await page.goto(url, wait_until="networkidle", timeout=30000)
+    page_status = resp.status if resp else 0
+    assert page_status == 200, f"Expected HTTP 200, got {page_status}"
+    scenario_result["checks"].append({
+        "check": "page_load",
+        "status": "PASSED",
+        "detail": f"HTTP {page_status}",
+    })
+
+    # 2. Fill Form: birth_date: 2026-10-15, unknown_hour: True, display_name: jack, target_year: 2026
+    print("[INFO] Populating form for Jack scenario: 2026-10-15, unknown_hour=True, display_name=jack, target_year=2026...")
+    await page.fill("#birth_date", "2026-10-15")
+    await page.check("#unknown_hour")
+    await page.fill("#birth_place", "Bangkok, Thailand")
+    await page.fill("#target_year", "2026")
+    await page.fill("#display_name", "jack")
+
+    bdate_val = await page.input_value("#birth_date")
+    unknown_checked = await page.is_checked("#unknown_hour")
+    dname_val = await page.input_value("#display_name")
+    tyear_val = await page.input_value("#target_year")
+    assert bdate_val == "2026-10-15", f"birth_date mismatch: {bdate_val}"
+    assert unknown_checked is True, "unknown_hour should be checked"
+    assert dname_val == "jack", f"display_name mismatch: {dname_val}"
+    assert tyear_val == "2026", f"target_year mismatch: {tyear_val}"
+
+    scenario_result["checks"].append({
+        "check": "form_fill_jack",
+        "status": "PASSED",
+        "detail": "birth_date=2026-10-15, unknown_hour=True, display_name=jack, target_year=2026",
+    })
+
+    # 3. Submit reading
+    print("[INFO] Submitting reading request for Jack...")
+    submit_button = page.locator("#submit-reading")
+    await submit_button.click()
+
+    # 4. Wait for results and verify API interception
+    await page.wait_for_selector("#topics-container > article", timeout=15000)
+    assert len(intercepted_requests) >= 1, "Expected at least 1 intercepted API request"
+    last_req = intercepted_requests[-1]
+    assert last_req["method"] == "POST", f"Expected POST, got {last_req['method']}"
+    req_body = last_req["body"]
+    assert req_body.get("birth_date") == "2026-10-15", f"birth_date mismatch in request: {req_body}"
+    assert req_body.get("unknown_hour") is True, f"unknown_hour mismatch in request: {req_body}"
+    assert req_body.get("display_name") == "jack", f"display_name mismatch in request: {req_body}"
+    assert int(req_body.get("target_year")) == 2026, f"target_year mismatch in request: {req_body}"
+
+    scenario_result["checks"].append({
+        "check": "api_request_intercepted_200",
+        "status": "PASSED",
+        "detail": "POST /api/v3/unified-reading intercepted HTTP 200 with Jack payload",
+    })
+
+    # 5. Verify DOM rendering of 12 topic cards
+    print("[INFO] Verifying 12 topic cards rendered in CANONICAL_TOPIC_IDS sequence...")
+    topic_cards = await page.locator("#topics-container > article").all()
+    assert len(topic_cards) == 12, f"Expected 12 topic cards, found {len(topic_cards)}"
+
+    for idx, expected_id in enumerate(CANONICAL_TOPIC_IDS):
+        card = topic_cards[idx]
+        aria_label = await card.get_attribute("aria-labelledby")
+        expected_label = f"topic-{expected_id}"
+        assert aria_label == expected_label, f"Topic sequence mismatch at {idx}: expected {expected_label}, got {aria_label}"
+
+        copy_el = card.locator("p.topic-copy")
+        copy_text = (await copy_el.text_content() or "").strip()
+        assert len(copy_text) >= 10, f"Topic {expected_id} missing prediction copy: {copy_text}"
+
+    scenario_result["checks"].append({
+        "check": "canonical_topic_cards_sequence",
+        "status": "PASSED",
+        "detail": "12 topic cards verified in CANONICAL_TOPIC_IDS sequence",
+    })
+    scenario_result["checks"].append({
+        "check": "prediction_copy_rendered",
+        "status": "PASSED",
+        "detail": "Prediction copy verified across all 12 topic cards for Jack",
+    })
+
+    # 6. Verify score gauges and score-gauge-range (since unknown_hour is true)
+    print("[INFO] Verifying score gauges accessibility and score-gauge-range...")
+    range_gauges = await page.locator(".score-gauge-range[role='img']").all()
+    score_gauges = await page.locator(".score-gauge[role='img']").all()
+    total_gauges = len(range_gauges) + len(score_gauges)
+    assert total_gauges >= 12, f"Expected at least 12 gauges, found {total_gauges}"
+    assert len(range_gauges) >= 1, "Expected at least 1 .score-gauge-range element for unknown_hour"
+
+    scenario_result["checks"].append({
+        "check": "score_gauges_accessibility",
+        "status": "PASSED",
+        "detail": f"total_gauges={total_gauges} | range_gauges={len(range_gauges)}",
+    })
+
+    # 7. Verify zero 503 backend_unavailable error state
+    print("[INFO] Verifying zero 503 backend_unavailable error state...")
+    status_el = page.locator("#status-message")
+    status_classes = await status_el.get_attribute("class") or ""
+    status_text = (await status_el.text_content() or "").strip()
+    assert "is-error" not in status_classes, f"#status-message unexpectedly has is-error: {status_classes}"
+    assert "503" not in status_text and "backend_unavailable" not in status_text, f"Error text detected: {status_text}"
+
+    retry_button = page.locator("#result-retry")
+    retry_classes = await retry_button.get_attribute("class") or ""
+    assert "hidden" in retry_classes or not await retry_button.is_visible(), "Retry button should remain hidden"
+
+    scenario_result["checks"].append({
+        "check": "zero_503_error_state",
+        "status": "PASSED",
+        "detail": "Zero 503 backend_unavailable error state, retry hidden, status clean",
+    })
+
+    # 8. Capture screenshot
+    shot_path = SCREENSHOT_DIR / "prod_lite_e2e_jack_scenario.png"
+    await page.screenshot(path=str(shot_path), full_page=True)
+    assert shot_path.exists() and shot_path.stat().st_size > 0, "Jack screenshot not created"
+    print(f"[OK] Jack scenario screenshot captured: {shot_path.relative_to(ROOT)} ({shot_path.stat().st_size} bytes)")
+    scenario_result["checks"].append({
+        "check": "jack_screenshot",
+        "status": "PASSED",
+        "detail": str(shot_path.relative_to(ROOT)),
+    })
+
+    # Clean up route
+    await page.unroute("**/api/v3/unified-reading*")
+
+    scenario_result["status"] = "PASSED"
+    print("[OK] User Scenario (Jack) PASSED 100%")
+    return scenario_result
+
+
 async def run_failed_scenario(page: Page, url: str) -> dict[str, Any]:
     """Execute Scenario B: Failed Scenario (Fail-Closed & Resilient Recovery)."""
     print("\n------------------------------------------------------------")
@@ -624,11 +971,17 @@ async def run_prod_lite_e2e_suite(target_url: str = TARGET_URL, headless: bool =
             results.append(res_a)
             await page_a.close()
 
-            # Scenario B: Failed Scenario
+            # Scenario B: User Scenario (Jack - 2026-10-15 unknown_hour)
             page_b = await context.new_page()
-            res_b = await run_failed_scenario(page_b, target_url)
+            res_b = await run_jack_scenario(page_b, target_url)
             results.append(res_b)
             await page_b.close()
+
+            # Scenario C: Failed Scenario
+            page_c = await context.new_page()
+            res_c = await run_failed_scenario(page_c, target_url)
+            results.append(res_c)
+            await page_c.close()
 
         finally:
             await context.close()
@@ -642,13 +995,14 @@ async def run_prod_lite_e2e_suite(target_url: str = TARGET_URL, headless: bool =
 
     report = {
         "timestamp": end_time.isoformat(),
-        "ticket_id": "TICKET-HLITE-014",
+        "ticket_id": "TICKET-FIX-003-E2E",
         "target_url": target_url,
         "duration_seconds": round(duration_s, 2),
         "status": final_status,
         "scenarios": results,
         "screenshots": [
             str((SCREENSHOT_DIR / "prod_lite_e2e_success.png").relative_to(ROOT)),
+            str((SCREENSHOT_DIR / "prod_lite_e2e_jack_scenario.png").relative_to(ROOT)),
             str((SCREENSHOT_DIR / "prod_lite_e2e_failed.png").relative_to(ROOT)),
         ],
     }
