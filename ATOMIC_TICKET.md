@@ -1,5 +1,43 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)
+
+GOAL: 100% Thai localization across all 12 topic cards and monthly reasons in `api/unified_reading_engine.js`, overhaul technical HITL message (`สาขาแสดงผลอยู่โหมดตรวจทาน: QUEUED_FOR_HUMAN_REVIEW`) in `public/lite.js` & `lite.html` to a reassuring 3-pillar human-readable explanation, implement progressive asynchronous bridge integration (`/api/v3/hitl-consult`) connecting to NotebookLM (`horo_consult`) when HITL is triggered, placed at page bottom below twelve_month_roadmap, with 15s countdown timer, `sessionStorage` idempotency key, and request deduplication.
+
+Shared interface contract [FROZEN]:
+- Invariants:
+  - `INVARIANT-THAI-01`: 100% Thai Localization (zero English leaks in 12 topic cards and monthly timing reasons).
+  - `INVARIANT-THAI-02`: Reassuring Human-Readable HITL UI (3-pillars energy analysis message; zero `QUEUED_FOR_HUMAN_REVIEW` leak in user-facing elements).
+  - `INVARIANT-THAI-03`: Progressive Asynchronous Deep Synthesis (initial deterministic reading loads < 1s; deep synthesis card loads asynchronously below 12-month roadmap).
+  - `INVARIANT-THAI-04`: Client & Server Idempotency (sessionStorage 15s TTL idempotency key; server request deduplication).
+  - `INVARIANT-THAI-05`: Pure ASCII Logging ([OK], [INFO], [WARNING], [ERROR]).
+  - `INVARIANT-THAI-06`: Single-Editor Resource Boundaries:
+    - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
+    - `developer`: `api/unified_reading_engine.js`, `api/index.js`, `public/lite.js`, `public/lite.html`, `public/lite.css`
+    - `qa_tester`: `tests/api_unified_reading_edge.test.mjs`, `scripts/run_prod_lite_e2e.py`, `tests/test_prod_lite_e2e.py`, `project/tests/**`, `plans/test_provenance/**`
+    - `code_reviewer`: `plans/evidence/**`, `ReleaseNotes.md`
+    - `devops`: git tree, release tags, deployment receipts
+- Stop Conditions: Schema validation failure, unhandled network error, English phrase leakage in Thai prediction outputs, or non-ASCII log emission halts execution fail-closed.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-THAI-001` | `DONE` (Specification & ticket decomposition for Thai Localization & HITL NotebookLM Progressive Bridge sprint completed; approved intake report registered; tickets THAI-001 through THAI-007 decomposed in ATOMIC_TICKET.md and plans/plan.md; pure ASCII logs); lead_ba | Specification & ticket decomposition for Thai Localization & HITL NotebookLM Progressive Bridge sprint in ATOMIC_TICKET.md and plans/plan.md. Exclusive scope: `ATOMIC_TICKET.md`, `plans/plan.md`. | Dependencies: Approved intake report `plans/intake/sprint_thai_localization_and_hitl_notebooklm_bridge.md`. Acceptance MET: 7 tickets decomposed with single-editor boundaries, invariants, DoD registered; pure ASCII logs; zero regressions. | `bsa-doc-skill-management`, `agile-governance` |
+| `TICKET-THAI-002` | `READY`; developer | 100% Thai localization of `api/unified_reading_engine.js`: update `TOPIC_TITLES`, `topicContent` templates, and monthly `reasons` arrays to natural, professional, high-trust Thai copy without altering score ranges or deterministic logic. Exclusive scope: `api/unified_reading_engine.js`. | Dependencies: `TICKET-THAI-001`. Acceptance: All 12 topic cards render 100% Thai text; zero English leaks; deterministic timing scores bounded in [1, 10]; pure ASCII logs. | `sdlc-aisdlc-workflow` |
+| `TICKET-THAI-003` | `READY`; developer | Implement progressive HITL bridge endpoint `/api/v3/hitl-consult` in gateway (`api/index.js`) connecting to Gemini Web Bridge (`horo_consult` tool, scope `notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0`) with backend request deduplication and graceful timeout failover. Exclusive scope: `api/index.js`. | Dependencies: `TICKET-THAI-001`. Acceptance: Dispatches asynchronous consultation to NotebookLM bridge; deduplicates concurrent requests; returns `{status: "in_progress"}` or completed synthesis; graceful timeout failover without crashing; pure ASCII logs. | `sdlc-aisdlc-workflow`, `zero-cost-ai-pipeline` |
+| `TICKET-THAI-004` | `READY`; developer | UI overhaul in `public/lite.js`, `public/lite.html`, and `public/lite.css`: replace technical HITL badge with reassuring 3-pillar human-readable explanation; add bottom deep-synthesis card placed below `#twelve_month_roadmap`; 15s countdown timer; client-side `sessionStorage` idempotency key. Exclusive scope: `public/lite.js`, `public/lite.html`, `public/lite.css`. | Dependencies: `TICKET-THAI-002`, `TICKET-THAI-003`. Acceptance: Reassuring 3-pillar message rendered when `unknown_hour: true`; `QUEUED_FOR_HUMAN_REVIEW` hidden from user UI; deep synthesis card rendered below roadmap; 15s countdown and duplicate submit prevention; pure ASCII logs. | `sdlc-aisdlc-workflow`, `ui-color-token-handoff` |
+| `TICKET-THAI-005` | `READY`; qa_tester | QA test suite updates: edge contract tests in `tests/api_unified_reading_edge.test.mjs`, Playwright Production E2E tests in `scripts/run_prod_lite_e2e.py` and `tests/test_prod_lite_e2e.py` verifying Thai localization, 3-pillar HITL UI, progressive synthesis card, 15s countdown, and compile test provenance manifest `plans/test_provenance/ticket-thai-baseline.json`. Exclusive scope: `tests/api_unified_reading_edge.test.mjs`, `scripts/run_prod_lite_e2e.py`, `tests/test_prod_lite_e2e.py`, `plans/test_provenance/**`. | Dependencies: `TICKET-THAI-002`, `TICKET-THAI-003`, `TICKET-THAI-004`. Acceptance: 100% test pass across node contract and Playwright E2E suites; zero English leaks asserted; provenance manifest registered; pure ASCII logs. | `qa-api-ui-e2e`, `qa-regression-provenance` |
+| `TICKET-THAI-006` | `READY`; code_reviewer | Pre-release security review: Rayon parallel secret scan (0 leaks), Python AST syntax audit, AI agent ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`), and prepare `ReleaseNotes.md` draft. Exclusive scope: `plans/evidence/**`, `ReleaseNotes.md`. | Dependencies: `TICKET-THAI-005`. Acceptance: 0 secret leaks across repository; AST valid; ecosystem sync exit code 0; pure ASCII logs. | `hf-static-release-verification` |
+| `TICKET-THAI-007` | `READY`; devops | DevOps production release: create PR, monitor CI/CD workflows, squash merge to `main`, production deploy to Vercel, and execute live curl & Playwright E2E verification. Exclusive scope: git tree, release tags, deployment receipts. | Dependencies: `TICKET-THAI-006`. Acceptance: PR squash merged; CI green; live endpoint verified healthy with HTTP 200, Thai localization, 3-pillar HITL explanation, and progressive synthesis; pure ASCII logs. | `devops-deployment`, `hf-static-release-verification` |
+
+
+**Definition of Done (TICKET-THAI-001 — COMPLETED)**:
+1. Registered new sprint "Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
+2. Documented Context & Problem Statement, Goal, Core Execution Invariants (`INVARIANT-THAI-01` through `06`), and Single-Editor Boundaries. [OK]
+3. Decomposed and registered `TICKET-THAI-001` through `TICKET-THAI-007` with bound skills and acceptance criteria. [OK]
+4. Marked `TICKET-THAI-001` as `DONE` with deliverables receipt. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+
 ## Sprint: Resilient Vercel Edge Unified Reading Engine — 100% COMPLETE (2026-10-15)
 
 GOAL: Implement a deterministic Edge Fallback engine in `api/unified_reading_engine.js` and integrate seamless 5xx fallback in `api/index.js`. When `/api/v3/unified-reading` is requested and upstream Render backend returns 5xx (or is unreachable due to container suspension/outage), the Vercel gateway seamlessly executes the deterministic unified reading calculation in JavaScript (identical mathematical formulas: BaZi transit pillars, 12 monthly scores [1-10], Thai Suriyayart proxies, 12 canonical topics, past pattern candidates, consensus arbitration) and returns HTTP 200 with the valid `UnifiedReadingResponse` schema.

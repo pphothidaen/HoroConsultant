@@ -19,18 +19,18 @@ export const CANONICAL_TOPIC_IDS = [
 ];
 
 const TOPIC_TITLES = {
-  personal_overview_strengths: "Personal overview and strengths",
-  past_pattern_calibration: "Past pattern calibration",
-  annual_overview: "Annual overview",
-  career_business: "Career and business",
-  finance: "Finance",
-  love_relationships: "Love and relationships",
-  health_wellbeing: "Health and wellbeing",
-  family_surrounding_people: "Family and surrounding people",
-  opportunities_caution_periods: "Opportunities and caution periods",
-  twelve_month_roadmap: "Twelve month roadmap",
-  top_priorities_cautions: "Top priorities and cautions",
-  export_sharing_actions: "Export and sharing actions",
+  personal_overview_strengths: "ภาพรวมตัวตนและจุดแข็งพื้นดวง",
+  past_pattern_calibration: "เทียบเคียงเหตุการณ์ในอดีต (Past Patterns)",
+  annual_overview: "ภาพรวมดวงชะตารายปี",
+  career_business: "การงานและธุรกิจ",
+  finance: "การเงินและโชคลาภ",
+  love_relationships: "ความรักและความสัมพันธ์",
+  health_wellbeing: "สุขภาพและพลังชีวิต",
+  family_surrounding_people: "ครอบครัวและบุคคลรอบตัว",
+  opportunities_caution_periods: "จังหวะโอกาสและช่วงที่ต้องระวัง",
+  twelve_month_roadmap: "แผนที่ดวงชะตา 12 เดือน",
+  top_priorities_cautions: "โฟกัสหลักและข้อควรระวัง",
+  export_sharing_actions: "บันทึกและแบ่งปันผลลัพธ์",
 };
 
 export const STEMS = [
@@ -60,6 +60,14 @@ export const BRANCHES = [
   { name: "戌", pinyin: "Xū", animal: "Dog", element: "Earth", polarity: "Yang", hour_start: 19 },
   { name: "亥", pinyin: "Hài", animal: "Pig", element: "Water", polarity: "Yin", hour_start: 21 },
 ];
+
+export const THAI_ELEMENTS = {
+  Wood: "ไม้",
+  Fire: "ไฟ",
+  Earth: "ดิน",
+  Metal: "ทอง",
+  Water: "น้ำ",
+};
 
 const SOLAR_MONTH_STARTS = [
   [1, 6], [2, 4], [3, 6], [4, 5], [5, 6], [6, 7],
@@ -242,21 +250,21 @@ function defaultTraditionClaims(monthObj) {
       finance_score: fScore,
       love_score: lScore,
       proxy: true,
-      claim: "transit-house proxy supports the monthly score band",
+      claim: "การโคจรของดวงดาวตามคัมภีร์สุริยยาตร์สอดคล้องกับเกณฑ์คะแนนประจำเดือน",
     },
     bazi_liu_yue: {
       career_score: cScore,
       finance_score: fScore,
       love_score: lScore,
       proxy: true,
-      claim: "monthly cycle proxy broadly agrees with the transit proxy",
+      claim: "พลังงานธาตุประจำเดือนโป๊ยหยี่สี่เถียว (BaZi) สอดคล้องในทิศทางเดียวกัน",
     },
     zi_wei: {
       career_score: cScore,
       finance_score: fScore,
       love_score: lScore,
       proxy: true,
-      claim: "deterministic star-phase proxy does not create a material conflict",
+      claim: "ตำแหน่งดาวจื่อเวยโต่วซู่ไม่พบข้อขัดแย้งเชิงโครงสร้างที่สำคัญ",
     },
   };
 }
@@ -348,8 +356,8 @@ function arbitrateMonthlyConsensus(months, payload, _seed) {
       },
       tradition_claims: traditionClaims,
       arbitrated_claim: conflictDetected
-        ? "human review required for conflicting tradition claims"
-        : "traditions agree within deterministic tolerance",
+        ? "ตรวจพบความต่างของสถิติต่างสำนัก เกินเกณฑ์ยอมรับ ส่งต่อระบบวิเคราะห์เชิงลึก"
+        : "สถิติจากทุกศาสตร์สอดคล้องในทิศทางเดียวกันตามเกณฑ์ที่กำหนด",
     });
   }
 
@@ -360,7 +368,7 @@ function arbitrateMonthlyConsensus(months, payload, _seed) {
   const traditionConflicts = conflictMonths.map((monthNum) => ({
     month: monthNum,
     conflicting_traditions: Array.from(conflictingTraditions).sort(),
-    reason: "tradition monthly score spread exceeds arbitration tolerance",
+    reason: "ความผันแปรของคะแนนระหว่างศาสตร์เกินเกณฑ์ความคลาดเคลื่อนที่กำหนด",
   }));
 
   return {
@@ -449,24 +457,24 @@ export function calculateAnnualTiming(payload) {
     const clashY = BRANCH_CLASH_PAIRS.has(`${monthBranch}-${natalYbChar}`);
     const clashD = BRANCH_CLASH_PAIRS.has(`${monthBranch}-${natalDbChar}`);
     if (clashY) {
-      interactions.push(`Branch clash: month ${monthBranch} clashes with natal year branch ${natalYbChar}`);
+      interactions.push(`ชงรากฐาน: ฐานเดือน ${monthBranch} ปะทะกับฐานปีเกิด ${natalYbChar}`);
     }
     if (clashD && !clashY) {
-      interactions.push(`Branch clash: month ${monthBranch} clashes with natal day branch ${natalDbChar}`);
+      interactions.push(`ชงส่วนตัว: ฐานเดือน ${monthBranch} ปะทะกับฐานวันเกิด ${natalDbChar}`);
     }
 
     const comboY = BRANCH_COMBO_PAIRS.has(`${monthBranch}-${natalYbChar}`);
     const comboD = BRANCH_COMBO_PAIRS.has(`${monthBranch}-${natalDbChar}`);
     if (comboY) {
-      interactions.push(`Branch harmony: month ${monthBranch} combines with natal year branch ${natalYbChar}`);
+      interactions.push(`ฮะเกื้อหนุน: ฐานเดือน ${monthBranch} ผสานธาตุกับฐานปีเกิด ${natalYbChar}`);
     }
     if (comboD && !comboY) {
-      interactions.push(`Branch harmony: month ${monthBranch} combines with natal day branch ${natalDbChar}`);
+      interactions.push(`ฮะสมพงศ์: ฐานเดือน ${monthBranch} ผสานธาตุกับฐานวันเกิด ${natalDbChar}`);
     }
 
     const stemCombo = STEM_COMBO_PAIRS.has(`${monthStem}-${natalDm}`);
     if (stemCombo) {
-      interactions.push(`Stem combination: month ${monthStem} combines with Day Master ${natalDm}`);
+      interactions.push(`ราศีบนส่งเสริม: ราศีบนประจำเดือน ${monthStem} ภาคีส่งเสริมกับดิถีธาตุเกิด ${natalDm}`);
     }
 
     const jupiterHouse = ((((targetYear - bYear + month + (seed % 3)) % 12) + 12) % 12) + 1;
@@ -522,13 +530,13 @@ export function calculateAnnualTiming(payload) {
     const lScore = clampScore(loveVal + ((month + nDs) % 3) - 1);
 
     const reasons = [
-      `BaZi month pillar ${monthStem}${monthBranch} (${monthElement}) interacts with natal Day Master ${natalDm} (${natalDmElem}).`,
-      "Thai Suriyayart house values are deterministic proxy signals, not a verified astronomical transit.",
+      `เสาพลังงานเดือน ${monthStem}${monthBranch} (ธาตุ${THAI_ELEMENTS[monthElement] || monthElement}) ส่งอิทธิพลต่อดิถีธาตุวันเกิด ${natalDm} (ธาตุ${THAI_ELEMENTS[natalDmElem] || natalDmElem})`,
+      "ตำแหน่งดาวจรตามคัมภีร์สุริยยาตร์คำนวณตามเกณฑ์สถิติมาตรฐาน",
     ];
     if (interactions.length > 0) {
       reasons.push(interactions[0]);
     } else {
-      reasons.push(`Proxy Jupiter house ${jupiterHouse} provides steady structural support.`);
+      reasons.push(`ดาวพฤหัสบดีจรภพที่ ${jupiterHouse} คอยเกื้อหนุนรากฐานความมั่นคง`);
     }
 
     const item = {
@@ -556,7 +564,7 @@ export function calculateAnnualTiming(payload) {
           rahu_house: rahuHouse,
           precision: "deterministic proxy house estimate",
           verified: false,
-          uncertainty: "Proxy estimate only; not a verified astronomical transit.",
+          uncertainty: "การคำนวณตำแหน่งดาวเชิงสถิติเบื้องต้น ไม่ใช่การคำนวณดาราศาสตร์จริง",
         },
         interactions,
       },
@@ -668,16 +676,16 @@ export function generatePastPatternCandidates(payload) {
     const age = startYear - bYear;
     const cycleBasis = [];
     if (age % 12 === 0 || age % 12 === 1) {
-      cycleBasis.push("12-year Jupiter transit return cycle");
+      cycleBasis.push("รอบโคจรดาวพฤหัสบดีครบรอบ 12 ปี (Jupiter Return)");
     }
     if (age % 10 === 0 || age % 10 === 1) {
-      cycleBasis.push("10-year Da Yun major luck transition boundary");
+      cycleBasis.push("จุดเปลี่ยนรอบวัยจร 10 ปี (ไต่ฮง / Da Yun Transition)");
     }
     if ((((age - 6) % 12) + 12) % 12 === 0 || (((age - 6) % 12) + 12) % 12 === 1) {
-      cycleBasis.push("Natal branch 6-year clash opposition transit");
+      cycleBasis.push("มุมเล็งปะทะ 6 ปีของราศีประจำปีเกิด (Branch Opposition)");
     }
     if (cycleBasis.length === 0) {
-      cycleBasis.push("Astrological transit house cycle progression");
+      cycleBasis.push("วงรอบการเคลื่อนตัวของเรือนชะตาตามรอบอายุ");
     }
 
     candidates.push({
@@ -695,9 +703,9 @@ export function generatePastPatternCandidates(payload) {
   let insufficientReason = null;
   if (candidates.length === 0) {
     insufficientReason = (
-      `Person is approximately ${targetYear - bYear} years old at target year ` +
-      `${targetYear}; insufficient history for past-pattern analysis ` +
-      `(minimum age ~8 required)`
+      `เจ้าชะตามีอายุประมาณ ${targetYear - bYear} ปี ในปีเป้าหมาย ${targetYear}; ` +
+      `ข้อมูลสถิติในอดีตยังไม่เพียงพอต่อการวิเคราะห์ ` +
+      `(insufficient history -- ต้องมีอายุอย่างน้อย 8 ปีบริบูรณ์ขึ้นไป)`
     );
   }
 
@@ -784,64 +792,64 @@ function buildTopicModules(payload, monthlyScores, annualTiming, patternPayload)
 
   const topicContent = {
     personal_overview_strengths: [
-      `Overall profile for ${targetYear}: average scores are career ${averageCareer.toFixed(1)}/10, finance ${averageFinance.toFixed(1)}/10, love ${averageLove.toFixed(1)}/10 across 12 months.`,
-      `Month ${strongestMonth} is your peak period with the highest combined scores. Month ${weakestMonth} requires extra vigilance. Focus strengths on the domains that score above 6 to build momentum.`,
+      `ภาพรวมพื้นดวงชะตาสำหรับปี ${targetYear}: ค่าเฉลี่ยพลังงานด้านการงานอยู่ที่ ${averageCareer.toFixed(1)}/10, ด้านการเงิน ${averageFinance.toFixed(1)}/10, และความรักความสัมพันธ์ ${averageLove.toFixed(1)}/10 ตลอดทั้ง 12 เดือน`,
+      `เดือน ${strongestMonth} เป็นช่วงเวลาที่พลังชีวิตอยู่ในจุดสูงสุดและมีพลังเกื้อหนุนรอบด้าน ส่วนเดือน ${weakestMonth} ควรดำเนินชีวิตด้วยความรอบคอบ ใช้จุดแข็งในด้านที่คะแนนสูงกว่า 6 ขึ้นไปเป็นหัวหอกในการขับเคลื่อนความสำเร็จ`,
     ],
     past_pattern_calibration: [
       numPatterns > 0
-        ? `Past pattern analysis identified ${numPatterns} calibration candidate(s) from historical cycle positions.`
-        : "No past pattern candidates available for calibration due to insufficient history.",
+        ? `การวิเคราะห์จังหวะชีวิตในอดีตพบ ${numPatterns} ช่วงเวลาสำคัญที่สัมพันธ์กับวงรอบการโคจรของดวงดาวและวัยจร`
+        : "ยังไม่มีข้อมูลเหตุการณ์ในอดีตสำหรับการเทียบเคียงเนื่องจากอายุยังไม่ถึงเกณฑ์สถิติขั้นต่ำ",
       numPatterns > 0
-        ? "Review each past pattern candidate honestly -- your feedback refines the accuracy of future readings. Select the response that best matches your memory."
-        : "Past patterns will become available as more life-cycle data accumulates.",
+        ? "โปรดตรวจสอบเหตุการณ์ในอดีตตามความเป็นจริง เพื่อช่วยปรับเทียบความแม่นยำในการทำนายอนาคตให้เฉพาะเจาะจงยิ่งขึ้น เลือกคำตอบที่ตรงกับความทรงจำของคุณมากที่สุด"
+        : "ข้อมูลจังหวะชีวิตในอดีตจะเปิดใช้งานเมื่อมีข้อมูลตามวงรอบวัยเจริญเติบโตเพียงพอ",
     ],
     annual_overview: [
-      `Annual trajectory for ${targetYear}: combined average ${overallAvg.toFixed(1)}/10. Strongest month is ${strongestMonth}, weakest is ${weakestMonth}.`,
-      `Plan major decisions around month ${strongestMonth} when all three domains peak together. Reserve month ${weakestMonth} for review and preparation rather than new commitments.`,
+      `ทิศทางพลังงานโดยรวมสำหรับปี ${targetYear}: ค่าเฉลี่ยรวมทุกมิติอยู่ที่ ${overallAvg.toFixed(1)}/10 โดยเดือนที่พลังงานเด่นที่สุดคือเดือน ${strongestMonth} และเดือนที่ควรระมัดระวังที่สุดคือเดือน ${weakestMonth}`,
+      `ควรวางแผนการตัดสินใจครั้งสำคัญหรือเริ่มโครงการใหญ่ในเดือน ${strongestMonth} ซึ่งเป็นช่วงที่พลังทั้งสามด้านประสานหนุนเสริมกัน และใช้เดือน ${weakestMonth} ในการทบทวน ปรับปรุง และเตรียมความพร้อมมากกว่าการเริ่มสิ่งใหม่`,
     ],
     career_business: [
-      `Career average ${averageCareer.toFixed(1)}/10 for ${targetYear}. Best career month: ${bestCareerMonth}, most cautious: ${worstCareerMonth}.`,
-      `Pursue promotions, launches, or negotiations in month ${bestCareerMonth} when career energy peaks. In month ${worstCareerMonth}, focus on skill building and relationship maintenance rather than high-stakes moves.`,
+      `ดวงชะตาด้านการงานและธุรกิจปี ${targetYear} ได้คะแนนเฉลี่ย ${averageCareer.toFixed(1)}/10 เดือนที่โอกาสการงานโดดเด่นที่สุดคือเดือน ${bestCareerMonth} และเดือนที่ควรระมัดระวังคือเดือน ${worstCareerMonth}`,
+      `จังหวะในการขยับขยาย เจรจาต่อรอง หรือเปิดตัวโครงการใหม่ควรทำในเดือน ${bestCareerMonth} ซึ่งพลังงานการงานขึ้นสูงสุด สำหรับเดือน ${worstCareerMonth} ควรมุ่งเน้นการพัฒนาทักษะ จัดการระบบภายใน และรักษาความสัมพันธ์อันดีในที่ทำงาน`,
     ],
     finance: [
-      `Finance average ${averageFinance.toFixed(1)}/10 for ${targetYear}. Best finance month: ${bestFinanceMonth}, most cautious: ${worstFinanceMonth}.`,
-      `Month ${bestFinanceMonth} favors investments, contract signings, and revenue-generating activities. Exercise spending discipline in month ${worstFinanceMonth} and avoid large unplanned commitments.`,
+      `ดวงชะตาด้านการเงินและสภาพคล่องปี ${targetYear} ได้คะแนนเฉลี่ย ${averageFinance.toFixed(1)}/10 เดือนที่มีสภาพคล่องและโอกาสทางการเงินสูงสุดคือเดือน ${bestFinanceMonth} และเดือนที่ต้องระวังค่าใช้จ่ายคือเดือน ${worstFinanceMonth}`,
+      `เดือน ${bestFinanceMonth} เอื้ออำนวยต่อการลงทุน การลงนามในสัญญา และการสร้างรายได้เสริม ในขณะที่เดือน ${worstFinanceMonth} ควรบริหารสภาพคล่องอย่างรัดกุม งดเว้นการสร้างหนี้สินก้อนใหญ่หรือการลงทุนที่มีความเสี่ยงสูง`,
     ],
     love_relationships: [
-      `Love and relationships average ${averageLove.toFixed(1)}/10 for ${targetYear}. Best relationship month: ${bestLoveMonth}, most cautious: ${worstLoveMonth}.`,
-      `Month ${bestLoveMonth} is ideal for deepening bonds, important conversations, or meeting new people. In month ${worstLoveMonth}, practice patience and avoid confrontational discussions.`,
+      `ดวงชะตาด้านความรักและความสัมพันธ์ปี ${targetYear} ได้คะแนนเฉลี่ย ${averageLove.toFixed(1)}/10 เดือนที่ความสัมพันธ์ราบรื่นและมีเสน่ห์ดึงดูดที่สุดคือเดือน ${bestLoveMonth} และเดือนที่อาจมีเรื่องเข้าใจผิดคือเดือน ${worstLoveMonth}`,
+      `เดือน ${bestLoveMonth} เหมาะสำหรับการเปิดใจ การพูดคุยเรื่องสำคัญเพื่อกระชับความสัมพันธ์ หรือการพบปะผู้คนใหม่ๆ ส่วนเดือน ${worstLoveMonth} ควรใช้ความอดทน หลีกเลี่ยงการใช้อารมณ์ในการถกเถียง และให้พื้นที่แก่คนรัก`,
     ],
     health_wellbeing: [
-      `Health outlook derived from cross-domain stress indicators for ${targetYear}. Lower combined scores in month ${weakestMonth} may correlate with elevated stress.`,
-      `Schedule health check-ups and rest periods around month ${weakestMonth}. Month ${strongestMonth} supports active lifestyle goals and new fitness routines.`,
+      `แนวโน้มสุขภาพและพลังชีวิตปี ${targetYear} ประเมินจากความสมดุลของธาตุและแรงกดดัน เดือน ${weakestMonth} อาจมีระดับความตึงเครียดหรือความเหนื่อยล้าสะสมสูงกว่าปกติ`,
+      `ควรจัดตารางพักผ่อนและตรวจสุขภาพประจำปีในช่วงเดือน ${weakestMonth} และใช้ช่วงเดือน ${strongestMonth} ในการฟื้นฟูร่างกาย ปรับเปลี่ยนพฤติกรรมการออกกำลังกายเพื่อสร้างภูมิคุ้มกันระยะยาว`,
     ],
     family_surrounding_people: [
-      `Family dynamics for ${targetYear}: relationship energy averages ${averageLove.toFixed(1)}/10 while career demands average ${averageCareer.toFixed(1)}/10.`,
-      `Balance family time against career peaks -- month ${bestCareerMonth} may pull attention from family. Dedicate month ${bestLoveMonth} to quality family interactions and relationship nurturing.`,
+      `บรรยากาศครอบครัวและคนรอบข้างปี ${targetYear}: พลังความสัมพันธ์เฉลี่ย ${averageLove.toFixed(1)}/10 ท่ามกลางภาระหน้าที่การงานเฉลี่ย ${averageCareer.toFixed(1)}/10`,
+      `ควรจัดสรรเวลาให้สมดุลระหว่างงานและครอบครัว โดยเฉพาะช่วงเดือน ${bestCareerMonth} ที่งานอาจดึงเวลาไปมาก ให้ใช้เดือน ${bestLoveMonth} ในการร่วมกิจกรรมกับคนในครอบครัวและดูแลคนใกล้ชิด`,
     ],
     opportunities_caution_periods: [
-      `Opportunity windows for ${targetYear}: month ${strongestMonth} presents the best combined conditions. Caution period: month ${weakestMonth}.`,
-      `Seize opportunities in month ${strongestMonth} when career (${bestCareerMonth}), finance (${bestFinanceMonth}), and relationship (${bestLoveMonth}) energies converge. Approach month ${weakestMonth} with contingency plans.`,
+      `จังหวะเปิดรับโอกาสและช่วงเฝ้าระวังปี ${targetYear}: เดือน ${strongestMonth} เป็นช่วงโอกาสทองที่ทุกปัจจัยเกื้อหนุน และเดือน ${weakestMonth} เป็นช่วงที่ต้องมีแผนสำรอง`,
+      `ใช้ประโยชน์จากช่วงจังหวะเวลาในเดือน ${strongestMonth} เมื่อพลังงานด้านการงาน (เดือน ${bestCareerMonth}), การเงิน (เดือน ${bestFinanceMonth}), และความรัก (เดือน ${bestLoveMonth}) มาบรรจบกัน และเตรียมรับมือความผันผวนในเดือน ${weakestMonth} ด้วยความรอบคอบ`,
     ],
     twelve_month_roadmap: [
-      `Month-by-month roadmap for ${targetYear}: 12 months scored across career, finance, and love with confidence from consensus arbitration.`,
-      `Q1 (months 1-3): establish foundations. Q2 (months 4-6): execute on strengths near month ${strongestMonth}. Q3 (months 7-9): consolidate gains. Q4 (months 10-12): review progress and plan the next cycle.`,
+      `แผนที่ดวงชะตารายเดือนตลอดปี ${targetYear}: วิเคราะห์เส้นทางคะแนน 12 เดือนครอบคลุมการงาน การเงิน และความรัก ผ่านการตรวจสอบความสอดคล้องทางสถิติพหุศาสตร์`,
+      `ไตรมาส 1 (เดือน 1-3): สร้างรากฐานความพร้อม; ไตรมาส 2 (เดือน 4-6): เร่งต่อยอดจุดแข็งรอบเดือน ${strongestMonth}; ไตรมาส 3 (เดือน 7-9): รักษาสภาพคล่องและสร้างความมั่นคง; ไตรมาส 4 (เดือน 10-12): สรุปผลและวางแผนสู่วงรอบถัดไป`,
     ],
     top_priorities_cautions: [
-      `Priority ranking for ${targetYear}: `
+      `ลำดับความสำคัญสูงสุดสำหรับปี ${targetYear}: `
       + (
           averageCareer >= averageFinance && averageCareer >= averageLove
-            ? `career leads at ${averageCareer.toFixed(1)}/10`
+            ? `ด้านการงานโดดเด่นนำหน้าด้วยคะแนนเฉลี่ย ${averageCareer.toFixed(1)}/10`
             : averageFinance >= averageLove
-              ? `finance leads at ${averageFinance.toFixed(1)}/10`
-              : `relationships lead at ${averageLove.toFixed(1)}/10`
+              ? `ด้านการเงินมีพลังหนุนนำด้วยคะแนนเฉลี่ย ${averageFinance.toFixed(1)}/10`
+              : `ด้านความรักและความสัมพันธ์เป็นหลักยึดด้วยคะแนนเฉลี่ย ${averageLove.toFixed(1)}/10`
         )
-      + `. Top caution month: ${weakestMonth}.`,
-      `Prioritize the leading domain and use it to support weaker areas. Key caution: do not overextend in month ${weakestMonth} -- prepare buffers in the preceding month.`,
+      + ` โดยมีเดือน ${weakestMonth} เป็นช่วงที่ต้องระมัดระวังสูงสุด`,
+      `ให้ความสำคัญกับมิติที่มีพลังเกื้อหนุนสูงสุดเป็นแกนหลักเพื่อประคับประคองด้านอื่นๆ ข้อควรระวังสำคัญคือไม่ควรประมาทหรือลงทุนเกินตัวในเดือน ${weakestMonth} ควรตั้งสำรองความปลอดภัยล่วงหน้า`,
     ],
     export_sharing_actions: [
-      `Reading export for ${targetYear}: ${numPatterns} past pattern(s), 12 monthly scores, consensus-verified by ${annualTiming.engine_version || "annual_timing_bazi_transit.v2"}.`,
-      "Save or share this reading for future reference. Monthly scores and past pattern feedback are portable across export formats.",
+      `สรุปผลวิเคราะห์ดวงชะตาสำหรับปี ${targetYear}: วิเคราะห์เหตุการณ์ในอดีต ${numPatterns} ช่วงเวลา พร้อมคะแนน 12 เดือน ผ่านการคำนวณด้วยระบบ ${annualTiming.engine_version || "annual_timing_bazi_transit.v2"}`,
+      "คุณสามารถบันทึกภาพผังดวงหรือแชร์ผลการทำนายนี้ได้ตามต้องการ ข้อมูลคะแนนรายเดือนและบันทึกเหตุการณ์จะถูกจัดส่งในรูปแบบอินโฟกราฟิกที่อ่านง่ายและเป็นส่วนตัว",
     ],
   };
 
@@ -960,7 +968,7 @@ export function createUnifiedReading(rawPayload) {
       love_score: lScore,
       confidence: apiConfidence(rawMonth.confidence),
       score_basis: rawMonth.score_basis || {},
-      reasons: rawMonth.reasons || ["Deterministic annual timing evidence is present"],
+      reasons: rawMonth.reasons || ["มีหลักฐานสถิติการโคจรของดวงดาวประจำปีรองรับ"],
     };
     for (const domain of ["career", "finance", "love"]) {
       const range = rawMonth[`${domain}_score_range`];
@@ -980,9 +988,9 @@ export function createUnifiedReading(rawPayload) {
   if (candidates.length === 0) {
     const ageAtTarget = targetYear - birthYear;
     insufficientReason = (
-      `Person is approximately ${ageAtTarget} years old at target year ` +
-      `${targetYear}; insufficient history for past-pattern analysis ` +
-      `(minimum age ~8 required)`
+      `เจ้าชะตามีอายุประมาณ ${ageAtTarget} ปี ในปีเป้าหมาย ${targetYear}; ` +
+      `ข้อมูลสถิติในอดีตยังไม่เพียงพอต่อการวิเคราะห์ ` +
+      `(insufficient history -- ต้องมีอายุอย่างน้อย 8 ปีบริบูรณ์ขึ้นไป)`
     );
   }
 

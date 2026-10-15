@@ -48,6 +48,9 @@ function runGateway(testCase) {
     if (testCase.body !== undefined) {
       request.body = typeof testCase.body === "string" ? testCase.body : JSON.stringify(testCase.body);
     }
+    console.log = (...args) => process.stderr.write(args.join(" ") + "\\n");
+    console.info = (...args) => process.stderr.write(args.join(" ") + "\\n");
+    console.warn = (...args) => process.stderr.write(args.join(" ") + "\\n");
     const calls = [];
     globalThis.fetch = async (url, options) => {
       calls.push({ url, method: options.method });
@@ -99,21 +102,25 @@ test("User Scenario: birth_date 2026-10-15, unknown_hour true, display_name jack
   assert.match(reading.request_id, /^unified-reading-[a-f0-9]{20}$/);
   assert.equal(reading.target_year, 2026);
 
-  // 2. Exactly 12 canonical topics in exact order
+  // 2. Exactly 12 canonical topics in exact order with 100% Thai titles
   assert.equal(reading.topics.length, 12);
   const actualTopicIds = reading.topics.map((t) => t.topic_id);
   assert.deepEqual(actualTopicIds, CANONICAL_TOPIC_IDS);
+  assert.equal(reading.topics[0].title, "ภาพรวมตัวตนและจุดแข็งพื้นดวง");
 
   for (const topic of reading.topics) {
     assert.ok(topic.topic_id, "topic_id must be non-empty");
     assert.ok(topic.title, `Topic ${topic.topic_id} missing title`);
+    assert.ok(/[\u0e00-\u0e7f]/.test(topic.title), `Topic ${topic.topic_id} title must be in Thai: ${topic.title}`);
     assert.ok(typeof topic.summary === "string" && topic.summary.length > 0, `Topic ${topic.topic_id} missing summary`);
+    assert.ok(/[\u0e00-\u0e7f]/.test(topic.summary), `Topic ${topic.topic_id} summary must be in Thai: ${topic.summary}`);
     assert.ok(typeof topic.guidance === "string" && topic.guidance.length > 0, `Topic ${topic.topic_id} missing guidance`);
+    assert.ok(/[\u0e00-\u0e7f]/.test(topic.guidance), `Topic ${topic.topic_id} guidance must be in Thai: ${topic.guidance}`);
     assert.ok(["HIGH", "MEDIUM", "LOW"].includes(topic.confidence), `Topic ${topic.topic_id} invalid confidence`);
     assert.ok(Array.isArray(topic.evidence_refs) && topic.evidence_refs.length > 0);
   }
 
-  // 3. Exactly 12 monthly scores in [1, 10]
+  // 3. Exactly 12 monthly scores in [1, 10] with Thai evidence reasons
   assert.equal(reading.monthly_scores.length, 12);
   for (let m = 1; m <= 12; m++) {
     const item = reading.monthly_scores[m - 1];
@@ -128,6 +135,11 @@ test("User Scenario: birth_date 2026-10-15, unknown_hour true, display_name jack
     assert.ok(Array.isArray(item.love_score_range), `Month ${m} missing love_score_range`);
     assert.equal(item.career_score_range.length, 2);
     assert.ok(item.career_score_range[0] <= item.career_score_range[1]);
+
+    // Monthly reasons must contain Thai text (BaZi pillar, Suriyayart transit)
+    assert.ok(Array.isArray(item.reasons) && item.reasons.length >= 2, `Month ${m} missing reasons`);
+    assert.ok(item.reasons.some((r) => /[\u0e00-\u0e7f]/.test(r)), `Month ${m} reasons must contain Thai text: ${JSON.stringify(item.reasons)}`);
+    assert.ok(item.reasons.some((r) => r.includes("สุริยยาตร์") || r.includes("เสาพลังงานเดือน")), `Month ${m} reasons must contain Thai astrological basis`);
   }
 
   // 4. Consensus metadata
@@ -142,8 +154,9 @@ test("User Scenario: birth_date 2026-10-15, unknown_hour true, display_name jack
   assert.equal(reading.hitl_flags.uncertain_birth_time, true);
   assert.equal(reading.hitl_flags.required_human_review, true);
 
-  // 6. Insufficient history reason for infant/target year birth
+  // 6. Insufficient history reason for infant/target year birth contains Thai and preserves "insufficient history"
   assert.ok(typeof reading.insufficient_history_reason === "string");
+  assert.ok(/[\u0e00-\u0e7f]/.test(reading.insufficient_history_reason), "insufficient_history_reason must contain Thai text");
   assert.match(reading.insufficient_history_reason, /insufficient history/i);
   assert.equal(reading.past_patterns.length, 0);
 
@@ -326,3 +339,29 @@ test("Latency SLA: deterministic edge calculation executes well under 300ms SLA"
 
   assert.ok(avgMs < 50, `Average edge engine latency ${avgMs.toFixed(2)}ms exceeded SLA bound of 50ms (contract SLA < 300ms)`);
 });
+
+test("HITL Consult endpoint: /api/v3/hitl-consult returns HTTP 200 with polite non-5xx status", () => {
+  const result = runGateway({
+    method: "POST",
+    url: "/api/index?path=/api/v3/hitl-consult",
+    body: {
+      birth_date: "2026-10-15",
+      unknown_hour: true,
+      display_name: "jack",
+      target_year: 2026,
+    },
+    upstreams: [],
+  });
+
+  assert.equal(result.statusCode, 200, `Expected HTTP 200 from /api/v3/hitl-consult, got ${result.statusCode}`);
+  assert.ok(result.body && typeof result.body === "object");
+  assert.ok(
+    ["unavailable", "in_progress", "completed", "disabled"].includes(result.body.status),
+    `Unexpected status: ${result.body.status}`,
+  );
+  assert.notEqual(result.statusCode, 500);
+  assert.notEqual(result.statusCode, 502);
+  assert.notEqual(result.statusCode, 503);
+  assert.notEqual(result.statusCode, 504);
+});
+

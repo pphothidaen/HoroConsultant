@@ -389,9 +389,50 @@ textarea:invalid {
 }
 
 .hitl-alert {
-  border: 1px solid var(--element-fire);
-  background-color: var(--error-bg);
-  color: var(--error-text);
+  border: 1px solid var(--element-water);
+  background-color: var(--surface-muted);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.deep-synthesis-card {
+  margin-top: 24px;
+  border: 2px solid var(--element-water);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--surface-panel);
+}
+
+.deep-synthesis-card h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+}
+
+.deep-synthesis-status {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background-color: var(--surface-muted);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.deep-synthesis-countdown {
+  font-weight: 700;
+  color: var(--element-fire);
+}
+
+.deep-synthesis-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text-primary);
 }
 
 .topics-grid {
