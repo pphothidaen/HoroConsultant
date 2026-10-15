@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-005",
-  "sequence": 12,
+  "ticket_id": "TICKET-HLITE-010",
+  "sequence": 13,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "ae4d5469f575c4bcfe3840906ca7dc44efe874ce",
+  "baseline_parent": "32ad5580b6438b1660188b2018d96d669f34d180",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "beb7b2cc319ace01076338e82ae001afbbcb0c66ac08a16a8c795e30c8310505"
+      "sha256": "f76bf51bb211e7e349e39cd18089c208d8a2238b28fd900c76c7e1fca2a93431"
     }
   ],
   "red_tests": [
@@ -18,21 +18,28 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_lite_form_dom_contract or test_lite_form_accessibility_and_dom_negative_matrix",
+        "test_lite_form_dom_contract or test_lite_form_accessibility_and_dom_negative_matrix or test_accessibility_and_contrast_compliance",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: LITE_FORM_UNLABELLED_CONTROL or LITE_FORM_PRIMARY_ACTION_BUTTON_MISSING or LITE_FORM_SINGLE_SUBMIT_ACTION_VIOLATION or LITE_FORM_PRIMARY_ACTION_TEXT_MISMATCH or LITE_FORM_ADVANCED_DISCLOSURE_MUST_BE_COLLAPSED or LITE_FORM_BIRTH_DATE_CONTROL_MISSING_OR_UNBOUND or LITE_FORM_DANGLING_LABEL_TARGET"
+      "failure_fingerprint": "AssertionError: LITE_FORM_UNLABELLED_CONTROL or LITE_FORM_PRIMARY_ACTION_BUTTON_MISSING or LITE_FORM_SINGLE_SUBMIT_ACTION_VIOLATION or LITE_FORM_PRIMARY_ACTION_TEXT_MISMATCH or LITE_FORM_ADVANCED_DISCLOSURE_MUST_BE_COLLAPSED or LITE_FORM_BIRTH_DATE_CONTROL_MISSING_OR_UNBOUND or LITE_FORM_DANGLING_LABEL_TARGET or ACCESSIBILITY_GAUGE_VALUE_TEXTUAL_SCORE_MISSING"
     }
   ],
   "allowed_source_paths": [
     "public/lite.html",
     "public/lite.css",
-    "public/lite.js"
+    "public/lite.js",
+    "public/export_engine.js",
+    "public/export_modal.css",
+    "project/core/unified_reading_engine.py",
+    "project/core/annual_timing_engine.py",
+    "project/core/past_pattern_calibrator.py",
+    "project/debate/consensus_matrix.py",
+    "project/routers/unified_reading_router.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "ae4d5469f575c4bcfe3840906ca7dc44efe874ce",
-  "correction_reason": "Advance Horo Lite baseline from Phase D (TICKET-HLITE-004) to Phase E (TICKET-HLITE-005) Form & Single-Action Flow DOM, contract, and accessibility verification (sequence 12: 15/15 PASS in unified reading, 11/11 PASS in UI tests, 6/6 PASS in gateway, zero regressions).",
-  "rationale": "Record verified test provenance baseline for Horo Lite Phase E (TICKET-HLITE-005) Form & Single-Action Flow DOM and accessibility contract verification in tests/test_horo_lite_unified_reading.py: Clean single-column form structure (<form id='lite-form' class='lite-form'>, <main class='lite-shell' aria-labelledby='page-title'>, semantic sections), required inputs contract (birth date with bday autocomplete, birth time picker, unknown hour checkbox toggle with aria-describedby hint element, birthplace search with geocoding datalist autocomplete, gender selector with canonical options, target year with bounds [1900..2200]), collapsed-by-default Advanced disclosure (<details class='advanced-panel'> containing raw coordinates, timezone, engine_mode), single primary submit button ('คำนวณผังดวง & ตีความด้วย AI' with id='submit-reading'), universal accessible labelling contract for all form controls (label[for], aria-label, aria-labelledby) with zero dangling label targets, responsive CSS single-column layout rule, JS single API target (/api/v3/unified-reading) without duplicated local astrology logic, physical static asset verification (lite.html, lite.css, lite.js, export_engine.js, export_modal.css, app.js), HTTP route status 200 contract with non-empty payload, and comprehensive fail-closed pessimistic negative control matrix across all DOM failure modes. Verification: 15/15 PASS in unified reading, 11/11 PASS in UI tests, 6/6 PASS in gateway, zero regressions across test suite."
+  "supersedes": "055b5608b44b200c527be53356f81eabebfa0dbe",
+  "correction_reason": "Advance Horo Lite baseline from Phase E (TICKET-HLITE-005) to Phase J (TICKET-HLITE-010) recording complete Phase A through Phase I test consolidation (19/19 unified reading PASS, zero regressions across test suites).",
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase J (TICKET-HLITE-010) consolidating complete Phase A through Phase I test coverage in tests/test_horo_lite_unified_reading.py: 1) Phase A: Versioned Pydantic v2 schemas and validation for UnifiedReadingRequest, TopicModule, MonthlyScoreItem, PastPatternCandidate, and UnifiedReadingResponse. 2) Phase B: Deterministic 12-month annual timing engine with score bounds [1..10], traceable monthly reasons, and 3-5 non-sensitive past pattern candidate generation with child boundary calibration. 3) Phase C: Multi-tradition consensus matrix arbitration across Thai Suriyayart and BaZi cycles with fail-closed HITL queue routing (<0.75 consensus or unknown hour). 4) Phase D: POST /api/v3/unified-reading FastAPI endpoint contract, deterministic latency SLA (<300ms), translation SLA (<2.5s), and strict score/fact immutability by LLM. 5) Phase E: Clean single-column form DOM contract with 1:1 accessible label binding, collapsed advanced disclosure, and single primary action button. 6) Phase F: 12 modular canonical topic presentation in exact CANONICAL_TOPIC_IDS sequence with collapsible technical basis and fail-closed labeled fallback policy. 7) Phase G: Interactive feedback UI for past pattern calibration with 4 feedback choices, role=group, consent-checkbox strictly guarded localStorage persistence, and zero false accuracy metrics. 8) Phase H: Multi-format client-side canvas rasterizer supporting Full vertical PNG, 1080x1920 Story PNG, copy social summary with privacy masking default, and print/PDF. 9) Phase I: WCAG AA contrast compliance, visible focus rings, full keyboard tab order and Enter/Space activation, ARIA landmarks, non-destructive retry recovery, and unknown-hour notice ergonomics. Verification: 19/19 PASS in tests/test_horo_lite_unified_reading.py, 19/19 PASS in regression test suites (test_visual_endpoints.py, test_browser_notifications_and_processing_modal.py, test_bazi_resilient_fallback.py), zero regressions."
 }

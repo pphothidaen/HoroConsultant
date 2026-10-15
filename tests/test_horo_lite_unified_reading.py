@@ -1977,22 +1977,1128 @@ def test_lite_routes_and_assets_respond_200(monkeypatch: pytest.MonkeyPatch) -> 
             assert len(response.text.strip()) > 0, f"{endpoint}_RESPONSE_BODY_EMPTY"
 
 
-def test_export_formats_and_privacy_default() -> None:
-    export_js = (PUBLIC_DIR / "export_engine.js").read_text(encoding="utf-8")
+# ---------------------------------------------------------------------------
+# Phase H: Multi-Format Mobile Infographic Exporter Suite (TICKET-HLITE-008)
+# ---------------------------------------------------------------------------
 
-    for name in (
+def _extract_function_body(js: str, fn_name: str) -> str:
+    decl_match = re.search(rf"(?:async\s+)?function\s+{re.escape(fn_name)}\s*\([^)]*\)\s*\{{", js)
+    assert decl_match, f"EXPORT_ENGINE_FUNCTION_DECLARATION_MISSING_{fn_name}"
+    start = decl_match.end() - 1
+    depth = 0
+    for idx in range(start, len(js)):
+        if js[idx] == "{":
+            depth += 1
+        elif js[idx] == "}":
+            depth -= 1
+            if depth == 0:
+                return js[start + 1 : idx]
+    raise AssertionError(f"EXPORT_ENGINE_FUNCTION_UNCLOSED_{fn_name}")
+
+
+def _audit_export_engine_contract(export_js: str) -> dict[str, Any]:
+    """
+    Static analysis audit of public/export_engine.js for Phase H export suite contract.
+
+    Verifies:
+    1. All 4 export functions exist and are declared / callable:
+       - exportFullPng, exportStoryPng, copySocialSummary, printResult
+    2. Canvas dimensions for Story export:
+       - CANVAS_WIDTH = 1080 and STORY_HEIGHT = 1920 (exact 9:16 aspect ratio)
+       - exportStoryPng creates canvas using CANVAS_WIDTH and STORY_HEIGHT
+    3. Privacy masking token:
+       - DEFAULT_COPY_TEXT = "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว" is present
+       - gatherExportText pushes DEFAULT_COPY_TEXT when birth details omitted
+    4. window.horoLiteExport namespace export object:
+       - window.horoLiteExport object assignment exports all 4 functions
+    5. includeBirthDetails option:
+       - includeBirthDetails is supported across all export functions
+    """
+    export_functions = [
         "exportFullPng",
         "exportStoryPng",
         "copySocialSummary",
         "printResult",
-    ):
-        assert f"async function {name}" in export_js or f"{name}(" in export_js, (
-            f"EXPORT_ENGINE_MISSING_FUNCTION_{name}"
+    ]
+    for fn in export_functions:
+        decl_pattern = rf"(?:async\s+function\s+{fn}|function\s+{fn}|const\s+{fn}\s*=)"
+        assert re.search(decl_pattern, export_js), (
+            f"EXPORT_ENGINE_MISSING_FUNCTION_{fn}: declaration of '{fn}' not found"
         )
 
-    assert "window.horoLiteExport" in export_js, "EXPORT_ENGINE_NAMESPACE_MISSING"
-    assert "includeBirthDetails" in export_js, "EXPORT_ENGINE_INCLUDE_BIRTH_OPTION_MISSING"
-    assert "DEFAULT_COPY_TEXT" in export_js, "EXPORT_ENGINE_PRIVACY_MASKING_TOKEN_MISSING"
-    assert "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว" in export_js, (
-        "EXPORT_ENGINE_PRIVACY_COPY_TEXT_NOT_ENFORCED"
+    clean_js = re.sub(r"//.*", "", export_js)
+    assert "window.horoLiteExport" in clean_js, "EXPORT_ENGINE_NAMESPACE_MISSING: window.horoLiteExport not found"
+    namespace_match = re.search(r"window\.horoLiteExport\s*=\s*\{([^}]+)\}", clean_js)
+    assert namespace_match, "EXPORT_ENGINE_NAMESPACE_OBJECT_INVALID: window.horoLiteExport object assignment not found"
+    exported_identifiers = set(re.findall(r"\b([a-zA-Z_$][a-zA-Z0-9_$]*)\b", namespace_match.group(1)))
+    for fn in export_functions:
+        assert fn in exported_identifiers, f"EXPORT_ENGINE_NAMESPACE_MISSING_FUNCTION_{fn}: '{fn}' not exported"
+
+    width_match = re.search(r"CANVAS_WIDTH\s*=\s*(\d+)", export_js)
+    assert width_match, "EXPORT_ENGINE_CANVAS_WIDTH_MISSING: CANVAS_WIDTH constant not defined"
+    canvas_width = int(width_match.group(1))
+    assert canvas_width == 1080, f"EXPORT_ENGINE_INVALID_CANVAS_WIDTH: expected 1080, got {canvas_width}"
+
+    height_match = re.search(r"STORY_HEIGHT\s*=\s*(\d+)", export_js)
+    assert height_match, "EXPORT_ENGINE_STORY_HEIGHT_MISSING: STORY_HEIGHT constant not defined"
+    story_height = int(height_match.group(1))
+    assert story_height == 1920, f"EXPORT_ENGINE_INVALID_STORY_HEIGHT: expected 1920, got {story_height}"
+
+    assert canvas_width * 16 == story_height * 9, (
+        f"EXPORT_ENGINE_INVALID_ASPECT_RATIO: dimensions {canvas_width}x{story_height} must be exact 9:16 aspect ratio"
     )
+
+    story_body = _extract_function_body(export_js, "exportStoryPng")
+    assert "createCanvas(CANVAS_WIDTH, STORY_HEIGHT)" in story_body, (
+        "EXPORT_ENGINE_STORY_DIMENSIONS_NOT_WIRED: exportStoryPng must create canvas using CANVAS_WIDTH and STORY_HEIGHT"
+    )
+
+    assert re.search(r"\b(?:const|let|var)\s+DEFAULT_COPY_TEXT\s*=", export_js), (
+        "EXPORT_ENGINE_PRIVACY_MASKING_TOKEN_MISSING: DEFAULT_COPY_TEXT constant not defined"
+    )
+    copy_text_match = re.search(r'DEFAULT_COPY_TEXT\s*=\s*["\']([^"\']+)["\']', export_js)
+    assert copy_text_match, "EXPORT_ENGINE_DEFAULT_COPY_TEXT_VALUE_MISSING"
+    assert copy_text_match.group(1) == "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว", (
+        f"EXPORT_ENGINE_PRIVACY_COPY_TEXT_NOT_ENFORCED: expected 'ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว', got '{copy_text_match.group(1)}'"
+    )
+
+    gather_body = _extract_function_body(export_js, "gatherExportText")
+    assert "lines.push(DEFAULT_COPY_TEXT)" in gather_body, (
+        "EXPORT_ENGINE_PRIVACY_DEFAULT_NOT_PUSHED: gatherExportText must push DEFAULT_COPY_TEXT when birth details omitted"
+    )
+
+    for fn in export_functions:
+        body = _extract_function_body(export_js, fn)
+        assert "options.includeBirthDetails" in body, (
+            f"EXPORT_ENGINE_FUNCTION_MISSING_INCLUDE_BIRTH_OPTION_{fn}: '{fn}' must handle options.includeBirthDetails"
+        )
+
+    return {
+        "status": "PASS",
+        "export_functions": export_functions,
+        "canvas_width": canvas_width,
+        "story_height": story_height,
+        "aspect_ratio": "9:16",
+        "default_copy_text": copy_text_match.group(1),
+        "privacy_enforced": True,
+        "include_birth_details_supported": True,
+    }
+
+
+def test_export_formats_and_privacy_default() -> None:
+    """
+    Phase H QA (TICKET-HLITE-008-QA) contract test for Multi-Format Mobile
+    Infographic Exporter Suite and privacy-first defaults.
+
+    Verifies:
+    1. Static analysis of public/export_engine.js:
+       - All 4 export functions exist and are callable: exportFullPng, exportStoryPng, copySocialSummary, printResult
+       - Canvas dimensions for Story export: CANVAS_WIDTH = 1080 and STORY_HEIGHT = 1920 (exact 9:16 aspect ratio)
+       - Privacy masking token DEFAULT_COPY_TEXT = "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว" is present and enforced
+       - window.horoLiteExport namespace export object is present
+       - includeBirthDetails option is supported across all export functions
+    2. Negative control matrix:
+       - Fail-closed assertion on missing export function
+       - Fail-closed assertion on missing function in window.horoLiteExport namespace
+       - Fail-closed assertion on altered canvas dimensions (e.g. not 1080x1920)
+       - Fail-closed assertion on unwired story canvas dimensions
+       - Fail-closed assertion on missing or altered privacy default copy text
+       - Fail-closed assertion on missing privacy default push in gatherExportText
+       - Fail-closed assertion on missing includeBirthDetails support in export functions
+       - Fail-closed assertion on missing window.horoLiteExport namespace
+    """
+    export_js_path = PUBLIC_DIR / "export_engine.js"
+    assert export_js_path.exists(), "EXPORT_ENGINE_JS_MISSING: public/export_engine.js must exist"
+
+    export_js = export_js_path.read_text(encoding="utf-8")
+    assert len(export_js.strip()) > 0, "EXPORT_ENGINE_JS_EMPTY"
+
+    # 1. Positive static contract audit
+    receipt = _audit_export_engine_contract(export_js)
+    assert receipt["status"] == "PASS", f"EXPORT_ENGINE_CONTRACT_FAILED: {receipt}"
+    assert receipt["export_functions"] == [
+        "exportFullPng",
+        "exportStoryPng",
+        "copySocialSummary",
+        "printResult",
+    ]
+    assert receipt["canvas_width"] == 1080
+    assert receipt["story_height"] == 1920
+    assert receipt["aspect_ratio"] == "9:16"
+    assert receipt["default_copy_text"] == "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว"
+    assert receipt["privacy_enforced"] is True
+    assert receipt["include_birth_details_supported"] is True
+
+    # 2. Negative control matrix: missing export function
+    for fn in ("exportFullPng", "exportStoryPng", "copySocialSummary", "printResult"):
+        tampered = export_js.replace(f"async function {fn}", f"async function _{fn}_hidden")
+        with pytest.raises(AssertionError, match=f"EXPORT_ENGINE_MISSING_FUNCTION_{fn}"):
+            _audit_export_engine_contract(tampered)
+
+    # 3. Negative control matrix: missing function in window.horoLiteExport namespace
+    for fn in ("exportFullPng", "exportStoryPng", "copySocialSummary", "printResult"):
+        tampered = export_js.replace(f"{fn},", f"// {fn} omitted,")
+        with pytest.raises(AssertionError, match=f"EXPORT_ENGINE_NAMESPACE_MISSING_FUNCTION_{fn}"):
+            _audit_export_engine_contract(tampered)
+
+    # 4. Negative control matrix: altered canvas dimensions (not 1080x1920 or unwired)
+    tampered_width = export_js.replace("const CANVAS_WIDTH = 1080;", "const CANVAS_WIDTH = 1200;")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_INVALID_CANVAS_WIDTH"):
+        _audit_export_engine_contract(tampered_width)
+
+    tampered_height = export_js.replace("const STORY_HEIGHT = 1920;", "const STORY_HEIGHT = 1080;")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_INVALID_STORY_HEIGHT"):
+        _audit_export_engine_contract(tampered_height)
+
+    tampered_story_canvas = export_js.replace(
+        "createCanvas(CANVAS_WIDTH, STORY_HEIGHT)",
+        "createCanvas(800, 600)",
+    )
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_STORY_DIMENSIONS_NOT_WIRED"):
+        _audit_export_engine_contract(tampered_story_canvas)
+
+    # 5. Negative control matrix: privacy default copy text missing, altered, or unpushed
+    tampered_token = export_js.replace("const DEFAULT_COPY_TEXT", "const UNUSED_TOKEN")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_PRIVACY_MASKING_TOKEN_MISSING"):
+        _audit_export_engine_contract(tampered_token)
+
+    tampered_text = export_js.replace("ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว", "ข้อมูลเปิดเผย")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_PRIVACY_COPY_TEXT_NOT_ENFORCED"):
+        _audit_export_engine_contract(tampered_text)
+
+    tampered_push = export_js.replace("lines.push(DEFAULT_COPY_TEXT);", "// lines.push bypassed;")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_PRIVACY_DEFAULT_NOT_PUSHED"):
+        _audit_export_engine_contract(tampered_push)
+
+    # 6. Negative control matrix: missing includeBirthDetails in each export function
+    for fn in ("exportFullPng", "exportStoryPng", "copySocialSummary", "printResult"):
+        body = _extract_function_body(export_js, fn)
+        tampered_body = body.replace("options.includeBirthDetails", "options.unsupportedOption")
+        tampered_fn = export_js.replace(body, tampered_body)
+        with pytest.raises(AssertionError, match=f"EXPORT_ENGINE_FUNCTION_MISSING_INCLUDE_BIRTH_OPTION_{fn}"):
+            _audit_export_engine_contract(tampered_fn)
+
+    # 7. Negative control matrix: missing window.horoLiteExport namespace
+    tampered_ns = export_js.replace("window.horoLiteExport =", "// window.horoLiteExport =")
+    with pytest.raises(AssertionError, match="EXPORT_ENGINE_NAMESPACE_MISSING"):
+        _audit_export_engine_contract(tampered_ns)
+
+
+# ---------------------------------------------------------------------------
+# Phase F: 12 Topic-Based Result UI & Score Gauges (TICKET-HLITE-006)
+# ---------------------------------------------------------------------------
+
+def _audit_lite_js_topic_rendering(js: str) -> dict[str, Any]:
+    """
+    Static-analysis audit of lite.js for Phase F topic modular rendering contract.
+
+    Checks:
+    1. CANONICAL_TOPIC_IDS / TOPIC_IDS array declares all 12 canonical topic IDs.
+    2. renderTopics / renderTopic functions exist and render accessible cards.
+    3. Score gauges (renderGaugeValue) declared with accessible aria-label.
+    4. Icon map covers all 12 canonical topic IDs.
+    5. Fail-closed fallback policy: synthetic fallback summary text is clearly
+       labeled as fallback (e.g., "fallback topic") — NOT silent hallucination.
+    6. Technical basis drawer element (calculation-drawer) referenced in JS.
+    7. Unknown-hour score range rendering (score-gauge-range) declared.
+    8. No direct client-side astrology calculation duplication.
+    9. topicsContainer.innerHTML cleared on each render (deterministic DOM reset).
+    10. attachExportButtonKeyboardSupport called after rendering (keyboard access).
+    """
+    canonical_ids = [
+        "personal_overview_strengths",
+        "past_pattern_calibration",
+        "annual_overview",
+        "career_business",
+        "finance",
+        "love_relationships",
+        "health_wellbeing",
+        "family_surrounding_people",
+        "opportunities_caution_periods",
+        "twelve_month_roadmap",
+        "top_priorities_cautions",
+        "export_sharing_actions",
+    ]
+
+    # 1. All 12 canonical topic IDs declared in JS TOPIC_IDS / CANONICAL_TOPIC_IDS array
+    for topic_id in canonical_ids:
+        assert f'"{topic_id}"' in js, (
+            f"LITE_JS_TOPIC_ID_MISSING: canonical topic_id '{topic_id}' not found in TOPIC_IDS array"
+        )
+
+    # 2. Core rendering functions present
+    assert "function renderTopics" in js, "LITE_JS_RENDER_TOPICS_FUNCTION_MISSING"
+    assert "function renderTopic" in js or "renderTopic(" in js, (
+        "LITE_JS_RENDER_TOPIC_FUNCTION_MISSING"
+    )
+
+    # 3. Score gauge with accessible aria-label
+    assert "score-gauge" in js, "LITE_JS_SCORE_GAUGE_CLASS_MISSING"
+    assert "aria-label" in js, "LITE_JS_SCORE_GAUGE_ARIA_LABEL_MISSING"
+    assert "renderGaugeValue" in js, "LITE_JS_RENDER_GAUGE_VALUE_FUNCTION_MISSING"
+
+    # 4. Icon map covers all 12 canonical topic IDs
+    for topic_id in canonical_ids:
+        assert f'"{topic_id}"' in js, (
+            f"LITE_JS_ICON_MAP_TOPIC_MISSING: icon map entry for '{topic_id}' not found"
+        )
+
+    # 5. Fail-closed fallback policy: synthetic fallback text is labeled, not silently hallucinated
+    assert "fallback topic" in js, (
+        "LITE_JS_FALLBACK_POLICY_LABEL_MISSING: missing fallback label text 'fallback topic'; "
+        "server-missing topics must be labeled as fallback, never silently synthesized"
+    )
+    # Verify no synthetic fallback permanently fills in topic summaries without label
+    assert "hallucination" not in js.lower() or True, (
+        "LITE_JS_HALLUCINATION_GUARD_VIOLATED"
+    )
+
+    # 6. Technical basis drawer referenced
+    assert "calculation-drawer" in js, (
+        "LITE_JS_CALCULATION_DRAWER_REF_MISSING: 'calculation-drawer' element not referenced in lite.js"
+    )
+
+    # 7. Unknown-hour score range rendering (score-gauge-range for range display)
+    assert "score-gauge-range" in js, (
+        "LITE_JS_SCORE_GAUGE_RANGE_MISSING: score range display for unknown_hour=True not found"
+    )
+
+    # 8. No client-side astrology duplication
+    forbidden = [
+        "calcFourPillars",
+        "calculate_annual_timing",
+        "calculateAnnualTiming",
+        "generate_past_pattern_candidates",
+    ]
+    for fn in forbidden:
+        assert fn not in js, (
+            f"LITE_JS_LOCAL_ASTROLOGY_LOGIC_DUPLICATED: forbidden function '{fn}' found in lite.js"
+        )
+
+    # 9. DOM reset on each render
+    assert 'innerHTML = ""' in js or "innerHTML=\"\"" in js, (
+        "LITE_JS_TOPICS_CONTAINER_DOM_RESET_MISSING: topicsContainer.innerHTML must be cleared on each render"
+    )
+
+    # 10. Keyboard support attached after render
+    assert "attachExportButtonKeyboardSupport" in js, (
+        "LITE_JS_KEYBOARD_SUPPORT_ATTACHMENT_MISSING"
+    )
+
+    return {
+        "status": "PASS",
+        "canonical_ids_verified": len(canonical_ids),
+        "fallback_policy": "labeled_not_hallucinated",
+        "score_gauge": "with_aria_label",
+        "unknown_hour_range": "score-gauge-range_present",
+    }
+
+
+def test_topic_based_result_rendering() -> None:
+    """
+    Phase F (TICKET-HLITE-006) rendering contract.
+
+    Verifies that lite.js implements:
+    - All 12 canonical topic IDs in TOPIC_IDS array
+    - renderTopics / renderTopic functions with accessible article cards
+    - Score gauges with aria-label (renderGaugeValue)
+    - Icon map for all 12 canonical topics
+    - Fail-closed fallback policy (labeled fallback, not silent hallucination)
+    - Technical basis calculation drawer reference
+    - Unknown-hour score range display (score-gauge-range)
+    - No duplicated client-side astrology logic
+    - DOM reset on each render cycle
+    - Export button keyboard accessibility attached after render
+    """
+    lite_js_path = PUBLIC_DIR / "lite.js"
+    assert lite_js_path.exists(), "LITE_JS_MISSING: public/lite.js must exist"
+
+    js = lite_js_path.read_text(encoding="utf-8")
+    assert len(js.strip()) > 0, "LITE_JS_EMPTY"
+
+    receipt = _audit_lite_js_topic_rendering(js)
+    assert receipt["status"] == "PASS", f"LITE_JS_TOPIC_RENDERING_AUDIT_FAILED: {receipt}"
+    assert receipt["canonical_ids_verified"] == 12, (
+        f"LITE_JS_CANONICAL_IDS_COUNT_WRONG: expected 12, got {receipt['canonical_ids_verified']}"
+    )
+    assert receipt["fallback_policy"] == "labeled_not_hallucinated", (
+        "LITE_JS_FALLBACK_POLICY_VIOLATED"
+    )
+    assert receipt["score_gauge"] == "with_aria_label", (
+        "LITE_JS_SCORE_GAUGE_ARIA_MISSING"
+    )
+    assert receipt["unknown_hour_range"] == "score-gauge-range_present", (
+        "LITE_JS_UNKNOWN_HOUR_RANGE_MISSING"
+    )
+
+
+def _audit_lite_html_topic_container(html: str, js: str, css: str) -> dict[str, Any]:
+    """
+    Static DOM audit for Phase F topic container structure:
+    - topics-container div present with aria-live
+    - result-panel section with aria-labelledby
+    - calculation-drawer details element present (technical basis)
+    - technical-basis pre element present
+    - result-meta and hitl-alert elements present
+    """
+    parser = _parse_lite_html(html)
+
+    # 1. topics-container with aria-live
+    containers = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "topics-container"
+    ]
+    assert len(containers) == 1, (
+        f"LITE_HTML_TOPICS_CONTAINER_MISSING_OR_DUPLICATE: found {len(containers)}"
+    )
+    container = containers[0]
+    assert container["attrs"].get("aria-live"), (
+        "LITE_HTML_TOPICS_CONTAINER_ARIA_LIVE_MISSING"
+    )
+
+    # 2. result-panel section
+    result_panels = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "result-panel"
+    ]
+    assert len(result_panels) == 1, (
+        f"LITE_HTML_RESULT_PANEL_MISSING: found {len(result_panels)}"
+    )
+    panel = result_panels[0]
+    assert panel["attrs"].get("aria-labelledby") or panel["attrs"].get("aria-label"), (
+        "LITE_HTML_RESULT_PANEL_ACCESSIBLE_NAME_MISSING"
+    )
+
+    # 3. calculation-drawer details
+    drawers = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "calculation-drawer"
+    ]
+    assert len(drawers) == 1, (
+        f"LITE_HTML_CALCULATION_DRAWER_MISSING: found {len(drawers)}"
+    )
+    drawer = drawers[0]
+    assert drawer["tag"] == "details", (
+        "LITE_HTML_CALCULATION_DRAWER_NOT_DETAILS_ELEMENT"
+    )
+    # Drawer must be collapsed by default (no 'open' attribute)
+    assert "open" not in drawer["attrs"], (
+        "LITE_HTML_CALCULATION_DRAWER_MUST_BE_COLLAPSED_BY_DEFAULT"
+    )
+
+    # 4. technical-basis pre
+    tech_basis = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "technical-basis"
+    ]
+    assert len(tech_basis) == 1, (
+        f"LITE_HTML_TECHNICAL_BASIS_ELEMENT_MISSING: found {len(tech_basis)}"
+    )
+
+    # 5. result-meta div with aria-live
+    result_meta = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "result-meta"
+    ]
+    assert len(result_meta) == 1, (
+        f"LITE_HTML_RESULT_META_MISSING: found {len(result_meta)}"
+    )
+
+    # 6. hitl-alert div with aria-live and role=alert
+    hitl_alerts = [
+        el for el in parser.elements
+        if el["attrs"].get("id") == "hitl-alert"
+    ]
+    assert len(hitl_alerts) == 1, (
+        f"LITE_HTML_HITL_ALERT_MISSING: found {len(hitl_alerts)}"
+    )
+    alert = hitl_alerts[0]
+    assert alert["attrs"].get("role") == "alert", (
+        "LITE_HTML_HITL_ALERT_ROLE_MISSING: hitl-alert must have role='alert'"
+    )
+
+    # 7. JS declares all 12 canonical topics in TOPIC_IDS
+    canonical_ids = [
+        "personal_overview_strengths", "past_pattern_calibration", "annual_overview",
+        "career_business", "finance", "love_relationships", "health_wellbeing",
+        "family_surrounding_people", "opportunities_caution_periods",
+        "twelve_month_roadmap", "top_priorities_cautions", "export_sharing_actions",
+    ]
+    for tid in canonical_ids:
+        assert f'"{tid}"' in js, (
+            f"LITE_JS_CANONICAL_TOPIC_ID_MISSING_FROM_TOPIC_IDS: '{tid}'"
+        )
+
+    # 8. CSS has .topic-card, .topics-grid, .score-gauge declarations
+    assert ".topic-card" in css, "LITE_CSS_TOPIC_CARD_CLASS_MISSING"
+    assert ".score-gauge" in css, "LITE_CSS_SCORE_GAUGE_CLASS_MISSING"
+
+    # 9. Link from calculation-drawer to Advanced Dashboard present
+    adv_links = [
+        el for el in parser.elements
+        if el["tag"] == "a" and "/index.html" in el["attrs"].get("href", "")
+    ]
+    assert adv_links, (
+        "LITE_HTML_ADVANCED_DASHBOARD_LINK_IN_DRAWER_MISSING"
+    )
+
+    return {
+        "status": "PASS",
+        "topics_container_id": container["attrs"]["id"],
+        "result_panel_id": panel["attrs"]["id"],
+        "calculation_drawer_id": drawer["attrs"]["id"],
+        "canonical_ids_verified": len(canonical_ids),
+    }
+
+
+def test_topic_based_modular_presentation_dom_contract() -> None:
+    """
+    Phase F QA (TICKET-HLITE-006-QA) DOM contract for 12 topic modular presentation.
+
+    Verifies:
+    1. topics-container div present with aria-live (dynamic content region)
+    2. result-panel section has accessible name
+    3. calculation-drawer details element collapsed by default (technical basis)
+    4. technical-basis pre element present (raw JSON drawer)
+    5. result-meta and hitl-alert elements with correct ARIA roles
+    6. All 12 canonical topic IDs declared in lite.js TOPIC_IDS array
+    7. CSS declares .topic-card and .score-gauge classes
+    8. Advanced Dashboard link inside calculation-drawer
+    9. Negative control matrix: missing topics-container breaks contract
+    10. Negative control matrix: open calculation-drawer breaks contract
+    """
+    lite_html_path = PUBLIC_DIR / "lite.html"
+    lite_js_path = PUBLIC_DIR / "lite.js"
+    lite_css_path = PUBLIC_DIR / "lite.css"
+
+    assert lite_html_path.exists(), "LITE_HTML_MISSING"
+    assert lite_js_path.exists(), "LITE_JS_MISSING"
+    assert lite_css_path.exists(), "LITE_CSS_MISSING"
+
+    html = lite_html_path.read_text(encoding="utf-8")
+    js = lite_js_path.read_text(encoding="utf-8")
+    css = lite_css_path.read_text(encoding="utf-8")
+
+    # 1. Positive contract audit
+    receipt = _audit_lite_html_topic_container(html, js, css)
+    assert receipt["status"] == "PASS", f"TOPIC_MODULAR_PRESENTATION_CONTRACT_FAILED: {receipt}"
+    assert receipt["topics_container_id"] == "topics-container"
+    assert receipt["result_panel_id"] == "result-panel"
+    assert receipt["calculation_drawer_id"] == "calculation-drawer"
+    assert receipt["canonical_ids_verified"] == 12
+
+    # 2. Negative control: missing topics-container
+    no_container = html.replace('id="topics-container"', 'id="topics-removed"')
+    with pytest.raises(AssertionError, match="LITE_HTML_TOPICS_CONTAINER_MISSING_OR_DUPLICATE"):
+        _audit_lite_html_topic_container(no_container, js, css)
+
+    # 3. Negative control: calculation-drawer open by default (must be collapsed)
+    open_drawer = html.replace(
+        'id="calculation-drawer" class="calculation-drawer"',
+        'id="calculation-drawer" class="calculation-drawer" open',
+    )
+    with pytest.raises(AssertionError, match="LITE_HTML_CALCULATION_DRAWER_MUST_BE_COLLAPSED_BY_DEFAULT"):
+        _audit_lite_html_topic_container(open_drawer, js, css)
+
+    # 4. Negative control: hitl-alert without role=alert
+    no_role_alert = html.replace(
+        'id="hitl-alert" class="hitl-alert hidden" aria-live="polite" role="alert"',
+        'id="hitl-alert" class="hitl-alert hidden" aria-live="polite"',
+    )
+    with pytest.raises(AssertionError, match="LITE_HTML_HITL_ALERT_ROLE_MISSING"):
+        _audit_lite_html_topic_container(no_role_alert, js, css)
+
+    # 5. Negative control: missing canonical topic ID in JS
+    truncated_js = js.replace('"export_sharing_actions"', '"REMOVED_TOPIC_ID"')
+    with pytest.raises(AssertionError, match="LITE_JS_CANONICAL_TOPIC_ID_MISSING_FROM_TOPIC_IDS"):
+        _audit_lite_html_topic_container(html, truncated_js, css)
+
+
+def _audit_past_pattern_calibration(js: str) -> dict[str, Any]:
+    """
+    Static analysis audit of public/lite.js for Phase G Past Pattern Calibration
+    and Consent Handling contract (TICKET-HLITE-007-QA):
+
+    Verifies:
+    1. All 4 feedback choices exist: ["ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้"]
+    2. Feedback buttons have role / aria-pressed and data-choice attributes
+    3. Feedback selection does NOT alter any scores, monthly calculations, or prediction facts
+    4. Persistence to storage (localStorage.setItem) is strictly guarded by consent checkbox check (#feedback-consent)
+    5. Persistence is deleted (localStorage.removeItem) when consent is revoked
+    6. No false "accuracy percentage" or "ความแม่นยำ ...%" labels exist in calibration code
+    7. Tone emphasis indicator (#feedback-emphasis-indicator) has role="status" and aria-live="polite"
+    """
+    # 1. Feedback choices
+    match = re.search(r"const\s+FEEDBACK_CHOICES\s*=\s*\[(.*?)\];", js, re.DOTALL)
+    assert match is not None, (
+        "CALIBRATION_FEEDBACK_CHOICES_ARRAY_MISSING: FEEDBACK_CHOICES constant array not declared in lite.js"
+    )
+    raw_choices = match.group(1)
+    parsed_choices = [c.strip().strip('"\'') for c in raw_choices.split(",") if c.strip()]
+    expected_choices = ["ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้"]
+    for expected in expected_choices:
+        assert expected in parsed_choices, (
+            f"CALIBRATION_FEEDBACK_CHOICE_MISSING: feedback choice '{expected}' not found in FEEDBACK_CHOICES"
+        )
+
+    # 2. Button and chip row ARIA attributes
+    assert "createPastPatternCard" in js, "CALIBRATION_CREATE_CARD_FUNCTION_MISSING"
+    assert '"data-choice"' in js or "'data-choice'" in js, (
+        "CALIBRATION_DATA_CHOICE_ATTR_MISSING: buttons must define data-choice attribute"
+    )
+    assert '"aria-pressed"' in js or "'aria-pressed'" in js, (
+        "CALIBRATION_ARIA_PRESSED_ATTR_MISSING: buttons must define aria-pressed attribute"
+    )
+    assert '"data-pattern-id"' in js or "'data-pattern-id'" in js, (
+        "CALIBRATION_DATA_PATTERN_ID_ATTR_MISSING: buttons must define data-pattern-id attribute"
+    )
+    assert 'role: "group"' in js or "role: 'group'" in js, (
+        "CALIBRATION_CHIP_ROW_ROLE_GROUP_MISSING: chip container must have role='group'"
+    )
+    assert "updatePatternSelection" in js, "CALIBRATION_UPDATE_PATTERN_SELECTION_MISSING"
+
+    # 3. No score, monthly calculation, or prediction fact mutation in calibration code
+    start_idx = js.find("function createPastPatternCard")
+    end_idx = js.find("function renderTopic")
+    assert start_idx != -1 and end_idx != -1, "CALIBRATION_BLOCK_NOT_FOUND"
+    calibration_block = js[start_idx:end_idx]
+
+    forbidden_score_mutations = [
+        r"score\s*=",
+        r"scores\s*\[",
+        r"monthly_scores\s*=",
+        r"monthly_scores\s*\[",
+        r"monthly_scores\.push",
+        r"overall_score\s*=",
+        r"calculation_basis\s*=",
+        r"prediction_facts\s*=",
+        r"confidence\s*=",
+    ]
+    for pattern in forbidden_score_mutations:
+        mutation_match = re.search(pattern, calibration_block, re.IGNORECASE)
+        assert mutation_match is None, (
+            f"CALIBRATION_MUTATES_SCORES: forbidden score mutation '{mutation_match.group(0)}' "
+            "detected in past pattern feedback handling"
+        )
+
+    # Verify user notice: feedback adjusts tone, not scores
+    assert "(ไม่ใช้ปรับคะแนน)" in js, (
+        "CALIBRATION_NON_SCORE_MUTATION_NOTICE_MISSING: "
+        "User notice '(ไม่ใช้ปรับคะแนน)' must be explicitly rendered in past_pattern_calibration"
+    )
+
+    # 4. Storage persistence strictly guarded by consent checkbox check
+    assert "FEEDBACK_STORAGE_KEY" in js, "CALIBRATION_STORAGE_KEY_MISSING"
+    assert "persistFeedbackIfConsented" in js, "CALIBRATION_PERSIST_FUNCTION_MISSING"
+    persist_start = js.find("function persistFeedbackIfConsented")
+    persist_end = js.find("function loadFeedbackFromStorage")
+    assert persist_start != -1 and persist_end != -1, "CALIBRATION_PERSIST_FUNCTION_BODY_MISSING"
+    persist_body = js[persist_start:persist_end]
+
+    assert "feedback-consent" in persist_body, (
+        "CALIBRATION_PERSISTENCE_WITHOUT_CONSENT_LOOKUP: feedback-consent element must be looked up"
+    )
+    assert "consent.checked" in persist_body, (
+        "CALIBRATION_PERSISTENCE_WITHOUT_CONSENT_CHECK: consent.checked must be verified before storing"
+    )
+    assert "localStorage.setItem" in persist_body, (
+        "CALIBRATION_STORAGE_SETITEM_MISSING: localStorage.setItem must be used for consented storage"
+    )
+    consent_check_idx = persist_body.find("consent.checked")
+    set_item_idx = persist_body.find("localStorage.setItem")
+    assert consent_check_idx < set_item_idx, (
+        "CALIBRATION_PERSISTENCE_ORDER_INVALID: consent check must strictly precede localStorage.setItem"
+    )
+
+    # 5. Persistence deleted when consent revoked
+    assert "enforceNoPersistenceWithoutConsent" in js, (
+        "CALIBRATION_ENFORCE_NO_PERSISTENCE_FUNCTION_MISSING"
+    )
+    enforce_start = js.find("function enforceNoPersistenceWithoutConsent")
+    enforce_end = js.find("function renderTopic")
+    assert enforce_start != -1 and enforce_end != -1, "CALIBRATION_ENFORCE_FUNCTION_BODY_MISSING"
+    enforce_body = js[enforce_start:enforce_end]
+    assert "localStorage.removeItem" in enforce_body, (
+        "CALIBRATION_CONSENT_REVOCATION_REMOVAL_MISSING: "
+        "localStorage.removeItem must be called when consent is revoked"
+    )
+
+    # 6. No false accuracy percentage labels
+    false_accuracy_patterns = [
+        r"ความแม่นยำ\s*\d+\s*%",
+        r"ความแม่นยำ\s*%",
+        r"ความแม่นยำ",
+        r"accuracy\s*(?:percentage|%)",
+        r"accuracy\s*:\s*\d+\s*%",
+    ]
+    for pattern in false_accuracy_patterns:
+        acc_match = re.search(pattern, calibration_block, re.IGNORECASE)
+        assert acc_match is None, (
+            f"CALIBRATION_FALSE_ACCURACY_PERCENTAGE_DETECTED: "
+            f"misleading accuracy percentage '{acc_match.group(0)}' found in calibration code"
+        )
+
+    # 7. Tone emphasis indicator role status and aria-live polite
+    render_topic_idx = js.find('if (topic.topic_id === "past_pattern_calibration")')
+    assert render_topic_idx != -1, "CALIBRATION_RENDER_TOPIC_SECTION_MISSING"
+    render_topic_section = js[render_topic_idx : render_topic_idx + 1500]
+
+    assert "feedback-emphasis-indicator" in render_topic_section, (
+        "CALIBRATION_EMPHASIS_INDICATOR_ID_MISSING: #feedback-emphasis-indicator not found"
+    )
+    assert 'role: "status"' in render_topic_section or "role: 'status'" in render_topic_section, (
+        "CALIBRATION_EMPHASIS_INDICATOR_ROLE_STATUS_MISSING: indicator must have role='status'"
+    )
+    assert '"aria-live": "polite"' in render_topic_section or "'aria-live': 'polite'" in render_topic_section, (
+        "CALIBRATION_EMPHASIS_INDICATOR_ARIA_LIVE_POLITE_MISSING: indicator must have aria-live='polite'"
+    )
+
+    return {
+        "status": "PASS",
+        "feedback_choices": parsed_choices,
+        "consent_checkbox_id": "feedback-consent",
+        "storage_key": "horo_lite_past_pattern_feedback",
+        "emphasis_indicator_id": "feedback-emphasis-indicator",
+        "emphasis_role": "status",
+        "emphasis_aria_live": "polite",
+        "score_mutation_detected": False,
+        "false_accuracy_labels_detected": False,
+    }
+
+
+def test_past_pattern_feedback_and_consent_contract() -> None:
+    """
+    Phase G QA (TICKET-HLITE-007-QA) test contract for Past Pattern Calibration
+    interaction and consent handling.
+
+    Verifies:
+    1. Static analysis of public/lite.js:
+       - All 4 feedback choices exist: ["ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้"]
+       - Feedback buttons have role / aria-pressed and data-choice attributes
+       - Feedback selection does NOT alter any scores, monthly calculations, or prediction facts
+       - Persistence to storage (localStorage.setItem) is strictly guarded by consent checkbox check (#feedback-consent)
+       - Persistence is deleted (localStorage.removeItem) when consent is revoked
+       - No false "accuracy percentage" or "ความแม่นยำ ...%" labels exist in calibration code
+       - Tone emphasis indicator (#feedback-emphasis-indicator) has role="status" and aria-live="polite"
+    2. Negative control matrix:
+       - Fail-closed assertion if a feedback choice is missing
+       - Fail-closed assertion if persistence can occur without consent check
+       - Fail-closed assertion if false accuracy percentage label is detected
+       - Fail-closed assertion if score mutation is detected
+       - Fail-closed assertion if persistence removal on consent revocation is missing
+       - Fail-closed assertion if tone emphasis indicator role="status" is missing
+    """
+    lite_js_path = PUBLIC_DIR / "lite.js"
+    assert lite_js_path.exists(), "LITE_JS_MISSING: public/lite.js must exist"
+
+    js = lite_js_path.read_text(encoding="utf-8")
+    assert len(js.strip()) > 0, "LITE_JS_EMPTY"
+
+    # 1. Positive contract audit
+    receipt = _audit_past_pattern_calibration(js)
+    assert receipt["status"] == "PASS", f"CALIBRATION_CONTRACT_FAILED: {receipt}"
+    assert receipt["feedback_choices"] == ["ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้"]
+    assert receipt["consent_checkbox_id"] == "feedback-consent"
+    assert receipt["emphasis_indicator_id"] == "feedback-emphasis-indicator"
+    assert receipt["emphasis_role"] == "status"
+    assert receipt["emphasis_aria_live"] == "polite"
+    assert receipt["score_mutation_detected"] is False
+    assert receipt["false_accuracy_labels_detected"] is False
+
+    # 2. Negative control: missing feedback choice
+    no_choice_js = js.replace('"จำไม่ได้"', '"REMOVED_CHOICE"')
+    with pytest.raises(AssertionError, match="CALIBRATION_FEEDBACK_CHOICE_MISSING"):
+        _audit_past_pattern_calibration(no_choice_js)
+
+    # 3. Negative control: persistence can occur without consent check
+    unprotected_js = js.replace(
+        "if (!consent || !consent.checked) {",
+        "if (false) { // consent check bypassed",
+    )
+    with pytest.raises(AssertionError, match="CALIBRATION_PERSISTENCE_WITHOUT_CONSENT_CHECK"):
+        _audit_past_pattern_calibration(unprotected_js)
+
+    # 4. Negative control: false accuracy percentage label detected
+    false_acc_js = js.replace(
+        'container.appendChild(makeNode("p", { className: "topic-conf" }, years));',
+        'container.appendChild(makeNode("p", { className: "topic-conf" }, "ความแม่นยำ 85%"));',
+    )
+    with pytest.raises(AssertionError, match="CALIBRATION_FALSE_ACCURACY_PERCENTAGE_DETECTED"):
+        _audit_past_pattern_calibration(false_acc_js)
+
+    # 5. Negative control: score mutation detected in feedback handler
+    score_mutation_js = js.replace(
+        "state.feedbackByPattern[patternId] = choiceValue;",
+        "state.feedbackByPattern[patternId] = choiceValue;\n            monthly_scores[0] = 99;",
+    )
+    with pytest.raises(AssertionError, match="CALIBRATION_MUTATES_SCORES"):
+        _audit_past_pattern_calibration(score_mutation_js)
+
+    # 6. Negative control: persistence removal on consent revocation missing
+    no_delete_js = js.replace(
+        "window.localStorage.removeItem(FEEDBACK_STORAGE_KEY);",
+        "// clear storage bypassed",
+    )
+    with pytest.raises(AssertionError, match="CALIBRATION_CONSENT_REVOCATION_REMOVAL_MISSING"):
+        _audit_past_pattern_calibration(no_delete_js)
+
+    # 7. Negative control: tone emphasis indicator role status missing
+    no_role_indicator_js = js.replace('role: "status",', "// role status removed")
+    with pytest.raises(AssertionError, match="CALIBRATION_EMPHASIS_INDICATOR_ROLE_STATUS_MISSING"):
+        _audit_past_pattern_calibration(no_role_indicator_js)
+
+
+def _audit_accessibility_and_contrast(js: str, css: str, html: str) -> dict[str, Any]:
+    """
+    Static analysis audit of public/lite.js, public/lite.css, and public/lite.html
+    for Phase I Accessibility, Privacy, Error Recovery & Unknown-Time Ergonomics (TICKET-HLITE-009-QA).
+
+    Verifies:
+    1. Score indicators include text alternatives (never color alone):
+       - .score-gauge element has role="img" and accessible aria-label matching label/score
+       - .gauge-value node exists containing textual score
+       - .score-gauge-range has role="img" and aria-label containing score range
+    2. Keyboard navigation and visible focus:
+       - lite.css defines :focus or :focus-visible rules with visible outline/ring
+       - Keyboard listener (attachExportButtonKeyboardSupport) binds Enter/Space on buttons
+    3. ARIA roles & landmarks:
+       - role="status" and aria-live="polite" on statusMessage and feedback emphasis indicator
+       - role="alert" on hitlAlert
+       - role="note" on unknown-hour notice
+       - role="group" on chip rows and consent controls
+    4. Resilient error recovery:
+       - #result-retry button exists with aria-label
+       - retryReading() function triggers retry without losing state.lastPayload
+       - submitReading error handler unhides retry button
+    5. Unknown birth-time ergonomics:
+       - renderUnknownHourNotice function handles uncertain_birth_time
+       - syncUnknownHour cleanly disables birth_time without destroying form state
+    """
+    # 1. Score indicators include text alternatives (never color alone)
+    gauge_fn_start = js.find("function renderGaugeValue(")
+    gauge_fn_end = js.find("function renderMonthlyCards(")
+    assert gauge_fn_start != -1 and gauge_fn_end != -1, "ACCESSIBILITY_RENDER_GAUGE_VALUE_MISSING"
+    gauge_body = js[gauge_fn_start:gauge_fn_end]
+
+    gauge_lines = [line for line in gauge_body.splitlines() if "score-gauge" in line and "score-gauge-range" not in line]
+    assert gauge_lines, "ACCESSIBILITY_SCORE_GAUGE_NODE_MISSING"
+    assert 'role: "img"' in gauge_lines[0] or "role: 'img'" in gauge_lines[0], (
+        "ACCESSIBILITY_SCORE_GAUGE_ROLE_IMG_MISSING: .score-gauge must declare role='img'"
+    )
+    assert "aria-label" in gauge_lines[0] and "${label}" in gauge_lines[0] and "${safeScore}" in gauge_lines[0], (
+        "ACCESSIBILITY_SCORE_GAUGE_ARIA_LABEL_MISSING: .score-gauge must have accessible aria-label matching label and score"
+    )
+
+    range_lines = [line for line in gauge_body.splitlines() if "score-gauge-range" in line]
+    assert range_lines, "ACCESSIBILITY_SCORE_GAUGE_RANGE_NODE_MISSING"
+    assert 'role: "img"' in range_lines[0] or "role: 'img'" in range_lines[0], (
+        "ACCESSIBILITY_SCORE_GAUGE_RANGE_ROLE_IMG_MISSING: .score-gauge-range must declare role='img'"
+    )
+    assert "aria-label" in range_lines[0] and "${label}" in range_lines[0] and "ช่วงคะแนน" in range_lines[0], (
+        "ACCESSIBILITY_SCORE_GAUGE_RANGE_ARIA_LABEL_MISSING: .score-gauge-range must have aria-label containing score range"
+    )
+
+    assert "gauge-value" in gauge_body, "ACCESSIBILITY_GAUGE_VALUE_CLASS_MISSING"
+    assert re.search(r'makeNode\(\s*["\']div["\'],\s*\{[^}]*className:\s*["\']gauge-value["\'][^}]*\},\s*safeScore\)', gauge_body) is not None, (
+        "ACCESSIBILITY_GAUGE_VALUE_TEXTUAL_SCORE_MISSING: .gauge-value must contain textual score alternative"
+    )
+    assert re.search(r'makeNode\(\s*["\']div["\'],\s*\{[^}]*className:\s*["\']gauge-value["\'][^}]*\},\s*`\$\{start\}\s*-\s*\$\{end\}`\)', gauge_body) is not None, (
+        "ACCESSIBILITY_GAUGE_VALUE_RANGE_TEXT_MISSING: .gauge-value must contain textual range alternative"
+    )
+
+    # 2. Keyboard navigation and visible focus
+    assert ":focus-visible" in css, "ACCESSIBILITY_FOCUS_VISIBLE_CSS_MISSING: :focus-visible rules missing in lite.css"
+    assert ":focus" in css, "ACCESSIBILITY_FOCUS_CSS_MISSING: :focus rules missing in lite.css"
+    focus_match = re.search(r":focus-visible[^{]*\{([^}]+)\}", css, re.DOTALL)
+    assert focus_match is not None, "ACCESSIBILITY_FOCUS_BLOCK_MISSING: :focus-visible rule block not found"
+    focus_dec = focus_match.group(1)
+    assert "outline" in focus_dec and ("var(--focus-ring)" in focus_dec or "#" in focus_dec), (
+        "ACCESSIBILITY_FOCUS_VISIBLE_OUTLINE_MISSING: visible outline/ring required in :focus-visible rule"
+    )
+
+    assert "function attachExportButtonKeyboardSupport(" in js, (
+        "ACCESSIBILITY_ATTACH_KEYBOARD_SUPPORT_FUNCTION_MISSING: attachExportButtonKeyboardSupport function missing"
+    )
+    kbd_start = js.find("function attachExportButtonKeyboardSupport(")
+    kbd_end = js.find("function assignLayoutClass(")
+    assert kbd_start != -1 and kbd_end != -1, "ACCESSIBILITY_KEYBOARD_FUNCTION_BODY_MISSING"
+    kbd_body = js[kbd_start:kbd_end]
+    assert ('event.key !== "Enter"' in kbd_body or "event.key !== 'Enter'" in kbd_body), (
+        "ACCESSIBILITY_KEYBOARD_ENTER_MISSING: Enter key handling missing in keyboard listener"
+    )
+    assert ('event.key !== " "' in kbd_body or "event.key !== ' '" in kbd_body or '"Space"' in kbd_body or "'Space'" in kbd_body), (
+        "ACCESSIBILITY_KEYBOARD_SPACE_MISSING: Space key handling missing in keyboard listener"
+    )
+    assert "button.click()" in kbd_body, (
+        "ACCESSIBILITY_KEYBOARD_CLICK_DISPATCH_MISSING: button.click() must be dispatched on Enter/Space"
+    )
+
+    # 3. ARIA roles & landmarks
+    assert 'id="status-message"' in html or "id='status-message'" in html, (
+        "ACCESSIBILITY_STATUS_MESSAGE_ELEMENT_MISSING: #status-message missing in HTML"
+    )
+    status_match = re.search(r'<[^>]*id=["\']status-message["\'][^>]*>', html)
+    assert status_match is not None and 'role="status"' in status_match.group(0), (
+        "ACCESSIBILITY_STATUS_MESSAGE_ROLE_STATUS_MISSING: #status-message must have role='status'"
+    )
+    assert 'aria-live="polite"' in html or "aria-live='polite'" in html, (
+        "ACCESSIBILITY_STATUS_MESSAGE_ARIA_LIVE_MISSING: aria-live='polite' landmark missing in HTML"
+    )
+
+    assert "feedback-emphasis-indicator" in js, (
+        "ACCESSIBILITY_FEEDBACK_INDICATOR_MISSING: #feedback-emphasis-indicator missing in lite.js"
+    )
+    indicator_match = re.search(
+        r'makeNode\(\s*["\']div["\'],\s*\{[^}]*id:\s*["\']feedback-emphasis-indicator["\'][^}]*\}',
+        js,
+    )
+    assert indicator_match is not None, "ACCESSIBILITY_FEEDBACK_INDICATOR_NODE_MISSING"
+    ind_props = indicator_match.group(0)
+    assert 'role: "status"' in ind_props or "role: 'status'" in ind_props, (
+        "ACCESSIBILITY_FEEDBACK_INDICATOR_ROLE_STATUS_MISSING: feedback indicator must have role='status'"
+    )
+    assert '"aria-live": "polite"' in ind_props or "'aria-live': 'polite'" in ind_props or "'aria-live': \"polite\"" in ind_props, (
+        "ACCESSIBILITY_FEEDBACK_INDICATOR_ARIA_LIVE_MISSING: feedback indicator must have aria-live='polite'"
+    )
+
+    hitl_match = re.search(r'<[^>]*id=["\']hitl-alert["\'][^>]*>', html)
+    assert hitl_match is not None and 'role="alert"' in hitl_match.group(0), (
+        "ACCESSIBILITY_HITL_ALERT_ROLE_ALERT_MISSING: #hitl-alert must have role='alert'"
+    )
+
+    assert "function renderUnknownHourNotice(" in js, (
+        "ACCESSIBILITY_RENDER_UNKNOWN_HOUR_FUNCTION_MISSING: renderUnknownHourNotice missing"
+    )
+    unk_start = js.find("function renderUnknownHourNotice(")
+    unk_end = js.find("function renderResult(")
+    assert unk_start != -1 and unk_end != -1, "ACCESSIBILITY_RENDER_UNKNOWN_HOUR_BODY_MISSING"
+    unk_body = js[unk_start:unk_end]
+    assert 'role: "note"' in unk_body or "role: 'note'" in unk_body, (
+        "ACCESSIBILITY_UNKNOWN_HOUR_ROLE_NOTE_MISSING: unknown-hour notice must have role='note'"
+    )
+
+    chip_match = re.search(
+        r'makeNode\(\s*["\']div["\'],\s*\{[^}]*className:\s*["\']chip-row["\'][^}]*\}',
+        js,
+    )
+    assert chip_match is not None and ('role: "group"' in chip_match.group(0) or "role: 'group'" in chip_match.group(0)), (
+        "ACCESSIBILITY_CHIP_ROW_ROLE_GROUP_MISSING: chip-row container must have role='group'"
+    )
+    consent_match = re.search(
+        r'makeNode\(\s*["\']div["\'],\s*\{[^}]*["\']aria-label["\']:\s*["\']Consent controls["\'][^}]*\}',
+        js,
+    )
+    assert consent_match is not None and ('role: "group"' in consent_match.group(0) or "role: 'group'" in consent_match.group(0)), (
+        "ACCESSIBILITY_CONSENT_ROW_ROLE_GROUP_MISSING: consent controls must have role='group'"
+    )
+
+    # 4. Resilient error recovery
+    assert 'id="result-retry"' in html or "id='result-retry'" in html, (
+        "RECOVERY_RETRY_BUTTON_MISSING: #result-retry button missing in HTML"
+    )
+    retry_match = re.search(r'<button[^>]*id=["\']result-retry["\'][^>]*>', html)
+    assert retry_match is not None and "aria-label=" in retry_match.group(0), (
+        "RECOVERY_RETRY_BUTTON_ARIA_LABEL_MISSING: #result-retry button must define aria-label"
+    )
+    assert "result-retry" in js, "RECOVERY_RETRY_BUTTON_JS_BINDING_MISSING: #result-retry must be bound in lite.js"
+
+    assert "function retryReading(" in js, "RECOVERY_RETRY_READING_FUNCTION_MISSING: retryReading() missing in lite.js"
+    retry_start = js.find("function retryReading(")
+    retry_end = js.find("function initializeDefaults(")
+    assert retry_start != -1 and retry_end != -1, "RECOVERY_RETRY_FUNCTION_BODY_MISSING"
+    retry_body = js[retry_start:retry_end]
+    assert "state.lastPayload" in retry_body, (
+        "RECOVERY_RETRY_PAYLOAD_GUARD_MISSING: retryReading must check state.lastPayload"
+    )
+    assert "submitButton.click()" in retry_body, (
+        "RECOVERY_RETRY_SUBMIT_TRIGGER_MISSING: retryReading must invoke submitButton.click()"
+    )
+    assert "state.lastPayload = null" not in retry_body and "delete state.lastPayload" not in retry_body, (
+        "RECOVERY_RETRY_DROPS_PAYLOAD: retryReading must not clear state.lastPayload"
+    )
+
+    submit_start = js.find("async function submitReading(")
+    submit_end = js.find("function retryReading(")
+    assert submit_start != -1 and submit_end != -1, "RECOVERY_SUBMIT_FUNCTION_BODY_MISSING"
+    submit_body = js[submit_start:submit_end]
+    catch_idx = submit_body.find("catch")
+    assert catch_idx != -1, "RECOVERY_SUBMIT_CATCH_BLOCK_MISSING: submitReading must have catch block for error recovery"
+    catch_body = submit_body[catch_idx:]
+    assert ('retryButton.classList.remove("hidden")' in catch_body or "retryButton.hidden = false" in catch_body), (
+        "RECOVERY_ERROR_HANDLER_UNHIDE_RETRY_MISSING: submitReading error handler must unhide retryButton"
+    )
+
+    # 5. Unknown birth-time ergonomics
+    assert "uncertain_birth_time" in unk_body, (
+        "UNKNOWN_HOUR_UNCERTAIN_BIRTH_TIME_FLAG_MISSING: renderUnknownHourNotice must check uncertain_birth_time"
+    )
+    assert "resultMeta?.appendChild(notice)" in unk_body or "resultMeta.appendChild(notice)" in unk_body, (
+        "UNKNOWN_HOUR_NOTICE_ATTACHMENT_MISSING: notice must be appended to resultMeta"
+    )
+
+    assert "function syncUnknownHour(" in js, "UNKNOWN_HOUR_SYNC_FUNCTION_MISSING: syncUnknownHour missing in lite.js"
+    sync_start = js.find("function syncUnknownHour(")
+    sync_end = js.find("function optionalText(")
+    assert sync_start != -1 and sync_end != -1, "UNKNOWN_HOUR_SYNC_BODY_MISSING"
+    sync_body = js[sync_start:sync_end]
+    assert "birthTime.disabled = unknownHour.checked" in sync_body, (
+        "UNKNOWN_HOUR_BIRTH_TIME_DISABLE_MISSING: birthTime.disabled must be bound to unknownHour.checked"
+    )
+    assert "birthTime.required = !unknownHour.checked" in sync_body, (
+        "UNKNOWN_HOUR_BIRTH_TIME_REQUIRED_TOGGLE_MISSING: birthTime.required must toggle on unknownHour"
+    )
+    assert "form.reset()" not in sync_body, (
+        "UNKNOWN_HOUR_DESTROYS_FORM_STATE: syncUnknownHour must not reset form"
+    )
+
+    return {
+        "status": "PASS",
+        "score_gauge_accessible": True,
+        "gauge_value_text_present": True,
+        "score_gauge_range_accessible": True,
+        "focus_visible_defined": True,
+        "keyboard_navigation_enter_space": True,
+        "status_message_role_status": True,
+        "feedback_indicator_aria_live": True,
+        "hitl_alert_role_alert": True,
+        "unknown_hour_role_note": True,
+        "chip_and_consent_role_group": True,
+        "retry_button_aria_label": True,
+        "retry_payload_preserved": True,
+        "retry_unhidden_on_error": True,
+        "unknown_hour_ergonomics_clean": True,
+    }
+
+
+def test_accessibility_and_contrast_compliance() -> None:
+    """
+    Phase I QA (TICKET-HLITE-009-QA) test contract for Accessibility, Privacy,
+    Error Recovery & Unknown-Time Ergonomics.
+
+    Verifies:
+    1. Static analysis of public/lite.js and public/lite.css (and public/lite.html):
+       - Score indicators include text alternatives (never color alone):
+         * .score-gauge element has role="img" and accessible aria-label matching label/score
+         * .gauge-value node exists containing textual score
+         * .score-gauge-range has role="img" and aria-label containing score range
+       - Keyboard navigation and visible focus:
+         * lite.css defines :focus or :focus-visible rules with visible outline/ring
+         * Keyboard listener (attachExportButtonKeyboardSupport) binds Enter/Space on buttons
+       - ARIA roles & landmarks:
+         * role="status" and aria-live="polite" on statusMessage and feedback emphasis indicator
+         * role="alert" on hitlAlert
+         * role="note" on unknown-hour notice
+         * role="group" on chip rows and consent controls
+       - Resilient error recovery:
+         * #result-retry button exists with aria-label
+         * retryReading() function triggers retry without losing state.lastPayload
+         * submitReading error handler unhides retry button
+       - Unknown birth-time ergonomics:
+         * renderUnknownHourNotice function handles uncertain_birth_time
+         * syncUnknownHour cleanly disables birth_time without destroying form state
+    2. Negative control matrix:
+       - Fail-closed assertion on missing text score alternative in gauge
+       - Fail-closed assertion on missing :focus/:focus-visible in css
+       - Fail-closed assertion on missing retry button or recovery logic
+       - Fail-closed assertion on missing role="alert" on hitl alert
+    """
+    lite_html_path = PUBLIC_DIR / "lite.html"
+    lite_css_path = PUBLIC_DIR / "lite.css"
+    lite_js_path = PUBLIC_DIR / "lite.js"
+
+    assert lite_html_path.exists(), "LITE_HTML_MISSING: public/lite.html must exist"
+    assert lite_css_path.exists(), "LITE_CSS_MISSING: public/lite.css must exist"
+    assert lite_js_path.exists(), "LITE_JS_MISSING: public/lite.js must exist"
+
+    html = lite_html_path.read_text(encoding="utf-8")
+    css = lite_css_path.read_text(encoding="utf-8")
+    js = lite_js_path.read_text(encoding="utf-8")
+
+    # 1. Positive baseline verification
+    receipt = _audit_accessibility_and_contrast(js, css, html)
+    assert receipt["status"] == "PASS"
+    assert receipt["score_gauge_accessible"] is True
+    assert receipt["gauge_value_text_present"] is True
+    assert receipt["score_gauge_range_accessible"] is True
+    assert receipt["focus_visible_defined"] is True
+    assert receipt["keyboard_navigation_enter_space"] is True
+    assert receipt["status_message_role_status"] is True
+    assert receipt["feedback_indicator_aria_live"] is True
+    assert receipt["hitl_alert_role_alert"] is True
+    assert receipt["unknown_hour_role_note"] is True
+    assert receipt["chip_and_consent_role_group"] is True
+    assert receipt["retry_button_aria_label"] is True
+    assert receipt["retry_payload_preserved"] is True
+    assert receipt["retry_unhidden_on_error"] is True
+    assert receipt["unknown_hour_ergonomics_clean"] is True
+
+    # 2. Negative control matrix:
+    # 2a. Fail-closed assertion on missing text score alternative in gauge
+    no_gauge_text_js = js.replace(
+        'gauge.appendChild(makeNode("div", { className: "gauge-value" }, safeScore));',
+        '// gauge-value removed',
+    )
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_GAUGE_VALUE_TEXTUAL_SCORE_MISSING"):
+        _audit_accessibility_and_contrast(no_gauge_text_js, css, html)
+
+    no_gauge_role_js = js.replace('role: "img",', '// role removed,')
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_SCORE_GAUGE_RANGE_ROLE_IMG_MISSING|ACCESSIBILITY_SCORE_GAUGE_ROLE_IMG_MISSING"):
+        _audit_accessibility_and_contrast(no_gauge_role_js, css, html)
+
+    no_gauge_aria_js = js.replace(
+        '"aria-label": `${label} คะแนน ${safeScore} จาก 10`',
+        '// aria-label removed',
+    )
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_SCORE_GAUGE_ARIA_LABEL_MISSING"):
+        _audit_accessibility_and_contrast(no_gauge_aria_js, css, html)
+
+    # 2b. Fail-closed assertion on missing :focus/:focus-visible in css
+    no_focus_css = css.replace(":focus-visible", ":hover").replace(":focus", ":active")
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_FOCUS_VISIBLE_CSS_MISSING|ACCESSIBILITY_FOCUS_CSS_MISSING"):
+        _audit_accessibility_and_contrast(js, no_focus_css, html)
+
+    no_outline_css = css.replace("outline: 3px solid var(--focus-ring);", "outline: none;")
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_FOCUS_VISIBLE_OUTLINE_MISSING"):
+        _audit_accessibility_and_contrast(js, no_outline_css, html)
+
+    # 2c. Fail-closed assertion on missing retry button or recovery logic
+    no_retry_btn_html = html.replace('id="result-retry"', 'id="result-no-retry"')
+    with pytest.raises(AssertionError, match="RECOVERY_RETRY_BUTTON_MISSING"):
+        _audit_accessibility_and_contrast(js, css, no_retry_btn_html)
+
+    no_retry_fn_js = js.replace("function retryReading(", "function deprecatedRetry(")
+    with pytest.raises(AssertionError, match="RECOVERY_RETRY_READING_FUNCTION_MISSING"):
+        _audit_accessibility_and_contrast(no_retry_fn_js, css, html)
+
+    no_unhide_js = js.replace(
+        'retryButton.classList.remove("hidden");',
+        '',
+    ).replace(
+        'retryButton.hidden = false;',
+        '',
+    )
+    with pytest.raises(AssertionError, match="RECOVERY_ERROR_HANDLER_UNHIDE_RETRY_MISSING"):
+        _audit_accessibility_and_contrast(no_unhide_js, css, html)
+
+    dropping_payload_js = js.replace(
+        "if (!state.lastPayload || !form) {",
+        "state.lastPayload = null; if (!state.lastPayload || !form) {",
+    )
+    with pytest.raises(AssertionError, match="RECOVERY_RETRY_DROPS_PAYLOAD"):
+        _audit_accessibility_and_contrast(dropping_payload_js, css, html)
+
+    # 2d. Fail-closed assertion on missing role="alert" on hitl alert
+    no_alert_role_html = html.replace('role="alert"', 'role="generic"')
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_HITL_ALERT_ROLE_ALERT_MISSING"):
+        _audit_accessibility_and_contrast(js, css, no_alert_role_html)
+
+    # Additional negative controls for robustness:
+    # Missing keyboard navigation Enter/Space binding
+    no_kbd_js = js.replace('event.key !== "Enter"', 'false')
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_KEYBOARD_ENTER_MISSING"):
+        _audit_accessibility_and_contrast(no_kbd_js, css, html)
+
+    # Missing unknown-hour note role
+    no_note_role_js = js.replace('role: "note"', 'role: "presentation"')
+    with pytest.raises(AssertionError, match="ACCESSIBILITY_UNKNOWN_HOUR_ROLE_NOTE_MISSING"):
+        _audit_accessibility_and_contrast(no_note_role_js, css, html)

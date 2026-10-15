@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-009",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "32ad5580b6438b1660188b2018d96d669f34d180",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "f76bf51bb211e7e349e39cd18089c208d8a2238b28fd900c76c7e1fca2a93431"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_accessibility_and_contrast_compliance",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ACCESSIBILITY_GAUGE_VALUE_TEXTUAL_SCORE_MISSING or ACCESSIBILITY_FOCUS_VISIBLE_CSS_MISSING or RECOVERY_RETRY_BUTTON_MISSING or RECOVERY_RETRY_READING_FUNCTION_MISSING or RECOVERY_ERROR_HANDLER_UNHIDE_RETRY_MISSING or ACCESSIBILITY_HITL_ALERT_ROLE_ALERT_MISSING or RECOVERY_RETRY_DROPS_PAYLOAD or ACCESSIBILITY_KEYBOARD_ENTER_MISSING or ACCESSIBILITY_UNKNOWN_HOUR_ROLE_NOTE_MISSING"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.css",
+    "public/lite.html",
+    "public/lite.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "32ad5580b6438b1660188b2018d96d669f34d180",
+  "correction_reason": "Phase I QA baseline supersedes Phase H export baseline; Phase I adds WCAG AA accessibility and contrast compliance contract tests.",
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase I (TICKET-HLITE-009 / TICKET-HLITE-009-QA) Accessibility, Privacy, Error Recovery & Unknown-Time Ergonomics contract verification in tests/test_horo_lite_unified_reading.py: 1) Score indicators include text alternatives (never color alone): .score-gauge has role='img' and aria-label matching label/score; .gauge-value node contains textual score; .score-gauge-range has role='img' and aria-label containing score range. 2) Keyboard navigation and visible focus: lite.css defines :focus and :focus-visible rules with visible outline (3px solid var(--focus-ring)); attachExportButtonKeyboardSupport binds Enter and Space keys to button.click(). 3) ARIA roles and landmarks: #status-message has role='status' and container aria-live='polite'; #feedback-emphasis-indicator has role='status' and aria-live='polite'; #hitl-alert has role='alert'; unknown-hour notice has role='note'; chip rows and consent controls have role='group'. 4) Resilient error recovery: #result-retry button exists with aria-label; retryReading() triggers retry via submitButton.click() without dropping state.lastPayload; submitReading error handler unhides retry button on failure. 5) Unknown birth-time ergonomics: renderUnknownHourNotice handles uncertain_birth_time; syncUnknownHour cleanly disables birth_time without resetting form. Negative control matrix verifies fail-closed assertions on missing gauge text score alternatives, missing focus/focus-visible styles, missing retry button or recovery logic, missing role='alert' on hitlAlert, dropping state.lastPayload, missing keyboard navigation, and missing role='note'. Full test suite verification: 19/19 PASS (100% pass rate), zero regressions."
+}
