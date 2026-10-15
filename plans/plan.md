@@ -2,7 +2,7 @@
 
 ## Sprint: Horo Lite Full Reading & Infographic Synthesis — 100% DONE (Phases A through L Complete) — 2026-10-15
 
-Status: Phase A DONE; Phase B DONE; Phase C DONE; Phase D DONE; Phase E DONE; Phase F DONE; Phase G DONE; Phase H DONE; Phase I DONE; Phase J DONE; Phase K DONE; Phase L DONE — SPRINT COMPLETE (100%)
+Status: Phase A DONE; Phase B DONE; Phase C DONE; Phase D DONE; Phase E DONE; Phase F DONE; Phase G DONE; Phase H DONE; Phase I DONE; Phase J DONE; Phase K DONE; Phase L DONE; TICKET-HLITE-013 DONE; TICKET-HLITE-014 DONE; TICKET-HLITE-015 DONE — SPRINT COMPLETE (100%)
 Task ID: `TICKET-HLITE-COMPLETE`
 Lane ID: `LANE-HLITE-MGMT-CLOSEOUT`
 Authorized By: Owner explicit authorization ("approve" for Phase F)
@@ -53,9 +53,17 @@ Establish a modular, accessible, and tamper-proof Horo Lite 12-topic reading pre
 | **TICKET-HLITE-012** | Phase L (`code_reviewer`) | Execute pre-release Rayon parallel secret scan (0 leaks), Python AST audit, AI agent ecosystem sync check, and prepare `ReleaseNotes.md` draft for v1.8.0-prod | `DONE` (Phase L pre-release security review & ecosystem sync verified: Rayon parallel secret scan passed with 0 leaks across 2,491 files; AST audit passed across 619 Python files; AI agent ecosystem sync check passed 100% clean; ReleaseNotes.md compiled for v1.8.0-prod) |
 | **TICKET-HLITE-013** | Closeout (`lead_ba`) | Execute Plan Archival per Core Rule 16 / Rule 22: move completed sprint plans from `plans/` / `plans/active/` to `plans/archive/2026-10-15-horo-lite-infographic-sprint/`, maintain `/plans/` containing only active/upcoming specifications, and update `ReleaseNotes.md` and `plans/plan.md` | `DONE` (Closeout plan archival per Core Rule 16 / Rule 22 completed: sprint planning artifacts archived to `plans/archive/2026-10-15-horo-lite-infographic-sprint/` [`horo-lite-agy2-checkpoint-20260907.md`, `horo-lite-review-agy2-handoff-20260907.md`, `sprint_horo_v3_infographic_migration.md`]; `plans/active/` maintained clean with only active/upcoming specifications; `ReleaseNotes.md` updated with Archived Plans List for v1.8.0-prod; `plans/plan.md` synchronized) [OK] |
 | **TICKET-HLITE-014** | Verification (`qa_tester`) | Implement and execute Playwright Production E2E test suite covering Success Scenario (พร้อมคำทำนาย 12 topics, scores, gauges, chips, export) and Failed Scenario (resilient error recovery, fail-closed handling, #result-retry) on live production target `https://horo-consultant-psi.vercel.app/lite.html` | `DONE` (Production E2E verification suite implemented and PASS: `scripts/run_prod_lite_e2e.py` and `tests/test_prod_lite_e2e.py` passed 100% [3/3 tests PASS in 4.66s]; Success scenario verified 12 topic cards, Thai predictions copy, score gauges with text alternatives, past pattern calibration feedback chips, export action buttons; Failed scenario verified 503 fail-closed error state, #status-message.is-error, accessible #result-retry button, resilient payload retention and resubmission; JSON report and provenance manifest sequence 1 VERIFIED) [OK] |
-| **TICKET-HLITE-015** | Release (`devops`) | Execute production push (`git push origin main`), monitor GitHub Actions CI/CD workflows (DoD Production Gate, deploy-vercel, render-backend), and execute post-deploy verification | `DOING` (Production push and deployment verification active) |
+| **TICKET-HLITE-015** | Release (`devops`) | Execute production push (`git push origin main`), monitor GitHub Actions CI/CD workflows (DoD Production Gate, deploy-vercel, render-backend), and execute post-deploy verification | `DONE` (Production push, CI/CD pipeline, and deployment verification complete: PR #204 squash merge `e87edf003e8e7d661383e83dc3cac52f2ce07755`, release branch deleted, local main synchronized at `e87edf00`, 0 unpushed commits, post-deploy live endpoint https://horo-consultant-psi.vercel.app/lite.html verified healthy [HTTP 200, 361ms]) [OK] |
 
-### 4. Definition of Done (TICKET-HLITE-013 Plan Archival — COMPLETED)
+### 4. Definition of Done (TICKET-HLITE-015 — COMPLETED)
+1. GitHub Pull Request #204 squash merged into `main` (commit `e87edf003e8e7d661383e83dc3cac52f2ce07755`). [OK]
+2. Release branch cleanly deleted post-merge. [OK]
+3. Local `main` branch synchronized with remote `main` at `e87edf00` with 0 unpushed commits. [OK]
+4. GitHub Actions CI/CD workflows executed and passed (DoD Production Gate, deploy-vercel, render-backend). [OK]
+5. Post-deploy live production endpoint `https://horo-consultant-psi.vercel.app/lite.html` verified healthy (HTTP 200, latency 361ms). [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+### 5. Definition of Done (TICKET-HLITE-013 Plan Archival — COMPLETED)
 1. Created directory `plans/archive/2026-10-15-horo-lite-infographic-sprint/`. [OK]
 2. Moved completed sprint planning artifacts from `plans/active/` to archive directory (`horo-lite-agy2-checkpoint-20260907.md`, `horo-lite-review-agy2-handoff-20260907.md`). [OK]
 3. Copied intake spec `plans/intake/sprint_horo_v3_infographic_migration.md` to archive directory. [OK]
