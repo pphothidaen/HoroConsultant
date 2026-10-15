@@ -252,6 +252,8 @@ def _dev_branch_skip_provenance(repo: Path) -> bool:
 
 
 def _normalize_path(value: str) -> str:
+    if value.startswith('"') and value.endswith('"'):
+        value = value[1:-1]
     path = value.replace("\\", "/")
     while path.startswith("./"):
         path = path[2:]
