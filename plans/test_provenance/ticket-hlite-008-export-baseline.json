@@ -33,7 +33,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "32ad5580b6438b1660188b2018d96d669f34d180",
-  "correction_reason": "Phase H QA baseline supersedes Phase G calibration baseline; Phase H adds multi-format export and privacy default contract tests.",
+  "supersedes": null,
+  "correction_reason": null,
   "rationale": "Record verified test provenance baseline for Horo Lite Phase H (TICKET-HLITE-008 / TICKET-HLITE-008-QA) Multi-Format Mobile Infographic Exporter Suite contract verification in tests/test_horo_lite_unified_reading.py: Static-analysis audit of public/export_engine.js verifies all 4 export functions exist and are declared/callable (exportFullPng, exportStoryPng, copySocialSummary, printResult); window.horoLiteExport namespace object exports all 4 functions; story canvas dimensions strictly enforce CANVAS_WIDTH = 1080 and STORY_HEIGHT = 1920 (exact 9:16 aspect ratio: 1080x1920); exportStoryPng explicitly creates canvas using CANVAS_WIDTH and STORY_HEIGHT; privacy masking token DEFAULT_COPY_TEXT = '\\u0e02\\u0e49\\u0e2d\\u0e21\\u0e39\\u0e25\\u0e27\\u0e31\\u0e19/\\u0e40\\u0e27\\u0e25\\u0e32\\u0e40\\u0e01\\u0e34\\u0e14\\u0e0b\\u0e48\\u0e2d\\u0e19\\u0e40\\u0e1e\\u0e37\\u0e48\\u0e2d\\u0e04\\u0e27\\u0e32\\u0e21\\u0e40\\u0e1b\\u0e47\\u0e19\\u0e2a\\u0e48\\u0e27\\u0e19\\u0e15\\u0e31\\u0e27' is defined and pushed in gatherExportText by default; options.includeBirthDetails is supported across all 4 export functions. Negative control matrix confirms fail-closed rejection when any export function is missing, when any function is omitted from window.horoLiteExport namespace, when canvas width or story height is altered, when story canvas creation is unwired, when DEFAULT_COPY_TEXT is missing or altered, when default push is bypassed, when includeBirthDetails option handling is stripped, and when namespace object is omitted. Full test suite verification: 18/18 PASS (100% pass rate), zero regressions."
 }

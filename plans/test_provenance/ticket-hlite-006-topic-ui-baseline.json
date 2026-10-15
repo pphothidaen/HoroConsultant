@@ -29,10 +29,10 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "055b5608b44b200c527be53356f81eabebfa0dbe",
+  "supersedes": null,
   "rationale": "Record verified test provenance baseline for Horo Lite Phase F (TICKET-HLITE-006) 12 Topic-Based Result UI & Score Gauges contract verification in tests/test_horo_lite_unified_reading.py: Static-analysis audit of lite.js for all 12 canonical topic IDs in TOPIC_IDS array, renderTopics/renderTopic functions, renderGaugeValue score gauges with accessible aria-label, icon map covering all 12 topics, fail-closed fallback policy (labeled 'fallback topic' not silent hallucination), calculation-drawer reference, score-gauge-range for unknown-hour display, no client-side astrology duplication, topicsContainer.innerHTML reset on each render, keyboard support attachment. DOM structure audit of lite.html for topics-container with aria-live, result-panel with accessible name, calculation-drawer details collapsed by default, technical-basis pre element, result-meta and hitl-alert with role=alert, CSS .topic-card and .score-gauge classes, Advanced Dashboard link in drawer. Negative control matrix verifies fail-closed rejection on missing topics-container, open calculation-drawer, missing hitl-alert role=alert, and missing canonical topic ID in JS. Verification: 17/17 PASS in unified reading test suite, zero regressions.",
   "schema_version": "test-provenance-v1",
   "baseline_parent": "32ad5580b6438b1660188b2018d96d669f34d180",
-  "correction_reason": "Phase F QA baseline supersedes Phase E form baseline; Phase F adds 12 topic modular presentation UI contracts to the same test file.",
+  "correction_reason": null,
   "provenance_status": "VERIFIED"
 }

@@ -32,7 +32,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "32ad5580b6438b1660188b2018d96d669f34d180",
-  "correction_reason": "Phase G QA baseline supersedes Phase F topic UI baseline; Phase G adds past pattern feedback and consent contract tests.",
+  "supersedes": null,
+  "correction_reason": null,
   "rationale": "Record verified test provenance baseline for Horo Lite Phase G (TICKET-HLITE-007 / TICKET-HLITE-007-QA) Past Pattern Calibration Interaction & Consent Handling contract verification in tests/test_horo_lite_unified_reading.py: Static-analysis audit of public/lite.js verifies all 4 feedback choices (['ตรง', 'ตรงบางส่วน', 'ไม่ตรง', 'จำไม่ได้']) exist in FEEDBACK_CHOICES constant array; feedback buttons have role='group' chip container, aria-pressed, data-choice, and data-pattern-id attributes; feedback selection does not mutate any scores, monthly calculations, or prediction facts, with explicit user disclaimer '(ไม่ใช้ปรับคะแนน)'; storage persistence via localStorage.setItem is strictly guarded by consent checkbox check (#feedback-consent); storage persistence is deleted via localStorage.removeItem when consent is revoked; no false accuracy percentage or 'ความแม่นยำ ...%' labels exist in calibration code; tone emphasis indicator (#feedback-emphasis-indicator) has role='status' and aria-live='polite'. Negative control matrix confirms fail-closed rejection when any feedback choice is missing, when persistence can occur without consent check, when false accuracy labels are injected, when score mutations occur in feedback handlers, when revocation removal is omitted, and when indicator accessibility attributes are missing. Full test suite verification: 18/18 PASS (100% pass rate), zero regressions."
 }
