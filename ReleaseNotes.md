@@ -71,6 +71,7 @@ Key achievements across the twelve sprint phases:
 | Phase J | `TICKET-HLITE-010` | Test provenance consolidation (sequence 13) & regression baseline | DONE [OK] |
 | Phase K | `TICKET-HLITE-011` | Multi-viewport visual layout audit across 5 canonical viewports | DONE [OK] |
 | Phase L | `TICKET-HLITE-012` | Pre-release Rayon secret scan, AST audit & ecosystem sync | DONE [OK] |
+| Closeout | `TICKET-HLITE-013` | Plan Archival per Core Rule 16 / Rule 22 & ReleaseNotes update | DONE [OK] |
 
 ---
 
@@ -83,6 +84,14 @@ Key achievements across the twelve sprint phases:
 - **Core Computational Backend**:
   - `POST /api/v3/unified-reading` -> Unified Reading API endpoint (deterministic consensus + annual timing)
   - `GET /health` -> Backend service health probe
+
+---
+
+## Archived Plans List
+
+- `plans/archive/2026-10-15-horo-lite-infographic-sprint/horo-lite-agy2-checkpoint-20260907.md`: Horo Lite AGY2 implementation checkpoint and architectural state specifications.
+- `plans/archive/2026-10-15-horo-lite-infographic-sprint/horo-lite-review-agy2-handoff-20260907.md`: Horo Lite multi-agent review, verification results, and AGY2 handoff documentation.
+- `plans/archive/2026-10-15-horo-lite-infographic-sprint/sprint_horo_v3_infographic_migration.md`: Horo Lite full reading and infographic synthesis sprint intake specification.
 
 ---
 
