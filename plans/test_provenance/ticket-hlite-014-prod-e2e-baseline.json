@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-014",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6242589e4caa2b4ef3c1ded843518bf479061f6c",
+  "test_files": [
+    {
+      "path": "tests/test_prod_lite_e2e.py",
+      "sha256": "0b5f27a7ed450e3f5d48d1a7dda0c4f64fe8bc667615719618cdf31131516d19"
+    },
+    {
+      "path": "project/tests/prod_lite_e2e_report.json",
+      "sha256": "62b35215dcf4b07a968ac54e786cd7fd4afac7b3bc726b513bb2d8168172548b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_prod_lite_e2e.py",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "PROD_LITE_TOPIC_COUNT_MISMATCH or PROD_LITE_TOPIC_SEQUENCE_MISMATCH or PROD_LITE_FAIL_CLOSED_STATE_MISSING or PROD_LITE_RETRY_BUTTON_HIDDEN or PROD_LITE_RESUBMISSION_PAYLOAD_MISMATCH"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/run_prod_lite_e2e.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Production E2E suite covering Success Scenario (all 12 canonical topic cards, Thai predictions copy, score gauges with accessible text alternatives, past pattern calibration feedback chips, and export action buttons) and Failed Scenario (503 fail-closed error handling, #status-message error class, accessible #result-retry button, and resilient payload-retaining resubmission) on live production target https://horo-consultant-psi.vercel.app/lite.html."
+}

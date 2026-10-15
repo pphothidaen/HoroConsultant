@@ -1,0 +1,115 @@
+{
+  "timestamp": "2026-10-15T07:43:03.215721+00:00",
+  "ticket_id": "TICKET-HLITE-014",
+  "target_url": "https://horo-consultant-psi.vercel.app/lite.html",
+  "duration_seconds": 3.65,
+  "status": "ALL_PASSED_READY_FOR_PROD",
+  "scenarios": [
+    {
+      "scenario": "success_scenario",
+      "name": "Success Scenario (\u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e04\u0e33\u0e17\u0e33\u0e19\u0e32\u0e22)",
+      "status": "PASSED",
+      "checks": [
+        {
+          "check": "page_load",
+          "status": "PASSED",
+          "detail": "HTTP 200 | Title: Horo Lite | HoroConsultant"
+        },
+        {
+          "check": "form_fill",
+          "status": "PASSED",
+          "detail": "birth_date=1990-05-15, birth_time=08:30, birth_place=\u0e01\u0e23\u0e38\u0e07\u0e40\u0e17\u0e1e\u0e21\u0e2b\u0e32\u0e19\u0e04\u0e23, target_year=2026"
+        },
+        {
+          "check": "loading_state_message",
+          "status": "PASSED",
+          "detail": "\u0e01\u0e33\u0e25\u0e31\u0e07\u0e2a\u0e48\u0e07\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e44\u0e1b\u0e22\u0e31\u0e07 Horo Lite unified reading API..."
+        },
+        {
+          "check": "canonical_topic_cards_sequence",
+          "status": "PASSED",
+          "detail": [
+            "topic-personal_overview_strengths",
+            "topic-past_pattern_calibration",
+            "topic-annual_overview",
+            "topic-career_business",
+            "topic-finance",
+            "topic-love_relationships",
+            "topic-health_wellbeing",
+            "topic-family_surrounding_people",
+            "topic-opportunities_caution_periods",
+            "topic-twelve_month_roadmap",
+            "topic-top_priorities_cautions",
+            "topic-export_sharing_actions"
+          ]
+        },
+        {
+          "check": "prediction_copy_rendered",
+          "status": "PASSED",
+          "detail": "Thai prediction copy verified across all 12 topic cards"
+        },
+        {
+          "check": "score_gauges_accessibility",
+          "status": "PASSED",
+          "detail": "36 score gauges verified with role='img', aria-label, gauge-value"
+        },
+        {
+          "check": "past_pattern_calibration_chips",
+          "status": "PASSED",
+          "detail": "Chips: ['\u0e15\u0e23\u0e07', '\u0e15\u0e23\u0e07\u0e1a\u0e32\u0e07\u0e2a\u0e48\u0e27\u0e19', '\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07', '\u0e08\u0e33\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49', '\u0e15\u0e23\u0e07', '\u0e15\u0e23\u0e07\u0e1a\u0e32\u0e07\u0e2a\u0e48\u0e27\u0e19', '\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07', '\u0e08\u0e33\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49'] | Selected: \u0e15\u0e23\u0e07 | Badge: \u0e19\u0e49\u0e33\u0e40\u0e2a\u0e35\u0e22\u0e07: \u0e1b\u0e23\u0e31\u0e1a\u0e15\u0e32\u0e21\u0e1c\u0e25\u0e15\u0e2d\u0e1a\u0e23\u0e31\u0e1a (\u0e15\u0e23\u0e07) | Indicator: \ud83d\udca1 \u0e01\u0e32\u0e23\u0e1b\u0e23\u0e31\u0e1a\u0e19\u0e49\u0e33\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22: \u0e40\u0e19\u0e49\u0e19\u0e2a\u0e31\u0e07\u0e40\u0e01\u0e15\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e08\u0e31\u0e07\u0e2b\u0e27\u0e30\u0e0a\u0e35\u0e27\u0e34\u0e15\u0e1b\u0e31\u0e08\u0e08\u0e38\u0e1a\u0e31\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e2b\u0e25\u0e31\u0e01"
+        },
+        {
+          "check": "export_actions_available",
+          "status": "PASSED",
+          "detail": [
+            "#export-full",
+            "#export-story",
+            "#copy-summary",
+            "#print-summary"
+          ]
+        },
+        {
+          "check": "success_screenshot",
+          "status": "PASSED",
+          "detail": "project/tests/screenshots/prod_lite_e2e_success.png"
+        }
+      ]
+    },
+    {
+      "scenario": "failed_scenario",
+      "name": "Failed Scenario (Fail-Closed & Resilient Recovery)",
+      "status": "PASSED",
+      "checks": [
+        {
+          "check": "page_load",
+          "status": "PASSED",
+          "detail": "HTTP 200"
+        },
+        {
+          "check": "fail_closed_error_message",
+          "status": "PASSED",
+          "detail": "class='status-message is-error' | text='Service Unavailable - Backend waking up / cold start'"
+        },
+        {
+          "check": "retry_button_accessible",
+          "status": "PASSED",
+          "detail": "visible=True | class='ghost-button'"
+        },
+        {
+          "check": "failed_screenshot",
+          "status": "PASSED",
+          "detail": "project/tests/screenshots/prod_lite_e2e_failed.png"
+        },
+        {
+          "check": "retry_payload_retention_and_recovery",
+          "status": "PASSED",
+          "detail": "call_count=2 | payload_identical=True | recovered_cards=12"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    "project/tests/screenshots/prod_lite_e2e_success.png",
+    "project/tests/screenshots/prod_lite_e2e_failed.png"
+  ]
+}
