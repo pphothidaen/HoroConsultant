@@ -1,5 +1,59 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
+## Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)
+
+Status: TICKET-THAI-001 DONE; TICKET-THAI-002 READY; TICKET-THAI-003 READY; TICKET-THAI-004 READY; TICKET-THAI-005 READY; TICKET-THAI-006 READY; TICKET-THAI-007 READY — IN PROGRESS (14%)
+Task ID: `SPRINT-THAI-HITL-BRIDGE`
+Lane ID: `LANE-THAI-001`
+Authorized By: Owner explicit directive ("Execute TICKET-THAI-001 per Agile Governance based on approved intake report")
+
+### 1. Context & Problem Statement
+- **Context**: In the previous sprint (`SPRINT-EDGE-FALLBACK`), a high-performance deterministic edge reading engine was deployed in `api/unified_reading_engine.js` and wired into `api/index.js` to provide resilient <300ms SLA fallback when upstream backends are unreachable.
+- **Problem Statement**:
+  1. The deterministic edge reading cards, topic titles, and monthly timing reasons currently output English strings, creating an inconsistent and suboptimal experience for Thai astrological consumers.
+  2. When the user selects `unknown_hour: true`, the UI displays a jarring technical badge `สาขาแสดงผลอยู่โหมดตรวจทาน: QUEUED_FOR_HUMAN_REVIEW` exposing internal workflow mechanics rather than reassuring consultation guidance.
+  3. No progressive consultation mechanism exists to enrich readings with Gemini Web Bridge NotebookLM (`horo_consult`) when deep synthesis is needed, without degrading initial deterministic render speed (<1s).
+  4. There is no client-side countdown/idempotency protection against rapid repeated submissions during HITL consultation processing.
+- **Solution Architecture**:
+  1. **100% Thai Localization**: Refactor `api/unified_reading_engine.js` topic titles, prediction contents, and monthly timing reasons to high-trust, natural Thai astrology terminology.
+  2. **Reassuring 3-Pillar HITL Presentation**: Replace `QUEUED_FOR_HUMAN_REVIEW` with an empathetic 3-pillar energy explanation in `public/lite.js` and `public/lite.html`.
+  3. **Progressive Asynchronous NotebookLM Bridge**: Expose `/api/v3/hitl-consult` in `api/index.js` connecting to Gemini Web Bridge (`horo_consult`, scope `notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0`), rendering a dedicated deep synthesis card at the bottom below `#twelve_month_roadmap`.
+  4. **Idempotency & Deduplication**: Implement client-side `sessionStorage` 15-second TTL key and server-side request deduplication returning `{status: "in_progress"}` during active bridge processing.
+
+### 2. Core Execution Invariants [FROZEN]
+- **`INVARIANT-THAI-01`**: **100% Thai Localization**: All 12 topic cards and monthly timing reasons must output 100% Thai text with zero English phrase leaks.
+- **`INVARIANT-THAI-02`**: **Reassuring Human-Readable HITL UI**: When `unknown_hour: true`, UI must render the 3-pillars energy analysis message; zero `QUEUED_FOR_HUMAN_REVIEW` leak in user-facing elements.
+- **`INVARIANT-THAI-03`**: **Progressive Asynchronous Deep Synthesis**: Initial deterministic reading must load in < 1s; deep synthesis card loads asynchronously below `#twelve_month_roadmap` without blocking initial page render.
+- **`INVARIANT-THAI-04`**: **Client & Server Idempotency**: `sessionStorage` 15-second TTL idempotency key and server-side request deduplication must prevent duplicate queries during active synthesis.
+- **`INVARIANT-THAI-05`**: **Pure ASCII Logging**: All execution traces, logs, and evidence manifests must use pure ASCII characters ([OK], [INFO], [WARNING], [ERROR]).
+- **`INVARIANT-THAI-06`**: **Single-Editor Resource Boundaries**:
+  - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
+  - `developer`: `api/unified_reading_engine.js`, `api/index.js`, `public/lite.js`, `public/lite.html`, `public/lite.css`
+  - `qa_tester`: `tests/api_unified_reading_edge.test.mjs`, `scripts/run_prod_lite_e2e.py`, `tests/test_prod_lite_e2e.py`, `project/tests/**`, `plans/test_provenance/**`
+  - `code_reviewer`: `plans/evidence/**`, `ReleaseNotes.md`
+  - `devops`: git tree, release tags, deployment receipts
+
+### 3. Sprint Deliverables Matrix
+
+| Ticket | Phase & Lane | Deliverables & Artifacts | Status |
+|---|---|---|---|
+| **TICKET-THAI-001** | Planning (`lead_ba`) | Specification & ticket decomposition for Thai Localization & HITL NotebookLM Progressive Bridge sprint in `ATOMIC_TICKET.md` and `plans/plan.md` | `DONE` (Specification registered; problem statement, invariants, deliverables matrix, and single-editor boundaries documented; pure ASCII logs) [OK] |
+| **TICKET-THAI-002** | Core Dev (`developer`) | 100% Thai localization of `api/unified_reading_engine.js`: update `TOPIC_TITLES`, `topicContent` templates, and monthly `reasons` arrays to natural, professional, high-trust Thai copy | `READY` |
+| **TICKET-THAI-003** | Core Dev (`developer`) | Implement progressive HITL bridge endpoint `/api/v3/hitl-consult` in gateway (`api/index.js`) connecting to Gemini Web Bridge (`horo_consult` tool, scope `notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0`) with backend request deduplication and graceful timeout failover | `READY` |
+| **TICKET-THAI-004** | UI / Frontend (`developer`) | UI overhaul in `public/lite.js`, `public/lite.html`, and `public/lite.css`: replace technical HITL badge with reassuring 3-pillar human-readable explanation; add bottom deep-synthesis card placed below `#twelve_month_roadmap`; 15s countdown timer; client-side `sessionStorage` idempotency key | `READY` |
+| **TICKET-THAI-005** | QA Verification (`qa_tester`) | QA test suite updates: edge contract tests in `tests/api_unified_reading_edge.test.mjs`, Playwright Production E2E tests in `scripts/run_prod_lite_e2e.py` and `tests/test_prod_lite_e2e.py` verifying Thai localization, 3-pillar HITL UI, progressive synthesis card, 15s countdown, and compile test provenance manifest `plans/test_provenance/ticket-thai-baseline.json` | `READY` |
+| **TICKET-THAI-006** | Security Review (`code_reviewer`) | Pre-release security review: Rayon parallel secret scan (0 leaks), Python AST syntax audit, AI agent ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`), and prepare `ReleaseNotes.md` draft | `READY` |
+| **TICKET-THAI-007** | Production Release (`devops`) | DevOps production release: create PR, monitor CI/CD workflows, squash merge to `main`, production deploy to Vercel, and execute live curl & Playwright E2E verification | `READY` |
+
+### 4. Definition of Done (TICKET-THAI-001 — COMPLETED)
+1. Registered new sprint "Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
+2. Documented Context & Problem Statement, Goal, Core Execution Invariants (`INVARIANT-THAI-01` through `06`), and Single-Editor Boundaries. [OK]
+3. Decomposed and registered `TICKET-THAI-001` through `TICKET-THAI-007` with bound skills, dependencies, and acceptance criteria. [OK]
+4. Marked `TICKET-THAI-001` as `DONE` with deliverables receipt. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+---
+
 ## Sprint: Resilient Vercel Edge Unified Reading Engine — 100% COMPLETE (2026-10-15)
 
 Status: TICKET-FIX-001 DONE; TICKET-FIX-002 DONE; TICKET-FIX-003 DONE; TICKET-FIX-003-E2E DONE; TICKET-FIX-004 DONE; TICKET-FIX-005 DONE — SPRINT COMPLETE (100%)

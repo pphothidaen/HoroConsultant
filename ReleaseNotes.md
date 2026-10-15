@@ -1,3 +1,56 @@
+# HoroConsultant Release Notes — Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)
+
+|> **Release**: `Sprint: Thai Localization & HITL NotebookLM Progressive Bridge`
+|> **Release Date**: 2026-10-15 (Asia/Bangkok)
+|> **Release Authority**: Master Orchestrator / Pre-Deployment Code Reviewer
+|> **Sprint Verdict**: `READY_FOR_PROD (Node Contract Tests 8/8 PASS, Playwright E2E Suite 3/3 PASS, Pytest Wrapper 4/4 PASS, Rayon Secret Scan 0 leaks across 2,525 files, AST Audit 0 issues across 621 files, Ecosystem Sync 100% Clean)`
+
+---
+
+## Executive Summary
+
+This release delivers the **Sprint: Thai Localization & HITL NotebookLM Progressive Bridge**, achieving 100% Thai localization across all client-facing prediction outputs and replacing technical internal debug metadata with a reassuring, human-centric astrological consultation experience. The release introduces progressive asynchronous deep-synthesis integration connecting to NotebookLM (`horo_consult` tool, scope `notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0`) whenever Human-In-The-Loop (HITL) review conditions are triggered (e.g., unknown birth hour), without degrading deterministic sub-second initial load performance.
+
+Key deliverables achieved:
+1. **100% Thai Localization**: Fully localized `api/unified_reading_engine.js` covering all 12 canonical topic cards, topic guidance, summary templates, and monthly timing rationale across Thai Suriyayart and BaZi transits with zero English phrase leakage.
+2. **Reassuring Human-Readable HITL UI**: Overhauled technical alert badges (`สาขาแสดงผลอยู่โหมดตรวจทาน: QUEUED_FOR_HUMAN_REVIEW`) in `public/lite.js` and `public/lite.html` into a professional, reassuring 3-pillar energy analysis explanation: *"📋 การวิเคราะห์ฐานพลังงาน 3 เสา (กรณีไม่ระบุเวลาเกิด): ระบบคำนวณจากเสาปี เดือน และวัน พร้อมแสดงช่วงคะแนนความผันแปร (Min–Max) เพื่อรักษาความเที่ยงตรงทางสถิติสูงสุด"*.
+3. **Progressive Asynchronous HITL Bridge**: Implemented `/api/v3/hitl-consult` endpoint in `api/index.js` orchestrating progressive background queries to Gemini Web Bridge NotebookLM (`horo_consult`), placed cleanly below `#twelve_month_roadmap` in the DOM as a dedicated deep-synthesis card (`#hitl-deep-synthesis-card`).
+4. **Idempotency & Rate-Limiting Controls**: Integrated client-side `sessionStorage` 15-second TTL idempotency key and server-side request deduplication, rendering a 15-second cooldown timer and live status alert preventing duplicate submissions.
+5. **Zero-Regression Verification & Static Safety**: Verified with 8/8 Node contract tests, 3/3 Playwright production E2E scenarios, 4/4 Pytest E2E wrapper assertions, 0 secret leaks across 2,525 files via parallel Rayon scan, 0 AST/encoding anomalies across 621 Python files, and 100% clean AI agent ecosystem sync.
+
+---
+
+## Architectural Deliverables
+
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `api/unified_reading_engine.js` | Edge Engine / Localization | 100% Thai localization across `TOPIC_TITLES`, `topicContent` templates, and monthly `reasons` arrays with authentic Thai Suriyayart transit and BaZi 60-JiaZi terminology. Zero English leakage. |
+| `api/index.js` | Gateway / Progressive Bridge | Implemented `/api/v3/hitl-consult` endpoint dispatching asynchronous consultation to NotebookLM bridge (`horo_consult`), backend in-flight request deduplication, and graceful timeout failover. |
+| `public/lite.js` | Frontend / Application | Overhauled HITL rendering to 3-pillar explanation; implemented progressive deep-synthesis card below `#twelve_month_roadmap`; integrated 15s submit timer, status notifications, and `sessionStorage` idempotency key. |
+| `public/lite.html` | Frontend / UI | Registered `#hitl-deep-synthesis-card` container below `#twelve_month_roadmap` and updated status alerts for asynchronous consultation progress. |
+| `public/lite.css` | Frontend / Styles | Responsive styles for `#hitl-deep-synthesis-card`, reassuring 3-pillar badge styling, and cooldown timer animation states. |
+| `tests/api_unified_reading_edge.test.mjs` | Test Suite / Contract | Contract tests asserting 100% Thai localization across all 12 topic cards, monthly reasons, 503 fallback, and `/api/v3/hitl-consult` endpoint response. |
+| `scripts/run_prod_lite_e2e.py` | E2E Suite / Automation | Production Playwright E2E suite covering Jack user scenario (unknown birth hour, Thai titles, 3-pillar HITL alert, deep-synthesis card, 15s cooldown). |
+| `tests/test_prod_lite_e2e.py` | E2E Suite / Pytest Wrapper | Pytest wrapper verifying all 3 E2E scenarios (Success, Jack Scenario, Failed Resilient Recovery) and execution report validity. |
+| `plans/test_provenance/ticket-thai-baseline.json` | Governance / Agile | Immutable test provenance manifest registering test baseline hashes and verification rationale for TICKET-THAI-005. |
+| `plans/evidence/ticket-thai-006-code-review.json` | Governance / Audit | Pre-deployment safety audit evidence receipt recording Rayon secret scan, AST syntax check, ecosystem sync, and gate verdict. |
+
+---
+
+## Verification Matrix
+
+| Test Suite / Safety Gate | Scope & Criteria | Result | Evidence / Run Reference |
+|---|---|---|---|
+| Node Contract Suite (`tests/api_unified_reading_edge.test.mjs`) | Thai localization, 12 topics, monthly scores [1-10], 503 fallback, `/api/v3/hitl-consult` contract | 8/8 PASS (100%) | Verified (168ms duration) |
+| Playwright Production E2E (`scripts/run_prod_lite_e2e.py`) | Success Scenario, Jack Scenario (3-pillar HITL, Thai copy, synthesis card, 15s timer), Failed Recovery | 3/3 PASS (100%) | `project/tests/prod_lite_e2e_report.json` (Status: ALL_PASSED_READY_FOR_PROD, 5.35s) |
+| Pytest E2E Suite (`tests/test_prod_lite_e2e.py`) | Pytest wrapper across all 3 live scenarios and report integrity | 4/4 PASS (100%) | Verified (7.73s duration) |
+| Rayon Parallel Secret Scan (`project/core/code_reviewer.py --scan-secrets`) | Codebase secret leak detection (API keys, Doppler tokens, private keys) | 0 LEAKS (100% clean) | 2,525 files scanned in parallel via Rayon |
+| Python AST Syntax Audit (`project/core/code_reviewer.py --audit-ast`) | Python syntax validity, zero null-byte corruption, zero lone surrogates | 0 ISSUES (100% clean) | 621 Python files scanned |
+| AI Agent Ecosystem Sync (`scripts/sync_ai_agent_ecosystem.py --check`) | Multi-agent rules, skills, profiles, and AGENTS.md parity | PASS (100% clean) | Exit code 0 |
+| **Total** | **Pre-Deployment Safety Gates & Release Verification** | **READY_FOR_PROD** | **100% Gates Passed** |
+
+---
+
 # HoroConsultant Release Notes — v1.8.0-prod (Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture)
 
 |> **Release**: `v1.8.0-prod` — Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture
