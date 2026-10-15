@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-15T09:44:42.543982+00:00",
+  "timestamp": "2026-10-15T09:56:10.288915+00:00",
   "ticket_id": "TICKET-FIX-003-E2E",
   "target_url": "https://horo-consultant-psi.vercel.app/lite.html",
-  "duration_seconds": 6.8,
+  "duration_seconds": 7.25,
   "status": "ALL_PASSED_READY_FOR_PROD",
   "scenarios": [
     {
