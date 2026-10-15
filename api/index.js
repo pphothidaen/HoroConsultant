@@ -37,6 +37,7 @@ const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v2/chat/consult",
   "/api/v3/calculate",
   "/api/v3/unified-reading",
+  "/api/v3/hitl-consult",
 ]);
 
 export function isProductionAdminRoute(pathname) {
@@ -276,6 +277,191 @@ class GatewayRequestError extends Error {
   }
 }
 
+export const inFlightConsultations = new Map();
+export const completedConsultations = new Map();
+
+export function getConsultationDedupKey(body) {
+  const bDate = String(body?.birth_date || "").trim();
+  const bTime = String(body?.birth_time || "").trim();
+  const tYear = String(body?.target_year || "").trim();
+  const dName = String(body?.display_name || "").trim();
+  return `${bDate}_${bTime}_${tYear}_${dName}`;
+}
+
+export function isGeminiBridgeEnabled(env = process.env) {
+  const flag = String(env?.GEMINI_WEB_BRIDGE_ENABLED || "").trim().toLowerCase();
+  const isTrue = flag === "true" || flag === "1" || flag === "yes";
+  const token = String(env?.GEMINI_WEB_BRIDGE_TOKEN || "").trim();
+  return isTrue && Boolean(token);
+}
+
+export async function handleHitlConsultRequest(body, response, correlationId) {
+  let bodyObj = {};
+  if (Buffer.isBuffer(body)) {
+    try {
+      bodyObj = JSON.parse(body.toString("utf8"));
+    } catch {
+      return sendGatewayError(response, 400, "invalid_request_body", correlationId);
+    }
+  } else if (typeof body === "string") {
+    try {
+      bodyObj = JSON.parse(body);
+    } catch {
+      return sendGatewayError(response, 400, "invalid_request_body", correlationId);
+    }
+  } else if (body && typeof body === "object") {
+    bodyObj = body;
+  }
+
+  const dedupKey = getConsultationDedupKey(bodyObj);
+
+  // 1. Check completed cache (10 min TTL)
+  const cached = completedConsultations.get(dedupKey);
+  if (cached && (Date.now() - cached.timestamp < 600_000)) {
+    response.setHeader("x-request-id", correlationId);
+    return response.status(200).json({
+      status: "completed",
+      available: true,
+      synthesis: cached.synthesis,
+      pdf_url: cached.pdf_url || null,
+      source: "notebooklm_bridge",
+      cached: true,
+      correlation_id: correlationId,
+    });
+  }
+
+  // 2. Check in-flight deduplication
+  if (inFlightConsultations.has(dedupKey)) {
+    const startTime = inFlightConsultations.get(dedupKey);
+    if (Date.now() - startTime < 30_000) {
+      response.setHeader("x-request-id", correlationId);
+      return response.status(200).json({
+        status: "in_progress",
+        available: true,
+        message: "กำลังดำเนินการวิเคราะห์เชิงลึก กรุณารอการแจ้งเตือนสักครู่...",
+        correlation_id: correlationId,
+      });
+    }
+    inFlightConsultations.delete(dedupKey);
+  }
+
+  // 3. Check bridge configuration
+  if (!isGeminiBridgeEnabled(process.env)) {
+    console.log("[INFO] [Bridge:horo_consult] Gemini Web Bridge is disabled or token missing");
+    response.setHeader("x-request-id", correlationId);
+    return response.status(200).json({
+      status: "disabled",
+      available: false,
+      message: "ระบบวิเคราะห์เชิงลึกปิดปรับปรุงชั่วคราว",
+      correlation_id: correlationId,
+    });
+  }
+
+  // 4. Mark in-flight
+  inFlightConsultations.set(dedupKey, Date.now());
+
+  const bridgeUrl = (process.env.GEMINI_WEB_BRIDGE_URL || "https://gemini-web-bridge.pansakorn-pho.workers.dev").replace(/\/+$/, "");
+  const bridgeToken = (process.env.GEMINI_WEB_BRIDGE_TOKEN || "").trim();
+  const bridgeTool = (process.env.GEMINI_WEB_BRIDGE_TOOL || "horo_consult").trim();
+  const bridgeScope = (process.env.GEMINI_WEB_BRIDGE_SCOPE || "notebook:b55f1ee0-384e-4bdf-ab1b-e2ee3b0063a0").trim();
+
+  const displayName = bodyObj.display_name ? `คุณ ${bodyObj.display_name}` : "เจ้าชะตา";
+  const birthTimeDesc = bodyObj.unknown_hour || !bodyObj.birth_time ? "(ไม่ระบุเวลาเกิด)" : `เวลา ${bodyObj.birth_time}`;
+  const query = `กรุณาวิเคราะห์ดวงชะตาเชิงลึก (Deep Synthesis) สำหรับ${displayName} เกิดวันที่ ${bodyObj.birth_date || ""} ${birthTimeDesc} ปีเป้าหมาย ${bodyObj.target_year || 2026} ในประเด็น: ภาพรวมพลังงานชีวิต 3 เสา (ปี เดือน วัน) จุดเด่น จังหวะความผันผวน และคำแนะนำเชิงปฏิบัติการ`;
+
+  const mcpPayload = {
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: "tools/call",
+    params: {
+      name: bridgeTool,
+      arguments: {
+        query,
+        response_format: "text",
+        birth_context: {
+          birth_date: bodyObj.birth_date,
+          birth_time: bodyObj.birth_time,
+          unknown_hour: Boolean(bodyObj.unknown_hour),
+          birth_place: bodyObj.birth_place,
+          target_year: bodyObj.target_year,
+          display_name: bodyObj.display_name,
+        },
+        scope: bridgeScope,
+      },
+    },
+  };
+
+  const bridgeController = new AbortController();
+  const bridgeTimeout = setTimeout(() => bridgeController.abort(), 8000);
+  let bridgeResponse;
+  try {
+    bridgeResponse = await fetch(`${bridgeUrl}/mcp`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${bridgeToken}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+        "x-request-id": correlationId,
+      },
+      body: JSON.stringify(mcpPayload),
+      signal: bridgeController.signal,
+    });
+  } catch (fetchErr) {
+    console.log(`[WARNING] [Bridge:horo_consult] Fetch failed or timed out: ${fetchErr?.message || fetchErr}`);
+  } finally {
+    clearTimeout(bridgeTimeout);
+    inFlightConsultations.delete(dedupKey);
+  }
+
+  response.setHeader("x-request-id", correlationId);
+
+  if (bridgeResponse && bridgeResponse.ok) {
+    try {
+      const data = await bridgeResponse.json();
+      let synthesisText = "";
+      let pdfUrl = null;
+      if (data?.result?.content && Array.isArray(data.result.content)) {
+        for (const item of data.result.content) {
+          if (item && item.type === "text" && item.text) {
+            synthesisText = String(item.text).trim();
+            break;
+          }
+        }
+      }
+      if (data?.result?.structuredContent?.pdf_url) {
+        pdfUrl = String(data.result.structuredContent.pdf_url).trim();
+      }
+
+      if (synthesisText) {
+        completedConsultations.set(dedupKey, {
+          synthesis: synthesisText,
+          pdf_url: pdfUrl,
+          timestamp: Date.now(),
+        });
+        console.log("[OK] [Bridge:horo_consult] Deep synthesis completed successfully");
+        return response.status(200).json({
+          status: "completed",
+          available: true,
+          synthesis: synthesisText,
+          pdf_url: pdfUrl,
+          source: "notebooklm_bridge",
+          correlation_id: correlationId,
+        });
+      }
+    } catch (parseErr) {
+      console.log(`[WARNING] [Bridge:horo_consult] Response parse error: ${parseErr?.message || parseErr}`);
+    }
+  }
+
+  console.log("[WARNING] [Bridge:horo_consult] Bridge unavailable or timed out, returning polite status");
+  return response.status(200).json({
+    status: "unavailable",
+    available: false,
+    message: "ระบบวิเคราะห์เชิงลึกกำลังมีผู้ใช้งานจำนวนมาก กรุณารอสักครู่แล้วลองใหม่อีกครั้ง",
+    correlation_id: correlationId,
+  });
+}
+
 async function proxyRequest(request, response, correlationId) {
   const target = requestPath(request);
   if (!target) {
@@ -299,6 +485,9 @@ async function proxyRequest(request, response, correlationId) {
   }
 
   const targetPath = target.split("?", 1)[0];
+  if (targetPath === "/api/v3/hitl-consult") {
+    return handleHitlConsultRequest(body, response, correlationId);
+  }
   const isUnifiedReading = targetPath === "/api/v3/unified-reading";
 
   function executeEdgeUnifiedReadingFallback(targetCorrelationId) {

@@ -629,23 +629,25 @@
       return;
     }
     const flags = data.hitl_flags || {};
-    const routing = data.hitl_routing || {};
     const metadata = data.consensus_metadata || {};
     const metaLines = [
-      `ชื่อแคมเปญ: ${isEmptyValue(data.request_id) ? "-" : data.request_id}`,
+      `รหัสอ้างอิง: ${isEmptyValue(data.request_id) ? "-" : data.request_id}`,
       `ปีที่ดู: ${data.target_year}`,
-      `คะแนน consensus: ${(metadata.consensus_score ?? "").toString()}`,
-      `routing: ${routing.status || "N/A"}`,
-      `HITL required: ${Boolean(flags.required_human_review) ? "ใช่" : "ไม่"}`,
+      `ดัชนีความสอดคล้อง: ${(metadata.consensus_score ?? "").toString()}`,
+      `สถานะ: ${flags.uncertain_birth_time ? "วิเคราะห์ฐาน 3 เสา" : "สมบูรณ์"}`,
     ];
     resultMeta.textContent = metaLines.join(" | ");
     resultMeta.classList.remove("hidden");
     resultMeta.hidden = false;
 
-    if (flags.required_human_review || (metadata.arbitration_status || "").includes("CONFLICT")) {
+    if (flags.required_human_review || (metadata.arbitration_status || "").includes("CONFLICT") || flags.uncertain_birth_time) {
       hitlAlert.classList.remove("hidden");
       hitlAlert.hidden = false;
-      hitlAlert.textContent = `สาขาแสดงผลอยู่โหมดตรวจทาน: ${routing.status || "QUEUED_FOR_HUMAN_REVIEW"}`;
+      if (flags.uncertain_birth_time) {
+        hitlAlert.textContent = "📋 การวิเคราะห์ฐานพลังงาน 3 เสา (กรณีไม่ระบุเวลาเกิด): ระบบคำนวณจากเสาปี เดือน และวัน พร้อมแสดงช่วงคะแนนความผันแปร (Min–Max) เพื่อรักษาความเที่ยงตรงทางสถิติสูงสุด";
+      } else {
+        hitlAlert.textContent = "📋 การวิเคราะห์สถิติพหุศาสตร์: ระบบประมวลผลข้อมูลร่วมจากสถิติสุริยยาตร์ โป๊ยหยี่ และจื่อเวย พร้อมแสดงช่วงคะแนนความผันแปร เพื่อรักษาความเที่ยงตรงสูงสุด";
+      }
     } else {
       hitlAlert.classList.add("hidden");
       hitlAlert.hidden = true;
@@ -739,8 +741,64 @@
     if (!data?.hitl_flags?.uncertain_birth_time) {
       return;
     }
-    const notice = makeNode("p", { className: "topic-conf", role: "note" }, "⚠️ ไม่ทราบเวลาเกิด → ระบบแสดงเกณฑ์ประเมินแบบคาดเดากว้างและรันเส้นทางตรวจทานคน" );
+    const notice = makeNode("p", { className: "topic-conf", role: "note" }, "ℹ️ การคำนวณฐานพลังงาน 3 เสา: กรณีไม่ระบุเวลาเกิด ระบบคำนวณจากเสาปี เดือน และวัน โดยแสดงเป็นช่วงคะแนนความผันแปร");
     resultMeta?.appendChild(notice);
+  }
+
+  async function triggerDeepSynthesis(payload, readingData) {
+    const card = findById("hitl-deep-synthesis-card");
+    if (!card) return;
+
+    const flags = readingData?.hitl_flags || {};
+    const isHitl = Boolean(flags.required_human_review || flags.uncertain_birth_time);
+    if (!isHitl) {
+      card.classList.add("hidden");
+      card.hidden = true;
+      return;
+    }
+
+    card.classList.remove("hidden");
+    card.hidden = false;
+    card.innerHTML = "";
+
+    const heading = makeNode("h3", {}, "🔮 ผลการวิเคราะห์เชิงลึก (Deep Synthesis) โดย NotebookLM");
+    card.appendChild(heading);
+
+    const statusEl = makeNode("div", { className: "deep-synthesis-status", id: "deep-synthesis-status" }, "กำลังเชื่อมต่อฐานความรู้โครงการเพื่อสังเคราะห์ข้อมูลเพิ่มเติม...");
+    card.appendChild(statusEl);
+
+    const bodyEl = makeNode("div", { className: "deep-synthesis-body", id: "deep-synthesis-body" });
+    card.appendChild(bodyEl);
+
+    try {
+      const response = await fetch("/api/v3/hitl-consult", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (data.status === "completed" && data.synthesis) {
+        statusEl.textContent = "✅ สังเคราะห์ข้อมูลเชิงลึกเรียบร้อยแล้ว (อ้างอิงฐานความรู้ NotebookLM)";
+        bodyEl.textContent = data.synthesis;
+        if (data.pdf_url) {
+          const pdfWrapper = makeNode("p", { style: "margin-top: 14px;" });
+          pdfWrapper.appendChild(makeNode("a", {
+            href: data.pdf_url,
+            target: "_blank",
+            rel: "noopener",
+            className: "ghost-button",
+          }, "📄 ดาวน์โหลดรายงานฉบับเต็ม (PDF)"));
+          card.appendChild(pdfWrapper);
+        }
+      } else if (data.status === "in_progress") {
+        statusEl.textContent = "⏳ " + (data.message || "กำลังดำเนินการสังเคราะห์ข้อมูลเชิงลึก กรุณารอสักครู่...");
+      } else {
+        statusEl.textContent = data.message || "ระบบวิเคราะห์เชิงลึกกำลังมีผู้ใช้งานจำนวนมาก ข้อมูลพื้นดวงหลัก 12 หมวดยังคงพร้อมใช้งานอย่างครบถ้วน";
+      }
+    } catch {
+      statusEl.textContent = "ระบบวิเคราะห์เชิงลึกกำลังมีผู้ใช้งานจำนวนมาก ข้อมูลพื้นดวงหลัก 12 หมวดยังคงพร้อมใช้งานอย่างครบถ้วน";
+    }
   }
 
   function renderResult(data) {
@@ -763,6 +821,33 @@
     }
   }
 
+  const IDEMPOTENCY_STORAGE_PREFIX = "horo_consult_submit_";
+  const SUBMIT_COOLDOWN_SECONDS = 15;
+
+  function getSubmitDedupKey(payload) {
+    return `${payload.birth_date}_${payload.birth_time || ""}_${payload.birth_place || ""}_${payload.target_year}_${payload.display_name || ""}`;
+  }
+
+  function getRemainingSubmitCooldown(key) {
+    try {
+      const last = window.sessionStorage.getItem(IDEMPOTENCY_STORAGE_PREFIX + key);
+      if (!last) return 0;
+      const elapsedSec = (Date.now() - Number(last)) / 1000;
+      const remaining = Math.ceil(SUBMIT_COOLDOWN_SECONDS - elapsedSec);
+      return remaining > 0 ? remaining : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function recordSubmitCooldown(key) {
+    try {
+      window.sessionStorage.setItem(IDEMPOTENCY_STORAGE_PREFIX + key, String(Date.now()));
+    } catch {
+      // ignore
+    }
+  }
+
   async function submitReading(event) {
     event.preventDefault();
     applyPlaceDefault();
@@ -772,6 +857,14 @@
     }
 
     const payload = buildPayload();
+    const idempKey = getSubmitDedupKey(payload);
+    const remaining = getRemainingSubmitCooldown(idempKey);
+    if (remaining > 0) {
+      setStatus(`กำลังดำเนินการวิเคราะห์เชิงลึก กรุณารอการแจ้งเตือนสักครู่... (${remaining} วินาที)`, "warning");
+      return;
+    }
+    recordSubmitCooldown(idempKey);
+
     state.lastPayload = payload;
     submitButton.disabled = true;
 
@@ -800,6 +893,7 @@
 
       renderResult(data);
       setStatus(`ได้รับผลลัพธ์จาก API ใน ${elapsed}ms`, "success");
+      triggerDeepSynthesis(payload, data);
       return;
     } catch (error) {
       setStatus(error.message || "เกิดข้อผิดพลาดระหว่างส่งคำขอ", "error");
