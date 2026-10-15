@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FIX-003",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3e612c81229803bc59449a15f1564303768ea373",
+  "test_files": [
+    {
+      "path": "tests/api_unified_reading_edge.test.mjs",
+      "sha256": "e4648b80e51ad6036feb03bcc5f7dcd5833788ca32591d87b43e7d4ba7e06264"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/api_unified_reading_edge.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Topic personal_overview_strengths missing prediction or invalid_date_range or upstream unreachable"
+    }
+  ],
+  "allowed_source_paths": [
+    "api/unified_reading_engine.js",
+    "api/index.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Edge Unified Reading fallback contract and gateway 5xx failover verification in tests/api_unified_reading_edge.test.mjs: 1) User scenario (2026-10-15, unknown_hour=true, display_name=jack, target_year=2026) verifies 12 canonical topics in exact order, 12 monthly scores in [1, 10], score ranges present, consensus metadata present, HITL flags present, insufficient history reason present; 2) Adult scenario (1990-05-15, birth_time=10:30, unknown_hour=false) verifies 3-5 non-sensitive past pattern candidates and score ranges null; 3) Gateway 503 fallback verifies seamless HTTP 200 with x-fallback-edge: unified-reading-v1 when upstream Render backend returns 503; 4) Gateway unreachable fallback verifies seamless HTTP 200 when upstream throws network error; 5) Negative validation verifies 422 rejection on future birth dates relative to target_year and invalid input; 6) Latency SLA verifies deterministic edge execution well under 300ms SLA. Verification: 7/7 Node tests PASS, 16/16 gateway tests PASS, zero regressions."
+}

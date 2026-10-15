@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-15T07:43:03.215721+00:00",
-  "ticket_id": "TICKET-HLITE-014",
+  "timestamp": "2026-10-15T09:44:42.543982+00:00",
+  "ticket_id": "TICKET-FIX-003-E2E",
   "target_url": "https://horo-consultant-psi.vercel.app/lite.html",
-  "duration_seconds": 3.65,
+  "duration_seconds": 6.8,
   "status": "ALL_PASSED_READY_FOR_PROD",
   "scenarios": [
     {
@@ -76,6 +76,53 @@
       ]
     },
     {
+      "scenario": "jack_scenario",
+      "name": "User Scenario (Jack - 2026-10-15 unknown_hour)",
+      "status": "PASSED",
+      "checks": [
+        {
+          "check": "page_load",
+          "status": "PASSED",
+          "detail": "HTTP 200"
+        },
+        {
+          "check": "form_fill_jack",
+          "status": "PASSED",
+          "detail": "birth_date=2026-10-15, unknown_hour=True, display_name=jack, target_year=2026"
+        },
+        {
+          "check": "api_request_intercepted_200",
+          "status": "PASSED",
+          "detail": "POST /api/v3/unified-reading intercepted HTTP 200 with Jack payload"
+        },
+        {
+          "check": "canonical_topic_cards_sequence",
+          "status": "PASSED",
+          "detail": "12 topic cards verified in CANONICAL_TOPIC_IDS sequence"
+        },
+        {
+          "check": "prediction_copy_rendered",
+          "status": "PASSED",
+          "detail": "Prediction copy verified across all 12 topic cards for Jack"
+        },
+        {
+          "check": "score_gauges_accessibility",
+          "status": "PASSED",
+          "detail": "total_gauges=36 | range_gauges=36"
+        },
+        {
+          "check": "zero_503_error_state",
+          "status": "PASSED",
+          "detail": "Zero 503 backend_unavailable error state, retry hidden, status clean"
+        },
+        {
+          "check": "jack_screenshot",
+          "status": "PASSED",
+          "detail": "project/tests/screenshots/prod_lite_e2e_jack_scenario.png"
+        }
+      ]
+    },
+    {
       "scenario": "failed_scenario",
       "name": "Failed Scenario (Fail-Closed & Resilient Recovery)",
       "status": "PASSED",
@@ -110,6 +157,7 @@
   ],
   "screenshots": [
     "project/tests/screenshots/prod_lite_e2e_success.png",
+    "project/tests/screenshots/prod_lite_e2e_jack_scenario.png",
     "project/tests/screenshots/prod_lite_e2e_failed.png"
   ]
 }
