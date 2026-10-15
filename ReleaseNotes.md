@@ -1,3 +1,91 @@
+# HoroConsultant Release Notes — v1.8.0-prod (Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture)
+
+|> **Release**: `v1.8.0-prod` — Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture
+|> **Release Date**: 2026-10-15 (Asia/Bangkok)
+|> **Release Authority**: Master Orchestrator / Lead Business Analyst
+|> **Sprint Verdict**: `CERTIFIED_COMPLETE (Phases A through L 100% DONE, PyTest unified reading 19/19 PASS, Regression suites 19/19 PASS, 5/5 Canonical Viewports VERIFIED, Rayon Secret Scan 0 leaks across 2,491 files, AST Audit 0 issues across 619 files, Ecosystem Sync 100% Clean)`
+
+---
+
+## Executive Summary
+
+This production release completes the **Horo Lite Full Reading & Infographic Synthesis Sprint**, elevating HoroConsultant's lightweight consultation tier (`public/lite.html`, `public/lite.css`, `public/lite.js`) into an accessible, deterministic, and complete multi-tradition synthesis platform. Operating across Thai Suriyayart and BaZi cycles with bitwise-deterministic consensus arbitration, it delivers all 12 canonical topic modules, non-sensitive past pattern calibration, and multi-format infographic export capabilities without server-side rendering binaries or client-side calculation duplication.
+
+Key achievements across the twelve sprint phases:
+1. **Deterministic Core & Schemas (Phases A-D)**: Versioned Pydantic v2 schemas (`UnifiedReadingRequest`, `UnifiedReadingResponse`), deterministic 12-month annual timing engine (`annual_timing_engine.py`, SLA < 50ms), past pattern candidate calibration (`past_pattern_calibrator.py`), multi-tradition consensus arbitration (`consensus_matrix.py`), and unified reading API router (`POST /api/v3/unified-reading`) with mandatory fail-closed HITL queue routing (<0.75 consensus or uncertain birth hour).
+2. **Single-Action Form & 12 Modular Cards (Phases E-F)**: Single-column clean form with 1:1 accessible label binding, collapsed advanced disclosure, single primary action button ("คำนวณผังดวง & ตีความด้วย AI"), 12 modular cards in exact `CANONICAL_TOPIC_IDS` order, accessible score gauges (1–10) with text alternatives, and collapsible technical calculation drawer (`#calculation-drawer`).
+3. **Past Pattern Calibration & Multi-Format Exporter (Phases G-H)**: Interactive candidate milestone feedback chips ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้") with tone emphasis guidance without mutating future scores, explicit consent checkbox strictly gating localStorage persistence, and browser canvas rasterizer (`export_engine.js`) generating Full vertical PNG, 1080x1920 Story PNG (9:16), copyable social summary with privacy masking default, and print/PDF.
+4. **Universal Accessibility & Visual Audit (Phases I-K)**: WCAG AA contrast compliance (Light >= 6:1, Dark >= 6.5:1), visible focus rings (`:focus-visible`), ARIA landmarks (`role="status"`, `role="alert"`, `role="note"`, `role="group"`), non-destructive retry recovery (`#result-retry`), unknown birth-hour notice ergonomics, and 5 canonical viewports audit (360x780, 375x667, 390x844, 768x1024, 1440x900) verifying zero DOM clipping, zero text overlap, and zero horizontal overflow.
+5. **Security & Ecosystem Sync (Phase L)**: Pre-release Rayon parallel secret scan verified 0 leaks across 2,491 files; AST audit verified 0 syntax/encoding issues across 619 Python files; AI Agent ecosystem sync check passed 100% clean.
+
+---
+
+## Architectural Deliverables
+
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `project/core/unified_reading_engine.py` | Core / Schemas | Versioned Pydantic v2 schemas (`UnifiedReadingRequest`, `UnifiedReadingResponse`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`) with canonical 12 topics ordering and score bound validation. |
+| `project/core/annual_timing_engine.py` | Core / Deterministic Engine | Deterministic 12-month annual timing producing Career, Finance, and Love scores bounded in [1, 10] with traceable Thai Suriyayart and BaZi 60-JiaZi monthly pillar reasons. |
+| `project/core/past_pattern_calibrator.py` | Core / Calibration | Generates 3-5 non-sensitive past pattern candidates (education, work-role change, relocation, financial pressure) strictly excluding sensitive trauma categories. |
+| `project/debate/consensus_matrix.py` | Core / Arbitration | Multi-tradition consensus matrix arbitrating monthly claims across traditions with bounded consensus score [0.0, 1.0] and fail-closed HITL triggers. |
+| `project/routers/unified_reading_router.py` | API / Router | `POST /api/v3/unified-reading` FastAPI endpoint orchestrating deterministic core engines, consensus matrix, HITL routing packaging, and non-generative Thai copy translation. |
+| `public/lite.html` | Frontend / UI | Single-column accessible form, 12 modular cards container (`#topics-container`), collapsible technical basis drawer (`#calculation-drawer`), and retry toolbar (`#result-retry`). |
+| `public/lite.css` | Frontend / Styles | Responsive CSS Grid/Flexbox layout, Five Elements palette tokens, WCAG AA contrast compliance, visible `:focus-visible` rings, and zero-overflow rules. |
+| `public/lite.js` | Frontend / Application | Client-side application controller: form submission, geocoding defaults, accessible card rendering, score gauge text alternatives, past pattern feedback chips, and error recovery. |
+| `public/export_engine.js` | Frontend / Exporter | Client-side canvas rasterizer generating Full vertical PNG, 1080x1920 Story PNG (9:16), copyable text summary with privacy default masking, and print/PDF. |
+| `scripts/audit_lite_viewports.py` | DevOps / Visual Audit | Automated multi-viewport screenshot capture and visual layout auditor for 5 canonical viewports (360x780, 375x667, 390x844, 768x1024, 1440x900). |
+| `tests/test_horo_lite_unified_reading.py` | Test Suite | Comprehensive 19-test contract and boundary test suite verifying schemas, timing, consensus, router, DOM, topics, calibration, export, and accessibility. |
+| `plans/test_provenance/sprint_horo_v3_infographic_migration.json` | Governance / Agile | Consolidated sprint test provenance manifest registered at sequence 13 with status VERIFIED. |
+
+---
+
+## Verification Matrix
+
+| Test Suite / Gate | Scope & Criteria | Result | Evidence / Run Reference |
+|---|---|---|---|
+| `tests/test_horo_lite_unified_reading.py` | Full unified reading contract & boundary suite | 19/19 PASS (100%) | Verified (0.64s execution) |
+| `tests/test_visual_endpoints.py` | Visual endpoints & SVG well-formedness | 10/10 PASS (100%) | Verified |
+| `tests/test_browser_notifications_and_processing_modal.py` | Notification & processing modal contracts | 3/3 PASS (100%) | Verified |
+| `tests/test_bazi_resilient_fallback.py` | Resilient fallback & deterministic calculation | 6/6 PASS (100%) | Verified |
+| Multi-Viewport Visual Audit | 5 canonical viewports (360x780, 375x667, 390x844, 768x1024, 1440x900) | 5/5 VERIFIED (100%) | `audit_receipt.json` zero overflow/clipping |
+| Rayon Parallel Secret Scan | Zero credential leaks across repository | 0 LEAKS (100% clean) | 2,491 files scanned in parallel |
+| Python AST Syntax Audit | Python AST syntax and encoding safety | 0 ISSUES (100% clean) | 619 Python files scanned |
+| AI Agent Ecosystem Sync | Multi-agent rules, skills, and agent configs | PASS (100% clean) | Exit Code 0 |
+| **Total** | **Unified Cross-Stack Verification** | **PASS** | **100% Certified Complete** |
+
+---
+
+## Milestone Rollup (100% DONE)
+
+| Phase | Ticket | Deliverable | Status |
+|---|---|---|---|
+| Phase A | `TICKET-HLITE-001` | Pydantic v2 versioned schemas & contract validation | DONE [OK] |
+| Phase B | `TICKET-HLITE-002` | Deterministic annual timing & past pattern candidate calibrator | DONE [OK] |
+| Phase C | `TICKET-HLITE-003` | Multi-tradition consensus arbitration & fail-closed HITL routing | DONE [OK] |
+| Phase D | `TICKET-HLITE-004` | `POST /api/v3/unified-reading` API router & copy transformer | DONE [OK] |
+| Phase E | `TICKET-HLITE-005` | Single-column form DOM contract & accessible label binding | DONE [OK] |
+| Phase F | `TICKET-HLITE-006` | 12 canonical topic modular cards & accessible score gauges | DONE [OK] |
+| Phase G | `TICKET-HLITE-007` | Past pattern feedback UI & consent-gated persistence | DONE [OK] |
+| Phase H | `TICKET-HLITE-008` | Multi-format mobile infographic exporter suite (1080x1920 Story PNG) | DONE [OK] |
+| Phase I | `TICKET-HLITE-009` | WCAG AA contrast, visible focus rings & unknown-hour ergonomics | DONE [OK] |
+| Phase J | `TICKET-HLITE-010` | Test provenance consolidation (sequence 13) & regression baseline | DONE [OK] |
+| Phase K | `TICKET-HLITE-011` | Multi-viewport visual layout audit across 5 canonical viewports | DONE [OK] |
+| Phase L | `TICKET-HLITE-012` | Pre-release Rayon secret scan, AST audit & ecosystem sync | DONE [OK] |
+
+---
+
+## Live Production Endpoints
+
+- **Vercel Edge Deployment**: `https://horo-consultant-psi.vercel.app`
+  - `/` -> Default Horo Lite experience (`lite.html`)
+  - `/lite` -> Default Horo Lite experience (`lite.html`)
+  - `/advanced` -> Advanced BaZi 16-Discipline Dashboard (`index.html`)
+- **Core Computational Backend**:
+  - `POST /api/v3/unified-reading` -> Unified Reading API endpoint (deterministic consensus + annual timing)
+  - `GET /health` -> Backend service health probe
+
+---
+
 # HoroConsultant Release Notes — v1.7.0-prod (Horo Lite Default Landing Page, Edge Routing & Cloudflare Multi-Account Workers CI/CD Pipeline)
 
 |> **Release**: `v1.7.0-prod` — Horo Lite Default Landing Page, Edge Routing & Cloudflare Multi-Account Workers CI/CD Pipeline
