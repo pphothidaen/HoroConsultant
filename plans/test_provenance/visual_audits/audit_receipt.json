@@ -1,0 +1,83 @@
+{
+  "schema_version": "visual-audit-v1",
+  "ticket_id": "TICKET-HLITE-011",
+  "phase": "Phase K",
+  "audit_target": "public/lite.html",
+  "status": "VERIFIED",
+  "canonical_viewports_count": 5,
+  "css_checks": {
+    "box_sizing_border_box": true,
+    "responsive_single_column": true,
+    "max_width_constraints": true,
+    "focus_rings_present": true,
+    "no_fixed_overflow_widths": true
+  },
+  "viewports": [
+    {
+      "viewport": "mobile_360x780",
+      "width": 360,
+      "height": 780,
+      "label": "Mobile Compact",
+      "screenshot_path": "plans/test_provenance/visual_audits/mobile_360x780.png",
+      "captured": true,
+      "file_size_bytes": 50330,
+      "sha256": "d20003016b6d7ec6475cc8e2725e7bd2316cd9b2542256bd135540e4607ccc8a",
+      "zero_horizontal_overflow": true,
+      "zero_dom_clipping": true,
+      "zero_text_overlap": true
+    },
+    {
+      "viewport": "mobile_375x667",
+      "width": 375,
+      "height": 667,
+      "label": "Mobile Standard (iPhone SE)",
+      "screenshot_path": "plans/test_provenance/visual_audits/mobile_375x667.png",
+      "captured": true,
+      "file_size_bytes": 41753,
+      "sha256": "30024ef987905759690f32b97d10b263057d40d8990f9a56cc3a63fab4b23d7f",
+      "zero_horizontal_overflow": true,
+      "zero_dom_clipping": true,
+      "zero_text_overlap": true
+    },
+    {
+      "viewport": "mobile_390x844",
+      "width": 390,
+      "height": 844,
+      "label": "Mobile Modern (iPhone 12/13/14)",
+      "screenshot_path": "plans/test_provenance/visual_audits/mobile_390x844.png",
+      "captured": true,
+      "file_size_bytes": 56037,
+      "sha256": "be044ca47da269ea40cf510dab3127b879c6021a3b96c1b02af24e45bf3ada63",
+      "zero_horizontal_overflow": true,
+      "zero_dom_clipping": true,
+      "zero_text_overlap": true
+    },
+    {
+      "viewport": "tablet_768x1024",
+      "width": 768,
+      "height": 1024,
+      "label": "Tablet Portrait (iPad)",
+      "screenshot_path": "plans/test_provenance/visual_audits/tablet_768x1024.png",
+      "captured": true,
+      "file_size_bytes": 76408,
+      "sha256": "5bd4b3d50845c0cb942dcf97233e9e0d0ff0a8b4c66e6d2f98dde8c657f8a21f",
+      "zero_horizontal_overflow": true,
+      "zero_dom_clipping": true,
+      "zero_text_overlap": true
+    },
+    {
+      "viewport": "desktop_1440x900",
+      "width": 1440,
+      "height": 900,
+      "label": "Desktop Standard (MacBook Pro)",
+      "screenshot_path": "plans/test_provenance/visual_audits/desktop_1440x900.png",
+      "captured": true,
+      "file_size_bytes": 106504,
+      "sha256": "cff5badd5822cca519e879b1690d768b3954ef17a1951974fe9d4389c5d4262a",
+      "zero_horizontal_overflow": true,
+      "zero_dom_clipping": true,
+      "zero_text_overlap": true
+    }
+  ],
+  "verdict": "ZERO_DOM_CLIPPING_ZERO_OVERFLOW_VERIFIED"
+}

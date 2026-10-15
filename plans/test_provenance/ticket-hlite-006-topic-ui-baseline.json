@@ -1,0 +1,38 @@
+{
+  "ticket_id": "TICKET-HLITE-006",
+  "sequence": 1,
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "f76bf51bb211e7e349e39cd18089c208d8a2238b28fd900c76c7e1fca2a93431"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_topic_based_result_rendering or test_topic_based_modular_presentation_dom_contract",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "LITE_JS_TOPIC_ID_MISSING or LITE_JS_RENDER_TOPICS_FUNCTION_MISSING or LITE_JS_SCORE_GAUGE_CLASS_MISSING or LITE_HTML_TOPICS_CONTAINER_MISSING_OR_DUPLICATE or LITE_HTML_CALCULATION_DRAWER_MUST_BE_COLLAPSED_BY_DEFAULT or LITE_HTML_HITL_ALERT_ROLE_MISSING or LITE_JS_CANONICAL_TOPIC_ID_MISSING_FROM_TOPIC_IDS"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.html",
+    "public/lite.css",
+    "public/lite.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase F (TICKET-HLITE-006) 12 Topic-Based Result UI & Score Gauges contract verification in tests/test_horo_lite_unified_reading.py: Static-analysis audit of lite.js for all 12 canonical topic IDs in TOPIC_IDS array, renderTopics/renderTopic functions, renderGaugeValue score gauges with accessible aria-label, icon map covering all 12 topics, fail-closed fallback policy (labeled 'fallback topic' not silent hallucination), calculation-drawer reference, score-gauge-range for unknown-hour display, no client-side astrology duplication, topicsContainer.innerHTML reset on each render, keyboard support attachment. DOM structure audit of lite.html for topics-container with aria-live, result-panel with accessible name, calculation-drawer details collapsed by default, technical-basis pre element, result-meta and hitl-alert with role=alert, CSS .topic-card and .score-gauge classes, Advanced Dashboard link in drawer. Negative control matrix verifies fail-closed rejection on missing topics-container, open calculation-drawer, missing hitl-alert role=alert, and missing canonical topic ID in JS. Verification: 17/17 PASS in unified reading test suite, zero regressions.",
+  "schema_version": "test-provenance-v1",
+  "baseline_parent": "32ad5580b6438b1660188b2018d96d669f34d180",
+  "correction_reason": null,
+  "provenance_status": "VERIFIED"
+}

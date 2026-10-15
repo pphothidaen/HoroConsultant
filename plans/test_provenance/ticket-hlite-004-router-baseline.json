@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-004",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8767a28b7f8f48db9c9173c4d3352d9ae67db968",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "77aee45a0de1fad9803d4e29f3ef7fa73aa9e8d8258e6dca4de9db8f2a85dcff"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_unified_reading_api_endpoint_extended_matrix",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: UNIFIED_READING_LATENCY_EXCEEDED_300MS or Canonical topic sequence mismatch or Expected HTTP 422 or QUEUED_FOR_HUMAN_REVIEW"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/routers/unified_reading_router.py",
+    "project/routers/v3_engine_router.py",
+    "api/index.js",
+    "project/main.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase D (TICKET-HLITE-004) Unified Reading API Router & Copy Transformer in tests/test_horo_lite_unified_reading.py: POST /api/v3/unified-reading contract verification via FastAPI TestClient, deterministic latency SLA (<300ms), 12 canonical topics in exact sequence (CANONICAL_TOPIC_IDS), 12 monthly scores in range [1..10] with reasons, non-sensitive past patterns (0..5 candidates) with child boundary calibration, HTTP 422 Unprocessable Entity error boundary matrix (future birth relative to target year, invalid latitude/longitude coordinates, invalid target year), fail-closed HITL routing triggers (force_human_review=True, unknown_hour=True) resolving to QUEUED_FOR_HUMAN_REVIEW, and LLM facts immutability (facts_mutable_by_llm=False). Verification: 14/14 PASS on tests/test_horo_lite_unified_reading.py, zero regressions across test suite (6/6 PASS Node gateway contract, 5/5 PASS KAN-120 suite)."
+}

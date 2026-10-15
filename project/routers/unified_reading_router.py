@@ -159,7 +159,7 @@ def _topic_modules(
             f"candidate(s) from historical cycle positions."
             if num_patterns > 0
             else "No past pattern candidates available for calibration due to insufficient history.",
-            "Review each past pattern candidate honestly — your feedback refines the accuracy "
+            "Review each past pattern candidate honestly -- your feedback refines the accuracy "
             "of future readings. Select the response that best matches your memory."
             if num_patterns > 0
             else "Past patterns will become available as more life-cycle data accumulates.",
@@ -206,7 +206,7 @@ def _topic_modules(
         "family_surrounding_people": (
             f"Family dynamics for {request.target_year}: relationship energy averages "
             f"{average_love:.1f}/10 while career demands average {average_career:.1f}/10.",
-            f"Balance family time against career peaks — month {best_career_month} may pull "
+            f"Balance family time against career peaks -- month {best_career_month} may pull "
             f"attention from family. Dedicate month {best_love_month} to quality family "
             f"interactions and relationship nurturing.",
         ),
@@ -237,7 +237,7 @@ def _topic_modules(
             )
             + f". Top caution month: {weakest_month}.",
             f"Prioritize the leading domain and use it to support weaker areas. "
-            f"Key caution: do not overextend in month {weakest_month} — prepare buffers "
+            f"Key caution: do not overextend in month {weakest_month} -- prepare buffers "
             f"in the preceding month.",
         ),
         "export_sharing_actions": (
@@ -338,7 +338,7 @@ def _enqueue_hitl_review(
 ) -> bool:
     """Create a retrievable HITL review item from a unified reading.
 
-    This is idempotent — the same request_id maps to the same HITL item,
+    This is idempotent -- the same request_id maps to the same HITL item,
     so re-requesting the same reading upserts rather than duplicating.
     """
     trigger_reasons = hitl_routing.get("trigger_reasons", [])

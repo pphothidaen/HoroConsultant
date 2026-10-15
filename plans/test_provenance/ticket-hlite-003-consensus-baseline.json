@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-003",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "730d852641852d3caf2c2e0beb910aad2f5aae99",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "0c1635a30d84395a3777049c0bed3865fc5adb13307428d293f10ae08b802e61"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_horo_v3_consensus_arbitration_boundary_matrix or test_horo_v3_consensus_arbitration_and_hitl_triggers",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: LOW_CONSENSUS_FLAG_NOT_TRUE or TRADITION_CONFLICT_NOT_SET_FOR_DOMAIN or CLEAN_BASELINE_STATUS_MUST_BE_NOT_REQUIRED or SCOPE_AUDIT_PASS_GATE_CHECK_NOT_TRUE"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/annual_timing_engine.py",
+    "project/debate/consensus_matrix.py",
+    "project/hitl_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase C (TICKET-HLITE-003) multi-tradition consensus matrix arbitration and mandatory fail-closed HITL integration in tests/test_horo_lite_unified_reading.py: 12-month multi-tradition claim arbitration across thai_suriyayart, bazi_liu_yue, and zi_wei, fail-closed low consensus threshold (<0.75) queuing, domain-specific conflict triggers across career, finance, and love domains, force_human_review override trigger, unknown_hour uncertain birth time trigger, clean baseline automated routing verification (status=NOT_REQUIRED), live probe compliance against GET /hitl/scope-audit?source_domain=metaphysical-domain-engine (pass_gate_check=True, missing_required_human_gate=0), and pessimistic negative control schema validations. Verification: 13/13 PASS on tests/test_horo_lite_unified_reading.py, zero regressions across test suite (43/43 PASS regression suite, 5/5 PASS KAN-120 suite)."
+}

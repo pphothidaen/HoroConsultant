@@ -7,7 +7,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-
 SCHEMA_VERSION = "horo_lite_unified_reading.v1"
 
 CANONICAL_TOPIC_IDS: tuple[str, ...] = (
@@ -61,7 +60,7 @@ class UnifiedReadingRequest(BaseModel):
     force_human_review: bool = False
 
     @model_validator(mode="after")
-    def validate_birth_target_year_relationship(self) -> "UnifiedReadingRequest":
+    def validate_birth_target_year_relationship(self) -> UnifiedReadingRequest:
         """Reject nonsensical birth_date / target_year combinations.
 
         - birth_date in the future relative to target_year is invalid.
@@ -89,6 +88,16 @@ class TopicModule(BaseModel):
     confidence: Literal["HIGH", "MEDIUM", "LOW"]
     evidence_refs: list[str] = Field(..., min_length=1)
 
+    @field_validator("evidence_refs")
+    @classmethod
+    def validate_evidence_refs(cls, refs: list[str]) -> list[str]:
+        if not refs:
+            raise ValueError("evidence_refs must not be empty")
+        for ref in refs:
+            if not isinstance(ref, str) or not ref.strip():
+                raise ValueError("evidence_refs must contain non-empty strings")
+        return refs
+
 
 class MonthlyScoreItem(BaseModel):
     """Per-month user-facing scores with deterministic evidence basis.
@@ -109,6 +118,28 @@ class MonthlyScoreItem(BaseModel):
     score_basis: dict[str, Any] = Field(..., min_length=1)
     reasons: list[str] = Field(..., min_length=1)
 
+    @field_validator("reasons")
+    @classmethod
+    def validate_reasons(cls, reasons: list[str]) -> list[str]:
+        if not reasons:
+            raise ValueError("reasons list must not be empty")
+        for reason in reasons:
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError("reasons must contain non-empty strings")
+        return reasons
+
+    @model_validator(mode="after")
+    def validate_score_ranges(self) -> MonthlyScoreItem:
+        for domain in ("career", "finance", "love"):
+            score_range = getattr(self, f"{domain}_score_range")
+            if score_range is not None:
+                if len(score_range) != 2:
+                    raise ValueError(f"{domain}_score_range must be a 2-element list [min, max]")
+                lower, upper = score_range
+                if not (1 <= lower <= upper <= 10):
+                    raise ValueError(f"{domain}_score_range bounds must satisfy 1 <= min <= max <= 10")
+        return self
+
 
 class PastPatternCandidate(BaseModel):
     """Non-sensitive past event candidate for user calibration feedback."""
@@ -123,7 +154,7 @@ class PastPatternCandidate(BaseModel):
     user_feedback: str | None = None
 
     @model_validator(mode="after")
-    def reject_sensitive_patterns(self) -> "PastPatternCandidate":
+    def reject_sensitive_patterns(self) -> PastPatternCandidate:
         if self.sensitive_category:
             raise ValueError("Sensitive past patterns are not allowed")
         if self.theme not in ALLOWED_PAST_PATTERN_THEMES:
@@ -132,6 +163,10 @@ class PastPatternCandidate(BaseModel):
             raise ValueError("Past pattern feedback choices must match the contract")
         if self.user_feedback is not None and self.user_feedback not in ALLOWED_FEEDBACK_CHOICES:
             raise ValueError("Past pattern feedback value is not allowed")
+        if self.year_range[0] > self.year_range[1]:
+            raise ValueError("year_range must be [start_year, end_year] with start <= end")
+        if self.age_range[0] > self.age_range[1]:
+            raise ValueError("age_range must be [start_age, end_age] with start <= end")
         return self
 
 
@@ -158,7 +193,7 @@ class UnifiedReadingResponse(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def validate_response_contract(self) -> "UnifiedReadingResponse":
+    def validate_response_contract(self) -> UnifiedReadingResponse:
         topic_ids = tuple(topic.topic_id for topic in self.topics)
         if topic_ids != CANONICAL_TOPIC_IDS:
             raise ValueError("Topics must match the canonical order")
@@ -173,7 +208,7 @@ class UnifiedReadingResponse(BaseModel):
 
         consensus_score = self.consensus_metadata.get("consensus_score")
         if not isinstance(consensus_score, int | float):
-            raise ValueError("consensus_score must be numeric")
+            raise ValueError("consensus_score must be numeric")  # noqa: TRY004
         if not 0 <= float(consensus_score) <= 1:
             raise ValueError("consensus_score must be between 0 and 1")
 
@@ -183,7 +218,10 @@ class UnifiedReadingResponse(BaseModel):
             or self.consensus_metadata.get("tradition_conflicts")
         )
         force_review = bool(self.hitl_flags.get("force_human_review"))
-        uncertain_time = bool(self.hitl_flags.get("uncertain_birth_time"))
+        uncertain_time = bool(
+            self.hitl_flags.get("uncertain_birth_time")
+            or self.hitl_flags.get("unknown_hour")
+        )
         low_consensus = bool(self.hitl_flags.get("low_consensus")) or float(consensus_score) < 0.75
         requires_review = conflict_detected or force_review or uncertain_time or low_consensus
 

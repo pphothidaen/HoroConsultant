@@ -1,20 +1,20 @@
 {
-  "fencing_counter": 2,
+  "fencing_counter": 3,
   "heartbeat": {
-    "run_key": "sync-2026-10-10",
+    "run_key": "sync-2026-10-15",
     "step": "ingest",
     "detail": "starting",
-    "at": 1791575910.110367
+    "at": 1792037973.829303
   },
   "last_success": {
-    "run_key": "sync-2026-10-10",
+    "run_key": "sync-2026-10-15",
     "vectors": 135,
-    "completed_at": 1791575910.343461,
+    "completed_at": 1792037975.8395169,
     "heartbeat": {
-      "run_key": "sync-2026-10-10",
+      "run_key": "sync-2026-10-15",
       "step": "ingest",
       "detail": "starting",
-      "at": 1791575910.110367
+      "at": 1792037973.829303
     }
   }
 }

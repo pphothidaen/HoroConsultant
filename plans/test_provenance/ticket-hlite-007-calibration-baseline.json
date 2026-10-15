@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HLITE-007",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "32ad5580b6438b1660188b2018d96d669f34d180",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "f76bf51bb211e7e349e39cd18089c208d8a2238b28fd900c76c7e1fca2a93431"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_past_pattern_feedback_and_consent_contract",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "CALIBRATION_FEEDBACK_CHOICE_MISSING or CALIBRATION_PERSISTENCE_WITHOUT_CONSENT_CHECK or CALIBRATION_FALSE_ACCURACY_PERCENTAGE_DETECTED or CALIBRATION_MUTATES_SCORES or CALIBRATION_CONSENT_REVOCATION_REMOVAL_MISSING or CALIBRATION_EMPHASIS_INDICATOR_ROLE_STATUS_MISSING"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.js",
+    "public/lite.html",
+    "public/lite.css"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Horo Lite Phase G (TICKET-HLITE-007 / TICKET-HLITE-007-QA) Past Pattern Calibration Interaction & Consent Handling contract verification in tests/test_horo_lite_unified_reading.py: Static-analysis audit of public/lite.js verifies all 4 feedback choices (['ตรง', 'ตรงบางส่วน', 'ไม่ตรง', 'จำไม่ได้']) exist in FEEDBACK_CHOICES constant array; feedback buttons have role='group' chip container, aria-pressed, data-choice, and data-pattern-id attributes; feedback selection does not mutate any scores, monthly calculations, or prediction facts, with explicit user disclaimer '(ไม่ใช้ปรับคะแนน)'; storage persistence via localStorage.setItem is strictly guarded by consent checkbox check (#feedback-consent); storage persistence is deleted via localStorage.removeItem when consent is revoked; no false accuracy percentage or 'ความแม่นยำ ...%' labels exist in calibration code; tone emphasis indicator (#feedback-emphasis-indicator) has role='status' and aria-live='polite'. Negative control matrix confirms fail-closed rejection when any feedback choice is missing, when persistence can occur without consent check, when false accuracy labels are injected, when score mutations occur in feedback handlers, when revocation removal is omitted, and when indicator accessibility attributes are missing. Full test suite verification: 18/18 PASS (100% pass rate), zero regressions."
+}

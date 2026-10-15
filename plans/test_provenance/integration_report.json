@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-10-15T10:18:20.343178",
+  "total_tests": 5,
+  "passed_tests": 5,
+  "warning_tests": 0,
+  "failed_tests": 0,
+  "test_results": [
+    {
+      "test_name": "Core System Integration",
+      "status": "PASS",
+      "details": [
+        "\u2705 Core file exists: cross_functional_review.py",
+        "\u2705 Core file exists: KAN-279-cross-functional-review.md"
+      ],
+      "timestamp": "2026-10-15T10:18:20.342783"
+    },
+    {
+      "test_name": "Task Coordination Integration",
+      "status": "PASS",
+      "details": [
+        "\u2705 Coordination component exists: ATOMIC_TICKET.md",
+        "\u2705 Coordination component exists: test_provenance",
+        "\u2705 Coordination component exists: .githooks",
+        "\u26a0\ufe0f Integration script not found - will use default integration"
+      ],
+      "timestamp": "2026-10-15T10:18:20.342800"
+    },
+    {
+      "test_name": "Quality Assurance Integration",
+      "status": "PASS",
+      "details": [
+        "\u2705 QA components found (2 test directories)",
+        "\u2705 Test suite found with 192 test files"
+      ],
+      "timestamp": "2026-10-15T10:18:20.342824"
+    },
+    {
+      "test_name": "Documentation Integration",
+      "status": "PASS",
+      "details": [
+        "\u2705 Documentation components found (3 documentation files)",
+        "\u2705 Review documentation created successfully"
+      ],
+      "timestamp": "2026-10-15T10:18:20.342929"
+    },
+    {
+      "test_name": "Workflow Integration",
+      "status": "PASS",
+      "details": [
+        "\u2705 Workflow scripts found (143 scripts)",
+        "\u2705 Git hooks present for workflow integration"
+      ],
+      "timestamp": "2026-10-15T10:18:20.342939"
+    }
+  ]
+}
