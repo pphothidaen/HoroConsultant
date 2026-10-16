@@ -1,0 +1,49 @@
+{
+  "ticket_id": "TICKET-BAZI-006",
+  "verdict": "READY_FOR_PROD",
+  "recorded_at": "2026-10-16T20:42:05+07:00",
+  "reviewer_role": "code_reviewer",
+  "sprint": "BaZi Shen Sha & Ten Gods Enhancement",
+  "scans": {
+    "secret_scan": "0 leaks",
+    "ast_syntax": "0 errors",
+    "ecosystem_sync": "PASS"
+  },
+  "verification_summary": "All QA suites passed (11/11 Node contract, 21/21 Pytest horo lite, 64/64 BaZi core tests, test provenance baseline registered, 0 secret leaks)",
+  "audit_evidence": {
+    "secret_scan": {
+      "command": "python3 project/core/code_reviewer.py --scan-secrets",
+      "exit_code": 0,
+      "engine": "Rust Security Auditor (Rayon parallel scan)",
+      "scanned_files": 2538,
+      "secret_leaks_found": 0,
+      "findings": [],
+      "status": "PASSED"
+    },
+    "ast_syntax_audit": {
+      "command": "python3 project/core/code_reviewer.py --audit-ast",
+      "exit_code": 0,
+      "scanned_python_files": 621,
+      "issues_found": 0,
+      "issues": [],
+      "status": "PASSED"
+    },
+    "ecosystem_sync": {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 0,
+      "status": "PASSED"
+    }
+  },
+  "qa_verification": {
+    "source": "plans/test_provenance/ticket-kan-123-bazi-baseline.json",
+    "provenance_status": "VERIFIED",
+    "node_contract": "11/11 PASS",
+    "pytest_horo_lite": "21/21 PASS",
+    "bazi_core": "64/64 PASS"
+  },
+  "logging_compliance": {
+    "pure_ascii_markers": true,
+    "valid_tags": ["[OK]", "[INFO]", "[WARNING]", "[ERROR]"]
+  },
+  "residual_risk": "none"
+}
