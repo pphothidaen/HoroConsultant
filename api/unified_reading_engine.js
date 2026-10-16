@@ -1701,7 +1701,144 @@ export function buildPlainLanguageSummary(payload, monthlyScores, annualTiming, 
   };
 }
 
-export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary) {
+export const CANONICAL_FOCUS_TOPICS = {
+  career_business: {
+    key: "career_business",
+    domain: "career",
+    category_name_th: "การงานและธุรกิจ",
+    title: "💼 การงานและธุรกิจ",
+    proactive_guidance: "จังหวะเร่งสร้างผลงาน เจรจาขยายงาน และริเริ่มโครงการใหม่ได้อย่างเต็มกำลัง",
+    defensive_guidance: "ควรชะลอการตัดสินใจเสี่ยง ตรวจสอบเอกสารสัญญาอย่างรัดกุม และหลีกเลี่ยงข้อขัดแย้ง",
+    strategic_guidance: "มุ่งพัฒนาทักษะเฉพาะทาง สร้างพันธมิตรที่ไว้ใจได้ และใช้จังหวะเดือนทองในการนำเสนอผลงานสำคัญ",
+  },
+  finance_wealth: {
+    key: "finance_wealth",
+    domain: "finance",
+    category_name_th: "การเงินและโชคลาภ",
+    title: "💰 การเงินและโชคลาภ",
+    proactive_guidance: "จังหวะเปิดรับสภาพคล่อง สะสมทุน และปิดดีลธุรกรรมสำคัญที่ให้ผลตอบแทนงอกเงย",
+    defensive_guidance: "งดการเก็งกำไรที่มีความเสี่ยงสูง สำรองเงินสดฉุกเฉิน และระมัดระวังหนี้สินผูกพัน",
+    strategic_guidance: "จัดสรรงบประมาณอย่างมีวินัย กระจายความเสี่ยงในสินทรัพย์ปลอดภัย และเน้นสร้างกระแสเงินสดมั่นคง",
+  },
+  love_relationship: {
+    key: "love_relationship",
+    domain: "love",
+    category_name_th: "ความรักและความสัมพันธ์",
+    title: "💞 ความรักและความสัมพันธ์",
+    proactive_guidance: "ช่วงเวลาแห่งความเข้าใจ เปิดใจสื่อสารความรู้สึกแท้จริง และกระชับความสัมพันธ์ให้มั่นคง",
+    defensive_guidance: "ระวังอารมณ์ฉุนเฉียวหรือคำพูดเสียดสี ให้ความเงียบและสติช่วยลดความตึงเครียด",
+    strategic_guidance: "รับฟังอย่างลึกซึ้ง ให้เกียรติพื้นที่ส่วนตัวของกันและกัน และสร้างความทรงจำดีๆ ร่วมกัน",
+  },
+  health_vitality: {
+    key: "health_vitality",
+    domain: "health",
+    category_name_th: "สุขภาพและพลังชีวิต",
+    title: "🩺 สุขภาพและพลังชีวิต",
+    proactive_guidance: "ช่วงที่ร่างกายและจิตใจมีพลังเต็มเปี่ยม เหมาะแก่การฟื้นฟูสุขภาพและออกกำลังกายอย่างต่อเนื่อง",
+    defensive_guidance: "พักผ่อนให้เพียงพอ ระวังอาการออฟฟิศซินโดรมหรือความเครียดสะสมจากการหักโหมงานหนัก",
+    strategic_guidance: "รักษาสมดุลชีวิต ดื่มน้ำและนอนหลับให้มีคุณภาพ และหมั่นสังเกตสัญญาณเตือนจากร่างกาย",
+  },
+  family_environment: {
+    key: "family_environment",
+    domain: "family",
+    category_name_th: "ครอบครัวและคนรอบตัว",
+    title: "👨‍👩‍👧 ครอบครัวและคนรอบตัว",
+    proactive_guidance: "ช่วงเวลาแห่งความอบอุ่น ได้รับแรงสนับสนุนที่ดีจากคนในครอบครัวและคนใกล้ชิด",
+    defensive_guidance: "หลีกเลี่ยงการนำความตึงเครียดจากภายนอกเข้าบ้าน ใช้ความอดทนและประนีประนอม",
+    strategic_guidance: "จัดสรรเวลาคุณภาพร่วมกับครอบครัว รับฟังโดยไม่ตัดสิน และร่วมกันสร้างบรรยากาศที่สบายใจ",
+  },
+};
+
+export function calculateFocusTopicAnalysis(payload, monthlyScores, annualTiming) {
+  const topicKey = payload?.primary_focus_topic || (
+    CANONICAL_FOCUS_TOPICS[payload?.primary_focus_question] ? payload.primary_focus_question : null
+  );
+
+  if (!topicKey || !CANONICAL_FOCUS_TOPICS[topicKey]) {
+    return null;
+  }
+
+  const def = CANONICAL_FOCUS_TOPICS[topicKey];
+  const THAI_MONTH_NAMES = [
+    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  ];
+
+  let totalScore = 0;
+  let highestScore = -1;
+  let highestMonth = 1;
+  let lowestScore = 999;
+  let lowestMonth = 1;
+
+  const validScores = Array.isArray(monthlyScores) && monthlyScores.length > 0 ? monthlyScores : [];
+
+  validScores.forEach((m) => {
+    let score = 5;
+    if (def.domain === "career") {
+      score = Number(m.career_score ?? 5);
+    } else if (def.domain === "finance") {
+      score = Number(m.finance_score ?? 5);
+    } else if (def.domain === "love") {
+      score = Number(m.love_score ?? 5);
+    } else if (def.domain === "health") {
+      const c = Number(m.career_score ?? 5);
+      const f = Number(m.finance_score ?? 5);
+      const l = Number(m.love_score ?? 5);
+      score = Math.round((c + f + l) / 3);
+    } else if (def.domain === "family") {
+      const c = Number(m.career_score ?? 5);
+      const l = Number(m.love_score ?? 5);
+      score = Math.round((c + l) / 2);
+    }
+
+    totalScore += score;
+
+    if (score > highestScore) {
+      highestScore = score;
+      highestMonth = Number(m.month || 1);
+    }
+    if (score < lowestScore) {
+      lowestScore = score;
+      lowestMonth = Number(m.month || 1);
+    }
+  });
+
+  const count = validScores.length || 1;
+  const domainScore = Math.max(1, Math.min(10, Math.round(totalScore / count)));
+
+  let scoreLevel = "จังหวะเกื้อหนุนปานกลาง";
+  if (domainScore >= 8) {
+    scoreLevel = "จังหวะเกื้อหนุนสูง";
+  } else if (domainScore <= 4) {
+    scoreLevel = "ควรระมัดระวังและวางแผนรอบคอบ";
+  }
+
+  const highestMonthName = `เดือนที่ ${highestMonth} (${THAI_MONTH_NAMES[highestMonth - 1] || highestMonth})`;
+  const lowestMonthName = `เดือนที่ ${lowestMonth} (${THAI_MONTH_NAMES[lowestMonth - 1] || lowestMonth})`;
+
+  return {
+    matched_category: def.key,
+    topic: def.key,
+    category_name_th: def.category_name_th,
+    title: def.title,
+    domain: def.domain,
+    domain_score: domainScore,
+    score: domainScore,
+    score_text: `คะแนนความราบรื่น: ${domainScore}/10 — ${scoreLevel}`,
+    peak_golden_month: highestMonth,
+    caution_month: lowestMonth,
+    peak_golden_month_name: highestMonthName,
+    caution_month_name: lowestMonthName,
+    peak_month: highestMonth,
+    caution_month_num: lowestMonth,
+    proactive_guidance: def.proactive_guidance,
+    defensive_guidance: def.defensive_guidance,
+    strategic_guidance: def.strategic_guidance,
+    strategy: def.strategic_guidance,
+  };
+}
+
+export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary, focusTopicAnalysis = null) {
   const displayName = payload.display_name || "เจ้าชะตา";
   const genderStr = payload.gender_at_birth === "female" ? "หญิง" : (payload.gender_at_birth === "male" ? "ชาย" : "ไม่ระบุ");
   const birthTimeStr = payload.unknown_hour ? "ไม่ระบุเวลาเกิดแน่ชัด (วิเคราะห์ฐาน 3 เสาหลัก)" : (payload.birth_time || "12:00");
@@ -1764,6 +1901,18 @@ export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLa
     .map(([type, star]) => `${type}: ${star}`)
     .join(", ");
 
+  let focusLine = "";
+  if (focusTopicAnalysis && focusTopicAnalysis.title) {
+    focusLine = `- **ประเด็นที่เน้นเป็นพิเศษ:** ${focusTopicAnalysis.title}`;
+    if (payload.primary_focus_question && payload.primary_focus_question !== payload.primary_focus_topic && !CANONICAL_FOCUS_TOPICS[payload.primary_focus_question]) {
+      focusLine += ` (คำถามเพิ่มเติม: "${payload.primary_focus_question}")`;
+    }
+  } else if (payload.primary_focus_topic) {
+    focusLine = `- **ประเด็นที่เน้นเป็นพิเศษ:** ${payload.primary_focus_topic}`;
+  } else if (payload.primary_focus_question) {
+    focusLine = `- **ประเด็นหรือคำถามที่ต้องการเน้นเป็นพิเศษ:** "${payload.primary_focus_question}"`;
+  }
+
   return `# คำสั่งพยากรณ์พหุศาสตร์ "สมุดบันทึกชะตาชีวิต" (Fate Book Master Prompt)
 # ระบบผังดวง 3 ศาสตร์: โป๊ยหยี่สี่แถว (BaZi) + ดาวจื่อเวยโต่วซู่ (Zi Wei Dou Shu) + โหราศาสตร์ไทยสุริยยาตร์
 
@@ -1783,7 +1932,7 @@ export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLa
 - **เวลาสุริยคติจริง (True Solar Time - NOAA):** ${tstStr}
 - **สถานที่เกิด:** ${payload.birth_place || "กรุงเทพมหานคร, ประเทศไทย"} (พิกัด: ละติจูด ${payload.latitude}, ลองจิจูด ${payload.longitude})
 - **ปีที่ต้องการพยากรณ์เจาะลึก (Target Year):** ปี ค.ศ. ${payload.target_year} (พ.ศ. ${payload.target_year + 543})
-${payload.primary_focus_question ? `- **ประเด็นหรือคำถามที่ต้องการเน้นเป็นพิเศษ:** "${payload.primary_focus_question}"` : ""}
+${focusLine ? `${focusLine}\n` : ""}
 
 ---
 ### 1. ผังพลังงานเบญจธาตุ โป๊ยหยี่สี่แถว (BaZi Four Pillars)
@@ -1860,6 +2009,7 @@ export function canonicalJson(payload) {
     locale: String(payload.locale || "th-TH"),
     longitude: Number(payload.longitude),
     primary_focus_question: payload.primary_focus_question ? String(payload.primary_focus_question) : null,
+    primary_focus_topic: payload.primary_focus_topic ? String(payload.primary_focus_topic) : null,
     target_year: Number(payload.target_year),
     timezone: String(payload.timezone || "UTC"),
     unknown_hour: Boolean(payload.unknown_hour),
@@ -1924,6 +2074,7 @@ export function createUnifiedReading(rawPayload) {
     locale: String(payload.locale || "th-TH"),
     display_name: payload.display_name ? String(payload.display_name) : null,
     primary_focus_question: payload.primary_focus_question ? String(payload.primary_focus_question) : null,
+    primary_focus_topic: payload.primary_focus_topic ? String(payload.primary_focus_topic) : null,
     force_human_review: Boolean(payload.force_human_review),
     tradition_monthly_claims: payload.tradition_monthly_claims || null,
     consensus_fixture_id: payload.consensus_fixture_id || null,
@@ -2014,7 +2165,8 @@ export function createUnifiedReading(rawPayload) {
   const solarTime = calculateTrueSolarTime(normalizedPayload);
   const thaiLagna = calculateThaiLagna(bMonth, hourVal);
   const plainSummary = buildPlainLanguageSummary(normalizedPayload, monthlyScores, annualTiming, ziWeiChart);
-  const fateBookPrompt = buildFateBookMasterPrompt(normalizedPayload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary);
+  const focusTopicAnalysis = calculateFocusTopicAnalysis(normalizedPayload, monthlyScores, annualTiming);
+  const fateBookPrompt = buildFateBookMasterPrompt(normalizedPayload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary, focusTopicAnalysis);
 
   return {
     schema_version: "horo_lite_unified_reading.v1",
@@ -2037,6 +2189,8 @@ export function createUnifiedReading(rawPayload) {
       deterministic_facts_source: "project.core.annual_timing_engine",
     },
     plain_summary: plainSummary,
+    focus_analysis: focusTopicAnalysis,
+    focus_topic_analysis: focusTopicAnalysis,
     fate_book_prompt: fateBookPrompt,
     zi_wei: ziWeiChart,
     bazi_chart: baziChart,

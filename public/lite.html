@@ -105,13 +105,23 @@
               <input id="display_name" name="display_name" type="text" autocomplete="name">
             </div>
 
-            <div class="field">
+            <div class="field form-group">
+              <label for="primary_focus_topic">🎯 ประเด็นที่ต้องการเน้นเป็นพิเศษ</label>
+              <select id="primary_focus_topic" name="primary_focus_topic" class="form-control pill-select">
+                <option value="">-- ไม่ระบุ (ดูภาพรวมทั่วไป) --</option>
+                <option value="career_business">💼 การงานและธุรกิจ (Career & Business)</option>
+                <option value="finance_wealth">💰 การเงินและโชคลาภ (Finance & Wealth)</option>
+                <option value="love_relationship">💞 ความรักและความสัมพันธ์ (Love & Relationships)</option>
+                <option value="health_vitality">🩺 สุขภาพและพลังชีวิต (Health & Vitality)</option>
+                <option value="family_environment">👨‍👩‍👧 ครอบครัวและคนรอบตัว (Family & Environment)</option>
+              </select>
               <label for="primary_focus_question">คำถามที่อยากโฟกัส</label>
               <textarea
                 id="primary_focus_question"
                 name="primary_focus_question"
-                rows="3"
-                placeholder="เช่น ปีนี้ควรระวังเรื่องงานหรือการเงินอย่างไร"
+                class="sr-only"
+                tabindex="-1"
+                aria-hidden="true"
               ></textarea>
             </div>
           </div>
@@ -176,6 +186,8 @@
 
         <div id="result-meta" class="result-meta hidden" aria-live="polite"></div>
         <div id="hitl-alert" class="hitl-alert hidden" aria-live="polite" role="alert"></div>
+
+        <section id="focus-question-hero-card" class="focus-question-hero-card hidden" aria-live="polite"></section>
 
         <section id="plain-summary-section" class="plain-summary-section hidden" aria-labelledby="plain-summary-heading" aria-live="polite">
           <div class="plain-summary-header">
