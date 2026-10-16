@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-LITE-003",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9115f939e19f3382384fbac3d365e71ab21962d2",
+  "captured_at": "2026-10-16T15:00:00Z",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "295288d3595e27a7ce92bb04a5d56d271cb6ed0408381a8e5ab1a9cc50c6a788"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "-q",
+        "tests/test_horo_lite_unified_reading.py::test_detailed_topics_drawer_and_latency_masking_contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "DETAILED_TOPICS_DRAWER_CONTRACT_MISSING"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.html",
+    "public/lite.css",
+    "public/lite.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TICKET-LITE-003 verified test baseline for collapsible topics drawer and latency masking."
+}

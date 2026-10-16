@@ -3177,3 +3177,32 @@ def test_bazi_ten_gods_and_shen_sha_contract() -> None:
         assert isinstance(pillars.get(pillar), list)
     assert all(isinstance(star.get("code"), str) and star["code"] for star in active_stars)
 
+
+def test_detailed_topics_drawer_and_latency_masking_contract() -> None:
+    html = (PUBLIC_DIR / "lite.html").read_text(encoding="utf-8")
+    js = (PUBLIC_DIR / "lite.js").read_text(encoding="utf-8")
+    css = (PUBLIC_DIR / "lite.css").read_text(encoding="utf-8")
+
+    assert (
+        '<details id="detailed-topics-drawer" '
+        'class="calculation-drawer detailed-topics-drawer hidden">'
+    ) in html
+    drawer_idx = html.find('id="detailed-topics-drawer"')
+    assert "open" not in html[drawer_idx : drawer_idx + 100]
+    assert (
+        "<summary>📜 รายละเอียดคำทำนายและแผนที่ดวงชะตา 12 เดือน "
+        "(Detailed Analysis & 12-Month Map)</summary>"
+    ) in html
+
+    drawer_end = html.find("</details>", drawer_idx)
+    topics_idx = html.find('id="topics-container"')
+    hitl_idx = html.find('id="hitl-deep-synthesis-card"')
+    assert drawer_idx < topics_idx < drawer_end
+    assert drawer_idx < hitl_idx < drawer_end
+    assert 'id="topics-container" class="topics-grid" aria-live="polite"' in html
+
+    assert "detailedTopicsDrawer" in js
+    assert 'statusMessage.classList.add("hidden")' in js
+    assert "statusMessage.hidden = true" in js
+    assert ".detailed-topics-drawer" in css
+
