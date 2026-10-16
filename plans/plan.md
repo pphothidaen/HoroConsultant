@@ -1,8 +1,8 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
-## Sprint: Lite UI Collapsible Topics Drawer & Latency Masking (2026-10-16)
+## Sprint: Lite UI Collapsible Topics Drawer & Latency Masking — 100% COMPLETE (2026-10-16)
 
-Status: TICKET-LITE-001 DONE; TICKET-LITE-002 DONE; TICKET-LITE-003 DONE; TICKET-LITE-004 DONE; TICKET-LITE-005 DOING -- SPRINT IN PROGRESS
+Status: 100% COMPLETE (TICKET-LITE-001 through TICKET-LITE-005 DONE; PR #216 merged; Vercel deployment run 38923661467 verified live)
 Task ID: `SPRINT-LITE-UI-DRAWER-LATENCY`
 Lane ID: `LANE-LITE-001`
 Authorized By: Master Orchestrator directive ("As business_analyst (lead_ba) binding bsa-doc-skill-management and agile-governance: Task (TICKET-LITE-001)")
@@ -40,7 +40,7 @@ Authorized By: Master Orchestrator directive ("As business_analyst (lead_ba) bin
 | **TICKET-LITE-002** | Frontend / UI (`developer`) | UI implementation in `public/lite.html`, `public/lite.css`, `public/lite.js`: hide `#status-message` upon completion; wrap `#topics-container` and `#hitl-deep-synthesis-card` in collapsible `<details id="detailed-topics-drawer">`; style `.detailed-topics-drawer`; reveal drawer collapsed on completion | `DONE` (Collapsible 12-topic drawer and latency masking implemented in public/lite.html [<details id="detailed-topics-drawer" class="calculation-drawer detailed-topics-drawer hidden"> with summary "📜 รายละเอียดคำทำนายและแผนที่ดวงชะตา 12 เดือน (Detailed Analysis & 12-Month Map)" wrapping #topics-container and #hitl-deep-synthesis-card], public/lite.css [.detailed-topics-drawer purple-astral tokenized styling], public/lite.js [statusMessage completely hidden on success, detailedTopicsDrawer revealed collapsed]; verified node -c lite.js, node --test api_unified_reading_edge, pytest test_horo_lite_unified_reading.py 21/21; ecosystem sync exit code 0; pure ASCII logs) [OK] |
 | **TICKET-LITE-003** | QA Verification (`qa_tester`) | QA test assertions in `tests/test_horo_lite_unified_reading.py` verifying `#detailed-topics-drawer` wraps `#topics-container` with aria-live intact and `#status-message` does not expose latency text; register test provenance baseline manifest `plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json` | `DONE` (QA verification completed: tests/test_horo_lite_unified_reading.py added test_detailed_topics_drawer_and_latency_masking_contract verifying #detailed-topics-drawer wraps #topics-container and #hitl-deep-synthesis-card, summary has exact label "📜 รายละเอียดคำทำนายและแผนที่ดวงชะตา 12 เดือน (Detailed Analysis & 12-Month Map)", #status-message is hidden on success, aria-live and topics-grid preserved; 22/22 pytest pass [0.75s]; test provenance manifest plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json registered with schema test-provenance-v1; pure ASCII logs) [OK] |
 | **TICKET-LITE-004** | Security Review (`code_reviewer`) | Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem check, and update `ReleaseNotes.md` | `DONE` (Pre-release security review completed: Rayon parallel secret scan 0 leaks across 2,535 files, Python AST syntax audit 0 issues across 621 Python files, AI agent ecosystem sync verified clean with exit code 0, pre-release review evidence manifest plans/evidence/ticket-lite-004-code-review.json created with READY_FOR_PROD verdict, ReleaseNotes.md prepended with release documentation for Sprint: Lite UI Collapsible Topics Drawer & Latency Masking; pure ASCII logs) [OK] |
-| **TICKET-LITE-005** | Production Release (`devops`) | Production release: PR creation, CI monitoring, squash-merge to main, and live production verification | `DOING` (In progress: release branch, PR lifecycle, CI monitoring, squash-merge, and live production verification) |
+| **TICKET-LITE-005** | Production Release (`devops`) | Production release: PR creation, CI monitoring, squash-merge to main, and live production verification | `DONE` (DevOps production release completed: PR #216 squash-merged into main at commit d7e60784; CI workflows green; live Vercel production deployment run 38923661467 succeeded; live endpoint https://horo-consultant-psi.vercel.app/lite.html verified healthy [HTTP 200, #detailed-topics-drawer present, 12-topic grid and HITL synthesis card encapsulated]; pure ASCII logs) [OK] |
 
 ### 4. Definition of Done (TICKET-LITE-001 — COMPLETED)
 1. Register active sprint "Sprint: Lite UI Collapsible Topics Drawer & Latency Masking (2026-10-16)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
@@ -74,13 +74,13 @@ Authorized By: Master Orchestrator directive ("As business_analyst (lead_ba) bin
 5. Draft and update `ReleaseNotes.md` documenting Lite UI collapsible topics drawer and latency masking. [OK]
 6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 8. Definition of Done (TICKET-LITE-005 — PENDING)
-1. Create release branch and pull request for Lite UI Collapsible Topics Drawer & Latency Masking.
-2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass.
-3. Squash merge pull request into `main`.
-4. Verify local `main` sync and remote production deployment.
-5. Perform live curl verification against production endpoint.
-6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+### 8. Definition of Done (TICKET-LITE-005 — COMPLETED)
+1. Create release branch and pull request for Lite UI Collapsible Topics Drawer & Latency Masking. [OK]
+2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass. [OK]
+3. Squash merge pull request into `main`. [OK]
+4. Verify local `main` sync and remote production deployment. [OK]
+5. Perform live curl verification against production endpoint. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
 
 ## Sprint: BaZi Shen Sha & Ten Gods Enhancement — 100% COMPLETE (2026-10-16)

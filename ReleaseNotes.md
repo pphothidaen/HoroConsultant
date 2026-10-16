@@ -33,21 +33,28 @@ TICKET-LITE-004 is READY_FOR_PROD: local QA, static-safety, and AI-agent ecosyst
 | AI-agent ecosystem sync | PASS (exit code 0) | `scripts/sync_ai_agent_ecosystem.py --check` |
 | **Total** | **READY_FOR_PROD** | **All required code-review gates passed** |
 
-## Milestone Rollup
+## Milestone Rollup (100% DONE)
 
 - `TICKET-LITE-001` (DONE): Sprint planning and acceptance criteria.
 - `TICKET-LITE-002` (DONE): Collapsible 12-topic drawer implementation.
 - `TICKET-LITE-003` (DONE): Latency masking contract and immutable QA provenance baseline.
-- `TICKET-LITE-004` (READY_FOR_PROD): Pre-release code review completed; static safety, secret scan, AST, and ecosystem sync gates passed.
-- `TICKET-LITE-005` (PENDING): Release authorization after all required release-verification gates are green.
+- `TICKET-LITE-004` (DONE): Pre-release security review: Rayon parallel secret scan 0 leaks, AST audit 0 issues, ecosystem sync clean with exit code 0, READY_FOR_PROD verdict.
+- `TICKET-LITE-005` (DONE): Production release via PR #216 squash-merged into main (commit d7e60784), CI/CD pipelines verified green, live deployment verified healthy on Vercel.
 
 ## Live Production Endpoints
 
-The repository documents these production targets, but this review did not perform live deployment or identity verification:
+Production deployment verified live on Vercel following PR #216 squash-merge (commit d7e60784, deployment run 38923661467):
 
-- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html) (HTTP 200, active `#detailed-topics-drawer`, summary '📜 รายละเอียดคำทำนายและแผนที่ดวงชะตา 12 เดือน (Detailed Analysis & 12-Month Map)', latency masked)
 - **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
 - **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
+
+---
+
+## Archived Plans List
+
+- `plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json`: QA test provenance baseline for Lite UI Collapsible Topics Drawer & Latency Masking.
+- `plans/evidence/ticket-lite-004-code-review.json`: Pre-release security and code review evidence manifest.
 
 ---
 
