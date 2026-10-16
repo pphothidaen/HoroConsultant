@@ -1,3 +1,56 @@
+# HoroConsultant Release Notes - Sprint: Lite UI Collapsible Topics Drawer & Latency Masking (2026-10-16)
+
+|> **Release**: `Sprint: Lite UI Collapsible Topics Drawer & Latency Masking`
+|> **Release Date**: 2026-10-16 (Asia/Bangkok)
+|> **Release Authority**: Pre-Deployment Code Reviewer
+|> **Sprint Verdict**: `READY_FOR_PROD (Rayon Secret Scan 0 leaks, AST Audit 0 issues, 22/22 Pytest PASS, Ecosystem Sync exit code 0)`
+
+---
+
+## Executive Summary
+
+This sprint adds client-centric latency masking: `#status-message` is hidden after a successful response so completed consultations do not retain an in-progress message. It also adds the collapsible 12-topic drawer, `#detailed-topics-drawer`, for compact access to detailed topic content.
+
+TICKET-LITE-004 is READY_FOR_PROD: local QA, static-safety, and AI-agent ecosystem sync gates passed. The earlier nonzero ecosystem-sync result was caused by nested-process recursion inside the subshell; the host-workspace verification completed with exit code 0.
+
+## Architectural Deliverables
+
+| Deliverable | Purpose and impact |
+|---|---|
+| Collapsible Topics Drawer | Provides `#detailed-topics-drawer` for accessible, compact presentation of all 12 detailed consultation topics. |
+| Client-Centric Latency Masking | Hides `#status-message` on successful completion while preserving error and in-progress feedback. |
+| Tokenized Purple-Astral CSS | Adds semantic purple-astral styling tokens and responsive drawer presentation. |
+| QA Contract and Provenance Baseline | Covers the drawer and latency-masking contract with the verified `ticket-kan-123-lite-accordion-baseline.json` baseline. |
+
+## Verification Matrix
+
+| Test Suite or Safety Gate | Result | Evidence |
+|---|---:|---|
+| Horo Lite Pytest suite | 22/22 PASS | `tests/test_horo_lite_unified_reading.py`; 1 deprecation warning |
+| QA provenance baseline | VERIFIED | `plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json` |
+| Rayon parallel secret scan | 0 leaks | 2,535 files scanned; exit code 0 |
+| Python AST syntax audit | 0 issues | 621 Python files scanned; exit code 0 |
+| AI-agent ecosystem sync | PASS (exit code 0) | `scripts/sync_ai_agent_ecosystem.py --check` |
+| **Total** | **READY_FOR_PROD** | **All required code-review gates passed** |
+
+## Milestone Rollup
+
+- `TICKET-LITE-001` (DONE): Sprint planning and acceptance criteria.
+- `TICKET-LITE-002` (DONE): Collapsible 12-topic drawer implementation.
+- `TICKET-LITE-003` (DONE): Latency masking contract and immutable QA provenance baseline.
+- `TICKET-LITE-004` (READY_FOR_PROD): Pre-release code review completed; static safety, secret scan, AST, and ecosystem sync gates passed.
+- `TICKET-LITE-005` (PENDING): Release authorization after all required release-verification gates are green.
+
+## Live Production Endpoints
+
+The repository documents these production targets, but this review did not perform live deployment or identity verification:
+
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
+- **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
+
+---
+
 # HoroConsultant Release Notes — Sprint: BaZi Shen Sha & Ten Gods Enhancement (2026-10-16)
 
 |> **Release**: `Sprint: BaZi Shen Sha & Ten Gods Enhancement`

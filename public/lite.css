@@ -653,6 +653,29 @@ textarea:invalid {
   margin-bottom: 4px;
 }
 
+.detailed-topics-drawer {
+  margin-top: 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface-card);
+}
+
+.detailed-topics-drawer summary {
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding: 6px 4px;
+  user-select: none;
+}
+
+.detailed-topics-drawer[open] summary {
+  margin-bottom: 16px;
+  border-bottom: 1px dashed var(--border-soft);
+  padding-bottom: 10px;
+}
+
 #technical-basis {
   margin-top: 8px;
   white-space: pre-wrap;

@@ -1,0 +1,56 @@
+{
+  "ticket_id": "TICKET-LITE-004",
+  "verdict": "READY_FOR_PROD",
+  "requested_verdict": "READY_FOR_PROD",
+  "recorded_at": "2026-10-16T22:02:24+07:00",
+  "reviewer_role": "code_reviewer",
+  "sprint": "Lite UI Collapsible Topics Drawer & Latency Masking",
+  "scans": {
+    "secret_scan": "0 leaks",
+    "ast_syntax": "0 issues",
+    "ecosystem_sync": "PASS"
+  },
+  "audit_evidence": {
+    "secret_scan": {
+      "command": "python3 project/core/code_reviewer.py --scan-secrets",
+      "exit_code": 0,
+      "engine": "Rust Security Auditor (Rayon parallel scan)",
+      "scanned_files": 2535,
+      "secret_leaks_found": 0,
+      "findings": [],
+      "status": "PASSED"
+    },
+    "ast_syntax_audit": {
+      "command": "python3 project/core/code_reviewer.py --audit-ast",
+      "exit_code": 0,
+      "scanned_python_files": 621,
+      "issues_found": 0,
+      "issues": [],
+      "status": "PASSED"
+    },
+    "ecosystem_sync": {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 0,
+      "status": "PASSED"
+    }
+  },
+  "qa_verification": {
+    "command": "python3 -m pytest -q tests/test_horo_lite_unified_reading.py",
+    "exit_code": 0,
+    "pytest_horo_lite": "22/22 PASS",
+    "warnings": 1,
+    "source": "plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json",
+    "provenance_status": "VERIFIED",
+    "baseline_ticket_id": "TICKET-LITE-003",
+    "baseline_parent": "9115f939e19f3382384fbac3d365e71ab21962d2"
+  },
+  "logging_compliance": {
+    "pure_ascii_markers": true,
+    "valid_tags": ["[OK]", "[INFO]", "[WARNING]", "[ERROR]"],
+    "raw_provider_streams_logged": false
+  },
+  "release_gate": {
+    "status": "READY_FOR_PROD",
+    "notes": "All static safety, secret scan (0 leaks), AST (0 issues), and ecosystem sync checks passed."
+  }
+}
