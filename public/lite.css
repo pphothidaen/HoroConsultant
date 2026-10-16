@@ -664,6 +664,31 @@ textarea:invalid {
   overflow: auto;
 }
 
+.drawer-meta-section {
+  margin: 10px 0;
+  padding: 10px 14px;
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.drawer-meta-line {
+  margin: 4px 0;
+  line-height: 1.4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.drawer-meta-hitl {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-soft);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-weight: 500;
+}
+
 .toggle-row {
   display: flex;
   align-items: center;
@@ -818,11 +843,40 @@ textarea:invalid {
   box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
 }
 
+/* Screen reader only utility / visually hidden */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 /* Interactive Gender Selector Pills */
 .gender-field-wrapper {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Hide redundant gender select dropdown for clean end-user experience */
+.gender-field-wrapper select,
+.gender-field-wrapper select.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .gender-pill-group {

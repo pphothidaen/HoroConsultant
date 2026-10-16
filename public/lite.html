@@ -76,13 +76,13 @@
             <div class="field">
               <label for="gender_at_birth">เพศกำเนิด</label>
               <div class="gender-field-wrapper">
-                <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด">
+                <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด" class="sr-only" tabindex="-1">
                   <option value="">ไม่ระบุ</option>
                   <option value="female">หญิง</option>
                   <option value="male">ชาย</option>
                   <option value="intersex">อินเตอร์เซ็กซ์</option>
                 </select>
-                <div id="gender-pills" class="gender-pill-group" role="group" aria-label="เลือกเพศกำเนิดด่วน">
+                <div id="gender-pills" class="gender-pill-group" role="group" aria-label="เลือกเพศกำเนิด">
                   <button type="button" class="gender-pill" data-gender="female" aria-pressed="false">♀ หญิง</button>
                   <button type="button" class="gender-pill" data-gender="male" aria-pressed="false">♂ ชาย</button>
                   <button type="button" class="gender-pill" data-gender="" aria-pressed="false">ไม่ระบุ</button>
@@ -196,10 +196,11 @@
 
         <pre id="result-output" class="result-output hidden" aria-label="ผลลัพธ์ดิบเพื่อดีบัก"></pre>
         <details id="calculation-drawer" class="calculation-drawer">
-          <summary>ดูที่มาและรายละเอียดการคำนวณ</summary>
+          <summary>🔍 ข้อมูลทางเทคนิคและการคำนวณ (Technical Details)</summary>
+          <div id="drawer-meta-mirror" class="drawer-meta-section"></div>
           <p>
-            อ่านต่อจากการประมวลผลแบบ consensus, monthly evidence และ HoroLite HITL เงื่อนไขที่เข้มงวด.
-            หากต้องการความละเอียดแบบครบชุด ให้ไปที่แดชบอร์ดขั้นสูงใน
+            อ่านต่อจากการประมวลผลแบบ consensus, monthly evidence และ HoroLite HITL.
+            หากต้องการความละเอียดแบบครบชุด ให้ไปที่
             <a href="/index.html">Horo Advanced Dashboard</a>
           </p>
           <pre id="technical-basis" aria-label="Technical basis details"></pre>

@@ -64,6 +64,7 @@
   const retryButton = document.getElementById("result-retry");
   const technicalBasis = document.getElementById("technical-basis");
   const calculationDrawer = document.getElementById("calculation-drawer");
+  const drawerMetaMirror = document.getElementById("drawer-meta-mirror");
   const genderAtBirth = document.getElementById("gender_at_birth");
   const genderPillsContainer = document.getElementById("gender-pills");
   const plainSummarySection = document.getElementById("plain-summary-section");
@@ -454,24 +455,27 @@
     card.appendChild(heading);
     card.appendChild(makeNode("p", { className: "topic-copy" }, topic.summary || ""));
 
-    const conf = makeNode("span", { className: `topic-confidence ${confidenceClass(topic.confidence)}` }, `ความมั่นใจ: ${topic.confidence || "MEDIUM"}`);
+    const conf = makeNode("span", { className: `topic-confidence ${confidenceClass(topic.confidence)} hidden`, "aria-hidden": "true" }, `ความมั่นใจ: ${topic.confidence || "MEDIUM"}`);
     card.appendChild(conf);
 
     const guidance = topic.guidance || "";
     card.appendChild(makeNode("p", { className: "topic-conf" }, guidance));
 
+    // Evidence pills hidden from end users (technical reference data)
     const evidence = renderEvidencePills(topic.evidence_refs || []);
     if (evidence) {
+      evidence.classList.add("hidden");
+      evidence.setAttribute("aria-hidden", "true");
       card.appendChild(evidence);
     }
 
     if (topic.topic_id === "annual_overview") {
       const note = `สถิติความเสี่ยงรายเดือน: ${Math.min(10, Math.max(1, Math.round((topic.summary || "").length / 5)))} /10`;
-      card.appendChild(makeNode("p", { className: "topic-conf" }, note));
+      card.appendChild(makeNode("p", { className: "topic-conf hidden", "aria-hidden": "true" }, note));
     }
 
     if (topic.topic_id === "opportunities_caution_periods") {
-      card.appendChild(makeNode("p", { className: "topic-conf" }, "ช่วงมีโอกาสและช่วงควรระวังถูกประมวลผลจากคะแนนรายเดือน 12 เดือน"));
+      card.appendChild(makeNode("p", { className: "topic-conf hidden", "aria-hidden": "true" }, "ช่วงมีโอกาสและช่วงควรระวังถูกประมวลผลจากคะแนนรายเดือน 12 เดือน"));
     }
 
     if (topic.topic_id === "past_pattern_calibration") {
@@ -630,9 +634,10 @@
     if (!resultOutput) {
       return;
     }
+    // Store raw data for programmatic access but keep hidden from end users
     resultOutput.textContent = JSON.stringify(data, null, 2);
-    resultOutput.classList.remove("hidden");
-    resultOutput.hidden = false;
+    resultOutput.classList.add("hidden");
+    resultOutput.hidden = true;
   }
 
   function renderResultMeta(data) {
@@ -647,22 +652,41 @@
       `ดัชนีความสอดคล้อง: ${(metadata.consensus_score ?? "").toString()}`,
       `สถานะ: ${flags.uncertain_birth_time ? "วิเคราะห์ฐาน 3 เสา" : "สมบูรณ์"}`,
     ];
-    resultMeta.textContent = metaLines.join(" | ");
-    resultMeta.classList.remove("hidden");
-    resultMeta.hidden = false;
 
+    // Keep result-meta populated but hidden from end users
+    resultMeta.textContent = metaLines.join(" | ");
+    resultMeta.classList.add("hidden");
+    resultMeta.hidden = true;
+
+    // Build hitl alert text but keep hidden from main view
+    let hitlText = "";
     if (flags.required_human_review || (metadata.arbitration_status || "").includes("CONFLICT") || flags.uncertain_birth_time) {
-      hitlAlert.classList.remove("hidden");
-      hitlAlert.hidden = false;
       if (flags.uncertain_birth_time) {
-        hitlAlert.textContent = "📋 การวิเคราะห์ฐานพลังงาน 3 เสา (กรณีไม่ระบุเวลาเกิด): ระบบคำนวณจากเสาปี เดือน และวัน พร้อมแสดงช่วงคะแนนความผันแปร (Min–Max) เพื่อรักษาความเที่ยงตรงทางสถิติสูงสุด";
+        hitlText = "📋 การวิเคราะห์ฐานพลังงาน 3 เสา (กรณีไม่ระบุเวลาเกิด): ระบบคำนวณจากเสาปี เดือน และวัน พร้อมแสดงช่วงคะแนนความผันแปร (Min–Max) เพื่อรักษาความเที่ยงตรงทางสถิติสูงสุด";
       } else {
-        hitlAlert.textContent = "📋 การวิเคราะห์สถิติพหุศาสตร์: ระบบประมวลผลข้อมูลร่วมจากสถิติสุริยยาตร์ โป๊ยหยี่ และจื่อเวย พร้อมแสดงช่วงคะแนนความผันแปร เพื่อรักษาความเที่ยงตรงสูงสุด";
+        hitlText = "📋 การวิเคราะห์สถิติพหุศาสตร์: ระบบประมวลผลข้อมูลร่วมจากสถิติสุริยยาตร์ โป๊ยหยี่ และจื่อเวย พร้อมแสดงช่วงคะแนนความผันแปร เพื่อรักษาความเที่ยงตรงสูงสุด";
       }
-    } else {
-      hitlAlert.classList.add("hidden");
-      hitlAlert.hidden = true;
-      hitlAlert.textContent = "";
+      hitlAlert.textContent = hitlText;
+    }
+    // Always keep hitl-alert hidden from end users
+    hitlAlert.classList.add("hidden");
+    hitlAlert.hidden = true;
+
+    // Mirror all technical metadata into the collapsible drawer for experts
+    if (drawerMetaMirror) {
+      drawerMetaMirror.innerHTML = "";
+      metaLines.forEach((line) => {
+        const p = makeNode("p", { className: "drawer-meta-line" }, line);
+        drawerMetaMirror.appendChild(p);
+      });
+      if (hitlText) {
+        drawerMetaMirror.appendChild(makeNode("p", { className: "drawer-meta-line drawer-meta-hitl" }, hitlText));
+      }
+    }
+
+    // Show the calculation drawer (collapsed) so experts can expand it
+    if (calculationDrawer) {
+      calculationDrawer.classList.remove("technical-hidden");
     }
   }
 
@@ -829,6 +853,62 @@
     "family",
     "timing",
   ];
+
+  function synthesizeFallbackPlainSummary(data) {
+    if (data?.plain_summary && typeof data.plain_summary === "object" && Object.keys(data.plain_summary).length > 0) {
+      return data.plain_summary;
+    }
+    const topics = Array.isArray(data?.topics) ? data.topics : [];
+    if (!topics.length) return null;
+
+    const findTopic = (id) => topics.find((t) => t.topic_id === id);
+    const getScore = (score) => Math.min(10, Math.max(1, Math.round(Number(score) || 7)));
+
+    const mapping = {
+      annual_overview: {
+        topic: findTopic("annual_overview") || findTopic("personal_overview_strengths"),
+        title: "ภาพรวมดวงชะตา",
+        defaultAdvice: "เน้นการวางแผนระยะยาวและมีสติในการดำเนินชีวิต",
+      },
+      finance: {
+        topic: findTopic("finance"),
+        title: "การเงินและโชคลาภ",
+        defaultAdvice: "จัดสรรงบประมาณอย่างรอบคอบและหลีกเลี่ยงการเก็งกำไรที่ไม่แน่นอน",
+      },
+      love: {
+        topic: findTopic("love_relationships"),
+        title: "ความรักและความสัมพันธ์",
+        defaultAdvice: "เปิดใจสื่อสารด้วยความเข้าใจและความจริงใจต่อคนรอบข้าง",
+      },
+      health: {
+        topic: findTopic("health_wellbeing"),
+        title: "สุขภาพและการพักผ่อน",
+        defaultAdvice: "ใส่ใจการพักผ่อนให้เพียงพอและรักษาสมดุลของร่างกาย",
+      },
+      family: {
+        topic: findTopic("family_surrounding_people"),
+        title: "ครอบครัวและกัลยาณมิตร",
+        defaultAdvice: "ดูแลความสัมพันธ์กับคนใกล้ชิดเพื่อเป็นพลังใจสำคัญ",
+      },
+      timing: {
+        topic: findTopic("opportunities_caution_periods") || findTopic("twelve_month_roadmap"),
+        title: "จังหวะชีวิตและโอกาส",
+        defaultAdvice: "จับจังหวะเวลาที่เหมาะสมในการเริ่มสิ่งใหม่ด้วยความรอบคอบ",
+      },
+    };
+
+    const result = {};
+    for (const [key, conf] of Object.entries(mapping)) {
+      const t = conf.topic;
+      result[key] = {
+        title: t?.title || conf.title,
+        score: getScore(t?.score || 7),
+        conversational_text: t?.summary || "จังหวะชีวิตอยู่ในเกณฑ์ที่สามารถก้าวหน้าได้ดีด้วยความตั้งใจจริง",
+        action_advice: t?.guidance || conf.defaultAdvice,
+      };
+    }
+    return result;
+  }
 
   function renderPlainSummary(plainSummary) {
     if (!plainSummarySection || !plainSummaryContainer) return;
@@ -999,7 +1079,7 @@
     renderResultOutputRaw(data);
     renderResultMeta(data);
     renderTechnicalBasis(data);
-    renderPlainSummary(data.plain_summary);
+    renderPlainSummary(synthesizeFallbackPlainSummary(data));
     renderTopics(data);
     renderUnknownHourNotice(data);
 
@@ -1007,7 +1087,7 @@
       setStatus("ผลลัพธ์ว่างจาก API", "warning");
       return;
     }
-    setStatus("ได้รับผลลัพธ์จาก API แล้ว", "success");
+    setStatus("✨ ผลวิเคราะห์ดวงชะตาของคุณพร้อมแล้ว", "success");
     if (state.feedbackByPattern && Object.keys(state.feedbackByPattern).length > 0) {
       persistFeedbackIfConsented();
     }
