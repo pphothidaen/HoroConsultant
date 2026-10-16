@@ -3102,3 +3102,42 @@ def test_accessibility_and_contrast_compliance() -> None:
     no_note_role_js = js.replace('role: "note"', 'role: "presentation"')
     with pytest.raises(AssertionError, match="ACCESSIBILITY_UNKNOWN_HOUR_ROLE_NOTE_MISSING"):
         _audit_accessibility_and_contrast(no_note_role_js, css, html)
+
+
+def test_client_friendly_ui_no_technical_jargon_contract() -> None:
+    """
+    TICKET-FATE-008: Verify end-user friendly UI contract:
+    1. Gender select dropdown has .sr-only class to avoid duplication with pills.
+    2. Gender pills container #gender-pills is present with female/male/unspecified options.
+    3. Technical metadata (#result-meta) and statistical alert (#hitl-alert) are hidden by default.
+    4. Plain language summary section (#plain-summary-section) with kicker is present.
+    5. Calculation drawer (#calculation-drawer) is collapsed by default and contains technical basis.
+    6. Raw result pre (#result-output) is hidden by default.
+    """
+    html = (PUBLIC_DIR / "lite.html").read_text(encoding="utf-8")
+    js = (PUBLIC_DIR / "lite.js").read_text(encoding="utf-8")
+    css = (PUBLIC_DIR / "lite.css").read_text(encoding="utf-8")
+
+    # 1. Gender dropdown hidden with sr-only
+    assert 'id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด" class="sr-only"' in html
+    assert ".sr-only" in css
+    assert "gender-field-wrapper select" in css
+
+    # 2. Gender pills present
+    assert 'id="gender-pills"' in html
+    assert 'data-gender="female"' in html
+    assert 'data-gender="male"' in html
+
+    # 3. Technical metadata & alert hidden from main view
+    assert 'id="result-meta" class="result-meta hidden"' in html
+    assert 'id="hitl-alert" class="hitl-alert hidden"' in html
+
+    # 4. Plain language section present and emphasized
+    assert 'id="plain-summary-section" class="plain-summary-section hidden"' in html
+    assert "✨ ภาษาพูดเข้าใจง่าย ไร้ศัพท์เทคนิค" in html
+    assert "synthesizeFallbackPlainSummary" in js
+
+    # 5. Calculation drawer collapsed by default
+    assert 'id="calculation-drawer" class="calculation-drawer"' in html
+    assert "id=\"technical-basis\"" in html
+

@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FATE-008",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0f4e7e811cd50128b366584dc8a6abee81632942",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "005911de985d8099ff1ab23dedf59b720eeae3bf1df6f59ad02c99e1451a1230"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_client_friendly_ui_no_technical_jargon_contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert 'id=\"gender_at_birth\" name=\"gender_at_birth\" aria-label=\"เพศกำเนิด\" class=\"sr-only\"' in html"
+    }
+  ],
+  "allowed_source_paths": [
+    "public/lite.js",
+    "public/lite.html",
+    "public/lite.css"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Lite UI Client-Friendly Enhancements (TICKET-FATE-008): 1) Streamline birth gender input with interactive pills while hiding duplicate dropdown; 2) Hide technical metadata (request ID, concordance score, internal status) and statistical analysis alert from end clients; 3) Elevate Plain Language Summary across 6 life domains with automatic fallback synthesis; 4) 20/20 unit & regression tests in test_horo_lite_unified_reading.py pass 100%."
+}
