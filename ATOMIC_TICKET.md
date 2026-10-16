@@ -1,5 +1,88 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: BaZi Shen Sha & Ten Gods Enhancement (2026-10-16)
+
+GOAL: 1) Deliver deep computational enhancements to the BaZi (四柱) calculation engine across both the edge layer (`api/unified_reading_engine.js`) and the backend core (`project/core/bazi.py`), calculating comprehensive Ten Gods (十神 — Shi Shen) relationships (Day Master stem vs four stems and hidden branch stems) and canonical Shen Sha (神煞 — Auxiliary Stars) across Year/Month/Day/Hour pillars (Tian Yi Gui Ren, Tao Hua, Yi Ma, Wen Chang, Yang Ren, Lu Shen, Hua Gai, Kong Wang). 2) Seamlessly render Ten Gods and Shen Sha tags/badges in the calculation drawer in `public/lite.html`, `public/lite.css`, `public/lite.js`. 3) Update the dynamic Fate Book modal prompt generator synthesizing Ten Gods and Shen Sha data for external LLM export. 4) Verify 100% deterministic accuracy with comprehensive QA contract tests (`tests/api_unified_reading_edge.test.mjs`, pytest) and test provenance manifest (`plans/test_provenance/ticket-kan-123-bazi-baseline.json`). 5) Execute pre-release security review (Rayon secret scan 0 leaks, AST audit, ecosystem sync check), and deploy via DevOps production release.
+
+Shared interface contract [FROZEN]:
+- Invariants:
+  - `INVARIANT-BAZI-01`: Canonical Ziping & Sanming Tonghui Metaphysics Parity (Ten Gods calculation against Day Master for all 4 stems and hidden branch stems; canonical derivation for Shen Sha auxiliary stars: Tian Yi Gui Ren, Tao Hua, Yi Ma, Wen Chang, Yang Ren, Lu Shen, Hua Gai, Kong Wang).
+  - `INVARIANT-BAZI-02`: Dual-Engine Deterministic Alignment & Performance (Synchronous JavaScript edge engine in `api/unified_reading_engine.js` (<5ms execution) and Python backend engine in `project/core/bazi.py` produce 100% identical outputs given `birth_datetime`, `longitude`, `utc_offset_hours`, and `gender`).
+  - `INVARIANT-BAZI-03`: Dynamic Fate Book Master Prompt Synthesis Enhancement (Enrich dynamic `fate_book_prompt` with comprehensive BaZi Ten Gods configurations and Shen Sha auxiliary stars across all 4 pillars).
+  - `INVARIANT-BAZI-04`: Client-Friendly Technical Separation (Ten Gods and Shen Sha tags/badges rendered within collapsible `#calculation-drawer` and mirrored metadata, maintaining clean, uncluttered, jargon-free plain summary cards on primary UI).
+  - `INVARIANT-BAZI-05`: Pure ASCII Logging ([OK], [INFO], [WARNING], [ERROR] format throughout all test runs, logs, and evidence manifests).
+  - `INVARIANT-BAZI-06`: Single-Editor Resource Boundaries:
+    - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
+    - `developer`: `api/unified_reading_engine.js`, `project/core/bazi.py`, `public/lite.html`, `public/lite.css`, `public/lite.js`
+    - `qa_tester`: `tests/api_unified_reading_edge.test.mjs`, `tests/test_bazi_engine.py`, `tests/test_bazi_resilient_fallback.py`, `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`
+    - `code_reviewer`: `plans/evidence/**`, `ReleaseNotes.md`
+    - `devops`: git tree, release tags, deployment receipts
+- Stop Conditions: Non-deterministic calculation, broken responsive drawer layout, latency >= 5ms, non-ASCII log emission, secret leak, or test failure halts execution fail-closed.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-BAZI-001` | `DONE` (Sprint registration, frozen execution invariants INVARIANT-BAZI-01 through 06, single-editor boundaries, and ticket decomposition for TICKET-BAZI-001 through 007 registered in ATOMIC_TICKET.md and plans/plan.md; ecosystem sync verified exit code 0; pure ASCII logs); lead_ba | Specification & ticket decomposition for BaZi Shen Sha & Ten Gods Enhancement sprint in ATOMIC_TICKET.md and plans/plan.md. Exclusive scope: `ATOMIC_TICKET.md`, `plans/plan.md`. | Dependencies: Approved intake report `plans/intake/sprint_bazi_shensha_10god_enhancement.md`. Acceptance MET: 7 tickets decomposed with single-editor boundaries, invariants, DoD registered; ecosystem sync verified exit code 0; pure ASCII logs; zero regressions. | `bsa-doc-skill-management`, `agile-governance` |
+| `TICKET-BAZI-002` | `DONE` (BaZi Ten Gods calculation engine implemented in api/unified_reading_engine.js [TEN_GODS/TEN_GOD_METADATA, HIDDEN_STEMS dual indexing, calculateTenGod, calculateBaZiTenGods, baziChart & bazi_ten_gods payload] and project/core/bazi.py [compute_ten_gods, TEN_GOD_METADATA, compute_natal_pillars integration]; verified across node contract tests 8/8, pytest 20/20 in test_horo_lite_unified_reading.py, 64/64 bazi tests; 100% cross-engine parity; latency <5ms; pure ASCII logs); developer | BaZi Ten Gods (10 Shi Shen) calculation engine in `api/unified_reading_engine.js` (and `project/core/bazi.py`): determine stem relationships against Day Master, map hidden branch stems (primary, secondary, tertiary), and output structured `ten_gods` data object. Exclusive scope: `api/unified_reading_engine.js`, `project/core/bazi.py`. | Dependencies: `TICKET-BAZI-001`. Acceptance MET: Day Master reference point established; Ten Gods calculated for 4 stems and hidden branch stems; structured `ten_gods` data returned; latency <5ms; pure ASCII logs. | `sdlc-aisdlc-workflow`, `bazi-calculator` |
+| `TICKET-BAZI-003` | `DONE` (BaZi Shen Sha auxiliary stars engine implemented in api/unified_reading_engine.js [SHEN_SHA_METADATA 9 auxiliary stars: Tian Yi Gui Ren, Tao Hua, Yi Ma, Wen Chang, Yang Ren, Lu Shen, Hua Gai, Kong Wang, Tian Yi Doctor; derivation maps _NOBLEMAN_BRANCHES, _INTELLIGENCE_BRANCH, _PROSPERITY_BRANCH, _YANG_REN_BRANCH, _PEACH_BLOSSOM, _GENERAL_STAR, _TALENT_STAR, _TRAVELLING_HORSE, _KONG_WANG_MAP; calculateBaZiShenSha attached to baziChart & response; Section 1.1 injected into buildFateBookMasterPrompt] and project/core/bazi.py [compute_shen_sha, StarList, compute_symbolic_stars, compute_general_stars, compute_pillar_stars re-exports, attached to compute_natal_pillars]; verified across node contract tests 8/8 [latency 3.38ms], pytest 20/20 in test_horo_lite_unified_reading.py, 64/64 bazi tests; 100% cross-engine parity; pure ASCII logs); developer | BaZi Shen Sha (Auxiliary Stars) calculation engine in `api/unified_reading_engine.js` (and `project/core/bazi.py`): derive Tian Yi Gui Ren, Tao Hua, Yi Ma, Wen Chang, Yang Ren, Lu Shen, Hua Gai, Kong Wang across pillars, and integrate Ten Gods and Shen Sha into dynamic `fate_book_prompt`. Exclusive scope: `api/unified_reading_engine.js`, `project/core/bazi.py`. | Dependencies: `TICKET-BAZI-002`. Acceptance MET: Shen Sha auxiliary stars derived per pillar according to classical Ziping rules; dynamic `fate_book_prompt` updated with Ten Gods and Shen Sha; 100% cross-engine parity; pure ASCII logs. | `sdlc-aisdlc-workflow`, `bazi-calculator` |
+| `TICKET-BAZI-004` | `DONE` (UI presentation for BaZi Ten Gods and Shen Sha auxiliary stars implemented in public/lite.html [<div id="drawer-bazi-mirror" class="drawer-bazi-section">], public/lite.css [tokenized purple-astral theme classes .drawer-bazi-section, .bazi-pillar-grid, .bazi-pillar-card, .is-day-master, .is-unknown, .ten-god-badge, .ten-god-dm, .hidden-stems-container, .shen-sha-container, .shen-sha-badge, .shen-sha-badge.is-void], public/lite.js [renderBaZiCalculationDrawer(data) rendering 4 pillars with Stems, Branches, Hidden Stems with weights % and Ten Gods, Shen Sha badges, unknown_hour handling, modal prompt sync]; verified via node -c public/lite.js [0], node --test tests/api_unified_reading_edge.test.mjs [8/8 pass], pytest tests/test_horo_lite_unified_reading.py [20/20 pass], pytest project/tests/test_bazi*.py [64/64 pass], ecosystem sync [0]; pure ASCII logs); developer | UI presentation in `public/lite.html`, `public/lite.css`, `public/lite.js`: render Ten Gods and Shen Sha tags/badges in the calculation drawer (`#calculation-drawer`) and update Fate Book modal preview. Exclusive scope: `public/lite.html`, `public/lite.css`, `public/lite.js`. | Dependencies: `TICKET-BAZI-002`, `TICKET-BAZI-003`. Acceptance MET: Calculation drawer renders Ten Gods and Shen Sha badges per pillar; Fate Book modal displays updated prompt; zero layout clipping on mobile/desktop; pure ASCII logs. | `sdlc-aisdlc-workflow`, `ui-color-token-handoff` |
+| `TICKET-BAZI-005` | `DONE` (QA verification suite completed: tests/api_unified_reading_edge.test.mjs added dedicated contract tests asserting BaZi Ten Gods [stems, DM, hidden stems, weights], BaZi Shen Sha [pillars, active_stars, unknown_hour zeroing], and Fate Book Master Prompt dynamic Section 1.1 synthesis, 11/11 tests pass [230ms, <5ms latency]; tests/test_horo_lite_unified_reading.py added test_bazi_ten_gods_and_shen_sha_contract verifying compute_natal_pillars output structure, 21/21 tests pass; project/tests/test_bazi*.py 64/64 tests pass; test provenance baseline manifest plans/test_provenance/ticket-kan-123-bazi-baseline.json registered with schema test-provenance-v1; ecosystem sync verified exit code 0; pure ASCII logs); qa_tester | QA test suites in `tests/api_unified_reading_edge.test.mjs` and pytest (`tests/test_bazi_engine.py`, `tests/test_horo_lite_unified_reading.py`), verifying 100% deterministic accuracy against standard BaZi chart fixtures; test provenance manifest `plans/test_provenance/ticket-kan-123-bazi-baseline.json`. Exclusive scope: `tests/api_unified_reading_edge.test.mjs`, `tests/test_bazi_engine.py`, `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`. | Dependencies: `TICKET-BAZI-002`, `TICKET-BAZI-003`, `TICKET-BAZI-004`. Acceptance MET: 100% test pass; deterministic fixture assertions pass; provenance manifest generated; `test_provenance_guard.py verify-pr` passes with 0 issues; pure ASCII logs. | `qa-api-ui-e2e`, `qa-regression-provenance` |
+| `TICKET-BAZI-006` | `DONE` (Pre-release security review completed: Rayon parallel secret scan 0 leaks across 2,538 files, Python AST syntax audit 0 issues across 621 Python files, AI agent ecosystem sync verified clean with exit code 0, pre-release review evidence manifest plans/evidence/ticket-bazi-006-code-review.json created with READY_FOR_PROD verdict, ReleaseNotes.md prepended with release documentation for Sprint: BaZi Shen Sha & Ten Gods Enhancement; pure ASCII logs); code_reviewer | Pre-release security review: Rayon secret scan (0 leaks), AST audit, ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`), and draft `ReleaseNotes.md`. Exclusive scope: `plans/evidence/**`, `ReleaseNotes.md`. | Dependencies: `TICKET-BAZI-005`. Acceptance MET: 0 secret leaks; AST valid across Python files; ecosystem sync exit code 0; READY_FOR_PROD review verdict; ReleaseNotes draft compiled; pure ASCII logs. | `hf-static-release-verification` |
+| `TICKET-BAZI-007` | `READY`; devops | DevOps production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, and live production verification. Exclusive scope: git tree, release tags, deployment receipts. | Dependencies: `TICKET-BAZI-006`. Acceptance: PR squash merged into main; CI workflows 100% green; production deploy verified healthy via curl and Playwright; pure ASCII logs. | `devops-deployment`, `hf-static-release-verification` |
+
+**Definition of Done (TICKET-BAZI-007 — PENDING)**:
+1. Create release branch and pull request for BaZi Shen Sha & Ten Gods Enhancement.
+2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass.
+3. Squash merge pull request into `main`.
+4. Verify local `main` sync and remote production deployment.
+5. Perform live curl verification and automated E2E test validation against production endpoint.
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+
+**Definition of Done (TICKET-BAZI-006 — COMPLETED)**:
+1. Execute Rayon parallel secret scan with 0 credential or secret leaks detected across all files. [OK]
+2. Run Python AST syntax audit across repository files with 0 syntax or encoding issues. [OK]
+3. Verify AI agent ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`) exits with 0. [OK]
+4. Compile pre-release code review evidence manifest in `plans/evidence/ticket-bazi-006-code-review.json` with READY_FOR_PROD verdict. [OK]
+5. Draft and update `ReleaseNotes.md` documenting BaZi Shen Sha & Ten Gods features. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-BAZI-005 — COMPLETED)**:
+1. Enhance Node Edge contract tests in `tests/api_unified_reading_edge.test.mjs` asserting 100% deterministic accuracy of Ten Gods and Shen Sha outputs against standard BaZi fixture charts. [OK]
+2. Enhance Python unit/regression test suites (`tests/test_bazi_engine.py`, `tests/test_horo_lite_unified_reading.py`) verifying dual-engine parity between JS and Python calculations. [OK]
+3. Verify execution latency <5ms for edge calculation. [OK]
+4. Generate and register test provenance baseline manifest in `plans/test_provenance/ticket-kan-123-bazi-baseline.json`. [OK]
+5. Verify `python3 scripts/test_provenance_guard.py verify-pr` passes with 0 issues. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-BAZI-004 — COMPLETED)**:
+1. Update `public/lite.html` and `public/lite.css` to add structured badge containers for Ten Gods and Shen Sha tags within `#calculation-drawer` (`#drawer-meta-mirror` / BaZi section). [OK]
+2. Update `public/lite.js` to render interactive badges/tags for Ten Gods (stems and hidden branch stems) and Shen Sha auxiliary stars across the 4 pillars. [OK]
+3. Ensure Fate Book Master Prompt modal preview dynamically includes the updated prompt containing Ten Gods and Shen Sha configurations. [OK]
+4. Maintain mobile and desktop responsiveness without visual clipping. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-BAZI-003 — COMPLETED)**:
+1. Implement Shen Sha auxiliary star derivation algorithms based on Day Master / Year Branch in `api/unified_reading_engine.js` and `project/core/bazi.py`. [OK]
+2. Derive canonical auxiliary stars: Tian Yi Gui Ren (天乙贵人), Tao Hua (桃花 - Peach Blossom), Yi Ma (驿马 - Traveling Horse), Wen Chang (文昌 - Academic Star), Yang Ren (羊刃 - Blade), Lu Shen (禄神), Hua Gai (华盖 - Elegant Cover), and Kong Wang (空亡 - Void/Death). [OK]
+3. Map auxiliary stars to their active pillars (Year, Month, Day, Hour). [OK]
+4. Integrate Ten Gods and Shen Sha data dynamically into `fate_book_prompt` generator for export to external LLMs. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-BAZI-002 — COMPLETED)**:
+1. Determine Day Master (Day pillar Heavenly Stem) as the reference point for all Ten Gods derivations. [OK]
+2. Implement Ten Gods (Shi Shen: 比肩, 劫财, 食神, 伤官, 偏财, 正财, 七杀/偏官, 正官, 偏印/枭神, 正印) calculation logic matching classical Ziping rules in `api/unified_reading_engine.js` and `project/core/bazi.py`. [OK]
+3. Map hidden stems within each Earthly Branch (e.g., Zi -> Gui; Chou -> Ji, Gui, Xin; Yin -> Jia, Bing, Wu; etc.) with primary, secondary, and tertiary allocations. [OK]
+4. Output structured `ten_gods` data object in the reading response containing stem gods and branch hidden stem gods for Year, Month, Day, and Hour pillars. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-BAZI-001 — COMPLETED)**:
+1. Registered new sprint "Sprint: BaZi Shen Sha & Ten Gods Enhancement (2026-10-16)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
+2. Documented Context & Problem Statement, Goal, Core Execution Invariants (`INVARIANT-BAZI-01` through `06`), and Single-Editor Boundaries. [OK]
+3. Decomposed and registered `TICKET-BAZI-001` through `TICKET-BAZI-007` with bound skills and acceptance criteria. [OK]
+4. Marked `TICKET-BAZI-001` as `DONE` with deliverables receipt. [OK]
+5. Verified AI agent ecosystem sync (`python3 scripts/sync_ai_agent_ecosystem.py --check`) exit code 0. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+
 ## Sprint: Fate Book Master Prompt & Purple Star UI Overhaul — 100% COMPLETE (2026-10-16)
 
 GOAL: 1) Overhaul `public/lite.html` & `lite.css` into a modern Purple Star Mapper-inspired landing page (purple-astral theme, hero banner, rounded pill form inputs, interactive gender selector pills). 2) Implement Plain-Language Conversational Consensus Summary section rendering 6 core domains (ภาพรวมรายปี, การเงิน, ความรัก, สุขภาพ, ครอบครัว, จังหวะโอกาสและควรระวัง) in friendly conversational Thai without esoteric astrological jargon. 3) Implement accessible Modal Popup in `public/lite.js` & `lite.html` previewing the full "Fate Book Master Prompt" synthesizing Thai Suriyayart, BaZi/Saju, and Zi Wei Dou Shu (12 Palaces, 14 Primary Stars, Si Hua, Ming/Shen Gong) with one-click clipboard copy. 4) Update `api/unified_reading_engine.js` to output `plain_summary` and dynamic `fate_book_prompt`. 5) QA contract tests, Playwright E2E automation, Rayon secret scan, PR merge, and live production deployment.

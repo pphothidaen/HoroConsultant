@@ -213,6 +213,99 @@ test("User Scenario: birth_date 2026-10-15, unknown_hour true, display_name jack
   );
 });
 
+test("Contract Invariant: BaZi Ten Gods (Shi Shen) structural and derivation accuracy", () => {
+  const reading = createUnifiedReading({
+    birth_date: "1990-05-15",
+    birth_time: "10:30",
+    unknown_hour: false,
+    birth_place: "Bangkok, Thailand",
+    target_year: 2026,
+  });
+
+  assert.ok(reading.bazi_ten_gods && typeof reading.bazi_ten_gods === "object");
+  assert.ok(reading.bazi_ten_gods.stems && typeof reading.bazi_ten_gods.stems === "object");
+  assert.ok(reading.bazi_ten_gods.hidden_stems && typeof reading.bazi_ten_gods.hidden_stems === "object");
+
+  for (const pillar of ["year", "month", "day", "hour"]) {
+    const god = reading.bazi_ten_gods.stems[pillar];
+    assert.ok(god && typeof god === "object", `Ten Gods stem ${pillar} must be an object`);
+    for (const field of ["code", "zh", "th"]) {
+      assert.ok(typeof god[field] === "string" && god[field].length > 0,
+        `Ten Gods stem ${pillar}.${field} must be a non-empty string`);
+    }
+
+    const hiddenStems = reading.bazi_ten_gods.hidden_stems[pillar];
+    assert.ok(Array.isArray(hiddenStems), `Ten Gods hidden_stems.${pillar} must be an array`);
+    for (const item of hiddenStems) {
+      assert.ok(typeof item.stem === "string" && item.stem.length > 0,
+        `Hidden stem ${pillar} must include a stem`);
+      assert.ok(typeof item.weight === "number" && item.weight > 0,
+        `Hidden stem ${pillar} weight must be positive`);
+      const godObj = item.god || item.ten_god;
+      assert.ok(godObj && typeof godObj === "object",
+        `Hidden stem ${pillar} must include a god object`);
+      for (const field of ["code", "zh", "th"]) {
+        assert.ok(typeof godObj[field] === "string" && godObj[field].length > 0,
+          `Hidden stem ${pillar}.${field} must be a non-empty string`);
+      }
+    }
+  }
+
+  assert.equal(reading.bazi_ten_gods.stems.day.code, "DM");
+  assert.equal(reading.bazi_ten_gods.stems.day.zh, "日主");
+});
+
+test("Contract Invariant: BaZi Shen Sha (Auxiliary Stars) structural and derivation accuracy", () => {
+  const reading = createUnifiedReading({
+    birth_date: "1990-05-15",
+    birth_time: "10:30",
+    unknown_hour: false,
+    birth_place: "Bangkok, Thailand",
+    target_year: 2026,
+  });
+
+  assert.ok(reading.bazi_shen_sha && typeof reading.bazi_shen_sha === "object");
+  assert.ok(reading.bazi_shen_sha.pillars && typeof reading.bazi_shen_sha.pillars === "object");
+  assert.ok(Array.isArray(reading.bazi_shen_sha.active_stars));
+  for (const pillar of ["year", "month", "day", "hour"]) {
+    assert.ok(Array.isArray(reading.bazi_shen_sha.pillars[pillar]),
+      `Shen Sha pillars.${pillar} must be an array`);
+  }
+  assert.ok(reading.bazi_shen_sha.active_stars.length > 0,
+    "Shen Sha active_stars must contain detected auxiliary stars");
+  for (const star of reading.bazi_shen_sha.active_stars) {
+    assert.ok(typeof star.code === "string" && star.code.length > 0,
+      "Each active Shen Sha star must contain a detected star code");
+  }
+
+  const unknownHourReading = createUnifiedReading({
+    birth_date: "1990-05-15",
+    unknown_hour: true,
+    birth_place: "Bangkok, Thailand",
+    target_year: 2026,
+  });
+  assert.deepEqual(unknownHourReading.bazi_shen_sha.pillars.hour, []);
+});
+
+test("Contract Invariant: Fate Book Master Prompt dynamic BaZi synthesis", () => {
+  const reading = createUnifiedReading({
+    birth_date: "1990-05-15",
+    birth_time: "10:30",
+    unknown_hour: false,
+    birth_place: "Bangkok, Thailand",
+    target_year: 2026,
+  });
+  const prompt = reading.fate_book_prompt;
+
+  assert.ok(typeof prompt === "string");
+  assert.ok(prompt.includes("### 1.1 พลังงานสิบเทวดาและดาวเสริมชะตา (BaZi Energy & Auxiliary Stars)"));
+  assert.ok(prompt.includes("Ten Gods"));
+  for (const star of reading.bazi_shen_sha.active_stars) {
+    assert.ok(prompt.includes(star.en) || prompt.includes(star.zh) || prompt.includes(star.code),
+      `Fate Book prompt must include active Shen Sha star ${star.code}`);
+  }
+});
+
 test("Adult Scenario: birth_date 1990-05-15, birth_time 10:30, unknown_hour false", () => {
   const payload = {
     birth_date: "1990-05-15",

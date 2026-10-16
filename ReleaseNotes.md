@@ -1,3 +1,59 @@
+# HoroConsultant Release Notes — Sprint: BaZi Shen Sha & Ten Gods Enhancement (2026-10-16)
+
+|> **Release**: `Sprint: BaZi Shen Sha & Ten Gods Enhancement`
+|> **Release Date**: 2026-10-16 (Asia/Bangkok)
+|> **Release Authority**: Pre-Deployment Code Reviewer
+|> **Sprint Verdict**: `READY_FOR_PROD (Node Contract 11/11 PASS, Pytest Horo Lite 21/21 PASS, BaZi Core 64/64 PASS, Rayon Secret Scan 0 leaks, AST Audit 0 issues, Ecosystem Sync exit code 0)`
+
+---
+
+## Executive Summary
+
+This pre-release review approves the **BaZi Shen Sha & Ten Gods Enhancement** for production release. The sprint adds deterministic Ten Gods relationships, nine Shen Sha auxiliary-star derivations, and a technical Four Pillars presentation while preserving the primary consultation summary as a client-friendly view. The Fate Book Master Prompt now carries this structured BaZi context in Section 1.1.
+
+The code-review gate passed with 0 secret leaks across 2,537 scanned files, 0 Python AST or encoding issues across 621 files, and a clean AI-agent ecosystem check. QA provenance records 11/11 Node contract tests, 21/21 Horo Lite Pytest tests, and 64/64 BaZi core tests as passing.
+
+## Architectural Deliverables
+
+| Deliverable | Purpose and impact |
+|---|---|
+| Ten Gods engine | Computes all ten Shi Shen relationships from the Day Master for each pillar stem and hidden stem, with matching structured output in the edge and Python engines. |
+| Nine Shen Sha auxiliary stars | Derives Nobleman, Intelligence, Prosperity, Yang Ren, Peach Blossom, General, Talent, Travelling Horse, and Kong Wang across the four pillars. |
+| Four Pillars calculation drawer | Presents pillar-specific stems, branches, hidden stems, Ten Gods, and Shen Sha badges in the collapsible technical drawer, including graceful unknown-hour handling. |
+| Master Prompt Section 1.1 | Adds the dynamic BaZi Ten Gods and Shen Sha matrix to the Fate Book Master Prompt for downstream consultation synthesis. |
+| QA provenance baseline | Registers the verified test baseline in `plans/test_provenance/ticket-kan-123-bazi-baseline.json`. |
+
+## Verification Matrix
+
+| Test Suite or Safety Gate | Result | Evidence |
+|---|---:|---|
+| Node contract suite | 11/11 PASS | Registered QA verification for `tests/api_unified_reading_edge.test.mjs` |
+| Horo Lite Pytest suite | 21/21 PASS | Registered QA verification for `tests/test_horo_lite_unified_reading.py` |
+| BaZi core regression suite | 64/64 PASS | Registered QA verification for `project/tests/test_bazi*.py` |
+| Rayon parallel secret scan | 0 leaks | `project/core/code_reviewer.py --scan-secrets`; 2,537 files scanned |
+| Python AST syntax audit | 0 issues | `project/core/code_reviewer.py --audit-ast`; 621 Python files scanned |
+| AI-agent ecosystem sync | PASS (exit code 0) | `scripts/sync_ai_agent_ecosystem.py --check` |
+| **Total** | **READY_FOR_PROD** | **All required code-review gates passed** |
+
+## Milestone Rollup (100% DONE)
+
+- `TICKET-BAZI-001` (DONE): Sprint specification, invariants, and ticket decomposition.
+- `TICKET-BAZI-002` (DONE): Dual-engine Ten Gods derivation and structured output.
+- `TICKET-BAZI-003` (DONE): Nine Shen Sha auxiliary stars and Master Prompt Section 1.1 integration.
+- `TICKET-BAZI-004` (DONE): Four Pillars technical drawer and responsive Ten Gods and Shen Sha presentation.
+- `TICKET-BAZI-005` (DONE): Node, Horo Lite, and BaZi core QA verification with registered provenance.
+- `TICKET-BAZI-006` (DONE): Pre-release security, AST, ecosystem, evidence, and release-note review with `READY_FOR_PROD` verdict.
+
+## Live Production Endpoints
+
+Deployment validation remains owned by `TICKET-BAZI-007`; the production endpoint inventory for that release is:
+
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
+- **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
+
+---
+
 # HoroConsultant Release Notes — Sprint: Fate Book Master Prompt & Purple Star UI Overhaul (2026-10-16)
 
 |> **Release**: `Sprint: Fate Book Master Prompt & Purple Star UI Overhaul`
