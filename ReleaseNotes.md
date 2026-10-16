@@ -51,6 +51,32 @@ Key deliverables achieved:
 
 ---
 
+## Milestone Rollup (100% DONE)
+
+- **TICKET-THAI-001**: Specification & ticket decomposition (`lead_ba`) — DONE [OK]
+- **TICKET-THAI-002**: 100% Thai localization in `api/unified_reading_engine.js` (`developer`) — DONE [OK]
+- **TICKET-THAI-003**: Progressive HITL bridge endpoint `/api/v3/hitl-consult` (`developer`) — DONE [OK]
+- **TICKET-THAI-004**: UI overhaul in `public/lite.js`, `public/lite.html`, `public/lite.css` (`developer`) — DONE [OK]
+- **TICKET-THAI-005**: QA test suites (node contract 8/8, Playwright 3/3, pytest 4/4) (`qa_tester`) — DONE [OK]
+- **TICKET-THAI-006**: Pre-release security review & READY_FOR_PROD (`code_reviewer`) — DONE [OK]
+- **TICKET-THAI-007**: DevOps production release, PR #209 squash merge, live verification (`devops`) — DONE [OK]
+
+---
+
+## Live Production Endpoints
+
+- **Vercel Horo Lite Frontend**: `https://horo-consultant-psi.vercel.app/lite.html`
+- **Vercel Unified Reading API**: `https://horo-consultant-psi.vercel.app/api/v3/unified-reading`
+- **Vercel Progressive HITL Consult API**: `https://horo-consultant-psi.vercel.app/api/v3/hitl-consult`
+
+---
+
+## Archived Plans
+
+- `plans/archive/2026-10-15-thai-localization-and-hitl-bridge/sprint_thai_localization_and_hitl_notebooklm_bridge.md`: Sprint Thai Localization & HITL NotebookLM Bridge Integration approved intake report and architectural specifications.
+
+---
+
 # HoroConsultant Release Notes — v1.8.0-prod (Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture)
 
 |> **Release**: `v1.8.0-prod` — Horo Lite Full Reading, Infographic Synthesis & Multi-Viewport Accessibility Architecture

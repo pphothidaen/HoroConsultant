@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-15T11:42:11.373412+00:00",
+  "timestamp": "2026-10-15T16:52:44.618978+00:00",
   "ticket_id": "TICKET-THAI-005",
   "target_url": "https://horo-consultant-psi.vercel.app/lite.html",
-  "duration_seconds": 5.35,
+  "duration_seconds": 7.8,
   "status": "ALL_PASSED_READY_FOR_PROD",
   "scenarios": [
     {
