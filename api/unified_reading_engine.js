@@ -69,6 +69,453 @@ export const THAI_ELEMENTS = {
   Water: "น้ำ",
 };
 
+export const TEN_GODS = {
+  FR: { code: "FR", zh: "比肩", en: "Friend", th: "เพื่อน/มิตร", structure: "Companion" },
+  RW: { code: "RW", zh: "劫財", en: "Rob Wealth", th: "ช่วงชิง/แข่งขัน", structure: "Companion" },
+  EG: { code: "EG", zh: "食神", en: "Eating God", th: "ผลผลิต/เทพอาหาร", structure: "Output" },
+  HO: { code: "HO", zh: "傷官", en: "Hurting Officer", th: "แสดงออก/สติปัญญา", structure: "Output" },
+  DW: { code: "DW", zh: "正財", en: "Direct Wealth", th: "รายได้หลัก/ทรัพย์สิน", structure: "Wealth" },
+  IW: { code: "IW", zh: "偏財", en: "Indirect Wealth", th: "โชคลาภจร/การลงทุน", structure: "Wealth" },
+  DO: { code: "DO", zh: "正官", en: "Direct Officer", th: "ชื่อเสียง/เกียรติยศ", structure: "Influence" },
+  "7K": { code: "7K", zh: "七殺", en: "Seven Killings", th: "อำนาจเด็ดขาด/อุปสรรค", structure: "Influence" },
+  DR: { code: "DR", zh: "正印", en: "Direct Resource", th: "ผู้อุปถัมภ์/คุณธรรม", structure: "Resource" },
+  IR: { code: "IR", zh: "偏印", en: "Indirect Resource", th: "ปัญญาญาณ/วิชาลี้ลับ", structure: "Resource" },
+  DM: { code: "DM", zh: "日主", en: "Day Master", th: "ตัวตน/ดิถี", structure: "Companion" },
+};
+
+for (const val of Object.values(TEN_GODS)) {
+  Object.defineProperty(val, "toString", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+  Object.defineProperty(val, "valueOf", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+}
+
+export const TEN_GOD_INFO = TEN_GODS;
+export const TEN_GOD_METADATA = TEN_GODS;
+
+const STEM_META_MAP = Object.fromEntries(STEMS.map((s) => [s.name, s]));
+
+export const HIDDEN_STEMS = {
+  "子": [["癸", 1.00]],
+  "丑": [["己", 0.60], ["癸", 0.30], ["辛", 0.10]],
+  "寅": [["甲", 0.60], ["丙", 0.30], ["戊", 0.10]],
+  "卯": [["乙", 1.00]],
+  "辰": [["戊", 0.60], ["乙", 0.30], ["癸", 0.10]],
+  "巳": [["丙", 0.60], ["戊", 0.30], ["庚", 0.10]],
+  "午": [["丁", 0.70], ["己", 0.30]],
+  "未": [["己", 0.60], ["丁", 0.30], ["乙", 0.10]],
+  "申": [["庚", 0.60], ["壬", 0.30], ["戊", 0.10]],
+  "酉": [["辛", 1.00]],
+  "戌": [["戊", 0.60], ["辛", 0.30], ["丁", 0.10]],
+  "亥": [["壬", 0.70], ["甲", 0.30]],
+};
+
+for (const branch of Object.keys(HIDDEN_STEMS)) {
+  HIDDEN_STEMS[branch] = HIDDEN_STEMS[branch].map(([stem, weight]) => {
+    const item = [stem, weight];
+    item.stem = stem;
+    item.weight = weight;
+    return item;
+  });
+}
+
+const FIVE_ELEMENT_GENERATES = {
+  Wood: "Fire",
+  Fire: "Earth",
+  Earth: "Metal",
+  Metal: "Water",
+  Water: "Wood",
+};
+
+const FIVE_ELEMENT_CONTROLS = {
+  Wood: "Earth",
+  Fire: "Metal",
+  Earth: "Water",
+  Metal: "Wood",
+  Water: "Fire",
+};
+
+export function calculateTenGod(dayMasterStem, targetStem, isDayMaster = false) {
+  if (!dayMasterStem) return null;
+  const dmChar = typeof dayMasterStem === "object"
+    ? (dayMasterStem.stem || dayMasterStem.char || dayMasterStem.name)
+    : dayMasterStem;
+
+  if (isDayMaster || targetStem === "DM") {
+    return TEN_GODS.DM;
+  }
+  if (!targetStem) return null;
+
+  const targetChar = typeof targetStem === "object"
+    ? (targetStem.stem || targetStem.char || targetStem.name)
+    : targetStem;
+
+  const dm = STEM_META_MAP[dmChar];
+  const target = STEM_META_MAP[targetChar];
+  if (!dm || !target) return null;
+
+  const samePol = dm.polarity === target.polarity;
+  let code = "FR";
+
+  if (dm.element === target.element) {
+    code = samePol ? "FR" : "RW";
+  } else if (FIVE_ELEMENT_GENERATES[dm.element] === target.element) {
+    code = samePol ? "EG" : "HO";
+  } else if (FIVE_ELEMENT_CONTROLS[dm.element] === target.element) {
+    code = samePol ? "IW" : "DW";
+  } else if (FIVE_ELEMENT_GENERATES[target.element] === dm.element) {
+    code = samePol ? "IR" : "DR";
+  } else if (FIVE_ELEMENT_CONTROLS[target.element] === dm.element) {
+    code = samePol ? "7K" : "DO";
+  }
+
+  return TEN_GODS[code] || null;
+}
+
+export function calculateBaZiTenGods(baziChart) {
+  if (!baziChart || typeof baziChart !== "object") {
+    return {
+      day_master: null,
+      stems: {},
+      hidden_stems: {},
+    };
+  }
+
+  const extractStem = (val) => {
+    if (!val) return null;
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      if (typeof val.char === "string") return val.char;
+      if (typeof val.stem === "string") return val.stem;
+      if (typeof val.name === "string") return val.name;
+      if (val.stem && typeof val.stem === "object") return extractStem(val.stem);
+    }
+    return null;
+  };
+
+  const extractBranch = (val) => {
+    if (!val) return null;
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      if (typeof val.char === "string") return val.char;
+      if (typeof val.branch === "string") return val.branch;
+      if (typeof val.name === "string") return val.name;
+      if (val.branch && typeof val.branch === "object") return extractBranch(val.branch);
+    }
+    return null;
+  };
+
+  const dm = extractStem(baziChart.day_stem || baziChart.day_master || baziChart.day);
+  const yearStem = extractStem(baziChart.year_stem || baziChart.year);
+  const monthStem = extractStem(baziChart.month_stem || baziChart.month);
+  const dayStem = dm;
+  const hourStem = extractStem(baziChart.hour_stem || baziChart.hour);
+
+  const yearBranch = extractBranch(baziChart.year_branch || baziChart.year);
+  const monthBranch = extractBranch(baziChart.month_branch || baziChart.month);
+  const dayBranch = extractBranch(baziChart.day_branch || baziChart.day);
+  const hourBranch = extractBranch(baziChart.hour_branch || baziChart.hour);
+
+  const stems = {
+    year: yearStem ? calculateTenGod(dm, yearStem) : null,
+    month: monthStem ? calculateTenGod(dm, monthStem) : null,
+    day: dm ? TEN_GODS.DM : null,
+    hour: hourStem ? calculateTenGod(dm, hourStem) : null,
+    year_stem: yearStem ? calculateTenGod(dm, yearStem) : null,
+    month_stem: monthStem ? calculateTenGod(dm, monthStem) : null,
+    day_stem: dm ? TEN_GODS.DM : null,
+    hour_stem: hourStem ? calculateTenGod(dm, hourStem) : null,
+  };
+
+  const mapHidden = (branch) => {
+    if (!branch || !HIDDEN_STEMS[branch]) return [];
+    return HIDDEN_STEMS[branch].map(([hsStem, weight]) => {
+      const god = calculateTenGod(dm, hsStem);
+      return {
+        stem: hsStem,
+        weight,
+        element: STEM_META_MAP[hsStem]?.element || "",
+        ten_god: god,
+        ten_god_code: god?.code || null,
+        code: god?.code || null,
+        zh: god?.zh || "",
+        en: god?.en || "",
+        th: god?.th || "",
+      };
+    });
+  };
+
+  const hidden_stems = {
+    year: mapHidden(yearBranch),
+    month: mapHidden(monthBranch),
+    day: mapHidden(dayBranch),
+    hour: mapHidden(hourBranch),
+    year_branch: mapHidden(yearBranch),
+    month_branch: mapHidden(monthBranch),
+    day_branch: mapHidden(dayBranch),
+    hour_branch: mapHidden(hourBranch),
+  };
+
+  return {
+    day_master: dm,
+    stems,
+    hidden_stems,
+  };
+}
+
+export const SHEN_SHA_METADATA = {
+  NOBLEMAN: { code: "NOBLEMAN", zh: "天乙貴人", en: "Tian Yi Nobleman", th: "เทพอุปถัมภ์/ขุนนางสวรรค์", category: "heavenly" },
+  INTELLIGENCE: { code: "INTELLIGENCE", zh: "文昌", en: "Academic Star / Wen Chang", th: "ดาวบัณฑิต/ปัญญา", category: "heavenly" },
+  PROSPERITY: { code: "PROSPERITY", zh: "祿神", en: "Prosperity / Lu Shen", th: "ดาวลาภยศ/ความมั่งคั่ง", category: "heavenly" },
+  YANG_REN: { code: "YANG_REN", zh: "羊刃", en: "Yang Blade / Yang Ren", th: "ดาวมีดแพะ/อำนาจเด็ดขาด", category: "heavenly" },
+  PEACH_BLOSSOM: { code: "PEACH_BLOSSOM", zh: "桃花", en: "Peach Blossom / Tao Hua", th: "ดาวเสน่ห์ดอกท้อ", category: "heavenly" },
+  GENERAL: { code: "GENERAL", zh: "將星", en: "General Star", th: "ดาวขุนพล/ผู้นำ", category: "earthly" },
+  TALENT: { code: "TALENT", zh: "華蓋", en: "Canopy / Hua Gai", th: "ดาวศิลปะ/ปัญญาญาณ", category: "earthly" },
+  TRAVELLING_HORSE: { code: "TRAVELLING_HORSE", zh: "驛馬", en: "Travelling Horse / Yi Ma", th: "ดาวม้าศึก/การเดินทาง", category: "earthly" },
+  KONG_WANG: { code: "KONG_WANG", zh: "空亡", en: "Void / Kong Wang", th: "ดาวความว่างเปล่า", category: "void" },
+};
+
+for (const val of Object.values(SHEN_SHA_METADATA)) {
+  Object.defineProperty(val, "toString", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+  Object.defineProperty(val, "valueOf", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+}
+
+export const _NOBLEMAN_BRANCHES = {
+  甲: ["丑", "未"], 戊: ["丑", "未"],
+  乙: ["子", "申"], 己: ["子", "申"],
+  丙: ["亥", "酉"], 丁: ["亥", "酉"],
+  庚: ["亥", "酉"], 辛: ["寅", "午"],
+  壬: ["卯", "巳"], 癸: ["卯", "巳"],
+};
+
+export const _INTELLIGENCE_BRANCH = {
+  甲: "巳", 乙: "午", 丙: "申", 丁: "酉",
+  戊: "申", 己: "酉", 庚: "亥", 辛: "子",
+  壬: "寅", 癸: "卯",
+};
+
+export const _PROSPERITY_BRANCH = {
+  甲: "寅", 乙: "卯", 丙: "巳", 丁: "午",
+  戊: "巳", 己: "午", 庚: "申", 辛: "酉",
+  壬: "亥", 癸: "子",
+};
+
+export const _YANG_REN_BRANCH = {
+  甲: "卯", 乙: "辰", 丙: "午", 丁: "未",
+  戊: "午", 己: "未", 庚: "酉", 辛: "戌",
+  壬: "子", 癸: "丑",
+};
+
+export const _PEACH_BLOSSOM = {
+  子: "酉", 丑: "午", 寅: "卯", 卯: "子",
+  辰: "酉", 巳: "午", 午: "卯", 未: "子",
+  申: "酉", 酉: "午", 戌: "卯", 亥: "子",
+};
+
+export const _GENERAL_STAR = {
+  子: "子", 午: "子", 卯: "子", 酉: "子",
+  寅: "午", 申: "午", 巳: "午", 亥: "午",
+  辰: "酉", 戌: "酉", 丑: "酉", 未: "酉",
+};
+
+export const _TALENT_STAR = {
+  子: "辰", 丑: "丑", 寅: "戌", 卯: "未",
+  辰: "辰", 巳: "丑", 午: "戌", 未: "未",
+  申: "辰", 酉: "丑", 戌: "戌", 亥: "未",
+};
+
+export const _TRAVELLING_HORSE = {
+  子: "寅", 丑: "亥", 寅: "申", 卯: "巳",
+  辰: "寅", 巳: "亥", 午: "申", 未: "巳",
+  申: "寅", 酉: "亥", 戌: "申", 亥: "巳",
+};
+
+export const _KONG_WANG_MAP = {
+  0: ["戌", "亥"],
+  1: ["申", "酉"],
+  2: ["午", "未"],
+  3: ["辰", "巳"],
+  4: ["寅", "卯"],
+  5: ["子", "丑"],
+};
+
+const STEM_INDEX_MAP = Object.fromEntries(STEMS.map((s, i) => [s.name, i]));
+const BRANCH_INDEX_MAP = Object.fromEntries(BRANCHES.map((b, i) => [b.name, i]));
+
+function makeStarItem(meta, pillarKey) {
+  const item = {
+    code: meta.code,
+    zh: meta.zh,
+    en: meta.en,
+    th: meta.th,
+    category: meta.category,
+    pillar: pillarKey,
+  };
+  Object.defineProperty(item, "toString", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+  Object.defineProperty(item, "valueOf", {
+    value: function () { return this.code; },
+    enumerable: false,
+    configurable: true,
+  });
+  return item;
+}
+
+function makeStarArray(arr) {
+  Object.defineProperty(arr, "includes", {
+    value: function (target) {
+      if (Array.prototype.includes.call(this, target)) return true;
+      return this.some(
+        (item) =>
+          item &&
+          typeof item === "object" &&
+          (item.code === target || item.zh === target || item.en === target || item.th === target)
+      );
+    },
+    enumerable: false,
+    configurable: true,
+  });
+  return arr;
+}
+
+export function calculateBaZiShenSha(baziChart) {
+  if (!baziChart || typeof baziChart !== "object") {
+    return {
+      pillars: {
+        year: makeStarArray([]),
+        month: makeStarArray([]),
+        day: makeStarArray([]),
+        hour: makeStarArray([]),
+      },
+      active_stars: makeStarArray([]),
+    };
+  }
+
+  const extractStem = (val) => {
+    if (!val) return null;
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      if (typeof val.char === "string") return val.char;
+      if (typeof val.stem === "string") return val.stem;
+      if (typeof val.name === "string") return val.name;
+      if (val.stem && typeof val.stem === "object") return extractStem(val.stem);
+    }
+    return null;
+  };
+
+  const extractBranch = (val) => {
+    if (!val) return null;
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      if (typeof val.char === "string") return val.char;
+      if (typeof val.branch === "string") return val.branch;
+      if (typeof val.name === "string") return val.name;
+      if (val.branch && typeof val.branch === "object") return extractBranch(val.branch);
+    }
+    return null;
+  };
+
+  const pSource = (baziChart.pillars && typeof baziChart.pillars === "object") ? baziChart.pillars : baziChart;
+
+  const isUnknownHour = Boolean(baziChart.unknown_hour || baziChart.unknownHour);
+  const dm = extractStem(baziChart.day_master || baziChart.day_stem || pSource.day);
+  const yearBranch = extractBranch(baziChart.year_branch || pSource.year);
+  const monthBranch = extractBranch(baziChart.month_branch || pSource.month);
+  const dayBranch = extractBranch(baziChart.day_branch || pSource.day);
+  const hourBranch = isUnknownHour ? null : extractBranch(baziChart.hour_branch || pSource.hour);
+
+  const dayStem = dm;
+  const dayStemIdx = dayStem && STEM_INDEX_MAP[dayStem] !== undefined ? STEM_INDEX_MAP[dayStem] : -1;
+  const dayBranchIdx = dayBranch && BRANCH_INDEX_MAP[dayBranch] !== undefined ? BRANCH_INDEX_MAP[dayBranch] : -1;
+
+  let kongWangBranches = [];
+  if (dayStemIdx >= 0 && dayBranchIdx >= 0) {
+    const day60 = Math.floor((dayStemIdx * 12 + dayBranchIdx) % 60);
+    const kwGroup = Math.floor(day60 / 10);
+    kongWangBranches = _KONG_WANG_MAP[kwGroup] || [];
+  }
+
+  const matchStarsForBranch = (b, pillarKey) => {
+    if (!b) return makeStarArray([]);
+    const stars = [];
+
+    // 1. Nobleman (天乙貴人)
+    if (dayStem && _NOBLEMAN_BRANCHES[dayStem]?.includes(b)) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.NOBLEMAN, pillarKey));
+    }
+    // 2. Intelligence (文昌)
+    if (dayStem && _INTELLIGENCE_BRANCH[dayStem] === b) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.INTELLIGENCE, pillarKey));
+    }
+    // 3. Prosperity (祿神)
+    if (dayStem && _PROSPERITY_BRANCH[dayStem] === b) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.PROSPERITY, pillarKey));
+    }
+    // 4. Yang Ren (羊刃)
+    if (dayStem && _YANG_REN_BRANCH[dayStem] === b) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.YANG_REN, pillarKey));
+    }
+    // 5. Peach Blossom (桃花)
+    if (yearBranch && _PEACH_BLOSSOM[yearBranch] === b) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.PEACH_BLOSSOM, pillarKey));
+    }
+    // 6. General Star (將星)
+    if ((dayBranch && _GENERAL_STAR[dayBranch] === b) || (yearBranch && _GENERAL_STAR[yearBranch] === b)) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.GENERAL, pillarKey));
+    }
+    // 7. Talent (華蓋)
+    if ((dayBranch && _TALENT_STAR[dayBranch] === b) || (yearBranch && _TALENT_STAR[yearBranch] === b)) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.TALENT, pillarKey));
+    }
+    // 8. Travelling Horse (驛馬)
+    if (dayBranch && _TRAVELLING_HORSE[dayBranch] === b) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.TRAVELLING_HORSE, pillarKey));
+    }
+    // 9. Kong Wang (空亡)
+    if (kongWangBranches.includes(b)) {
+      stars.push(makeStarItem(SHEN_SHA_METADATA.KONG_WANG, pillarKey));
+    }
+
+    return makeStarArray(stars);
+  };
+
+  const pillars = {
+    year: matchStarsForBranch(yearBranch, "year"),
+    month: matchStarsForBranch(monthBranch, "month"),
+    day: matchStarsForBranch(dayBranch, "day"),
+    hour: matchStarsForBranch(hourBranch, "hour"),
+  };
+
+  const activeStars = makeStarArray([
+    ...pillars.year,
+    ...pillars.month,
+    ...pillars.day,
+    ...pillars.hour,
+  ]);
+
+  return {
+    pillars,
+    active_stars: activeStars,
+  };
+}
+
 const SOLAR_MONTH_STARTS = [
   [1, 6], [2, 4], [3, 6], [4, 5], [5, 6], [6, 7],
   [7, 7], [8, 8], [9, 8], [10, 8], [11, 7], [12, 7],
@@ -1260,6 +1707,49 @@ export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLa
   const birthTimeStr = payload.unknown_hour ? "ไม่ระบุเวลาเกิดแน่ชัด (วิเคราะห์ฐาน 3 เสาหลัก)" : (payload.birth_time || "12:00");
   const tstStr = payload.unknown_hour ? "ประมาณการช่วงกลางวัน" : `${solarTime.tst_time} (เวลาสุริยคติจริง TST, ปรับแก้ ${solarTime.total_offset_minutes} นาที)`;
 
+  const tg = baziChart.ten_gods || calculateBaZiTenGods(baziChart);
+  const ss = baziChart.shen_sha || calculateBaZiShenSha(baziChart);
+
+  const stemsInfo = tg?.stems || {};
+  const hiddenInfo = tg?.hidden_stems || {};
+
+  const yearStemGod = stemsInfo.year ? `${stemsInfo.year.zh} (${stemsInfo.year.en} - ${stemsInfo.year.th})` : "ไม่ระบุ";
+  const monthStemGod = stemsInfo.month ? `${stemsInfo.month.zh} (${stemsInfo.month.en} - ${stemsInfo.month.th})` : "ไม่ระบุ";
+  const dayStemGod = "Day Master (ดิถีตัวตน)";
+  const hourStemGod = payload.unknown_hour
+    ? "ไม่ระบุ (เวลาเกิดไม่แน่ชัด)"
+    : (stemsInfo.hour ? `${stemsInfo.hour.zh} (${stemsInfo.hour.en} - ${stemsInfo.hour.th})` : "ไม่ระบุ");
+
+  const formatHiddenList = (hsList) => {
+    if (!hsList || hsList.length === 0) return "ไม่มี";
+    return hsList.map((h) => `${h.stem} [${h.zh || h.ten_god?.zh || ""} - ${h.th || h.ten_god?.th || ""}]`).join(", ");
+  };
+
+  const hiddenSummary = [
+    `  - เสาปี (${baziChart.year_branch}): ${formatHiddenList(hiddenInfo.year)}`,
+    `  - เสาเดือน (${baziChart.month_branch}): ${formatHiddenList(hiddenInfo.month)}`,
+    `  - เสาวัน (${baziChart.day_branch}): ${formatHiddenList(hiddenInfo.day)}`,
+    !payload.unknown_hour && baziChart.hour_branch ? `  - เสาเวลา (${baziChart.hour_branch}): ${formatHiddenList(hiddenInfo.hour)}` : null,
+  ].filter(Boolean).join("\n");
+
+  const pillarThaiName = {
+    year: "เสาปี (Year Pillar)",
+    month: "เสาเดือน (Month Pillar)",
+    day: "เสาวัน (Day Pillar)",
+    hour: "เสาเวลา (Hour Pillar)",
+  };
+
+  const activeStars = ss?.active_stars || [];
+  let shenShaSummary = "";
+  if (activeStars.length > 0) {
+    shenShaSummary = activeStars.map((star) => {
+      const pName = pillarThaiName[star.pillar] || `เสา ${star.pillar}`;
+      return `  - ${star.en} in ${star.pillar.charAt(0).toUpperCase() + star.pillar.slice(1)} Pillar: ${star.zh} (${star.th}) สถิต ณ ${pName}`;
+    }).join("\n");
+  } else {
+    shenShaSummary = "  - ไม่มีดาวเสริมชะตาพิเศษในฐานหลัก";
+  }
+
   const palacesSummary = ziWeiChart.palaces.map((p) => {
     const stars = p.primary_stars.length > 0 ? p.primary_stars.join(", ") : "ไม่มีดาวหลัก (ยืมดาวภพตรงข้าม)";
     const mutators = p.mutators.length > 0 ? ` [${p.mutators.join(", ")}]` : "";
@@ -1303,6 +1793,18 @@ ${payload.primary_focus_question ? `- **ประเด็นหรือคำ�
 - **เสาเวลา (Hour Pillar):** ${payload.unknown_hour ? "ไม่ระบุ (วิเคราะห์ฐาน 3 เสาหลัก)" : `${baziChart.hour_stem}${baziChart.hour_branch} (ธาตุ ${baziChart.hour_element})`}
 - **ธาตุแกนกลาง (Day Master):** ${baziChart.day_stem} (${baziChart.day_element})
 - **ดุลยภาพพลังงานเบญจธาตุ:** ไม้, ไฟ, ดิน, ทอง, น้ำ สัมพันธ์กับฤดูกาลเกิดอย่างมีดุลยภาพ
+
+---
+### 1.1 พลังงานสิบเทวดาและดาวเสริมชะตา (BaZi Energy & Auxiliary Stars)
+- **โครงสร้างสิบเทวดาประจำเสาหลัก (Day Master & Ten Gods Structure):**
+  - เสาวัน (Day Master / ดิถีแกนกลาง): ${baziChart.day_stem} (${baziChart.day_element})
+  - เสาปี (Year Stem Ten God): ${yearStemGod}
+  - เสาเดือน (Month Stem Ten God): ${monthStemGod}
+  - เสาเวลา (Hour Stem Ten God): ${hourStemGod}
+- **อิทธิพลพลังงานแฝงในกิ่งดิน (Hidden Stem Influences):**
+${hiddenSummary}
+- **ดาวเสริมชะตาที่ทำงานในผังดวง (Active Shen Sha Auxiliary Stars across Pillars):**
+${shenShaSummary}
 
 ---
 ### 2. ผังดวงดาวจื่อเวยโต่วซู่ (Zi Wei Dou Shu Imperial Chart)
@@ -1484,6 +1986,7 @@ export function createUnifiedReading(rawPayload) {
   const hourStemIdx = (ratBase + hourBranchIdx) % 10;
 
   const baziChart = {
+    unknown_hour: Boolean(normalizedPayload.unknown_hour),
     year_stem: STEMS[yearStemIdx].name,
     year_branch: BRANCHES[yearBranchIdx].name,
     year_element: THAI_ELEMENTS[STEMS[yearStemIdx].element] || STEMS[yearStemIdx].element,
@@ -1500,6 +2003,12 @@ export function createUnifiedReading(rawPayload) {
     hour_branch: BRANCHES[hourBranchIdx].name,
     hour_element: THAI_ELEMENTS[STEMS[hourStemIdx].element] || STEMS[hourStemIdx].element,
   };
+
+  const baziTenGods = calculateBaZiTenGods(baziChart);
+  baziChart.ten_gods = baziTenGods;
+
+  const baziShenSha = calculateBaZiShenSha(baziChart);
+  baziChart.shen_sha = baziShenSha;
 
   const ziWeiChart = calculateZiWeiDouShuChart(normalizedPayload);
   const solarTime = calculateTrueSolarTime(normalizedPayload);
@@ -1530,5 +2039,14 @@ export function createUnifiedReading(rawPayload) {
     plain_summary: plainSummary,
     fate_book_prompt: fateBookPrompt,
     zi_wei: ziWeiChart,
+    bazi_chart: baziChart,
+    bazi: baziChart,
+    bazi_ten_gods: baziTenGods,
+    ten_gods: baziTenGods,
+    bazi_shen_sha: baziShenSha,
+    shen_sha: baziShenSha,
   };
 }
+
+export const generateUnifiedReading = createUnifiedReading;
+

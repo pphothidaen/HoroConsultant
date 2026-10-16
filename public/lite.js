@@ -65,6 +65,7 @@
   const technicalBasis = document.getElementById("technical-basis");
   const calculationDrawer = document.getElementById("calculation-drawer");
   const drawerMetaMirror = document.getElementById("drawer-meta-mirror");
+  const drawerBaziMirror = document.getElementById("drawer-bazi-mirror");
   const genderAtBirth = document.getElementById("gender_at_birth");
   const genderPillsContainer = document.getElementById("gender-pills");
   const plainSummarySection = document.getElementById("plain-summary-section");
@@ -690,6 +691,176 @@
     }
   }
 
+  function renderBaZiCalculationDrawer(data) {
+    if (!drawerBaziMirror) {
+      return;
+    }
+    drawerBaziMirror.innerHTML = "";
+
+    const baziChart = data.bazi_chart || data.baziChart || data.bazi;
+    if (!baziChart || typeof baziChart !== "object") {
+      drawerBaziMirror.classList.add("hidden");
+      return;
+    }
+    drawerBaziMirror.classList.remove("hidden");
+
+    const tenGods = data.bazi_ten_gods || data.ten_gods || baziChart.ten_gods || {};
+    const shenSha = data.bazi_shen_sha || data.shen_sha || baziChart.shen_sha || {};
+    const hitlFlags = data.hitl_flags || {};
+    const isUnknownHour = Boolean(
+      baziChart.unknown_hour ||
+      hitlFlags.uncertain_birth_time ||
+      (state.lastPayload && state.lastPayload.unknown_hour)
+    );
+
+    const sectionHeader = makeNode("div", { className: "drawer-bazi-header" });
+    const title = makeNode("h4", { className: "drawer-bazi-title" }, "🔮 ผังดวงโป๊ยหยี่ 4 เสาหลัก (BaZi Four Pillars)");
+    const subtitle = makeNode(
+      "span",
+      { className: "drawer-bazi-subtitle" },
+      "พลังงานธาตุ ดิถี เทพสิบประการ (Ten Gods) และดาวมงคล/อวมงคล (Shen Sha)"
+    );
+    sectionHeader.appendChild(title);
+    sectionHeader.appendChild(subtitle);
+    drawerBaziMirror.appendChild(sectionHeader);
+
+    const grid = makeNode("div", { className: "bazi-pillar-grid" });
+
+    const PILLAR_CONFIG = [
+      { key: "year", nameTh: "เสาปี", nameEn: "Year", isDayMaster: false },
+      { key: "month", nameTh: "เสาเดือน", nameEn: "Month", isDayMaster: false },
+      { key: "day", nameTh: "เสาวัน (ดิถี)", nameEn: "Day", isDayMaster: true },
+      { key: "hour", nameTh: "เสาเวลา", nameEn: "Hour", isDayMaster: false },
+    ];
+
+    PILLAR_CONFIG.forEach(({ key, nameTh, nameEn, isDayMaster }) => {
+      const isThisHourUnknown = key === "hour" && isUnknownHour;
+      const cardClass = [
+        "bazi-pillar-card",
+        isDayMaster ? "is-day-master" : "",
+        isThisHourUnknown ? "is-unknown" : "",
+      ].filter(Boolean).join(" ");
+
+      const card = makeNode("div", { className: cardClass });
+
+      const cardHeader = makeNode("div", { className: "bazi-pillar-header" });
+      cardHeader.appendChild(makeNode("span", { className: "bazi-pillar-name" }, nameTh));
+      cardHeader.appendChild(makeNode("span", { className: "bazi-pillar-sub" }, nameEn));
+      card.appendChild(cardHeader);
+
+      if (isThisHourUnknown) {
+        const unknownMsg = makeNode(
+          "div",
+          { className: "bazi-char-block is-unknown-block" },
+          "ไม่ระบุเวลาเกิด (วิเคราะห์ฐาน 3 เสา)"
+        );
+        card.appendChild(unknownMsg);
+        grid.appendChild(card);
+        return;
+      }
+
+      // Stem (ราศีบน)
+      const stemChar =
+        baziChart[`${key}_stem`] ||
+        (baziChart.pillars && baziChart.pillars[key] && baziChart.pillars[key].stem) ||
+        (baziChart[key] && (baziChart[key].stem || baziChart[key].char)) ||
+        "-";
+      const stemElement = baziChart[`${key}_element`] || "";
+      const stemGod = tenGods.stems ? (tenGods.stems[key] || tenGods.stems[`${key}_stem`]) : null;
+
+      const stemBlock = makeNode("div", { className: "bazi-char-block" });
+      const stemRow = makeNode("div", { className: "bazi-char-row" });
+      const stemMain = makeNode("div", { className: "bazi-char-main" });
+      stemMain.appendChild(makeNode("span", { className: "bazi-chinese-char" }, stemChar));
+      if (stemElement) {
+        stemMain.appendChild(makeNode("span", { className: "bazi-char-meta" }, stemElement));
+      }
+      stemRow.appendChild(stemMain);
+
+      if (isDayMaster) {
+        const dmBadge = makeNode("span", { className: "ten-god-badge ten-god-dm" }, "[日主] ดิถีตัวตน");
+        stemRow.appendChild(dmBadge);
+      } else if (stemGod) {
+        const godZh = stemGod.zh || "";
+        const godName = stemGod.th || stemGod.en || "";
+        const godLabel = godZh ? `[${godZh}] ${godName}` : godName;
+        if (godLabel) {
+          stemRow.appendChild(makeNode("span", { className: "ten-god-badge" }, godLabel));
+        }
+      }
+      stemBlock.appendChild(stemRow);
+      card.appendChild(stemBlock);
+
+      // Branch (ราศีล่าง)
+      const branchChar =
+        baziChart[`${key}_branch`] ||
+        (baziChart.pillars && baziChart.pillars[key] && baziChart.pillars[key].branch) ||
+        (baziChart[key] && (baziChart[key].branch || baziChart[key].name)) ||
+        "-";
+      const branchAnimal = baziChart[`${key}_animal`] || "";
+
+      const branchBlock = makeNode("div", { className: "bazi-char-block" });
+      const branchRow = makeNode("div", { className: "bazi-char-row" });
+      const branchMain = makeNode("div", { className: "bazi-char-main" });
+      branchMain.appendChild(makeNode("span", { className: "bazi-chinese-char" }, branchChar));
+      if (branchAnimal) {
+        branchMain.appendChild(makeNode("span", { className: "bazi-char-meta" }, branchAnimal));
+      }
+      branchRow.appendChild(branchMain);
+      branchBlock.appendChild(branchRow);
+      card.appendChild(branchBlock);
+
+      // Hidden Stems (ราศีแฝง)
+      const hsList = tenGods.hidden_stems
+        ? (tenGods.hidden_stems[key] || tenGods.hidden_stems[`${key}_branch`] || [])
+        : [];
+      if (Array.isArray(hsList) && hsList.length > 0) {
+        const hsContainer = makeNode("div", { className: "hidden-stems-container" });
+        hsContainer.appendChild(makeNode("span", { className: "hidden-stems-label" }, "ราศีแฝง (Hidden Stems):"));
+        hsList.forEach((hs) => {
+          const hsItem = makeNode("div", { className: "hidden-stem-item" });
+          const hsInfo = makeNode("div", { className: "hidden-stem-info" });
+          hsInfo.appendChild(makeNode("span", { className: "bazi-hs-char" }, hs.stem || "-"));
+          const godName = hs.th || hs.en || (hs.ten_god && (hs.ten_god.th || hs.ten_god.zh)) || "";
+          const godZh = hs.zh || (hs.ten_god && hs.ten_god.zh) || "";
+          const badgeText = godZh ? `[${godZh}] ${godName}` : godName;
+          if (badgeText) {
+            hsInfo.appendChild(makeNode("span", { className: "ten-god-badge ten-god-badge-sub" }, badgeText));
+          }
+          hsItem.appendChild(hsInfo);
+          const weightPct = hs.weight !== undefined && hs.weight !== null ? `${Math.round(Number(hs.weight) * 100)}%` : "";
+          if (weightPct) {
+            hsItem.appendChild(makeNode("span", { className: "hidden-stem-weight" }, weightPct));
+          }
+          hsContainer.appendChild(hsItem);
+        });
+        card.appendChild(hsContainer);
+      }
+
+      // Shen Sha (ดาวจร / เทพประยุกต์)
+      const pillarStars = (shenSha.pillars && Array.isArray(shenSha.pillars[key])) ? shenSha.pillars[key] : [];
+      const ssContainer = makeNode("div", { className: "shen-sha-container" });
+      ssContainer.appendChild(makeNode("span", { className: "shen-sha-label" }, "ดาวประจำเสา (Shen Sha):"));
+      if (pillarStars.length > 0) {
+        const ssList = makeNode("div", { className: "shen-sha-list" });
+        pillarStars.forEach((star) => {
+          const isVoid = star.code === "KONG_WANG" || star.category === "void";
+          const badgeClass = `shen-sha-badge${isVoid ? " is-void" : ""}`;
+          const starLabel = `[${star.zh || ""}] ${star.th || star.en || ""}`.trim();
+          ssList.appendChild(makeNode("span", { className: badgeClass }, starLabel));
+        });
+        ssContainer.appendChild(ssList);
+      } else {
+        ssContainer.appendChild(makeNode("span", { className: "shen-sha-empty" }, "- ไม่มีดาวพิเศษ -"));
+      }
+      card.appendChild(ssContainer);
+
+      grid.appendChild(card);
+    });
+
+    drawerBaziMirror.appendChild(grid);
+  }
+
   function renderTechnicalBasis(data) {
     if (!technicalBasis) {
       return;
@@ -1078,6 +1249,7 @@
     window.horoLiteLastResult = data;
     renderResultOutputRaw(data);
     renderResultMeta(data);
+    renderBaZiCalculationDrawer(data);
     renderTechnicalBasis(data);
     renderPlainSummary(synthesizeFallbackPlainSummary(data));
     renderTopics(data);

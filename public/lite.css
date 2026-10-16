@@ -50,6 +50,7 @@
     --error-text: #fecaca;
     --success-bg: #052e16;
     --success-text: #bbf7d0;
+    --purple-astral: #c084fc;
     color-scheme: dark;
   }
 
@@ -688,6 +689,249 @@ textarea:invalid {
   font-family: inherit;
   font-weight: 500;
 }
+
+.drawer-bazi-section {
+  margin: 12px 0;
+  padding: 14px;
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+}
+
+.drawer-bazi-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.drawer-bazi-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.drawer-bazi-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.bazi-pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .bazi-pillar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 380px) {
+  .bazi-pillar-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bazi-pillar-card {
+  background-color: var(--surface-field);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.bazi-pillar-card.is-day-master {
+  border-color: var(--auspicious-gold);
+  background-color: color-mix(in srgb, var(--auspicious-gold) 5%, var(--surface-field));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--auspicious-gold) 20%, transparent);
+}
+
+.bazi-pillar-card.is-unknown {
+  opacity: 0.65;
+  border-style: dashed;
+}
+
+.bazi-pillar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.bazi-pillar-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.bazi-pillar-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.bazi-char-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  background-color: var(--surface-muted);
+  border-radius: 6px;
+}
+
+.bazi-char-block.is-unknown-block {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 18px 8px;
+  font-style: italic;
+}
+
+.bazi-char-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bazi-char-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.bazi-chinese-char {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+  font-family: "Noto Serif SC", "SimSun", "Songti SC", serif;
+}
+
+.bazi-char-meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.ten-god-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--purple-astral) 12%, var(--surface-panel));
+  color: var(--purple-astral);
+  border: 1px solid color-mix(in srgb, var(--purple-astral) 30%, transparent);
+  white-space: nowrap;
+}
+
+.ten-god-badge.ten-god-dm {
+  background-color: color-mix(in srgb, var(--auspicious-gold) 15%, var(--surface-panel));
+  color: var(--auspicious-gold);
+  border-color: color-mix(in srgb, var(--auspicious-gold) 40%, transparent);
+  font-weight: 700;
+}
+
+.ten-god-badge.ten-god-badge-sub {
+  font-size: 0.68rem;
+  padding: 1px 5px;
+}
+
+.hidden-stems-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hidden-stems-label,
+.shen-sha-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.hidden-stem-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  background-color: var(--surface-panel);
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-soft);
+}
+
+.hidden-stem-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bazi-hs-char {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-family: "Noto Serif SC", "SimSun", serif;
+}
+
+.hidden-stem-weight {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.shen-sha-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.shen-sha-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.shen-sha-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--purple-astral) 12%, var(--surface-panel));
+  color: var(--purple-astral);
+  border: 1px solid color-mix(in srgb, var(--purple-astral) 25%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--purple-astral) 10%, transparent);
+}
+
+.shen-sha-badge.is-void {
+  background-color: var(--surface-muted);
+  color: var(--text-muted);
+  border: 1px dashed var(--border-soft);
+  box-shadow: none;
+}
+
+.shen-sha-empty {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 2px 0;
+}
+
 
 .toggle-row {
   display: flex;
