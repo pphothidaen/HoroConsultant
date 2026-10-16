@@ -42,13 +42,13 @@ TICKET-FOCUS-004 is READY_FOR_PROD: all pre-release security scans (Rayon parall
 - `TICKET-FOCUS-002` (DONE): Dropdown focus topic selection (`#primary_focus_topic`), deterministic edge focus analysis engine, and dedicated `#focus-question-hero-card` UI.
 - `TICKET-FOCUS-003` (DONE): QA contract tests in `tests/api_unified_reading_edge.test.mjs` (12/12 PASS), Pytest regression tests in `tests/test_horo_lite_unified_reading.py` (23/23 PASS), and test provenance baseline in `plans/test_provenance/ticket-kan-123-focus-baseline.json`.
 - `TICKET-FOCUS-004` (DONE): Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem sync check (exit code 0), compile evidence manifest `plans/evidence/ticket-focus-004-code-review.json`, update `ReleaseNotes.md`.
-- `TICKET-FOCUS-005` (READY): Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, and live production verification.
+- `TICKET-FOCUS-005` (DONE): Production release via PR #218 squash-merged into main (commit f3ae81da), CI/CD pipelines verified green, live deployment verified healthy on Vercel.
 
 ## Live Production Endpoints
 
-Production deployment target on Vercel:
+Production deployment target on Vercel (verified live following PR #218 release, run 38942067729):
 
-- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html) (Verified healthy [HTTP 200, `<select id="primary_focus_topic">` with 5 options + default, and `<section id="focus-question-hero-card">`])
 - **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
 - **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
 
