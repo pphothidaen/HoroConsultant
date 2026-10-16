@@ -75,12 +75,19 @@
 
             <div class="field">
               <label for="gender_at_birth">เพศกำเนิด</label>
-              <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด">
-                <option value="">ไม่ระบุ</option>
-                <option value="female">หญิง</option>
-                <option value="male">ชาย</option>
-                <option value="intersex">อินเตอร์เซ็กซ์</option>
-              </select>
+              <div class="gender-field-wrapper">
+                <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด">
+                  <option value="">ไม่ระบุ</option>
+                  <option value="female">หญิง</option>
+                  <option value="male">ชาย</option>
+                  <option value="intersex">อินเตอร์เซ็กซ์</option>
+                </select>
+                <div id="gender-pills" class="gender-pill-group" role="group" aria-label="เลือกเพศกำเนิดด่วน">
+                  <button type="button" class="gender-pill" data-gender="female" aria-pressed="false">♀ หญิง</button>
+                  <button type="button" class="gender-pill" data-gender="male" aria-pressed="false">♂ ชาย</button>
+                  <button type="button" class="gender-pill" data-gender="" aria-pressed="false">ไม่ระบุ</button>
+                </div>
+              </div>
             </div>
 
             <div class="field">
@@ -169,6 +176,21 @@
 
         <div id="result-meta" class="result-meta hidden" aria-live="polite"></div>
         <div id="hitl-alert" class="hitl-alert hidden" aria-live="polite" role="alert"></div>
+
+        <section id="plain-summary-section" class="plain-summary-section hidden" aria-labelledby="plain-summary-heading" aria-live="polite">
+          <div class="plain-summary-header">
+            <div class="plain-summary-title-wrap">
+              <span class="plain-summary-kicker">✨ ภาษาพูดเข้าใจง่าย ไร้ศัพท์เทคนิค</span>
+              <h3 id="plain-summary-heading" class="plain-summary-heading">สรุปภาพรวมชะตาชีวิต 6 มิติหลัก</h3>
+              <p class="plain-summary-subheading">สังเคราะห์แก่นสาระสำคัญจาก 3 ศาสตร์เพื่อการตัดสินใจและนำไปปรับใช้ในชีวิตจริง</p>
+            </div>
+            <button id="btn-view-fate-book" type="button" class="action-btn-fate-book" aria-haspopup="dialog">
+              📋 ดูและคัดลอก Master Prompt (Fate Book)
+            </button>
+          </div>
+          <div id="plain-summary-container" class="plain-summary-grid"></div>
+        </section>
+
         <div id="topics-container" class="topics-grid" aria-live="polite"></div>
         <div id="hitl-deep-synthesis-card" class="deep-synthesis-card hidden" aria-live="polite"></div>
 
@@ -187,6 +209,35 @@
         <p><span id="footer-version-text">HoroConsultant v1.0.0.e003b5b</span> &bull; <a href="/advanced">Advanced Dashboard</a> &bull; <a href="/admin">Admin Panel</a> &bull; <a href="/hitl-studio">HITL Review Studio</a></p>
       </footer>
     </main>
+
+    <dialog id="fate-book-modal" class="fate-book-modal" aria-labelledby="fate-book-modal-title">
+      <div class="fate-book-modal-container">
+        <header class="fate-book-modal-header">
+          <div class="modal-title-block">
+            <span class="modal-kicker">🔮 Master Prompt Generator</span>
+            <h3 id="fate-book-modal-title" class="fate-book-modal-title">Fate Book Master Prompt (ผังดวง 3 ศาสตร์)</h3>
+            <p class="fate-book-modal-subtitle">คัดลอก Master Prompt ที่ประมวลผลข้อมูลผังดวง BaZi, จื่อเวยโต่วซู่ และลัคนาไทย นำไปปรึกษาต่อใน AI ชั้นนำ (ChatGPT, Claude, Gemini)</p>
+          </div>
+          <button id="btn-close-modal" type="button" class="modal-close-btn" aria-label="ปิดหน้าต่าง">&times;</button>
+        </header>
+        <div class="fate-book-modal-body">
+          <pre id="modal-prompt-content" class="modal-prompt-content" tabindex="0"></pre>
+        </div>
+        <footer class="fate-book-modal-footer">
+          <div class="modal-actions-left">
+            <button id="btn-copy-modal-prompt" type="button" class="btn-copy-prompt">
+              📋 คัดลอกลง Clipboard
+            </button>
+            <button id="btn-close-modal-footer" type="button" class="btn-ghost-footer">
+              ปิดหน้าต่าง
+            </button>
+          </div>
+          <span id="copy-toast-message" class="copy-toast hidden" role="status" aria-live="polite">
+            ✅ คัดลอก Master Prompt เรียบร้อยแล้ว!
+          </span>
+        </footer>
+      </div>
+    </dialog>
 
     <script src="export_engine.js" defer></script>
     <script src="lite.js" defer></script>

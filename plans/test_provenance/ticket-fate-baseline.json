@@ -1,0 +1,58 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FATE-005",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5075e1de971146f839b39e7e066bf2f3aa95be9d",
+  "test_files": [
+    {
+      "path": "tests/api_unified_reading_edge.test.mjs",
+      "sha256": "931cc418e291ddf118057fcb9f865932935019120091c68620b1e5f2e3f8544c"
+    },
+    {
+      "path": "tests/test_prod_lite_e2e.py",
+      "sha256": "daa6b105f13e9410a89c7b9b2712797150033bdb0f690d93fcc75b8ce9070647"
+    },
+    {
+      "path": "project/tests/prod_lite_e2e_report.json",
+      "sha256": "578e47832e947aa0f8bd705472e7b888f35ec080edcbe9526313eca5d8c52feb"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/api_unified_reading_edge.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "reading.plain_summary must contain all 6 core domains or contains forbidden jargon or missing fate_book_prompt"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_prod_lite_e2e.py",
+        "-k",
+        "test_prod_lite_e2e_jack_scenario",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "plain_summary_cards_rendered or fate_book_modal_and_copy or gender_pills_interactive"
+    }
+  ],
+  "allowed_source_paths": [
+    "api/unified_reading_engine.js",
+    "api/index.js",
+    "public/lite.js",
+    "public/lite.html",
+    "public/lite.css",
+    "scripts/run_prod_lite_e2e.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Record verified test provenance baseline for Fate Book Master Prompt & Purple Star UI Overhaul (TICKET-FATE-005): 1) Edge contract tests in tests/api_unified_reading_edge.test.mjs validate plain_summary across 6 core domains in conversational Thai strictly forbidding jargon ('ชง', 'ฮะ', 'ย้งซิ้ง', 'ดิถี', 'ต้าอวิ้น') and fate_book_prompt containing Zi Wei Dou Shu (12 Palaces, 14 Stars, Si Hua), BaZi 4 pillars, True Solar Time, and Thai Suriyayart; 2) Production E2E tests in scripts/run_prod_lite_e2e.py and tests/test_prod_lite_e2e.py verify #plain-summary-container rendering 6 cards, #fate-book-modal open, prompt text display, copy action, toast notification, and gender selector pills toggle; 3) All test suites PASS 100% with pure ASCII logs."
+}

@@ -51,6 +51,85 @@ REPORT_PATH = ROOT / "project" / "tests" / "prod_lite_e2e_report.json"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def build_mock_plain_summary() -> dict[str, Any]:
+    """Build conversational Thai plain summary across 6 core domains without astrological jargon."""
+    return {
+        "annual_overview": {
+            "title": "ภาพรวมดวงชะตารายปี",
+            "score": 8,
+            "best_month": 5,
+            "caution_month": 9,
+            "conversational_text": "ปีนี้คือปีแห่งการเริ่มต้นใหม่ที่สดใส มีพลังบวกหนุนหลังอย่างมั่นคง ก้าวสำคัญที่คุณตั้งใจไว้จะสำเร็จได้อย่างราบรื่น ขอเพียงมีสติและความรอบคอบ",
+            "action_advice": "เดินหน้าตามแผนงานหลักด้วยความมั่นใจ และจัดสรรเวลาพักผ่อนให้สมดุล",
+        },
+        "finance": {
+            "title": "การเงินและโชคลาภ",
+            "score": 8,
+            "best_month": 5,
+            "caution_month": 9,
+            "conversational_text": "การเงินหมุนเวียนคล่องตัว มีโอกาสสร้างรายได้ใหม่จากความรู้ความสามารถ รายจ่ายส่วนใหญ่เป็นการลงทุนเพื่ออนาคตระยะยาว",
+            "action_advice": "จัดสรรเงินสำรองฉุกเฉินและรอบคอบกับการทำสัญญาการเงิน",
+        },
+        "love": {
+            "title": "ความรักและความสัมพันธ์",
+            "score": 8,
+            "best_month": 6,
+            "caution_month": 9,
+            "conversational_text": "ความสัมพันธ์อบอุ่นและเข้าใจกันดี คนโสดมีเกณฑ์พบคนที่เข้ากันได้จากเพื่อนร่วมงานหรือกิจกรรมสร้างสรรค์",
+            "action_advice": "ใส่ใจรับฟังและใช้เวลาคุณภาพร่วมกับคนใกล้ชิด",
+        },
+        "health": {
+            "title": "สุขภาพและสุขภาวะ",
+            "score": 7,
+            "best_month": 5,
+            "caution_month": 9,
+            "conversational_text": "สุขภาพกายแข็งแรงดี ควรระวังเรื่องความล้าจากการทำงานต่อเนื่องและอาการตึงของกล้ามเนื้อ",
+            "action_advice": "พักผ่อนให้เพียงพอ ยืดเหยียดร่างกายสม่ำเสมอ และดื่มน้ำสะอาดตลอดวัน",
+        },
+        "family": {
+            "title": "ครอบครัวและคนรอบข้าง",
+            "score": 8,
+            "best_month": 5,
+            "caution_month": 9,
+            "conversational_text": "บรรยากาศในครอบครัวร่มเย็น มีการสนับสนุนเกื้อกูลกันในทุกการตัดสินใจสำคัญ",
+            "action_advice": "ชวนกันทำกิจกรรมผ่อนคลายและสร้างความสุขเล็กๆ ร่วมกันในบ้าน",
+        },
+        "timing": {
+            "title": "จังหวะโอกาสและข้อควรระวัง",
+            "score": 8,
+            "best_month": 5,
+            "caution_month": 9,
+            "conversational_text": "ครึ่งปีแรกเป็นจังหวะทองในการเริ่มต้นสิ่งใหม่ ครึ่งปีหลังเน้นรักษาความเสถียรและทบทวนผลงาน",
+            "action_advice": "เร่งผลักดันงานสำคัญช่วงกลางปี และใช้ความรอบคอบในการตัดสินใจช่วงปลายปี",
+        },
+    }
+
+
+def build_mock_fate_book_prompt(name: str = "Jack", target_year: int = 2026) -> str:
+    """Build multi-system Fate Book Master Prompt string (Zi Wei Dou Shu, BaZi, Thai Suriyayart)."""
+    return (
+        f'# คำสั่งพยากรณ์พหุศาสตร์ "สมุดบันทึกชะตาชีวิต" (Fate Book Master Prompt)\n'
+        f'# ระบบผังดวง 3 ศาสตร์: โป๊ยหยี่สี่แถว (BaZi) + ดาวจื่อเวยโต่วซู่ (Zi Wei Dou Shu) + โหราศาสตร์ไทยสุริยยาตร์\n\n'
+        f'คุณคือผู้เชี่ยวชาญด้านการพยากรณ์ดวงชะตาพหุศาสตร์ขั้นสูง (Grandmaster Astrologer & Life Strategist)\n\n'
+        f'### ข้อมูลพื้นฐานของเจ้าชะตา (Subject Profile)\n'
+        f'- ชื่อ / สรรพนาม: {name}\n'
+        f'- ปีที่ต้องการพยากรณ์: {target_year}\n'
+        f'- เวลาสุริยคติจริง (True Solar Time): 12:00 (TST, ปรับแก้ 2.5 นาที)\n\n'
+        f'### 1. ผังพลังงานเบญจธาตุ โป๊ยหยี่สี่แถว (BaZi Four Pillars)\n'
+        f'- เสาปี (Year Pillar): 丙午\n'
+        f'- เสาเดือน (Month Pillar): 戊戌\n'
+        f'- เสาวัน (Day Pillar): 壬子\n'
+        f'- เสายาม (Hour Pillar): 丙午\n\n'
+        f'### 2. ผังดวงจื่อเวยโต่วซู่ (Zi Wei Dou Shu - 12 Palaces, 14 Stars, Si Hua)\n'
+        f'- วังชะตา (Ming Gong): วัง 子 มีดาวประธาน: ดาวจื่อเวย (Zi Wei / จักรพรรดิ)\n'
+        f'- 12 วังชะตา (12 Palaces): 命宮 (ชะตา), 兄弟 (พี่น้อง), 夫妻 (คู่ครอง), 子女 (บุตร), 財帛 (การเงิน), 疾厄 (สุขภาพ), 遷移 (การเดินทาง), 僕役 (มิตรสหาย), 官祿 (การงาน), 田宅 (ที่อยู่อาศัย), 福德 (ความสุข), 父母 (บิดามารดา)\n'
+        f'- ดาวประธาน 14 ดวง (14 Primary Stars): 紫微, 天機, 太陽, 武曲, 天同, 廉貞, 天府, 太陰, 貪狼, 巨門, 天相, 天梁, 七殺, 破軍\n'
+        f'- สี่ดาวแปลงสาระสำคัญ (Si Hua): 化祿, 化權, 化科, 化忌\n\n'
+        f'### 3. โหราศาสตร์ไทยระบบสุริยยาตร์ (Thai Suriyayart)\n'
+        f'- ลัคนาสถิตราศีตุลย์ สุริยคติคำนวณตามคัมภีร์สุริยยาตร์\n'
+    )
+
+
 def build_mock_unified_reading_payload(target_year: int = 2026) -> dict[str, Any]:
     """Build a comprehensive, schema-compliant UnifiedReadingResponse with Thai prediction text."""
     topic_configs = [
@@ -243,6 +322,8 @@ def build_mock_unified_reading_payload(target_year: int = 2026) -> dict[str, Any
             "model": "gemini-2.5-flash",
             "inference_verified": True,
         },
+        "plain_summary": build_mock_plain_summary(),
+        "fate_book_prompt": build_mock_fate_book_prompt("เจ้าชะตา", target_year),
     }
 
 
@@ -419,6 +500,8 @@ def build_jack_unified_reading_payload(target_year: int = 2026) -> dict[str, Any
             "source": "deterministic_copy_transformer",
             "model_used": None,
         },
+        "plain_summary": build_mock_plain_summary(),
+        "fate_book_prompt": build_mock_fate_book_prompt("jack", target_year),
     }
 
 
@@ -773,6 +856,36 @@ async def run_jack_scenario(page: Page, url: str) -> dict[str, Any]:
         "detail": "birth_date=2026-10-15, unknown_hour=True, display_name=jack, target_year=2026",
     })
 
+    # 2b. Verify interactive gender selector pills
+    print("[INFO] Verifying interactive gender selector pills...")
+    gender_pills = page.locator("#gender-pills .gender-pill")
+    pill_count = await gender_pills.count()
+    assert pill_count >= 3, f"Expected at least 3 gender pills, found {pill_count}"
+
+    female_pill = page.locator("#gender-pills .gender-pill[data-gender='female']")
+    male_pill = page.locator("#gender-pills .gender-pill[data-gender='male']")
+    unset_pill = page.locator("#gender-pills .gender-pill[data-gender='']")
+
+    await female_pill.click()
+    assert await page.input_value("#gender_at_birth") == "female"
+    assert await female_pill.get_attribute("aria-pressed") == "true"
+    assert await male_pill.get_attribute("aria-pressed") == "false"
+
+    await male_pill.click()
+    assert await page.input_value("#gender_at_birth") == "male"
+    assert await male_pill.get_attribute("aria-pressed") == "true"
+    assert await female_pill.get_attribute("aria-pressed") == "false"
+
+    await unset_pill.click()
+    assert await page.input_value("#gender_at_birth") == ""
+    assert await unset_pill.get_attribute("aria-pressed") == "true"
+
+    scenario_result["checks"].append({
+        "check": "gender_pills_interactive",
+        "status": "PASSED",
+        "detail": "Gender pills toggle aria-pressed and sync with #gender_at_birth select",
+    })
+
     # 3. Submit reading
     print("[INFO] Submitting reading request for Jack...")
     submit_button = page.locator("#submit-reading")
@@ -824,6 +937,73 @@ async def run_jack_scenario(page: Page, url: str) -> dict[str, Any]:
         "check": "prediction_copy_rendered",
         "status": "PASSED",
         "detail": "Prediction copy verified across all 12 topic cards for Jack",
+    })
+
+    # 5b. Verify #plain-summary-container 6 plain summary cards
+    print("[INFO] Verifying #plain-summary-container 6 plain summary cards...")
+    plain_section = page.locator("#plain-summary-section")
+    assert await plain_section.is_visible(), "#plain-summary-section should be visible"
+
+    plain_cards = await page.locator("#plain-summary-container .plain-summary-card").all()
+    assert len(plain_cards) == 6, f"Expected 6 plain summary cards, found {len(plain_cards)}"
+
+    expected_domains = ["annual_overview", "finance", "love", "health", "family", "timing"]
+    forbidden_jargon = ["ชง", "ฮะ", "ย้งซิ้ง", "ดิถี", "ต้าอวิ้น"]
+
+    for idx, expected_domain in enumerate(expected_domains):
+        card = plain_cards[idx]
+        domain_attr = await card.get_attribute("data-domain")
+        assert domain_attr == expected_domain, f"Domain mismatch at {idx}: expected {expected_domain}, got {domain_attr}"
+        title_text = (await card.locator(".plain-card-title").text_content() or "").strip()
+        body_text = (await card.locator(".plain-card-body").text_content() or "").strip()
+        assert len(title_text) > 0, f"Card {expected_domain} missing title"
+        assert len(body_text) >= 10, f"Card {expected_domain} missing body"
+        for jargon in forbidden_jargon:
+            assert jargon not in body_text, f"Forbidden jargon '{jargon}' found in {expected_domain}"
+
+    calc_drawer = page.locator("#calculation-drawer")
+    assert await calc_drawer.count() > 0, "#calculation-drawer should exist in DOM"
+
+    scenario_result["checks"].append({
+        "check": "plain_summary_cards_rendered",
+        "status": "PASSED",
+        "detail": "6 plain summary cards verified across 6 domains without forbidden jargon; calculation drawer exists",
+    })
+
+    # 5c. Verify Fate Book Master Prompt modal and copy notification
+    print("[INFO] Verifying Fate Book Master Prompt modal and copy notification...")
+    btn_fate_book = page.locator("#btn-view-fate-book")
+    assert await btn_fate_book.is_visible(), "#btn-view-fate-book should be visible"
+    await btn_fate_book.click()
+
+    modal = page.locator("#fate-book-modal")
+    await page.wait_for_selector("#fate-book-modal[open]", timeout=5000)
+    assert await modal.is_visible(), "#fate-book-modal should be visible when opened"
+
+    prompt_content = (await page.locator("#modal-prompt-content").text_content() or "").strip()
+    assert len(prompt_content) >= 50, f"Expected modal prompt text, got length {len(prompt_content)}"
+    for term in ["Zi Wei Dou Shu", "12 Palaces", "14 Primary Stars", "Si Hua", "BaZi", "True Solar Time", "Thai Suriyayart"]:
+        assert term in prompt_content, f"Missing expected dimension '{term}' in modal prompt"
+
+    btn_copy_prompt = page.locator("#btn-copy-modal-prompt")
+    await btn_copy_prompt.click()
+
+    copy_toast = page.locator("#copy-toast-message")
+    await page.wait_for_selector("#copy-toast-message:not(.hidden)", timeout=5000)
+    assert await copy_toast.is_visible(), "#copy-toast-message should be visible after copy"
+    toast_text = (await copy_toast.text_content() or "").strip()
+    assert "คัดลอก" in toast_text, f"Unexpected copy toast text: {toast_text}"
+
+    btn_close_modal = page.locator("#btn-close-modal")
+    await btn_close_modal.click()
+    await page.wait_for_selector("#fate-book-modal", state="hidden", timeout=5000)
+    is_open = await page.evaluate("() => Boolean(document.getElementById('fate-book-modal')?.open)")
+    assert not is_open, "#fate-book-modal should not be open after close"
+
+    scenario_result["checks"].append({
+        "check": "fate_book_modal_and_copy",
+        "status": "PASSED",
+        "detail": "Fate book modal opened, 3-tradition Master Prompt validated, copied with toast message displayed, and closed cleanly",
     })
 
     # 6. Verify #hitl-alert renders 3-pillar explanation and zero QUEUED_FOR_HUMAN_REVIEW leak
@@ -1126,7 +1306,7 @@ async def run_prod_lite_e2e_suite(target_url: str = TARGET_URL, headless: bool =
 
     report = {
         "timestamp": end_time.isoformat(),
-        "ticket_id": "TICKET-THAI-005",
+        "ticket_id": "TICKET-FATE-005",
         "target_url": target_url,
         "duration_seconds": round(duration_s, 2),
         "status": final_status,

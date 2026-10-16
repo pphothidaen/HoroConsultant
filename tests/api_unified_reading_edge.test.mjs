@@ -162,6 +162,55 @@ test("User Scenario: birth_date 2026-10-15, unknown_hour true, display_name jack
 
   // 7. LLM immutability invariants
   assert.equal(reading.llm_metadata.facts_mutable_by_llm, false);
+
+  // 8. Plain Summary Contract (TICKET-FATE-001 / TICKET-FATE-005)
+  assert.ok(reading.plain_summary && typeof reading.plain_summary === "object", "plain_summary must be an object");
+  const expectedPlainKeys = ["annual_overview", "finance", "love", "health", "family", "timing"];
+  const actualPlainKeys = Object.keys(reading.plain_summary);
+  assert.deepEqual(actualPlainKeys.sort(), expectedPlainKeys.sort());
+
+  const FORBIDDEN_JARGON = ["ชง", "ฮะ", "ย้งซิ้ง", "ดิถี", "ต้าอวิ้น"];
+
+  for (const key of expectedPlainKeys) {
+    const item = reading.plain_summary[key];
+    assert.ok(item && typeof item === "object", `plain_summary.${key} must be an object`);
+    const textToCheck = `${item.title || ""} ${item.conversational_text || ""} ${item.action_advice || ""}`;
+    assert.ok(/[\u0e00-\u0e7f]/.test(textToCheck), `plain_summary.${key} must contain Thai text`);
+    for (const jargon of FORBIDDEN_JARGON) {
+      assert.ok(!textToCheck.includes(jargon), `plain_summary.${key} contains forbidden astrological jargon "${jargon}": ${textToCheck}`);
+    }
+  }
+
+  // 9. Fate Book Master Prompt Contract (TICKET-FATE-001 / TICKET-FATE-005)
+  assert.ok(typeof reading.fate_book_prompt === "string" && reading.fate_book_prompt.length > 200, "fate_book_prompt must be a non-empty string");
+  assert.ok(
+    reading.fate_book_prompt.includes("จื่อเวยโต่วซู่") || reading.fate_book_prompt.includes("Zi Wei Dou Shu"),
+    "fate_book_prompt must include Zi Wei Dou Shu / จื่อเว่ยโต่วซู่"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("12 วัง") || reading.fate_book_prompt.includes("12 วังชะตา") || reading.fate_book_prompt.includes("วังชะตา"),
+    "fate_book_prompt must include Zi Wei 12 Palaces"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("14 ดาว") || reading.fate_book_prompt.includes("14 ดาวเอก") || reading.fate_book_prompt.includes("ดาวจักรพรรดิ"),
+    "fate_book_prompt must include Primary Stars"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("Si Hua") || reading.fate_book_prompt.includes("สี่ดาวแปลง") || reading.fate_book_prompt.includes("四化"),
+    "fate_book_prompt must include Si Hua"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("BaZi") || reading.fate_book_prompt.includes("โป๊ยหยี่") || reading.fate_book_prompt.includes("Four Pillars"),
+    "fate_book_prompt must include BaZi 4 pillars"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("สุริยยาตร์") || reading.fate_book_prompt.includes("Thai Astrology"),
+    "fate_book_prompt must include Thai Suriyayart"
+  );
+  assert.ok(
+    reading.fate_book_prompt.includes("True Solar Time") || reading.fate_book_prompt.includes("สุริยคติจริง"),
+    "fate_book_prompt must include True Solar Time"
+  );
 });
 
 test("Adult Scenario: birth_date 1990-05-15, birth_time 10:30, unknown_hour false", () => {

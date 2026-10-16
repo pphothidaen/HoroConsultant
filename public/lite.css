@@ -1,25 +1,29 @@
 :root {
   --element-wood: #2d6a4f;
-  --element-fire: #c1121f;
-  --element-earth: #92400e;
+  --element-fire: #dc2626;
+  --element-earth: #b45309;
   --element-metal: #475569;
-  --element-water: #023e8a;
-  --surface-page: #f8fafc;
+  --element-water: #1d4ed8;
+  --surface-page: #fffaf8;
   --surface-panel: #ffffff;
-  --surface-muted: #eef2f7;
+  --surface-muted: #fef2f2;
   --surface-field: #ffffff;
-  --border-strong: #334155;
-  --border-soft: #cbd5e1;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #475569;
-  --focus-ring: #c1121f;
-  --button-bg: #023e8a;
+  --border-strong: #991b1b;
+  --border-soft: #fecaca;
+  --text-primary: #111827;
+  --text-secondary: #1f2937;
+  --text-muted: #4b5563;
+  --focus-ring: #dc2626;
+  --button-bg: #dc2626;
   --button-text: #ffffff;
   --error-bg: #fef2f2;
   --error-text: #991b1b;
   --success-bg: #ecfdf5;
   --success-text: #14532d;
+  --auspicious-red: #dc2626;
+  --auspicious-red-dark: #991b1b;
+  --auspicious-gold: #d97706;
+  --purple-astral: #7c3aed;
   color-scheme: light;
 }
 
@@ -788,3 +792,401 @@ textarea:invalid {
 .lite-footer a:hover {
   text-decoration: underline;
 }
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * SPRINT FATE BOOK & PURPLE STAR MAPPER STYLES
+ * ═════════════════════════════════════════════════════════════════════════════ */
+
+/* Pill styling for inputs */
+.field input:not([type="checkbox"]):not([type="radio"]),
+.field select {
+  border-radius: 9999px;
+  padding: 10px 18px;
+}
+
+#submit-reading {
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#submit-reading:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+}
+
+/* Interactive Gender Selector Pills */
+.gender-field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gender-pill-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gender-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-soft);
+  background-color: #ffffff;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gender-pill:hover {
+  background-color: #fff5f5;
+  border-color: #fca5a5;
+  color: var(--auspicious-red);
+}
+
+.gender-pill[aria-pressed="true"],
+.gender-pill.is-active {
+  background-color: var(--auspicious-red);
+  color: #ffffff;
+  border-color: var(--auspicious-red-dark);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+/* Plain-Language Summary Section */
+.plain-summary-section {
+  margin: 24px 0 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #fffaf8 100%);
+  border: 1.5px solid #fee2e2;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.05);
+}
+
+.plain-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #fee2e2;
+  margin-bottom: 20px;
+}
+
+.plain-summary-title-wrap {
+  max-width: 680px;
+}
+
+.plain-summary-kicker {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--auspicious-red-dark);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 9999px;
+  padding: 3px 12px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.plain-summary-heading {
+  margin: 0 0 6px;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.plain-summary-subheading {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.action-btn-fate-book {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn-fate-book:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(220, 38, 38, 0.35);
+}
+
+.plain-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.plain-summary-card {
+  background-color: #ffffff;
+  border: 1px solid #fee2e2;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.plain-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.08);
+  border-color: #fca5a5;
+}
+
+.plain-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.plain-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plain-card-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.plain-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.plain-card-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  background-color: #fef2f2;
+  color: var(--auspicious-red);
+  border: 1px solid #fecaca;
+}
+
+.plain-card-body {
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+.plain-card-advice {
+  background-color: #fffaf8;
+  border-left: 3px solid var(--auspicious-red);
+  padding: 10px 14px;
+  border-radius: 0 10px 10px 0;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.plain-card-advice strong {
+  color: var(--auspicious-red-dark);
+}
+
+/* Fate Book Accessible Modal Dialog */
+.fate-book-modal {
+  border: none;
+  border-radius: 20px;
+  padding: 0;
+  background: transparent;
+  max-width: 860px;
+  width: calc(100% - 32px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.fate-book-modal::backdrop {
+  background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.fate-book-modal-container {
+  background-color: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #fee2e2;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow: hidden;
+}
+
+.fate-book-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  background: linear-gradient(135deg, #fffaf8 0%, #ffffff 100%);
+  border-bottom: 1px solid #fee2e2;
+}
+
+.modal-title-block {
+  max-width: 720px;
+}
+
+.modal-kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--purple-astral);
+  background-color: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.fate-book-modal-title {
+  margin: 0 0 4px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.fate-book-modal-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.modal-close-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 9999px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modal-close-btn:hover {
+  background: #fee2e2;
+  color: var(--auspicious-red);
+}
+
+.fate-book-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  background-color: #fffbf9;
+}
+
+.modal-prompt-content {
+  margin: 0;
+  padding: 16px 20px;
+  background-color: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: #1f2937;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.fate-book-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #ffffff;
+  border-top: 1px solid #fee2e2;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.modal-actions-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-copy-prompt {
+  padding: 10px 20px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-copy-prompt:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+
+.btn-ghost-footer {
+  padding: 10px 18px;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  color: var(--text-secondary);
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-ghost-footer:hover {
+  background-color: #e5e7eb;
+}
+
+.copy-toast {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+

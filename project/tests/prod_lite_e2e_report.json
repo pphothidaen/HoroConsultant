@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-15T16:52:44.618978+00:00",
-  "ticket_id": "TICKET-THAI-005",
+  "timestamp": "2026-10-16T04:04:04.539279+00:00",
+  "ticket_id": "TICKET-FATE-005",
   "target_url": "https://horo-consultant-psi.vercel.app/lite.html",
-  "duration_seconds": 7.8,
+  "duration_seconds": 8.52,
   "status": "ALL_PASSED_READY_FOR_PROD",
   "scenarios": [
     {
@@ -91,6 +91,11 @@
           "detail": "birth_date=2026-10-15, unknown_hour=True, display_name=jack, target_year=2026"
         },
         {
+          "check": "gender_pills_interactive",
+          "status": "PASSED",
+          "detail": "Gender pills toggle aria-pressed and sync with #gender_at_birth select"
+        },
+        {
           "check": "api_request_intercepted_200",
           "status": "PASSED",
           "detail": "POST /api/v3/unified-reading intercepted HTTP 200 with Jack payload"
@@ -106,6 +111,16 @@
           "detail": "Prediction copy verified across all 12 topic cards for Jack"
         },
         {
+          "check": "plain_summary_cards_rendered",
+          "status": "PASSED",
+          "detail": "6 plain summary cards verified across 6 domains without forbidden jargon; calculation drawer exists"
+        },
+        {
+          "check": "fate_book_modal_and_copy",
+          "status": "PASSED",
+          "detail": "Fate book modal opened, 3-tradition Master Prompt validated, copied with toast message displayed, and closed cleanly"
+        },
+        {
           "check": "hitl_3_pillar_alert_reassuring",
           "status": "PASSED",
           "detail": "3-pillar explanation verified; zero QUEUED_FOR_HUMAN_REVIEW leak in DOM text"
@@ -118,7 +133,7 @@
         {
           "check": "submit_cooldown_15s_behavior",
           "status": "PASSED",
-          "detail": "15s cooldown active: '\u0e01\u0e33\u0e25\u0e31\u0e07\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e27\u0e34\u0e40\u0e04\u0e23\u0e32\u0e30\u0e2b\u0e4c\u0e40\u0e0a\u0e34\u0e07\u0e25\u0e36\u0e01 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e2d\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19\u0e2a\u0e31\u0e01\u0e04\u0e23\u0e39\u0e48... (15 \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35)' (class: status-message is-warning), deduplicated"
+          "detail": "15s cooldown active: '\u0e01\u0e33\u0e25\u0e31\u0e07\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e27\u0e34\u0e40\u0e04\u0e23\u0e32\u0e30\u0e2b\u0e4c\u0e40\u0e0a\u0e34\u0e07\u0e25\u0e36\u0e01 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e2d\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19\u0e2a\u0e31\u0e01\u0e04\u0e23\u0e39\u0e48... (14 \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35)' (class: status-message is-warning), deduplicated"
         },
         {
           "check": "score_gauges_accessibility",
