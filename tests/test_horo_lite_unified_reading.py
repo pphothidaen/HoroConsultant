@@ -3142,6 +3142,30 @@ def test_client_friendly_ui_no_technical_jargon_contract() -> None:
     assert "id=\"technical-basis\"" in html
 
 
+def test_focus_topic_dropdown_and_hero_card_contract() -> None:
+    html = (PUBLIC_DIR / "lite.html").read_text(encoding="utf-8")
+    js = (PUBLIC_DIR / "lite.js").read_text(encoding="utf-8")
+    css = (PUBLIC_DIR / "lite.css").read_text(encoding="utf-8")
+
+    assert '<select id="primary_focus_topic"' in html, "FOCUS_TOPIC_CONTRACT_MISSING"
+    assert '<option value="">' in html
+    for value in (
+        "career_business",
+        "finance_wealth",
+        "love_relationship",
+        "health_vitality",
+        "family_environment",
+    ):
+        assert f'<option value="{value}">' in html
+
+    assert '<section id="focus-question-hero-card"' in html
+    assert html.index('id="focus-question-hero-card"') < html.index('id="plain-summary-section"')
+    assert ".pill-select" in css
+    assert ".focus-question-hero-card" in css
+    assert "renderFocusTopicHero" in js
+    assert "focusHeroCard" in js
+
+
 def test_bazi_ten_gods_and_shen_sha_contract() -> None:
     from datetime import date, time
     from project.core.bazi import compute_natal_pillars

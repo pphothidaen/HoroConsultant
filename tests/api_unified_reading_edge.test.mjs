@@ -17,6 +17,7 @@ import test from "node:test";
 
 import {
   CANONICAL_TOPIC_IDS,
+  calculateFocusTopicAnalysis,
   createUnifiedReading,
   requestIdFor,
 } from "../api/unified_reading_engine.js";
@@ -350,6 +351,41 @@ test("Adult Scenario: birth_date 1990-05-15, birth_time 10:30, unknown_hour fals
 
   // 4. HITL uncertain_birth_time flag is false
   assert.equal(reading.hitl_flags.uncertain_birth_time, false);
+});
+
+test("Focus topic contract: dropdown selection produces a dedicated career analysis", () => {
+  const basePayload = {
+    birth_date: "1990-05-15",
+    birth_time: "10:30",
+    unknown_hour: false,
+    birth_place: "Bangkok, Thailand",
+    target_year: 2026,
+  };
+
+  const unfocusedReading = createUnifiedReading(basePayload);
+  assert.equal(unfocusedReading.focus_topic_analysis, null);
+  assert.equal(calculateFocusTopicAnalysis({}, unfocusedReading.monthly_scores, unfocusedReading.annual_timing), null);
+
+  const reading = createUnifiedReading({
+    ...basePayload,
+    primary_focus_topic: "career_business",
+  });
+  const analysis = calculateFocusTopicAnalysis(
+    { primary_focus_topic: "career_business" },
+    reading.monthly_scores,
+    reading.annual_timing,
+  );
+
+  assert.deepEqual(reading.focus_topic_analysis, analysis);
+  assert.equal(analysis.matched_category, "career_business");
+  assert.equal(analysis.category_name_th, "การงานและธุรกิจ");
+  assert.ok(analysis.domain_score > 0);
+  assert.ok(analysis.peak_golden_month >= 1 && analysis.peak_golden_month <= 12);
+  assert.ok(analysis.caution_month >= 1 && analysis.caution_month <= 12);
+  for (const field of ["proactive_guidance", "defensive_guidance", "strategic_guidance"]) {
+    assert.ok(typeof analysis[field] === "string" && analysis[field].length > 0, `${field} must be a non-empty string`);
+  }
+  assert.ok(reading.fate_book_prompt.includes("- **ประเด็นที่เน้นเป็นพิเศษ:** 💼 การงานและธุรกิจ"));
 });
 
 test("Gateway 503 Fallback: upstream Render 503 triggers seamless edge fallback with x-fallback-edge header", () => {

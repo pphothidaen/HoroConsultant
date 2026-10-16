@@ -71,6 +71,7 @@
   const genderPillsContainer = document.getElementById("gender-pills");
   const plainSummarySection = document.getElementById("plain-summary-section");
   const plainSummaryContainer = document.getElementById("plain-summary-container");
+  const focusHeroCard = document.getElementById("focus-question-hero-card");
   const btnViewFateBook = document.getElementById("btn-view-fate-book");
   const fateBookModal = document.getElementById("fate-book-modal");
   const modalPromptContent = document.getElementById("modal-prompt-content");
@@ -141,7 +142,8 @@
       target_year: Number(formData.get("target_year")),
       locale: String(formData.get("locale") || "th-TH"),
       display_name: optionalText(formData, "display_name"),
-      primary_focus_question: optionalText(formData, "primary_focus_question"),
+      primary_focus_topic: optionalText(formData, "primary_focus_topic"),
+      primary_focus_question: optionalText(formData, "primary_focus_topic") || optionalText(formData, "primary_focus_question"),
       force_human_review: formData.get("force_human_review") === "on",
     };
     const engineMode = optionalText(formData, "engine_mode");
@@ -1129,6 +1131,82 @@
     });
   }
 
+  function renderFocusTopicHero(focusAnalysis) {
+    if (!focusHeroCard) return;
+
+    if (!focusAnalysis || typeof focusAnalysis !== "object" || !focusAnalysis.matched_category) {
+      focusHeroCard.classList.add("hidden");
+      focusHeroCard.hidden = true;
+      focusHeroCard.innerHTML = "";
+      return;
+    }
+
+    focusHeroCard.innerHTML = "";
+    focusHeroCard.classList.remove("hidden");
+    focusHeroCard.hidden = false;
+
+    // Header
+    const header = makeNode("div", { className: "focus-hero-header" });
+    const titleGroup = makeNode("div", { className: "focus-hero-title-group" });
+    const badge = makeNode("span", { className: "focus-domain-tag" }, "🎯 ประเด็นโฟกัสพิเศษ");
+    const heading = makeNode("h3", { className: "focus-hero-heading" }, focusAnalysis.title || focusAnalysis.category_name_th || "ประเด็นที่เลือก");
+    titleGroup.appendChild(badge);
+    titleGroup.appendChild(heading);
+
+    const scorePill = makeNode("span", { className: "focus-score-pill" }, focusAnalysis.score_text || `เกณฑ์พลัง ${focusAnalysis.domain_score || focusAnalysis.score || 8}/10`);
+    header.appendChild(titleGroup);
+    header.appendChild(scorePill);
+    focusHeroCard.appendChild(header);
+
+    // Timing grid (Golden & Caution)
+    const timingGrid = makeNode("div", { className: "focus-timing-grid" });
+
+    // Golden Month
+    const goldenCard = makeNode("div", { className: "focus-timing-card is-golden" });
+    const goldenBadge = makeNode("span", { className: "focus-timing-badge" }, "🌟 เดือนจังหวะโอกาสทองสูงสุด");
+    const goldenMonthVal = focusAnalysis.peak_golden_month_name
+      || (typeof focusAnalysis.peak_golden_month === "object"
+        ? (focusAnalysis.peak_golden_month?.month_name || `เดือนที่ ${focusAnalysis.peak_golden_month?.month}`)
+        : `เดือนที่ ${focusAnalysis.peak_golden_month || focusAnalysis.peak_month || 1}`);
+    const goldenMonthHeading = makeNode("h4", { className: "focus-timing-month" }, goldenMonthVal);
+    const goldenAdviceText = focusAnalysis.proactive_guidance
+      || (typeof focusAnalysis.peak_golden_month === "object" && focusAnalysis.peak_golden_month?.guidance)
+      || "จังหวะเร่งสร้างผลงานและคว้าโอกาสสำคัญ";
+    const goldenAdvice = makeNode("p", { className: "focus-timing-advice" }, goldenAdviceText);
+    goldenCard.appendChild(goldenBadge);
+    goldenCard.appendChild(goldenMonthHeading);
+    goldenCard.appendChild(goldenAdvice);
+    timingGrid.appendChild(goldenCard);
+
+    // Caution Month
+    const cautionCard = makeNode("div", { className: "focus-timing-card is-caution" });
+    const cautionBadge = makeNode("span", { className: "focus-timing-badge" }, "⚠️ เดือนที่ควรเฝ้าระวัง");
+    const cautionMonthVal = focusAnalysis.caution_month_name
+      || (typeof focusAnalysis.caution_month === "object"
+        ? (focusAnalysis.caution_month?.month_name || `เดือนที่ ${focusAnalysis.caution_month?.month}`)
+        : `เดือนที่ ${focusAnalysis.caution_month || focusAnalysis.caution_month_num || 1}`);
+    const cautionMonthHeading = makeNode("h4", { className: "focus-timing-month" }, cautionMonthVal);
+    const cautionAdviceText = focusAnalysis.defensive_guidance
+      || (typeof focusAnalysis.caution_month === "object" && focusAnalysis.caution_month?.guidance)
+      || "ควรชะลอการตัดสินใจเสี่ยงและสำรองทรัพยากร";
+    const cautionAdvice = makeNode("p", { className: "focus-timing-advice" }, cautionAdviceText);
+    cautionCard.appendChild(cautionBadge);
+    cautionCard.appendChild(cautionMonthHeading);
+    cautionCard.appendChild(cautionAdvice);
+    timingGrid.appendChild(cautionCard);
+
+    focusHeroCard.appendChild(timingGrid);
+
+    // Strategy Box
+    const strategyBox = makeNode("div", { className: "focus-strategy-box" });
+    const strategyTitle = makeNode("div", { className: "focus-strategy-title" });
+    strategyTitle.textContent = "💡 กลยุทธ์คำแนะนำเชิงรุก/รับ (Strategic Guidance):";
+    const strategyContent = makeNode("p", { style: "margin: 0; line-height: 1.6;" }, focusAnalysis.strategic_guidance || focusAnalysis.strategy || "");
+    strategyBox.appendChild(strategyTitle);
+    strategyBox.appendChild(strategyContent);
+    focusHeroCard.appendChild(strategyBox);
+  }
+
   function syncGenderPills() {
     if (!genderPillsContainer || !genderAtBirth) return;
     const currentVal = genderAtBirth.value || "";
@@ -1250,6 +1328,7 @@
     window.horoLiteLastResult = data;
     renderResultOutputRaw(data);
     renderResultMeta(data);
+    renderFocusTopicHero(data.focus_analysis || data.focus_topic_analysis);
     renderBaZiCalculationDrawer(data);
     renderTechnicalBasis(data);
     renderPlainSummary(synthesizeFallbackPlainSummary(data));
@@ -1329,6 +1408,10 @@
     setStatus(submitLoadingMessage, "warning");
     resultOutput?.classList.add("hidden");
     resultOutput.hidden = true;
+    if (focusHeroCard) {
+      focusHeroCard.classList.add("hidden");
+      focusHeroCard.hidden = true;
+    }
 
     const start = performance.now();
     try {
@@ -1384,6 +1467,11 @@
     syncUnknownHour();
     setupGenderPills();
     setupFateBookModal();
+    if (focusHeroCard) {
+      focusHeroCard.classList.add("hidden");
+      focusHeroCard.hidden = true;
+      focusHeroCard.innerHTML = "";
+    }
     state.lastResult = null;
     window.horoLiteLastPayload = null;
     window.horoLiteLastResult = null;
