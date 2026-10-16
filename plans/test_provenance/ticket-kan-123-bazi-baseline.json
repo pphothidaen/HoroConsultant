@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-BAZI-005",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "34c66e0feff8e150ce1f09e45bfc9f04f204d769",
+  "captured_at": "2026-10-16T13:31:11Z",
+  "test_files": [
+    {
+      "path": "tests/api_unified_reading_edge.test.mjs",
+      "sha256": "fb5ebd523a2172e916b89d232d5ab446199b294aa7f03101ecc25d46c268b738"
+    },
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "f0cda9f445b74b2d19adae8534d47bb091accd3deb2ee795b9627a5a631e87e8"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "-q",
+        "tests/test_horo_lite_unified_reading.py::test_bazi_ten_gods_and_shen_sha_contract"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "UNIFIED_READING_TEN_GODS_MISSING"
+    }
+  ],
+  "allowed_source_paths": [
+    "api/unified_reading_engine.js",
+    "project/core/bazi.py",
+    "public/lite.html",
+    "public/lite.css",
+    "public/lite.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TICKET-BAZI-005 verified test baseline for BaZi Ten Gods and Shen Sha. The historical RED run of the unified-reading contract recorded UNIFIED_READING_TEN_GODS_MISSING before the source integration was completed. The contract has since been updated to exercise compute_natal_pillars directly. Current SHA-256 digests are recorded for both edited test files. The Node contract file was updated to accept either god or ten_god for hidden stems; the requested pytest commands do not execute that Node suite."
+}

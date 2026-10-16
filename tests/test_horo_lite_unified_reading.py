@@ -3141,3 +3141,39 @@ def test_client_friendly_ui_no_technical_jargon_contract() -> None:
     assert 'id="calculation-drawer" class="calculation-drawer"' in html
     assert "id=\"technical-basis\"" in html
 
+
+def test_bazi_ten_gods_and_shen_sha_contract() -> None:
+    from datetime import date, time
+    from project.core.bazi import compute_natal_pillars
+
+    chart = compute_natal_pillars(date(1990, 5, 15), time(10, 30))
+    ten_gods = chart.get("ten_gods")
+    shen_sha = chart.get("shen_sha")
+    assert isinstance(ten_gods, dict), "TEN_GODS_MISSING"
+    assert isinstance(shen_sha, dict), "SHEN_SHA_MISSING"
+    stems = ten_gods.get("stems")
+    hidden_stems = ten_gods.get("hidden_stems")
+    assert stems.get("day", {}).get("code") == "DM"
+    assert stems.get("day", {}).get("zh") == "日主"
+
+    for pillar in ("year", "month", "day", "hour"):
+        god = stems.get(pillar)
+        assert isinstance(god, dict)
+        assert all(isinstance(god.get(f), str) and god[f] for f in ("code", "zh", "th"))
+        items = hidden_stems.get(pillar)
+        assert isinstance(items, list)
+        for item in items:
+            assert isinstance(item.get("stem"), str) and item["stem"]
+            assert isinstance(item.get("weight"), int | float) and item["weight"] > 0
+            item_god = item.get("ten_god") or item.get("god")
+            assert isinstance(item_god, dict)
+            assert all(isinstance(item_god.get(field), str) and item_god[field] for field in ("code", "zh", "th"))
+
+    pillars = shen_sha.get("pillars")
+    active_stars = shen_sha.get("active_stars")
+    assert isinstance(pillars, dict)
+    assert isinstance(active_stars, list) and active_stars
+    for pillar in ("year", "month", "day", "hour"):
+        assert isinstance(pillars.get(pillar), list)
+    assert all(isinstance(star.get("code"), str) and star["code"] for star in active_stars)
+
