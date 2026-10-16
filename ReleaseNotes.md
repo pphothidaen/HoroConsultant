@@ -43,14 +43,21 @@ The code-review gate passed with 0 secret leaks across 2,537 scanned files, 0 Py
 - `TICKET-BAZI-004` (DONE): Four Pillars technical drawer and responsive Ten Gods and Shen Sha presentation.
 - `TICKET-BAZI-005` (DONE): Node, Horo Lite, and BaZi core QA verification with registered provenance.
 - `TICKET-BAZI-006` (DONE): Pre-release security, AST, ecosystem, evidence, and release-note review with `READY_FOR_PROD` verdict.
+- `TICKET-BAZI-007` (DONE): Production release via PR #214 squash-merged into main (commit 0764782), CI/CD pipelines verified green, live deployment verified healthy on Vercel.
 
 ## Live Production Endpoints
 
-Deployment validation remains owned by `TICKET-BAZI-007`; the production endpoint inventory for that release is:
+Production deployment verified live on Vercel following PR #214 squash-merge (commit 076478285982036bf19c98e8073ca3a804face85):
 
-- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html) (HTTP 200, active `#drawer-bazi-mirror` and `renderBaZiCalculationDrawer`)
 - **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
 - **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
+
+---
+
+## Archived Plans List
+
+- `plans/intake/sprint_bazi_shensha_10god_enhancement.md`: Approved intake report for BaZi Shen Sha & Ten Gods Enhancement sprint.
 
 ---
 
