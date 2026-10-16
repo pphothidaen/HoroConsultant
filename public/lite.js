@@ -61,6 +61,7 @@
   const resultMeta = document.getElementById("result-meta");
   const hitlAlert = document.getElementById("hitl-alert");
   const topicsContainer = document.getElementById("topics-container");
+  const detailedTopicsDrawer = document.getElementById("detailed-topics-drawer");
   const retryButton = document.getElementById("result-retry");
   const technicalBasis = document.getElementById("technical-basis");
   const calculationDrawer = document.getElementById("calculation-drawer");
@@ -1255,6 +1256,11 @@
     renderTopics(data);
     renderUnknownHourNotice(data);
 
+    if (detailedTopicsDrawer) {
+      detailedTopicsDrawer.classList.remove("hidden");
+      detailedTopicsDrawer.hidden = false;
+    }
+
     if (!data.topics || !data.topics.length) {
       setStatus("ผลลัพธ์ว่างจาก API", "warning");
       return;
@@ -1316,6 +1322,10 @@
       retryButton.classList.add("hidden");
       retryButton.hidden = true;
     }
+    if (statusMessage) {
+      statusMessage.classList.remove("hidden");
+      statusMessage.hidden = false;
+    }
     setStatus(submitLoadingMessage, "warning");
     resultOutput?.classList.add("hidden");
     resultOutput.hidden = true;
@@ -1336,10 +1346,18 @@
       }
 
       renderResult(data);
-      setStatus(`ได้รับผลลัพธ์จาก API ใน ${elapsed}ms`, "success");
+      if (statusMessage) {
+        statusMessage.classList.add("hidden");
+        statusMessage.hidden = true;
+      }
+      console.info(`[HoroLite] API response received in ${elapsed}ms`);
       triggerDeepSynthesis(payload, data);
       return;
     } catch (error) {
+      if (statusMessage) {
+        statusMessage.classList.remove("hidden");
+        statusMessage.hidden = false;
+      }
       setStatus(error.message || "เกิดข้อผิดพลาดระหว่างส่งคำขอ", "error");
       if (retryButton) {
         retryButton.classList.remove("hidden");
