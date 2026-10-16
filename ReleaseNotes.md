@@ -1,3 +1,67 @@
+# HoroConsultant Release Notes - Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card (2026-10-16)
+
+|> **Release**: `Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card`
+|> **Release Date**: 2026-10-16 (Asia/Bangkok)
+|> **Release Authority**: Pre-Deployment Code Reviewer
+|> **Sprint Verdict**: `READY_FOR_PROD (Rayon Secret Scan 0 leaks, AST Audit 0 issues, 12/12 Node PASS, 23/23 Pytest PASS, Ecosystem Sync exit code 0)`
+
+---
+
+## Executive Summary
+
+This sprint delivers dropdown-driven focus topic selection and a dedicated top-level Hero Card (`#focus-question-hero-card`) for the Horo Lite consultation interface (`public/lite.html`). Freeform text input has been replaced with a streamlined dropdown selector featuring 5 core life domain categories (`career_business`, `finance_wealth`, `love_relationship`, `health_vitality`, `family_environment`) and a default unselected state (`""`).
+
+When a topic is selected, the Edge Unified Reading engine (`api/unified_reading_engine.js`) deterministically synthesizes a structured focus analysis payload in <5ms with zero external LLM API cost. The result presents a dedicated `#focus-question-hero-card` mounted prominently at the top of `#result-panel` (before `#plain-summary-container`), featuring the category title, domain favorability score, 🌟 Peak Golden Month with proactive guidance, ⚠️ Caution Month with defensive guidance, and 💡 Strategic Advice. When the unselected state is chosen, `#focus-question-hero-card` remains completely hidden without layout distortion or errors.
+
+TICKET-FOCUS-004 is READY_FOR_PROD: all pre-release security scans (Rayon parallel secret scan with 0 leaks across 2,539 files), Python AST syntax audits (0 issues across 621 files), AI agent ecosystem synchronization checks (exit code 0), and QA verification suites (12/12 Node edge contract tests, 23/23 Pytest horo lite tests) passed cleanly.
+
+## Architectural Deliverables
+
+| Deliverable | Purpose and impact |
+|---|---|
+| Dropdown Focus Selector | Replaces freeform text input with `<select id="primary_focus_topic" name="primary_focus_topic">` containing 5 core domains and default unselected option in `public/lite.html`. |
+| Dedicated Hero Card | Provides `#focus-question-hero-card` mounted above the plain summary section, styled with Soft White-Red Auspicious Light theme and gold accent border, rendering topic score, Peak Golden Month, Caution Month, and Strategic Guidance. |
+| Deterministic Fast Engine Synthesis | Synthesizes `focus_analysis` payload in `api/unified_reading_engine.js` (<5ms latency, zero external LLM API calls) and feeds structured focus context into the Fate Book Master Prompt. |
+| QA Contract & Provenance Baseline | Verifies dropdown contract, hero card mounting, metric synthesis, and hidden state across 12/12 Node edge tests and 23/23 Pytest tests, registered in `plans/test_provenance/ticket-kan-123-focus-baseline.json`. |
+
+## Verification Matrix
+
+| Test Suite or Safety Gate | Result | Evidence |
+|---|---:|---|
+| Node edge contract suite | 12/12 PASS | `tests/api_unified_reading_edge.test.mjs` |
+| Horo Lite Pytest suite | 23/23 PASS | `tests/test_horo_lite_unified_reading.py`; 1 deprecation warning |
+| QA provenance baseline | VERIFIED | `plans/test_provenance/ticket-kan-123-focus-baseline.json` |
+| Rayon parallel secret scan | 0 leaks | `project/core/code_reviewer.py --scan-secrets`; 2,539 files scanned; exit code 0 |
+| Python AST syntax audit | 0 issues | `project/core/code_reviewer.py --audit-ast`; 621 Python files scanned; exit code 0 |
+| AI-agent ecosystem sync | PASS (exit code 0) | `scripts/sync_ai_agent_ecosystem.py --check` |
+| **Total** | **READY_FOR_PROD** | **All required code-review gates passed** |
+
+## Milestone Rollup (TICKET-FOCUS-001 through 005)
+
+- `TICKET-FOCUS-001` (DONE): Specification & ticket decomposition for Lite Focus Question Smart Routing & Dedicated Hero Card sprint in `ATOMIC_TICKET.md` and `plans/plan.md`.
+- `TICKET-FOCUS-002` (DONE): Dropdown focus topic selection (`#primary_focus_topic`), deterministic edge focus analysis engine, and dedicated `#focus-question-hero-card` UI.
+- `TICKET-FOCUS-003` (DONE): QA contract tests in `tests/api_unified_reading_edge.test.mjs` (12/12 PASS), Pytest regression tests in `tests/test_horo_lite_unified_reading.py` (23/23 PASS), and test provenance baseline in `plans/test_provenance/ticket-kan-123-focus-baseline.json`.
+- `TICKET-FOCUS-004` (DONE): Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem sync check (exit code 0), compile evidence manifest `plans/evidence/ticket-focus-004-code-review.json`, update `ReleaseNotes.md`.
+- `TICKET-FOCUS-005` (READY): Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, and live production verification.
+
+## Live Production Endpoints
+
+Production deployment target on Vercel:
+
+- **Horo Lite consultation UI**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html)
+- **Unified Reading API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading)
+- **HITL consultation API**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult)
+
+---
+
+## Archived Plans List
+
+- `plans/intake/sprint_focus_question_smart_routing.md`: Sprint intake document and approved functional requirements.
+- `plans/test_provenance/ticket-kan-123-focus-baseline.json`: QA test provenance baseline for Focus Question Smart Routing & Dedicated Hero Card.
+- `plans/evidence/ticket-focus-004-code-review.json`: Pre-release security and code review evidence manifest.
+
+---
+
 # HoroConsultant Release Notes - Sprint: Lite UI Collapsible Topics Drawer & Latency Masking (2026-10-16)
 
 |> **Release**: `Sprint: Lite UI Collapsible Topics Drawer & Latency Masking`

@@ -1,5 +1,72 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card (2026-10-16)
+
+GOAL: 1) Streamline the focus topic input mechanism in `public/lite.html` by replacing freeform text input with a deterministic single dropdown selector (`id="primary_focus_topic"`, `name="primary_focus_topic"`) featuring 5 core life domains (Career & Business, Finance & Wealth, Love & Relationships, Health & Vitality, Family & Environment) and a default unselected option (`""`). 2) Implement deterministic focus analysis synthesis (<5ms, zero LLM cost) in `api/unified_reading_engine.js` generating a structured `focus_analysis` payload with category title, domain favorability score, Peak Golden Month with proactive guidance, Caution Month with defensive guidance, and strategic guidance. 3) Implement dedicated top-level Hero Card (`#focus-question-hero-card`) in `public/lite.html`, `public/lite.css`, `public/lite.js` dynamically mounted at the very top of `#result-panel` (before `#plain-summary-container`), highlighting the topic title, score meter, 🌟 Peak Golden Month, ⚠️ Caution Month, and 💡 Strategic Guidance; conditionally hidden when the default unselected option is chosen. 4) Validate with Node edge contract tests (`tests/api_unified_reading_edge.test.mjs`) and Pytest regression assertions (`tests/test_horo_lite_unified_reading.py`), registering test provenance baseline in `plans/test_provenance/ticket-kan-123-focus-baseline.json`. 5) Execute pre-release security review (Rayon secret scan 0 leaks, AST audit 0 issues, ecosystem sync check), and deploy to production via DevOps release.
+
+Shared interface contract [FROZEN]:
+- Invariants:
+  - `INVARIANT-FOCUS-01`: Dropdown-Driven Focus Topic Selection (Replace text input with `<select id="primary_focus_topic">` with 5 core categories + default unselected `""`: career_business, finance_wealth, love_relationship, health_vitality, family_environment).
+  - `INVARIANT-FOCUS-02`: Conditional Dedicated Hero Card (`#focus-question-hero-card` displayed at top of `#result-panel` only when a topic is selected; completely hidden when unselected without layout distortion or console errors).
+  - `INVARIANT-FOCUS-03`: Deterministic Focus Metrics (Synthesize domain average score, peak golden month with proactive guidance, and caution month with defensive guidance deterministically in <5ms with zero external LLM API dependency).
+  - `INVARIANT-FOCUS-04`: Pure ASCII Logging ([OK], [INFO], [WARNING], [ERROR] format throughout all test runs, logs, and evidence manifests).
+  - `INVARIANT-FOCUS-05`: Single-Editor Resource Boundaries:
+    - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
+    - `developer`: `api/unified_reading_engine.js`, `public/lite.html`, `public/lite.css`, `public/lite.js`
+    - `qa_tester`: `tests/api_unified_reading_edge.test.mjs`, `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`
+    - `code_reviewer`: `plans/evidence/**`, `ReleaseNotes.md`
+    - `devops`: git tree, release tags, deployment receipts
+- Stop Conditions: Broken dropdown selection, latency >= 5ms, broken fallback rendering on unselected topic, non-ASCII log emission, secret leak, or test failure halts execution fail-closed.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-FOCUS-001` | `DONE` (Sprint registration, approved intake report plans/intake/sprint_focus_question_smart_routing.md, frozen execution invariants INVARIANT-FOCUS-01 through 05, single-editor boundaries, and ticket decomposition for TICKET-FOCUS-001 through 005 registered in ATOMIC_TICKET.md and plans/plan.md; ecosystem sync verified exit code 0; pure ASCII logs); lead_ba | Specification & ticket decomposition for Lite Focus Question Smart Routing & Dedicated Hero Card sprint in ATOMIC_TICKET.md and plans/plan.md. Exclusive scope: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`. | Dependencies: Approved intake report `plans/intake/sprint_focus_question_smart_routing.md`. Acceptance MET: 5 tickets decomposed with single-editor boundaries, invariants, DoD registered; ecosystem sync verified exit code 0; pure ASCII logs; zero regressions. | `bsa-doc-skill-management`, `agile-governance` |
+| `TICKET-FOCUS-002` | `DONE` (Dropdown-driven focus topic selection and dedicated hero card implemented in public/lite.html [<select id="primary_focus_topic"> with 5 canonical options and default unselected, #focus-question-hero-card mounted before #plain-summary-section], public/lite.css [.pill-select and .focus-question-hero-card responsive tokens], api/unified_reading_engine.js [calculateFocusTopicAnalysis latency ~0.12ms, structured focus_topic_analysis, buildFateBookMasterPrompt integration], public/lite.js [renderFocusTopicHero reveals card when topic selected, hides when unselected]; verified node -c, node --test 11/11, pytest 22/22; ecosystem sync exit code 0; pure ASCII logs); developer | Implement dropdown selector `primary_focus_topic` in `public/lite.html` (5 core domains + default unselected); build deterministic focus analysis synthesis in `api/unified_reading_engine.js` outputting structured `focus_analysis` payload with domain score, peak golden month, caution month, and strategic advice; build conditional `#focus-question-hero-card` in `public/lite.html`, `public/lite.css`, `public/lite.js` at top of `#result-panel`, fully hidden when unselected. Exclusive scope: `api/unified_reading_engine.js`, `public/lite.html`, `public/lite.css`, `public/lite.js`. | Dependencies: `TICKET-FOCUS-001`. Acceptance: `focus_analysis` synthesized deterministically; `#focus-question-hero-card` renders at top of `#result-panel` when topic selected; completely hidden when unselected; latency <5ms; pure ASCII logs. | `sdlc-aisdlc-workflow`, `ui-color-token-handoff` |
+| `TICKET-FOCUS-003` | `DONE` (QA contract verification completed: tests/api_unified_reading_edge.test.mjs added focus topic contract assertions [unselected returns null, career_business returns structured analysis with domain_score, peak_golden_month, caution_month, guidance strings, and fate_book_prompt integration; 12/12 tests pass]; tests/test_horo_lite_unified_reading.py added test_focus_topic_dropdown_and_hero_card_contract [select tag, 5 option values, hero card mounted before plain summary, 23/23 tests pass]; test provenance baseline manifest plans/test_provenance/ticket-kan-123-focus-baseline.json registered with schema test-provenance-v1; pure ASCII logs); qa_tester | QA contract test suite in `tests/api_unified_reading_edge.test.mjs` asserting deterministic `focus_analysis` payload across all topics and unselected fallback; Pytest regression assertions in `tests/test_horo_lite_unified_reading.py` verifying DOM dropdown options, `#focus-question-hero-card` rendering, peak golden month, caution month, and hidden state when unselected; register test provenance baseline manifest `plans/test_provenance/ticket-kan-123-focus-baseline.json`. Exclusive scope: `tests/api_unified_reading_edge.test.mjs`, `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/**`. | Dependencies: `TICKET-FOCUS-002`. Acceptance: 100% test pass in Node contract and Pytest suites; test provenance manifest registered; `test_provenance_guard.py verify-pr` passes with 0 issues; pure ASCII logs. | `qa-api-ui-e2e`, `qa-regression-provenance` |
+| `TICKET-FOCUS-004` | `DONE` (Pre-release security review completed: Rayon parallel secret scan 0 leaks across 2,539 files, Python AST syntax audit 0 issues across 621 Python files, AI agent ecosystem sync verified clean with exit code 0, pre-release review evidence manifest plans/evidence/ticket-focus-004-code-review.json created with READY_FOR_PROD verdict, ReleaseNotes.md prepended with release documentation for Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card; pure ASCII logs); code_reviewer | Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem check, draft `ReleaseNotes.md`, and compile evidence manifest `plans/evidence/ticket-focus-004-code-review.json` with READY_FOR_PROD verdict. Exclusive scope: `plans/evidence/**`, `ReleaseNotes.md`. | Dependencies: `TICKET-FOCUS-003`. Acceptance: 0 secret leaks; AST valid across repository; ecosystem sync exit code 0; pre-release review evidence manifest compiled; ReleaseNotes updated; pure ASCII logs. | `hf-static-release-verification` |
+| `TICKET-FOCUS-005` | `DOING`; devops | Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, and live production verification. Exclusive scope: git tree, release tags, deployment receipts. | Dependencies: `TICKET-FOCUS-004`. Acceptance: PR squash merged into main; CI workflows 100% green; live production deploy verified healthy via curl; pure ASCII logs. | `devops-deployment`, `hf-static-release-verification` |
+
+**Definition of Done (TICKET-FOCUS-005 — PENDING)**:
+1. Create release branch and pull request for Lite Focus Question Smart Routing & Dedicated Hero Card.
+2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass.
+3. Squash merge pull request into `main`.
+4. Verify local `main` sync and remote production deployment.
+5. Perform live curl verification against production endpoint verifying `#focus-question-hero-card`.
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+
+**Definition of Done (TICKET-FOCUS-004 — COMPLETED)**:
+1. Execute Rayon parallel secret scan with 0 credential or secret leaks detected across repository. [OK]
+2. Run Python AST syntax audit across repository files with 0 syntax or encoding issues. [OK]
+3. Verify AI agent ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`) exits with 0. [OK]
+4. Compile pre-release code review evidence manifest in `plans/evidence/ticket-focus-004-code-review.json` with READY_FOR_PROD verdict. [OK]
+5. Draft and update `ReleaseNotes.md` documenting Lite Focus Question Smart Routing and Hero Card. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FOCUS-003 — COMPLETED)**:
+1. Add Node edge contract tests in `tests/api_unified_reading_edge.test.mjs` validating deterministic `focus_analysis` payload generation across all 5 topic options and empty unselected fallback. [OK]
+2. Add Pytest regression tests in `tests/test_horo_lite_unified_reading.py` validating `#primary_focus_topic` dropdown options, `#focus-question-hero-card` DOM rendering, peak golden month, caution month, and unselected hidden state. [OK]
+3. Verify execution latency <5ms for Edge focus analysis calculation. [OK]
+4. Register test provenance baseline manifest in `plans/test_provenance/ticket-kan-123-focus-baseline.json`. [OK]
+5. Verify `python3 scripts/test_provenance_guard.py verify-pr` passes with 0 issues. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FOCUS-002 — COMPLETED)**:
+1. Replace `#primary_focus_question` text input in `public/lite.html` with `<select id="primary_focus_topic" name="primary_focus_topic">` containing 5 core domains (`career_business`, `finance_wealth`, `love_relationship`, `health_vitality`, `family_environment`) and default unselected option `""`. [OK]
+2. Implement deterministic focus analysis synthesis in `api/unified_reading_engine.js` producing structured `focus_analysis` payload with `matched_category`, `category_name_th`, `domain_score`, `peak_golden_month`, `caution_month`, and `strategic_guidance` (<5ms latency, zero external LLM API calls). [OK]
+3. Create dedicated `#focus-question-hero-card` in `public/lite.html` and `public/lite.css` mounted at the top of `#result-panel` styled with Soft White-Red Auspicious Light theme and gold accent border. [OK]
+4. Update `public/lite.js` to render `#focus-question-hero-card` with category score, 🌟 Peak Golden Month (proactive guidance), ⚠️ Caution Month (defensive guidance), and 💡 Strategic Guidance when a topic is selected, and keep it completely hidden when unselected. [OK]
+5. Maintain mobile and desktop responsiveness without layout clipping. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FOCUS-001 — COMPLETED)**:
+1. Document approved intake report in `plans/intake/sprint_focus_question_smart_routing.md`. [OK]
+2. Register active sprint "Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card (2026-10-16)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
+3. Document Problem Statement, Goal, Core Execution Invariants (`INVARIANT-FOCUS-01` through `05`), and Single-Editor Boundaries. [OK]
+4. Decompose and register `TICKET-FOCUS-001` through `TICKET-FOCUS-005` with bound skills and acceptance criteria. [OK]
+5. Mark `TICKET-FOCUS-001` as `DONE` with deliverables receipt. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+
 ## Sprint: Lite UI Collapsible Topics Drawer & Latency Masking — 100% COMPLETE (2026-10-16)
 
 GOAL: 1) Eliminate technical latency and execution time display from client view by hiding `#status-message` once the reading completes, providing an uncluttered, high-trust astrological experience. 2) Encapsulate detailed 12-topic predictions (`#topics-container`) and HITL deep synthesis card (`#hitl-deep-synthesis-card`) within a dedicated collapsible `<details id="detailed-topics-drawer" class="calculation-drawer detailed-topics-drawer hidden">` element with summary label '📜 รายละเอียดคำทำนายและแผนที่ดวงชะตา 12 เดือน (Detailed Analysis & 12-Month Map)', keeping the primary post-reading view focused on the conversational 6-domain plain summary cards. 3) Style `.detailed-topics-drawer` in `public/lite.css` harmonizing with the Purple-Astral design tokens, and reveal it on reading completion while keeping it collapsed by default. 4) Verify with QA unit/regression assertions in `tests/test_horo_lite_unified_reading.py` ensuring aria-live attributes remain intact and latency text is suppressed, registered in `plans/test_provenance/ticket-kan-123-lite-accordion-baseline.json`. 5) Execute pre-release security review (Rayon secret scan 0 leaks, AST audit 0 issues, ecosystem sync check), and deploy to production via DevOps release.
