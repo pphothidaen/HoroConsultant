@@ -50,6 +50,35 @@ Key achievements:
 
 ---
 
+## Milestone Rollup (100% DONE)
+
+- `TICKET-FATE-001` (DONE): 9-Dimension Grill Intake & ticket decomposition in `ATOMIC_TICKET.md` and `plans/plan.md`.
+- `TICKET-FATE-002` (DONE): Multi-tradition engine in `api/unified_reading_engine.js` with Zi Wei Dou Shu parity (12 Palaces, 14 Stars, Si Hua, Bureau), NOAA True Solar Time, 6-domain `plain_summary`, and dynamic `fate_book_prompt`.
+- `TICKET-FATE-003` (DONE): Soft White-Red Auspicious Light theme, rounded pill inputs, interactive gender selector pills, `#plain-summary-section`, accessible `<dialog id="fate-book-modal">`, and calculation drawer in `public/lite.html` and `public/lite.css`.
+- `TICKET-FATE-004` (DONE): Interactive gender pills state sync, `renderPlainSummary` (6 conversational cards), modal open/close (Esc, backdrop, buttons), clipboard copy with 3-second toast in `public/lite.js`.
+- `TICKET-FATE-005` (DONE): QA test suite in `tests/api_unified_reading_edge.test.mjs` (8/8 PASS), Playwright Production E2E `scripts/run_prod_lite_e2e.py` (3/3 PASS, `ALL_PASSED_READY_FOR_PROD` in 9.61s), Pytest wrapper `tests/test_prod_lite_e2e.py` (4/4 PASS), and immutable test provenance manifest `plans/test_provenance/ticket-fate-baseline.json`.
+- `TICKET-FATE-006` (DONE): Pre-deployment safety review by `code_reviewer`: Rayon secret scan (0 leaks across 2,529 files), Python AST audit (0 syntax issues across 621 files), AI agent ecosystem sync (exit code 0), and `READY_FOR_PROD` verdict in `plans/evidence/ticket-fate-006-code-review.json`.
+- `TICKET-FATE-007` (DONE): Production deployment & release: PR #211 squash merged into main (`2d2f7de0b1124d1379a6adaed5738f0860939ddc`), Vercel deployment run 38849544089, live endpoint verified healthy (HTTP 200), and live Playwright E2E suite verified 100% PASS (`ALL_PASSED_READY_FOR_PROD` in 9.92s).
+
+---
+
+## Live Production Endpoints
+
+- **Horo Lite Auspicious Consultation**: [https://horo-consultant-psi.vercel.app/lite.html](https://horo-consultant-psi.vercel.app/lite.html) (HTTP 200, Fate Book Master Prompt modal, Soft White-Red Auspicious theme, interactive gender pills)
+- **Unified Reading Edge API**: [https://horo-consultant-psi.vercel.app/api/v3/unified-reading](https://horo-consultant-psi.vercel.app/api/v3/unified-reading) (Deterministic multi-tradition calculation engine & resilient edge fallback)
+- **HITL Progressive Bridge**: [https://horo-consultant-psi.vercel.app/api/v3/hitl-consult](https://horo-consultant-psi.vercel.app/api/v3/hitl-consult) (Reassuring 3-pillar notification, 15s cooldown, idempotent review registration)
+
+---
+
+## Archived Plans List
+
+- `plans/archive/2026-10-16-fate-book-master-prompt-purple-star/sprint_fate_book_prompt_and_purple_star_landing.md`
+- `plans/archive/2026-10-15-thai-localization-and-hitl-bridge/`
+- `plans/archive/2026-10-15-horo-lite-infographic-sprint/`
+- `plans/archive/2026-10-14-horo-lite-and-cf-multi-account/`
+
+---
+
 # HoroConsultant Release Notes — Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)
 
 |> **Release**: `Sprint: Thai Localization & HITL NotebookLM Progressive Bridge`
