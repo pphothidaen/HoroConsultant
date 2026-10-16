@@ -64,6 +64,17 @@
   const retryButton = document.getElementById("result-retry");
   const technicalBasis = document.getElementById("technical-basis");
   const calculationDrawer = document.getElementById("calculation-drawer");
+  const genderAtBirth = document.getElementById("gender_at_birth");
+  const genderPillsContainer = document.getElementById("gender-pills");
+  const plainSummarySection = document.getElementById("plain-summary-section");
+  const plainSummaryContainer = document.getElementById("plain-summary-container");
+  const btnViewFateBook = document.getElementById("btn-view-fate-book");
+  const fateBookModal = document.getElementById("fate-book-modal");
+  const modalPromptContent = document.getElementById("modal-prompt-content");
+  const btnCloseModal = document.getElementById("btn-close-modal");
+  const btnCloseModalFooter = document.getElementById("btn-close-modal-footer");
+  const btnCopyModalPrompt = document.getElementById("btn-copy-modal-prompt");
+  const copyToastMessage = document.getElementById("copy-toast-message");
   const submitLoadingMessage = "กำลังส่งข้อมูลไปยัง Horo Lite unified reading API...";
 
   const state = {
@@ -801,6 +812,186 @@
     }
   }
 
+  const PLAIN_DOMAIN_ICONS = {
+    annual_overview: "🌟",
+    finance: "💰",
+    love: "💖",
+    health: "🌿",
+    family: "🏡",
+    timing: "⏳",
+  };
+
+  const PLAIN_DOMAIN_ORDER = [
+    "annual_overview",
+    "finance",
+    "love",
+    "health",
+    "family",
+    "timing",
+  ];
+
+  function renderPlainSummary(plainSummary) {
+    if (!plainSummarySection || !plainSummaryContainer) return;
+    if (!plainSummary || typeof plainSummary !== "object") {
+      plainSummarySection.classList.add("hidden");
+      plainSummarySection.hidden = true;
+      plainSummaryContainer.innerHTML = "";
+      return;
+    }
+
+    plainSummaryContainer.innerHTML = "";
+    plainSummarySection.classList.remove("hidden");
+    plainSummarySection.hidden = false;
+
+    PLAIN_DOMAIN_ORDER.forEach((key) => {
+      const domain = plainSummary[key];
+      if (!domain) return;
+
+      const card = makeNode("article", { className: "plain-summary-card", "data-domain": key });
+
+      // Header
+      const header = makeNode("div", { className: "plain-card-header" });
+      const titleGroup = makeNode("div", { className: "plain-card-title-group" });
+      const icon = makeNode("span", { className: "plain-card-icon" }, PLAIN_DOMAIN_ICONS[key] || "✨");
+      const title = makeNode("h4", { className: "plain-card-title" }, domain.title || key);
+      titleGroup.appendChild(icon);
+      titleGroup.appendChild(title);
+
+      const scoreBadge = makeNode("span", { className: "plain-card-score-badge" }, `เกณฑ์พลัง ${domain.score}/10`);
+      header.appendChild(titleGroup);
+      header.appendChild(scoreBadge);
+      card.appendChild(header);
+
+      // Body (Conversational text)
+      const body = makeNode("p", { className: "plain-card-body" }, domain.conversational_text || "");
+      card.appendChild(body);
+
+      // Action advice
+      if (domain.action_advice) {
+        const advice = makeNode("div", { className: "plain-card-advice" });
+        advice.innerHTML = `<strong>💡 คำแนะนำเชิงปฏิบัติ:</strong> ${domain.action_advice}`;
+        card.appendChild(advice);
+      }
+
+      plainSummaryContainer.appendChild(card);
+    });
+  }
+
+  function syncGenderPills() {
+    if (!genderPillsContainer || !genderAtBirth) return;
+    const currentVal = genderAtBirth.value || "";
+    const pills = genderPillsContainer.querySelectorAll(".gender-pill");
+    pills.forEach((pill) => {
+      const pillVal = pill.getAttribute("data-gender") ?? "";
+      const isActive = pillVal === currentVal;
+      pill.setAttribute("aria-pressed", isActive ? "true" : "false");
+      pill.classList.toggle("is-active", isActive);
+    });
+  }
+
+  function setupGenderPills() {
+    if (!genderPillsContainer || !genderAtBirth) return;
+    const pills = genderPillsContainer.querySelectorAll(".gender-pill");
+    pills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        const val = pill.getAttribute("data-gender") ?? "";
+        genderAtBirth.value = val;
+        syncGenderPills();
+        const event = new Event("change", { bubbles: true });
+        genderAtBirth.dispatchEvent(event);
+      });
+    });
+    genderAtBirth.addEventListener("change", syncGenderPills);
+    syncGenderPills();
+  }
+
+  function openFateBookModal() {
+    if (!fateBookModal || !modalPromptContent) return;
+    const promptText = state.lastResult?.fate_book_prompt || "ไม่พบข้อมูล Master Prompt สำหรับผังดวงนี้ กรุณาลองคำนวณใหม่อีกครั้ง";
+    modalPromptContent.textContent = promptText;
+    if (typeof fateBookModal.showModal === "function") {
+      fateBookModal.showModal();
+    } else {
+      fateBookModal.setAttribute("open", "");
+    }
+  }
+
+  function closeFateBookModal() {
+    if (!fateBookModal) return;
+    if (typeof fateBookModal.close === "function") {
+      fateBookModal.close();
+    } else {
+      fateBookModal.removeAttribute("open");
+    }
+  }
+
+  async function copyFateBookPrompt() {
+    if (!modalPromptContent || !btnCopyModalPrompt) return;
+    const text = modalPromptContent.textContent || "";
+    let copied = false;
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (!copied) {
+      try {
+        const tempArea = document.createElement("textarea");
+        tempArea.value = text;
+        tempArea.style.position = "fixed";
+        tempArea.style.opacity = "0";
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(tempArea);
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (copied) {
+      if (copyToastMessage) {
+        copyToastMessage.classList.remove("hidden");
+        copyToastMessage.hidden = false;
+      }
+      const prevText = btnCopyModalPrompt.textContent;
+      btnCopyModalPrompt.textContent = "✅ คัดลอกสำเร็จ!";
+      setTimeout(() => {
+        if (copyToastMessage) {
+          copyToastMessage.classList.add("hidden");
+          copyToastMessage.hidden = true;
+        }
+        btnCopyModalPrompt.textContent = prevText;
+      }, 3000);
+    }
+  }
+
+  function setupFateBookModal() {
+    if (!btnViewFateBook || !fateBookModal) return;
+
+    btnViewFateBook.addEventListener("click", openFateBookModal);
+    btnCloseModal?.addEventListener("click", closeFateBookModal);
+    btnCloseModalFooter?.addEventListener("click", closeFateBookModal);
+    btnCopyModalPrompt?.addEventListener("click", copyFateBookPrompt);
+
+    fateBookModal.addEventListener("click", (event) => {
+      if (event.target === fateBookModal) {
+        closeFateBookModal();
+      }
+    });
+
+    fateBookModal.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeFateBookModal();
+      }
+    });
+  }
+
   function renderResult(data) {
     state.lastResult = data;
     window.horoLiteLastPayload = state.lastPayload;
@@ -808,6 +999,7 @@
     renderResultOutputRaw(data);
     renderResultMeta(data);
     renderTechnicalBasis(data);
+    renderPlainSummary(data.plain_summary);
     renderTopics(data);
     renderUnknownHourNotice(data);
 
@@ -920,6 +1112,8 @@
     }
     applyPlaceDefault();
     syncUnknownHour();
+    setupGenderPills();
+    setupFateBookModal();
     state.lastResult = null;
     window.horoLiteLastPayload = null;
     window.horoLiteLastResult = null;

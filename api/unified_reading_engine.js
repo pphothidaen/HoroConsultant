@@ -118,6 +118,77 @@ const BASIS_BY_THEME = {
   work_role_change: ["bazi_output_cycle", "thai_jupiter_role_house"],
 };
 
+export const ZI_WEI_PALACE_NAMES = [
+  "命宮", "兄弟宮", "夫妻宮", "子女宮", "財帛宮", "疾厄宮",
+  "遷移宮", "交友宮", "官祿宮", "田宅宮", "福德宮", "父母宮",
+];
+
+export const ZI_WEI_PALACE_THAI = {
+  "命宮": "ภพชะตาชีวิต (Ming)",
+  "兄弟宮": "ภพพี่น้องและมิตรสหาย (Brothers)",
+  "夫妻宮": "ภพคู่ครองและความรัก (Spouse)",
+  "子女宮": "ภพบุตรหลานและบริวาร (Children)",
+  "財帛宮": "ภพการเงินและทรัพย์สิน (Wealth)",
+  "疾厄宮": "ภพสุขภาพและโรคภัย (Health)",
+  "遷移宮": "ภพการเดินทางและสังคมภายนอก (Travel)",
+  "交友宮": "ภพเพื่อนร่วมงานและบริวาร (Friends)",
+  "官祿宮": "ภพการงานและอาชีพ (Career)",
+  "田宅宮": "ภพอสังหาริมทรัพย์และบ้าน (Property)",
+  "福德宮": "ภพความสุขและจิตวิญญาณ (Karma)",
+  "父母宮": "ภพบิดามารดาและผู้ใหญ่ (Parents)",
+};
+
+export const FIVE_ELEMENT_BUREAUS = {
+  "水二局": 2,
+  "木三局": 3,
+  "金四局": 4,
+  "土五局": 5,
+  "火六局": 6,
+};
+
+export const FIVE_ELEMENT_BUREAUS_THAI = {
+  "水二局": "ธาตุน้ำ 2 (Water 2nd)",
+  "木三局": "ธาตุไม้ 3 (Wood 3rd)",
+  "金四局": "ธาตุทอง 4 (Metal 4th)",
+  "土五局": "ธาตุดิน 5 (Earth 5th)",
+  "火六局": "ธาตุไฟ 6 (Fire 6th)",
+};
+
+export const SI_HUA_MATRIX = {
+  "甲": { "化祿": "廉貞", "化權": "破軍", "化科": "武曲", "化忌": "太陽" },
+  "乙": { "化祿": "天機", "化權": "天梁", "化科": "紫微", "化忌": "太陰" },
+  "丙": { "化祿": "天同", "化權": "天機", "化科": "文昌", "化忌": "廉貞" },
+  "丁": { "化祿": "太陰", "化權": "天同", "化科": "天機", "化忌": "巨門" },
+  "戊": { "化祿": "貪狼", "化權": "太陰", "化科": "右弼", "化忌": "天機" },
+  "己": { "化祿": "武曲", "化權": "貪狼", "化科": "天梁", "化忌": "文曲" },
+  "庚": { "化祿": "太陽", "化權": "武曲", "化科": "太陰", "化忌": "天同" },
+  "辛": { "化祿": "巨門", "化權": "太陽", "化科": "文曲", "化忌": "文昌" },
+  "壬": { "化祿": "天梁", "化權": "紫微", "化科": "左輔", "化忌": "武曲" },
+  "癸": { "化祿": "破軍", "化權": "巨門", "化科": "太陰", "化忌": "貪狼" },
+};
+
+export const PRIMARY_STAR_THAI = {
+  "紫微": "ดาวจื่อเวย (Zi Wei / จักรพรรดิ)",
+  "天機": "ดาวเทียนจี (Tian Ji / ที่ปรึกษา)",
+  "太陽": "ดาวไท่หยาง (Tai Yang / พระอาทิตย์)",
+  "武曲": "ดาวอู่ฉวี่ (Wu Qu / นายพลการเงิน)",
+  "天同": "ดาวเทียนถง (Tian Tong / เด็กนำโชค)",
+  "廉貞": "ดาวเหลียนเจิน (Lian Zhen / ผู้พิพากษา)",
+  "天府": "ดาวเทียนฟู่ (Tian Fu / คลังสมบัติ)",
+  "太陰": "ดาวไท่อิน (Tai Yin / พระจันทร์)",
+  "貪狼": "ดาวทัมหลาง (Tan Lang / หมาป่าเสน่ห์)",
+  "巨門": "ดาวจวี้เหมิน (Ju Men / ปากสวรรค์)",
+  "天相": "ดาวเทียนเซี่ยง (Tian Xiang / ตราประทับ)",
+  "天梁": "ดาวเทียนเหลียง (Tian Liang / ร่มโพธิ์ร่มไทร)",
+  "七殺": "ดาวชีซา (Qi Sha / ขุนศึกเด็ดเดี่ยว)",
+  "破軍": "ดาวพั่วจวิน (Po Jun / ทลายทัพ)",
+};
+
+const WATER_BUREAU = new Set(["甲寅", "乙卯", "壬戌", "癸亥", "丙午", "丁未", "甲申", "乙酉", "壬辰", "癸巳"]);
+const WOOD_BUREAU = new Set(["戊辰", "己巳", "壬午", "癸未", "庚寅", "辛卯", "戊戌", "己亥", "壬子", "癸丑"]);
+const METAL_BUREAU = new Set(["甲子", "乙丑", "壬申", "癸酉", "庚辰", "辛巳", "甲午", "乙未", "壬寅", "癸卯"]);
+const EARTH_BUREAU = new Set(["丙辰", "丁巳", "庚午", "辛未", "戊申", "己酉", "丙戌", "丁亥", "庚子", "辛丑"]);
+
 export class UnifiedReadingError extends Error {
   constructor(status, code, message = code) {
     super(message);
@@ -873,6 +944,408 @@ function buildTopicModules(payload, monthlyScores, annualTiming, patternPayload)
   }));
 }
 
+export function calculateFiveElementBureau(yearStemName, mingBranchName) {
+  const tigerStems = {
+    "甲": "丙", "己": "丙",
+    "乙": "戊", "庚": "戊",
+    "丙": "庚", "辛": "庚",
+    "丁": "壬", "壬": "壬",
+    "戊": "甲", "癸": "甲",
+  };
+  const startStem = tigerStems[yearStemName] || "丙";
+  const startStemIdx = STEMS.findIndex((s) => s.name === startStem);
+  const mingBranchIdx = BRANCHES.findIndex((b) => b.name === mingBranchName);
+  const offsetFromYin = (((mingBranchIdx - 2) % 12) + 12) % 12;
+  const mingStem = STEMS[(startStemIdx + offsetFromYin) % 10].name;
+  const pair = `${mingStem}${mingBranchName}`;
+
+  if (WATER_BUREAU.has(pair)) return "水二局";
+  if (WOOD_BUREAU.has(pair)) return "木三局";
+  if (METAL_BUREAU.has(pair)) return "金四局";
+  if (EARTH_BUREAU.has(pair)) return "土五局";
+  return "火六局";
+}
+
+export function calculateZiWeiStarBranchIdx(bureauNumber, lunarDay) {
+  const d = Math.max(1, Math.min(30, lunarDay));
+  const b = bureauNumber;
+  const remainder = d % b;
+  let branchIdx;
+  if (remainder !== 0) {
+    const addCount = b - remainder;
+    const quotient = Math.floor((d + addCount) / b);
+    if (addCount % 2 === 1) {
+      branchIdx = (((2 + quotient - 1 - addCount) % 12) + 12) % 12;
+    } else {
+      branchIdx = (((2 + quotient - 1 + addCount) % 12) + 12) % 12;
+    }
+  } else {
+    const quotient = Math.floor(d / b);
+    branchIdx = (((2 + quotient - 1) % 12) + 12) % 12;
+  }
+  return branchIdx;
+}
+
+export function calculate14MainStars(ziWeiIdx) {
+  const ziWeiStars = {
+    "紫微": ziWeiIdx % 12,
+    "天機": (((ziWeiIdx - 1) % 12) + 12) % 12,
+    "太陽": (((ziWeiIdx - 3) % 12) + 12) % 12,
+    "武曲": (((ziWeiIdx - 4) % 12) + 12) % 12,
+    "天同": (((ziWeiIdx - 5) % 12) + 12) % 12,
+    "廉貞": (((ziWeiIdx - 8) % 12) + 12) % 12,
+  };
+  const tianFuIdx = (((4 + 12 - (ziWeiIdx % 12)) % 12) + 12) % 12;
+  const tianFuStars = {
+    "天府": tianFuIdx,
+    "太陰": (tianFuIdx + 1) % 12,
+    "貪狼": (tianFuIdx + 2) % 12,
+    "巨門": (tianFuIdx + 3) % 12,
+    "天相": (tianFuIdx + 4) % 12,
+    "天梁": (tianFuIdx + 5) % 12,
+    "七殺": (tianFuIdx + 6) % 12,
+    "破軍": (tianFuIdx + 10) % 12,
+  };
+  const allStars = { ...ziWeiStars, ...tianFuStars };
+  const branchStars = {};
+  for (let i = 0; i < 12; i++) {
+    branchStars[i] = [];
+  }
+  for (const [star, bIdx] of Object.entries(allStars)) {
+    branchStars[bIdx].push(star);
+  }
+  return { branchStars, tianFuIdx };
+}
+
+export function calculateZiWeiDouShuChart(payload) {
+  const [bYear, bMonth, bDay] = String(payload.birth_date).split("-").map(Number);
+  const [yearStemIdx, yearBranchIdx] = yearStemBranch(bYear, bMonth, bDay);
+  const yearStem = STEMS[yearStemIdx].name;
+  const yearBranch = BRANCHES[yearBranchIdx].name;
+
+  let hour = 12;
+  if (!payload.unknown_hour && payload.birth_time) {
+    const parts = String(payload.birth_time).split(":");
+    hour = Number(parts[0]) || 0;
+  }
+  const hourBranchIdx = Math.floor(((hour + 1) % 24) / 2) % 12;
+  const hourBranch = BRANCHES[hourBranchIdx].name;
+
+  const lunarMonth = Math.max(1, Math.min(12, bMonth));
+  const lunarDay = Math.max(1, Math.min(30, bDay));
+
+  const mingIdx = (((2 + (lunarMonth - 1) - hourBranchIdx) % 12) + 12) % 12;
+  const shenIdx = (2 + (lunarMonth - 1) + hourBranchIdx) % 12;
+  const mingBranch = BRANCHES[mingIdx].name;
+  const shenBranch = BRANCHES[shenIdx].name;
+
+  const bureauName = calculateFiveElementBureau(yearStem, mingBranch);
+  const bureauNumber = FIVE_ELEMENT_BUREAUS[bureauName];
+
+  const ziWeiIdx = calculateZiWeiStarBranchIdx(bureauNumber, lunarDay);
+  const ziWeiBranch = BRANCHES[ziWeiIdx].name;
+
+  const { branchStars, tianFuIdx } = calculate14MainStars(ziWeiIdx);
+  const tianFuBranch = BRANCHES[tianFuIdx].name;
+
+  const siHua = SI_HUA_MATRIX[yearStem] || {};
+
+  const palaces = [];
+  for (let i = 0; i < ZI_WEI_PALACE_NAMES.length; i++) {
+    const pName = ZI_WEI_PALACE_NAMES[i];
+    const pBranchIdx = (((mingIdx - i) % 12) + 12) % 12;
+    const pBranch = BRANCHES[pBranchIdx].name;
+    const pStars = branchStars[pBranchIdx] || [];
+
+    const mutators = [];
+    for (const [mutatorType, star] of Object.entries(siHua)) {
+      if (pStars.includes(star)) {
+        mutators.push(`${star}${mutatorType}`);
+      }
+    }
+
+    palaces.push({
+      palace_name: pName,
+      palace_thai: ZI_WEI_PALACE_THAI[pName] || pName,
+      branch_index: pBranchIdx,
+      earth_branch: pBranch,
+      branch_animal: BRANCHES[pBranchIdx].animal,
+      primary_stars: pStars,
+      primary_stars_thai: pStars.map((s) => PRIMARY_STAR_THAI[s] || s),
+      mutators,
+      is_ming_gong: pBranchIdx === mingIdx,
+      is_shen_gong: pBranchIdx === shenIdx,
+    });
+  }
+
+  return {
+    year_stem: yearStem,
+    year_branch: yearBranch,
+    hour_branch: hourBranch,
+    ming_gong_branch: mingBranch,
+    shen_gong_branch: shenBranch,
+    five_element_bureau: bureauName,
+    five_element_bureau_thai: FIVE_ELEMENT_BUREAUS_THAI[bureauName] || bureauName,
+    bureau_number: bureauNumber,
+    zi_wei_star_branch: ziWeiBranch,
+    tian_fu_star_branch: tianFuBranch,
+    si_hua: siHua,
+    palaces,
+  };
+}
+
+export function calculateTrueSolarTime(payload) {
+  const [bYear, bMonth, bDay] = String(payload.birth_date).split("-").map(Number);
+  let hour = 12;
+  let minute = 0;
+  if (!payload.unknown_hour && payload.birth_time) {
+    const parts = String(payload.birth_time).split(":");
+    hour = Number(parts[0]) || 0;
+    minute = Number(parts[1]) || 0;
+  }
+  const longitude = Number(payload.longitude || 100.5018);
+  const utcOffset = 7.0;
+  const standardMeridian = utcOffset * 15.0;
+  const deltaLambdaMinutes = (longitude - standardMeridian) * 4.0;
+
+  const isLeap = (bYear % 4 === 0 && bYear % 100 !== 0) || (bYear % 400 === 0);
+  const daysInYear = isLeap ? 366.0 : 365.0;
+  const daysBeforeMonth = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  let doy = daysBeforeMonth[bMonth - 1] + bDay;
+  if (isLeap && bMonth > 2) doy += 1;
+
+  const frac = hour / 24.0 + minute / 1440.0;
+  const gamma = (2.0 * Math.PI / daysInYear) * (doy - 1 + frac);
+  const eot = 229.18 * (
+    0.000075
+    + 0.001868 * Math.cos(gamma)
+    - 0.032077 * Math.sin(gamma)
+    - 0.014615 * Math.cos(2 * gamma)
+    - 0.040849 * Math.sin(2 * gamma)
+  );
+
+  const totalOffsetMinutes = deltaLambdaMinutes + eot;
+  const baseMinutes = hour * 60 + minute;
+  let tstMinutes = Math.round(baseMinutes + totalOffsetMinutes);
+  tstMinutes = ((tstMinutes % 1440) + 1440) % 1440;
+  const tstHour = Math.floor(tstMinutes / 60);
+  const tstMin = tstMinutes % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return {
+    standard_time: `${pad(hour)}:${pad(minute)}`,
+    longitude_offset_minutes: Math.round(deltaLambdaMinutes * 100) / 100,
+    eot_minutes: Math.round(eot * 100) / 100,
+    total_offset_minutes: Math.round(totalOffsetMinutes * 100) / 100,
+    tst_time: `${pad(tstHour)}:${pad(tstMin)}`,
+    tst_hour: tstHour,
+    tst_minute: tstMin,
+  };
+}
+
+export function calculateThaiLagna(month, hour) {
+  const zodiacs = ["เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"];
+  const sunIdx = (((month - 4) % 12) + 12) % 12;
+  const hourOffset = Math.floor((((hour - 6) % 24) + 24) % 24 / 2) % 12;
+  const idx = (sunIdx + hourOffset) % 12;
+  return {
+    lagna_sign: zodiacs[idx],
+    sun_sign: zodiacs[sunIdx],
+    sign_index: idx,
+  };
+}
+
+export function buildPlainLanguageSummary(payload, monthlyScores, annualTiming, ziWeiChart) {
+  let careerTotal = 0;
+  let financeTotal = 0;
+  let loveTotal = 0;
+  let bestCareerMonth = 1;
+  let bestCareerScore = -1;
+  let bestFinanceMonth = 1;
+  let bestFinanceScore = -1;
+  let bestLoveMonth = 1;
+  let bestLoveScore = -1;
+  let lowestMonth = 1;
+  let lowestScore = 999;
+  let highestMonth = 1;
+  let highestScore = -1;
+
+  monthlyScores.forEach((m) => {
+    careerTotal += m.career_score;
+    financeTotal += m.finance_score;
+    loveTotal += m.love_score;
+    const monthAvg = (m.career_score + m.finance_score + m.love_score) / 3.0;
+
+    if (m.career_score > bestCareerScore) {
+      bestCareerScore = m.career_score;
+      bestCareerMonth = m.month;
+    }
+    if (m.finance_score > bestFinanceScore) {
+      bestFinanceScore = m.finance_score;
+      bestFinanceMonth = m.month;
+    }
+    if (m.love_score > bestLoveScore) {
+      bestLoveScore = m.love_score;
+      bestLoveMonth = m.month;
+    }
+    if (monthAvg < lowestScore) {
+      lowestScore = monthAvg;
+      lowestMonth = m.month;
+    }
+    if (monthAvg > highestScore) {
+      highestScore = monthAvg;
+      highestMonth = m.month;
+    }
+  });
+
+  const avgCareer = Math.round(careerTotal / 12);
+  const avgFinance = Math.round(financeTotal / 12);
+  const avgLove = Math.round(loveTotal / 12);
+  const overallAvg = Math.round((careerTotal + financeTotal + loveTotal) / 36);
+
+  return {
+    annual_overview: {
+      title: "ภาพรวมดวงชะตารายปี",
+      score: overallAvg,
+      best_month: highestMonth,
+      caution_month: lowestMonth,
+      conversational_text: `ปีนี้คือปีแห่งการเคลียร์พื้นที่เก่าเพื่อต้อนรับสิ่งใหม่ ชีวิตจะพาคุณไปเจอโจทย์ที่ต้องตัดสินใจครั้งสำคัญ แต่ถ้าคุณตั้งหลักด้วยความนิ่งและมีสติ คุณจะผ่านมันไปได้อย่างสง่างามแน่นอนครับ โดยมีเดือน ${highestMonth} เป็นช่วงเวลาที่พลังชีวิตเปิดกว้างและมีแรงส่งสูงสุด และเดือน ${lowestMonth} เป็นช่วงเวลาที่ควรผ่อนจังหวะเพื่อทบทวนทิศทาง`,
+      action_advice: `โฟกัสการตัดสินใจครั้งใหญ่หรือเริ่มก้าวใหม่ในเดือน ${highestMonth} และใช้เดือน ${lowestMonth} เป็นช่วงพักฟื้นและวางแผนอย่างรอบคอบ`,
+    },
+    finance: {
+      title: "การเงินและโชคลาภ",
+      score: avgFinance,
+      best_month: bestFinanceMonth,
+      caution_month: lowestMonth,
+      conversational_text: "กระแสเงินเข้า-ออกคล่องตัวดี แต่ช่วงนี้กระเป๋าเงินอาจจะบางลงเพราะคุณเอาไปลงทุนกับเป้าหมายระยะยาวและดูแลคนรอบข้าง วางแผนสำรองเงินสดไว้หน่อย จะช่วยให้คุณนอนหลับสบายใจไร้กังวล",
+      action_advice: `ช่วงเดือน ${bestFinanceMonth} เป็นจังหวะที่ดีที่สุดสำหรับการสะสมสภาพคล่องและปิดดีลการเงินสำคัญ ส่วนค่าใช้จ่ายก้อนใหญ่ควรตรวจสอบสัญญาอย่างละเอียด`,
+    },
+    love: {
+      title: "ความรักและความสัมพันธ์",
+      score: avgLove,
+      best_month: bestLoveMonth,
+      caution_month: lowestMonth,
+      conversational_text: "ความรักช่วงนี้เรียบง่ายแต่ลึกซึ้ง ถ้ามีคู่ให้ชวนกันไปหาอะไรอร่อยๆ กินหรือหากิจกรรมผ่อนคลายทำร่วมกัน คนโสดอยู่คนเดียวแล้วมีความสุขได้เต็มที่ แล้วพลังงานที่ดีจะดึงดูดคนที่ศีลเสมอกันเข้ามาเอง",
+      action_advice: `ใช้เดือน ${bestLoveMonth} ในการเติมเต็มความรู้สึกดีๆ และเปิดใจสื่อสารความรู้สึกที่แท้จริงอย่างอ่อนโยน`,
+    },
+    health: {
+      title: "สุขภาพและสุขภาวะ",
+      score: Math.max(1, Math.min(10, 11 - Math.round(lowestScore))),
+      best_month: highestMonth,
+      caution_month: lowestMonth,
+      conversational_text: "ร่างกายส่งเสียงเตือนว่าคุณลุยงานหนักเกินไปแล้ว หาเวลาพักผ่อนให้เต็มที่ นอนหลับให้สนิท และลุกขึ้นมาขยับร่างกายบ้าง สุขภาพกายที่แข็งแรงคือต้นทุนที่ดีที่สุดในการสร้างความสำเร็จ",
+      action_advice: "จัดสรรเวลานอนให้ตรงเวลา ดื่มน้ำให้เพียงพอ และตรวจสุขภาพประจำปีเพื่อสร้างความอุ่นใจตลอดทั้งปี",
+    },
+    family: {
+      title: "ครอบครัวและคนรอบข้าง",
+      score: Math.round((avgLove + avgCareer) / 2),
+      best_month: highestMonth,
+      caution_month: lowestMonth,
+      conversational_text: "คนใกล้ตัวอาจจะมีเรื่องให้กังวลใจหรือคิดไม่ตรงกันบ้าง ใช้ความใจเย็นและรอยยิ้มเข้าหา ทุกปัญหาในบ้านจะคลี่คลายลงได้ด้วยความเข้าใจและการรับฟังกัน",
+      action_advice: "ให้เวลากับมื้ออาหารพร้อมหน้าและฟังมุมมองของคนที่คุณรักโดยไม่รีบตัดสิน",
+    },
+    timing: {
+      title: "จังหวะโอกาสและข้อควรระวัง",
+      score: overallAvg,
+      best_month: highestMonth,
+      caution_month: lowestMonth,
+      conversational_text: "โอกาสดีๆ กำลังจะวิ่งเข้ามาหาในเรื่องงานและการเรียนรู้ใหม่ๆ ข้อควรระวังคืออย่าเพิ่งรีบตัดสินใจอะไรปุบปับบนความรู้สึกชั่ววูบ ให้เช็กข้อมูลให้ชัวร์ก่อนทุกครั้ง แล้วความสำเร็จจะไม่หนีไปไหน",
+      action_advice: `จดจำจังหวะเร่งในเดือน ${highestMonth} เพื่อคว้าโอกาส และจังหวะชะลอในเดือน ${lowestMonth} เพื่อรักษาความปลอดภัย`,
+    },
+  };
+}
+
+export function buildFateBookMasterPrompt(payload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary) {
+  const displayName = payload.display_name || "เจ้าชะตา";
+  const genderStr = payload.gender_at_birth === "female" ? "หญิง" : (payload.gender_at_birth === "male" ? "ชาย" : "ไม่ระบุ");
+  const birthTimeStr = payload.unknown_hour ? "ไม่ระบุเวลาเกิดแน่ชัด (วิเคราะห์ฐาน 3 เสาหลัก)" : (payload.birth_time || "12:00");
+  const tstStr = payload.unknown_hour ? "ประมาณการช่วงกลางวัน" : `${solarTime.tst_time} (เวลาสุริยคติจริง TST, ปรับแก้ ${solarTime.total_offset_minutes} นาที)`;
+
+  const palacesSummary = ziWeiChart.palaces.map((p) => {
+    const stars = p.primary_stars.length > 0 ? p.primary_stars.join(", ") : "ไม่มีดาวหลัก (ยืมดาวภพตรงข้าม)";
+    const mutators = p.mutators.length > 0 ? ` [${p.mutators.join(", ")}]` : "";
+    const tags = [];
+    if (p.is_ming_gong) tags.push("★ 命宮 ภพชะตา");
+    if (p.is_shen_gong) tags.push("身宮 ภพกาย");
+    const tagStr = tags.length > 0 ? ` (${tags.join(", ")})` : "";
+    return `  - ${p.palace_name} (${p.palace_thai}) ณ วัง ${p.earth_branch} (${p.branch_animal})${tagStr}: ${stars}${mutators}`;
+  }).join("\n");
+
+  const siHuaSummary = Object.entries(ziWeiChart.si_hua)
+    .map(([type, star]) => `${type}: ${star}`)
+    .join(", ");
+
+  return `# คำสั่งพยากรณ์พหุศาสตร์ "สมุดบันทึกชะตาชีวิต" (Fate Book Master Prompt)
+# ระบบผังดวง 3 ศาสตร์: โป๊ยหยี่สี่แถว (BaZi) + ดาวจื่อเวยโต่วซู่ (Zi Wei Dou Shu) + โหราศาสตร์ไทยสุริยยาตร์
+
+คุณคือผู้เชี่ยวชาญด้านการพยากรณ์ดวงชะตาพหุศาสตร์ขั้นสูง (Grandmaster Astrologer & Life Strategist) ซึ่งผสานองค์ความรู้ 3 ระบบเข้าด้วยกันอย่างเป็นเหตุเป็นผลและไร้ความงมงาย:
+1. ปรัชญาเบญจธาตุและฤดูกาลจีน: โป๊ยหยี่สี่แถว (BaZi / Four Pillars of Destiny)
+2. โหราศาสตร์จักรพรรดิม่วง: จื่อเวยโต่วซู่ (Zi Wei Dou Shu: 12 วังชะตา, 14 ดาวเอก, และสี่ดาวแปลงสาระสำคัญ)
+3. โหราศาสตร์ไทยระบบสุริยยาตร์: การคำนวณตำแหน่งดาวพระเคราะห์ ลัคนา และวัยจรชีวิต
+
+โปรดอ่านข้อมูลผังดวงและบริบทพื้นฐานของเจ้าชะตาด้านล่างนี้ แล้ววิเคราะห์สังเคราะห์แนวทางชะตาชีวิตอย่างลึกซึ้ง ให้เกียรติ และนำไปปฏิบัติได้จริง:
+
+---
+### ข้อมูลพื้นฐานของเจ้าชะตา (Subject Profile)
+- **ชื่อ / สรรพนาม:** ${displayName}
+- **เพศกำเนิด:** ${genderStr}
+- **วันเดือนปีเกิด (สากล):** ${payload.birth_date}
+- **เวลาเกิดตามนาฬิกา:** ${birthTimeStr}
+- **เวลาสุริยคติจริง (True Solar Time - NOAA):** ${tstStr}
+- **สถานที่เกิด:** ${payload.birth_place || "กรุงเทพมหานคร, ประเทศไทย"} (พิกัด: ละติจูด ${payload.latitude}, ลองจิจูด ${payload.longitude})
+- **ปีที่ต้องการพยากรณ์เจาะลึก (Target Year):** ปี ค.ศ. ${payload.target_year} (พ.ศ. ${payload.target_year + 543})
+${payload.primary_focus_question ? `- **ประเด็นหรือคำถามที่ต้องการเน้นเป็นพิเศษ:** "${payload.primary_focus_question}"` : ""}
+
+---
+### 1. ผังพลังงานเบญจธาตุ โป๊ยหยี่สี่แถว (BaZi Four Pillars)
+- **เสาปี (Year Pillar):** ${baziChart.year_stem}${baziChart.year_branch} (ธาตุ ${baziChart.year_element} / ${baziChart.year_animal})
+- **เสาเดือน (Month Pillar):** ${baziChart.month_stem}${baziChart.month_branch} (ธาตุ ${baziChart.month_element} / ${baziChart.month_animal})
+- **เสาวัน (Day Pillar / ดิถีตัวตน):** ${baziChart.day_stem}${baziChart.day_branch} (ธาตุ ${baziChart.day_element} / ${baziChart.day_animal})
+- **เสาเวลา (Hour Pillar):** ${payload.unknown_hour ? "ไม่ระบุ (วิเคราะห์ฐาน 3 เสาหลัก)" : `${baziChart.hour_stem}${baziChart.hour_branch} (ธาตุ ${baziChart.hour_element})`}
+- **ธาตุแกนกลาง (Day Master):** ${baziChart.day_stem} (${baziChart.day_element})
+- **ดุลยภาพพลังงานเบญจธาตุ:** ไม้, ไฟ, ดิน, ทอง, น้ำ สัมพันธ์กับฤดูกาลเกิดอย่างมีดุลยภาพ
+
+---
+### 2. ผังดวงดาวจื่อเวยโต่วซู่ (Zi Wei Dou Shu Imperial Chart)
+- **วังชะตาหลัก (Ming Gong - 命宮):** สถิต ณ วัง ${ziWeiChart.ming_gong_branch}
+- **วังรูปกาย (Shen Gong - 身宮):** สถิต ณ วัง ${ziWeiChart.shen_gong_branch}
+- **ธาตุสถิตสำนัก (Five Element Bureau - 五行局):** ${ziWeiChart.five_element_bureau} (${ziWeiChart.five_element_bureau_thai})
+- **ตำแหน่งดาวจักรพรรดิ (Zi Wei Star):** สถิต ณ วัง ${ziWeiChart.zi_wei_star_branch}
+- **ตำแหน่งดาวคลังสมบัติ (Tian Fu Star):** สถิต ณ วัง ${ziWeiChart.tian_fu_star_branch}
+- **การแปลงสภาพประจำปีเกิด (Year Si Hua - 四化):** ${siHuaSummary}
+- **การจัดวาง 12 วังชะตาและดาวประจำวัง:**
+${palacesSummary}
+
+---
+### 3. ผังลัคนาและดาวจร โหราศาสตร์ไทยสุริยยาตร์ (Thai Astrology)
+- **ลัคนาสถิต (Ascendant Sign):** ราศี${thaiLagna.lagna_sign}
+- **อาทิตย์สถิต (Sun Sign):** ราศี${thaiLagna.sun_sign}
+- **ทิศทางดาวประธานจรประจำปี ${payload.target_year}:** พฤหัสบดี (๕) เกื้อหนุนจังหวะชีวิต, เสาร์ (๗) ทดสอบความอดทนและสร้างรากฐาน, ราหู (๘) ก่อให้เกิดการเปลี่ยนแปลงและขยับขยาย
+
+---
+### 4. สรุปความสอดคล้องพหุศาสตร์เบื้องต้น (Conversational Consensus Summary)
+- **ภาพรวมรายปี:** ${plainSummary.annual_overview.conversational_text}
+- **การเงินและโชคลาภ:** ${plainSummary.finance.conversational_text}
+- **ความรักและความสัมพันธ์:** ${plainSummary.love.conversational_text}
+- **สุขภาพและสุขภาวะ:** ${plainSummary.health.conversational_text}
+- **ครอบครัวและคนรอบตัว:** ${plainSummary.family.conversational_text}
+- **จังหวะโอกาสและข้อควรระวัง:** ${plainSummary.timing.conversational_text}
+
+---
+### ภารกิจและแนวทางการตอบของคุณ (Master Prompt Instructions)
+โปรดใช้ข้อมูลผังดวง 3 ศาสตร์ข้างต้นเพื่อจัดทำบทวิเคราะห์ชะตาชีวิต โดยครอบคลุมประเด็นต่อไปนี้:
+1. **แก่นแท้แห่งตัวตนและจุดแข็งตามธรรมชาติ (Core Identity & Latent Potential):** ผสานลักษณะดิถีวัน (Day Master) และดาวในวังชะตา (Ming Gong) เพื่ออธิบายบุคลิกภาพ จิตวิญญาณ จุดแข็งที่ซ่อนอยู่ และสิ่งที่ควรส่งเสริม
+2. **บทวิเคราะห์ชีวิต 5 มิติหลัก:**
+   - การงาน อาชีพ ธุรกิจ (Career & Purpose)
+   - การเงิน สภาพคล่อง ทรัพย์สิน (Wealth & Resources)
+   - ความรัก ความสัมพันธ์ ครอบครัว (Love & Harmony)
+   - สุขภาพ พลังชีวิต การดูแลกายใจ (Vitality & Well-being)
+   - สังคม มิตรสหาย และผู้ให้การอุปถัมภ์ (Community & Mentors)
+3. **แผนที่การเดินพลังงาน 12 เดือน ประจำปี ${payload.target_year}:** แจกแจงจังหวะเดือนที่ควรเปิดเกมรุก เดือนที่ควรตั้งรับ และกลยุทธ์การบริหารเวลาในแต่ละไตรมาส
+4. **ข้อคิดเตือนใจและแนวทางยกระดับชีวิต (Life Strategy Advice):** ให้คำแนะนำที่อิงการลงมือทำจริง เน้นการสร้างทัศนคติบวก มีสติ และไม่สนับสนุนความงมงายหรือความกลัว
+
+โปรดตอบด้วยภาษาไทยที่สุภาพ อบอุ่น ชัดเจน สละสลวย และเปี่ยมด้วยปัญญาแห่งชีวิต (Empowering & Insightful).`;
+}
+
 export function canonicalJson(payload) {
   const normalized = {
     birth_date: String(payload.birth_date),
@@ -996,6 +1469,44 @@ export function createUnifiedReading(rawPayload) {
 
   const requestId = requestIdFor(normalizedPayload);
 
+  const [bYear, bMonth, bDay] = birthDateStr.split("-").map(Number);
+  const [yearStemIdx, yearBranchIdx] = yearStemBranch(bYear, bMonth, bDay);
+  const [monthStemIdx, monthBranchIdx] = monthStemBranch(yearStemIdx, bMonth, bDay);
+  const [dayStemIdx, dayBranchIdx] = dayStemBranch(bYear, bMonth, bDay);
+
+  let hourVal = 12;
+  if (!normalizedPayload.unknown_hour && normalizedPayload.birth_time) {
+    const parts = String(normalizedPayload.birth_time).split(":");
+    hourVal = Number(parts[0]) || 0;
+  }
+  const hourBranchIdx = Math.floor(((hourVal + 1) % 24) / 2) % 12;
+  const ratBase = [0, 2, 4, 6, 8][dayStemIdx % 5];
+  const hourStemIdx = (ratBase + hourBranchIdx) % 10;
+
+  const baziChart = {
+    year_stem: STEMS[yearStemIdx].name,
+    year_branch: BRANCHES[yearBranchIdx].name,
+    year_element: THAI_ELEMENTS[STEMS[yearStemIdx].element] || STEMS[yearStemIdx].element,
+    year_animal: BRANCHES[yearBranchIdx].animal,
+    month_stem: STEMS[monthStemIdx].name,
+    month_branch: BRANCHES[monthBranchIdx].name,
+    month_element: THAI_ELEMENTS[STEMS[monthStemIdx].element] || STEMS[monthStemIdx].element,
+    month_animal: BRANCHES[monthBranchIdx].animal,
+    day_stem: STEMS[dayStemIdx].name,
+    day_branch: BRANCHES[dayBranchIdx].name,
+    day_element: THAI_ELEMENTS[STEMS[dayStemIdx].element] || STEMS[dayStemIdx].element,
+    day_animal: BRANCHES[dayBranchIdx].animal,
+    hour_stem: STEMS[hourStemIdx].name,
+    hour_branch: BRANCHES[hourBranchIdx].name,
+    hour_element: THAI_ELEMENTS[STEMS[hourStemIdx].element] || STEMS[hourStemIdx].element,
+  };
+
+  const ziWeiChart = calculateZiWeiDouShuChart(normalizedPayload);
+  const solarTime = calculateTrueSolarTime(normalizedPayload);
+  const thaiLagna = calculateThaiLagna(bMonth, hourVal);
+  const plainSummary = buildPlainLanguageSummary(normalizedPayload, monthlyScores, annualTiming, ziWeiChart);
+  const fateBookPrompt = buildFateBookMasterPrompt(normalizedPayload, baziChart, ziWeiChart, thaiLagna, solarTime, plainSummary);
+
   return {
     schema_version: "horo_lite_unified_reading.v1",
     request_id: requestId,
@@ -1016,5 +1527,8 @@ export function createUnifiedReading(rawPayload) {
       network_call_performed: false,
       deterministic_facts_source: "project.core.annual_timing_engine",
     },
+    plain_summary: plainSummary,
+    fate_book_prompt: fateBookPrompt,
+    zi_wei: ziWeiChart,
   };
 }

@@ -1,5 +1,81 @@
 # HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
 
+## Sprint: Fate Book Master Prompt & Purple Star UI Overhaul (2026-10-16)
+
+GOAL: 1) Overhaul `public/lite.html` & `lite.css` into a modern Purple Star Mapper-inspired landing page (purple-astral theme, hero banner, rounded pill form inputs, interactive gender selector pills). 2) Implement Plain-Language Conversational Consensus Summary section rendering 6 core domains (ภาพรวมรายปี, การเงิน, ความรัก, สุขภาพ, ครอบครัว, จังหวะโอกาสและควรระวัง) in friendly conversational Thai without esoteric astrological jargon. 3) Implement accessible Modal Popup in `public/lite.js` & `lite.html` previewing the full "Fate Book Master Prompt" synthesizing Thai Suriyayart, BaZi/Saju, and Zi Wei Dou Shu (12 Palaces, 14 Primary Stars, Si Hua, Ming/Shen Gong) with one-click clipboard copy. 4) Update `api/unified_reading_engine.js` to output `plain_summary` and dynamic `fate_book_prompt`. 5) QA contract tests, Playwright E2E automation, Rayon secret scan, PR merge, and live production deployment.
+
+Shared interface contract [FROZEN]:
+- Invariants:
+  - `INVARIANT-FATE-01`: Purple Star Mapper-Inspired Landing UI (purple-astral theme, rounded pill inputs, interactive gender selector pills, mobile and desktop responsive).
+  - `INVARIANT-FATE-02`: Plain-Language Conversational Consensus Summary (6 core domains rendered in friendly conversational Thai without esoteric astrological jargon like ชง, ฮะ, ย้งซิ้ง, ดิถี).
+  - `INVARIANT-FATE-03`: Fate Book Master Prompt Modal Popup (accessible dialog modal with full prompt preview and one-click clipboard copy with visual feedback).
+  - `INVARIANT-FATE-04`: Multi-Tradition Master Prompt Synthesis (Chinese BaZi 4 pillars, Zi Wei Dou Shu 12 Palaces/14 Stars/Si Hua, Thai Suriyayart zodiac/ascendant).
+  - `INVARIANT-FATE-05`: Pure ASCII Logging ([OK], [INFO], [WARNING], [ERROR]).
+  - `INVARIANT-FATE-06`: Single-Editor Resource Boundaries:
+    - `lead_ba`: `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`
+    - `developer`: `api/unified_reading_engine.js`, `public/lite.html`, `public/lite.css`, `public/lite.js`
+    - `qa_tester`: `tests/api_unified_reading_edge.test.mjs`, `scripts/run_prod_lite_e2e.py`, `tests/test_prod_lite_e2e.py`, `plans/test_provenance/**`
+    - `code_reviewer`: `plans/evidence/**`, `ReleaseNotes.md`
+    - `devops`: git tree, release tags, deployment receipts
+- Stop Conditions: Broken responsive layout, clipboard copy crash, non-ASCII log emission, or test failure halts execution fail-closed.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-FATE-001` | `DONE` (Specification & ticket decomposition for Fate Book Master Prompt & Purple Star UI Overhaul sprint completed; approved intake report registered; tickets FATE-001 through FATE-007 decomposed in ATOMIC_TICKET.md and plans/plan.md; pure ASCII logs); lead_ba | Specification & ticket decomposition for Fate Book Master Prompt & Purple Star UI Overhaul sprint in ATOMIC_TICKET.md and plans/plan.md. Exclusive scope: `ATOMIC_TICKET.md`, `plans/plan.md`. | Dependencies: Approved intake report `plans/intake/sprint_fate_book_prompt_and_purple_star_landing.md`. Acceptance MET: 7 tickets decomposed with single-editor boundaries, invariants, DoD registered; pure ASCII logs; zero regressions. | `bsa-doc-skill-management`, `agile-governance` |
+| `TICKET-FATE-002` | `DONE` (Zi Wei Dou Shu parity [12 palaces, 14 primary stars, Si Hua, Bureau], NOAA True Solar Time calculation, 6-domain plain_summary, dynamic fate_book_prompt implemented in api/unified_reading_engine.js; deterministic scoring preserved; pure ASCII logs); developer | Engine enhancement in `api/unified_reading_engine.js`: add `plain_summary` synthesis covering 6 core conversational domains and dynamic `fate_book_prompt` generator synthesizing BaZi 4 pillars, Zi Wei Dou Shu (12 Palaces, 14 Stars, Si Hua), and Thai Suriyayart. Exclusive scope: `api/unified_reading_engine.js`. | Dependencies: `TICKET-FATE-001`. Acceptance MET: Unified reading response includes `plain_summary` object (6 conversational domains) and `fate_book_prompt` string; deterministic scoring preserved; pure ASCII logs. | `sdlc-aisdlc-workflow` |
+| `TICKET-FATE-003` | `DONE` (Soft White-Red Auspicious Light theme, rounded pill inputs, interactive gender selector pills, #plain-summary-section, accessible HTML5 dialog id="fate-book-modal", and calculation drawer implemented in public/lite.html and public/lite.css; mobile/desktop responsive; pure ASCII logs); developer | Purple Star Mapper-inspired landing page overhaul in `public/lite.html` & `public/lite.css`: implement purple-astral background, hero banner, rounded pill form inputs (`border-radius: 9999px`), interactive gender selector pills (ชาย / หญิง), and responsive layout. Exclusive scope: `public/lite.html`, `public/lite.css`. | Dependencies: `TICKET-FATE-001`. Acceptance MET: `lite.html` renders auspicious hero, rounded pill inputs, and gender selector; mobile & desktop responsive; zero layout clipping; pure ASCII logs. | `sdlc-aisdlc-workflow`, `ui-color-token-handoff` |
+| `TICKET-FATE-004` | `DONE` (Interactive gender pills state synchronization, renderPlainSummary rendering 6 conversational cards, modal open/close handlers [Escape/backdrop/buttons], clipboard copy with 3-second toast implemented in public/lite.js; pure ASCII logs); developer | Fate Book Master Prompt Modal Popup & Plain Summary UI in `public/lite.js`: accessible modal dialog (`<dialog>` / `role="dialog"`) with full prompt preview, one-click clipboard copy (`navigator.clipboard` with `execCommand` fallback), visual copied feedback, and 6 plain-language summary cards rendering. Exclusive scope: `public/lite.js`. | Dependencies: `TICKET-FATE-002`, `TICKET-FATE-003`. Acceptance MET: Modal opens on button click, closes on Esc/backdrop, copies prompt to clipboard with toast feedback; 6 plain-language cards render friendly conversational advice; pure ASCII logs. | `sdlc-aisdlc-workflow` |
+| `TICKET-FATE-005` | `DONE` (QA verification: Node contract suite 8/8 PASS [173ms] asserting plain_summary [6 domains, zero jargon] and dynamic fate_book_prompt; Playwright Production Lite E2E suite 3/3 PASS [9.61s, ALL_PASSED_READY_FOR_PROD] covering interactive gender pills, plain summary cards, Fate Book modal, clipboard copy with toast, calculation drawer, 15s cooldown; Pytest 4/4 PASS [12.21s]; test provenance manifest plans/test_provenance/ticket-fate-baseline.json registered; pure ASCII logs); qa_tester | QA test suite updates: Node contract tests in `tests/api_unified_reading_edge.test.mjs`, Playwright Production E2E tests in `scripts/run_prod_lite_e2e.py` and `tests/test_prod_lite_e2e.py` verifying Purple Star UI, conversational summary cards, Master Prompt modal open/copy, and compile test provenance manifest `plans/test_provenance/ticket-fate-baseline.json`. Exclusive scope: `tests/api_unified_reading_edge.test.mjs`, `scripts/run_prod_lite_e2e.py`, `tests/test_prod_lite_e2e.py`, `plans/test_provenance/**`. | Dependencies: `TICKET-FATE-002`, `TICKET-FATE-003`, `TICKET-FATE-004`. Acceptance MET: 100% test pass across node contract and Playwright E2E suites; modal & copy assertions verified; provenance manifest registered; pure ASCII logs. | `qa-api-ui-e2e`, `qa-regression-provenance` |
+| `TICKET-FATE-006` | `DONE` (Pre-release security audit: Rayon parallel secret scan 0 leaks across 2,529 files, AST 0 syntax issues across 621 Python files, ecosystem sync clean with exit code 0, READY_FOR_PROD verdict, ReleaseNotes.md draft compiled; pure ASCII logs); code_reviewer | Pre-release security review: Rayon parallel secret scan (0 leaks), Python AST syntax audit, AI agent ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`), and prepare `ReleaseNotes.md` draft. Exclusive scope: `plans/evidence/**`, `ReleaseNotes.md`. | Dependencies: `TICKET-FATE-005`. Acceptance MET: 0 secret leaks across repository; AST valid; ecosystem sync exit code 0; pure ASCII logs. | `hf-static-release-verification` |
+| `TICKET-FATE-007` | `DOING` (Dispatched to devops for release branch, PR, squash merge, Vercel deploy, and live verification); devops | DevOps production release: create PR, monitor CI/CD workflows, squash merge to `main`, production deploy to Vercel, and execute live curl & Playwright E2E verification. Exclusive scope: git tree, release tags, deployment receipts. | Dependencies: `TICKET-FATE-006`. Acceptance: PR squash merged; CI green; live endpoint verified healthy with HTTP 200, Purple Star UI, Plain Summary cards, and Master Prompt modal; pure ASCII logs. | `devops-deployment`, `hf-static-release-verification` |
+
+
+**Definition of Done (TICKET-FATE-006 — COMPLETED)**:
+1. Rayon parallel secret scan executed across 2,529 files with 0 credential or secret leaks detected. [OK]
+2. Python AST audit executed across 621 Python files with 0 syntax or encoding issues. [OK]
+3. AI agent ecosystem sync check verified clean (`python3 scripts/sync_ai_agent_ecosystem.py --check` -> exit code 0). [OK]
+4. Pre-release review approved with READY_FOR_PROD verdict recorded in `plans/evidence/ticket-fate-006-code-review.json`. [OK]
+5. Compiled and prepared `ReleaseNotes.md` draft for sprint release. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FATE-005 — COMPLETED)**:
+1. Node Edge contract test suite passed 8/8 tests in 173ms (`tests/api_unified_reading_edge.test.mjs`) asserting 100% Thai localization, 6-domain `plain_summary` without jargon, dynamic `fate_book_prompt`, and edge fallback. [OK]
+2. Playwright Production Lite E2E test suite passed with status ALL_PASSED_READY_FOR_PROD in 9.61s (`scripts/run_prod_lite_e2e.py`) verifying interactive gender selector pills, plain summary cards, Fate Book modal popup, one-click clipboard copy with 3-second toast, and calculation drawer. [OK]
+3. Pytest E2E wrapper suite passed 4/4 tests in 12.21s (`tests/test_prod_lite_e2e.py`) with zero regressions. [OK]
+4. Test provenance manifest registered and verified in `plans/test_provenance/ticket-fate-baseline.json`. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FATE-004 — COMPLETED)**:
+1. Implemented interactive gender pill toggles synchronization with hidden input in `public/lite.js`. [OK]
+2. Implemented `renderPlainSummary` rendering 6 friendly conversational consensus cards without esoteric astrological jargon. [OK]
+3. Implemented accessible modal open/close handlers (Escape key, backdrop click, close button) for `<dialog id="fate-book-modal">`. [OK]
+4. Implemented clipboard copy (`navigator.clipboard` with `execCommand` fallback) with 3-second toast feedback. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FATE-003 — COMPLETED)**:
+1. Overhauled `public/lite.html` and `public/lite.css` with Soft White-Red Auspicious Light visual theme (`--bg-primary: #fff8f8`, `--accent-cinnabar: #c83232`). [OK]
+2. Implemented rounded pill inputs (`border-radius: 9999px`) and interactive gender selector pills (ชาย / หญิง). [OK]
+3. Added `#plain-summary-section` container for 6 conversational cards below results. [OK]
+4. Implemented accessible HTML5 `<dialog id="fate-book-modal">` for Fate Book Master Prompt preview and one-click copy. [OK]
+5. Maintained collapsible technical calculation drawer (`#calculation-drawer`). [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FATE-002 — COMPLETED)**:
+1. Implemented complete Zi Wei Dou Shu parity in `api/unified_reading_engine.js`: 12 Palaces (Ming, Shen, etc.), 14 Primary Stars (Zi Wei, Tian Ji, etc.), Bureau determination, and Si Hua transformations (Lu, Quan, Ke, Ji). [OK]
+2. Implemented NOAA True Solar Time (TST) calculation with Equation of Time and solar noon adjustment. [OK]
+3. Implemented `plain_summary` synthesis covering 6 core conversational domains in friendly spoken Thai without esoteric jargon. [OK]
+4. Implemented dynamic `fate_book_prompt` generator synthesizing BaZi 4 pillars, Zi Wei Dou Shu, and Thai Suriyayart into structured scholarly prompt. [OK]
+5. Deterministic scoring ranges [1, 10] and existing contract preserved without regressions. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-FATE-001 — COMPLETED)**:
+1. Registered new sprint "Sprint: Fate Book Master Prompt & Purple Star UI Overhaul (2026-10-16)" in `ATOMIC_TICKET.md` and `plans/plan.md`. [OK]
+2. Documented Context & Problem Statement, Goal, Core Execution Invariants (`INVARIANT-FATE-01` through `06`), and Single-Editor Boundaries. [OK]
+3. Decomposed and registered `TICKET-FATE-001` through `TICKET-FATE-007` with bound skills and acceptance criteria. [OK]
+4. Marked `TICKET-FATE-001` as `DONE` with deliverables receipt. [OK]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+
 ## Sprint: Thai Localization & HITL NotebookLM Progressive Bridge — 100% COMPLETE (2026-10-15)
 
 GOAL: 100% Thai localization across all 12 topic cards and monthly reasons in `api/unified_reading_engine.js`, overhaul technical HITL message (`สาขาแสดงผลอยู่โหมดตรวจทาน: QUEUED_FOR_HUMAN_REVIEW`) in `public/lite.js` & `lite.html` to a reassuring 3-pillar human-readable explanation, implement progressive asynchronous bridge integration (`/api/v3/hitl-consult`) connecting to NotebookLM (`horo_consult`) when HITL is triggered, placed at page bottom below twelve_month_roadmap, with 15s countdown timer, `sessionStorage` idempotency key, and request deduplication.

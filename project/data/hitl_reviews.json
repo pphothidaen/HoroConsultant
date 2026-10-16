@@ -2260,7 +2260,7 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-10-15T12:38:20.462659",
+  "last_updated": "2026-10-16T10:51:21.849199",
   "automation": {
     "threshold": 50,
     "step": 50,
@@ -2395,7 +2395,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-09-25T22:51:38.433422",
-      "updated_at": "2026-10-15T12:38:20.441411",
+      "updated_at": "2026-10-16T10:51:21.824428",
       "status": "pending",
       "review": null
     },
@@ -2527,7 +2527,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected', 'uncertain_birth_time']",
       "created_at": "2026-10-15T11:19:33.081152",
-      "updated_at": "2026-10-15T12:38:20.462646",
+      "updated_at": "2026-10-16T10:51:21.849185",
       "status": "pending",
       "review": null
     },
@@ -2559,7 +2559,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-10-15T11:19:33.084134",
-      "updated_at": "2026-10-15T12:38:20.283965",
+      "updated_at": "2026-10-16T10:51:21.664584",
       "status": "pending",
       "review": null
     },
@@ -2591,7 +2591,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-10-15T11:19:33.086428",
-      "updated_at": "2026-10-15T12:38:20.285985",
+      "updated_at": "2026-10-16T10:51:21.667942",
       "status": "pending",
       "review": null
     },
@@ -2623,7 +2623,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-10-15T11:19:33.088606",
-      "updated_at": "2026-10-15T12:38:20.288081",
+      "updated_at": "2026-10-16T10:51:21.670668",
       "status": "pending",
       "review": null
     },
@@ -2655,7 +2655,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-10-15T11:19:33.090503",
-      "updated_at": "2026-10-15T12:38:20.289983",
+      "updated_at": "2026-10-16T10:51:21.673379",
       "status": "pending",
       "review": null
     },
@@ -2687,7 +2687,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected']",
       "created_at": "2026-10-15T11:19:35.866974",
-      "updated_at": "2026-10-15T12:38:20.445120",
+      "updated_at": "2026-10-16T10:51:21.828922",
       "status": "pending",
       "review": null
     },
@@ -2720,7 +2720,7 @@
       "synthesis_snapshot": {},
       "notes": "Auto-enqueued from unified reading router. Triggers: ['low_consensus', 'tradition_conflict', 'conflict_detected', 'force_human_review']",
       "created_at": "2026-10-15T11:19:35.881980",
-      "updated_at": "2026-10-15T12:38:20.459176",
+      "updated_at": "2026-10-16T10:51:21.844792",
       "status": "pending",
       "review": null
     }

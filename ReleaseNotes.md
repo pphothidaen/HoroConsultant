@@ -1,3 +1,55 @@
+# HoroConsultant Release Notes — Sprint: Fate Book Master Prompt & Purple Star UI Overhaul (2026-10-16)
+
+|> **Release**: `Sprint: Fate Book Master Prompt & Purple Star UI Overhaul`
+|> **Release Date**: 2026-10-16 (Asia/Bangkok)
+|> **Release Authority**: Master Orchestrator / Pre-Deployment Code Reviewer
+|> **Sprint Verdict**: `READY_FOR_PROD (Node Contract Tests 8/8 PASS, Playwright E2E Suite 3/3 PASS in 9.61s, Pytest Wrapper 4/4 PASS, Rayon Secret Scan 0 leaks across 2,529 files, AST Audit 0 issues across 621 files, Ecosystem Sync 100% Clean)`
+
+---
+
+## Executive Summary
+
+This release completes the **Sprint: Fate Book Master Prompt & Purple Star UI Overhaul**, modernizing HoroConsultant's lightweight consultation tier (`public/lite.html`, `public/lite.css`, `public/lite.js`) into an auspicious, high-trust astrological portal with deep multi-tradition synthesis. The update introduces authentic Zi Wei Dou Shu parity (12 Palaces, 14 Primary Stars, Si Hua, Bureau), NOAA True Solar Time calculations, a conversational 6-domain plain summary (free of esoteric astrological jargon), an interactive Fate Book Master Prompt modal dialog with one-click clipboard export, and an auspicious visual overhaul (Soft White-Red Auspicious Light theme, rounded pill inputs, and gender selector pills).
+
+Key achievements:
+1. **Multi-Tradition Zi Wei Dou Shu & NOAA True Solar Time Engine Parity**: Upgraded `api/unified_reading_engine.js` with full deterministic calculations for True Solar Time (TST), 12 Zi Wei Dou Shu Palaces (Ming, Shen, etc.), 14 Primary Stars, Four Transformations (Si Hua: Lu, Quan, Ke, Ji), and Five Elements Bureau, synthesizing Chinese BaZi, Zi Wei Dou Shu, and Thai Suriyayart into an integrated astronomical-astrological matrix.
+2. **Plain-Language Conversational Consensus Summary (6 Domains)**: Generated human-friendly spoken Thai summaries across 6 core everyday life domains (ภาพรวมรายปี, การเงิน, ความรัก, สุขภาพ, ครอบครัว, จังหวะโอกาสและควรระวัง), strictly excluding esoteric astrological terminology (e.g. ชง, ฮะ, ย้งซิ้ง, ดิถี, ต้าอวิ้น) to ensure maximum accessibility and clarity for general users.
+3. **Fate Book Master Prompt Modal & One-Click Copy**: Implemented accessible HTML5 `<dialog id="fate-book-modal">` in `public/lite.html` and `public/lite.js` featuring complete prompt preview synthesizing BaZi 4 pillars, Zi Wei Dou Shu, and Thai Suriyayart, complete with clipboard copy (`navigator.clipboard` with legacy fallback) and visual toast notification.
+4. **Soft White-Red Auspicious Light Visual Theme**: Overhauled `public/lite.html` and `public/lite.css` with a modern aesthetic featuring cinnabar red accents (`--accent-cinnabar: #c83232`), auspicious light background (`--bg-primary: #fff8f8`), rounded pill inputs (`border-radius: 9999px`), interactive gender selector pills (ชาย / หญิง), and responsive layout across mobile and desktop.
+5. **Zero-Regression Verification & Static Safety**: Verified with 8/8 Node contract tests, 3/3 Playwright production E2E scenarios, 4/4 Pytest E2E wrapper assertions, 0 secret leaks across 2,529 files via parallel Rayon scan, 0 AST/encoding anomalies across 621 Python files, and 100% clean AI agent ecosystem sync.
+
+---
+
+## Architectural Deliverables
+
+| File | Subsystem | Purpose & Impact |
+|---|---|---|
+| `api/unified_reading_engine.js` | Edge Engine / Astrology | Implemented Zi Wei Dou Shu parity (12 Palaces, 14 Primary Stars, Si Hua, Bureau), NOAA True Solar Time calculation, 6-domain `plain_summary` synthesis, and dynamic `fate_book_prompt` generator. |
+| `public/lite.html` | Frontend / UI | Implemented Soft White-Red Auspicious Light theme, hero header, rounded pill inputs, interactive gender selector pills, `#plain-summary-container`, and HTML5 `<dialog id="fate-book-modal">`. |
+| `public/lite.css` | Frontend / Styles | Auspicious light color tokens, rounded pill inputs (`border-radius: 9999px`), gender pill active states, 6-domain plain summary card layout, and accessible modal styles. |
+| `public/lite.js` | Frontend / Controller | Interactive gender pill state synchronization, `renderPlainSummary` rendering 6 conversational cards, modal open/close handlers (Escape/backdrop/buttons), and clipboard copy with toast feedback. |
+| `tests/api_unified_reading_edge.test.mjs` | Test Suite / Contract | Contract tests asserting `plain_summary` contains 6 core domains, zero forbidden jargon, `fate_book_prompt` synthesis, and `/api/v3/hitl-consult` response. |
+| `scripts/run_prod_lite_e2e.py` | E2E Suite / Automation | Playwright production E2E suite verifying gender pills, 6 plain summary cards, Fate Book Master Prompt modal open and clipboard copy action. |
+| `tests/test_prod_lite_e2e.py` | E2E Suite / Pytest Wrapper | Pytest wrapper verifying all 3 E2E scenarios (Success, Jack Scenario with Plain Summary & Modal, Failed Resilient Recovery) and execution report validity. |
+| `plans/test_provenance/ticket-fate-baseline.json` | Governance / Agile | Immutable test provenance manifest registering test baseline hashes and verification rationale for TICKET-FATE-005. |
+| `plans/evidence/ticket-fate-006-code-review.json` | Governance / Audit | Pre-deployment safety audit evidence receipt recording Rayon secret scan, AST syntax check, ecosystem sync, and gate verdict. |
+
+---
+
+## Verification Matrix
+
+| Test Suite / Safety Gate | Scope & Criteria | Result | Evidence / Run Reference |
+|---|---|---|---|
+| Node Contract Suite (`tests/api_unified_reading_edge.test.mjs`) | Thai localization, 12 topics, monthly scores [1-10], 6 plain summary domains, zero jargon, fate_book_prompt | 8/8 PASS (100%) | Verified (178ms duration) |
+| Playwright Production E2E (`scripts/run_prod_lite_e2e.py`) | Success Scenario, Jack Scenario (Purple Star UI, gender pills, plain summary cards, Fate Book modal & copy), Failed Recovery | 3/3 PASS (100%) | `project/tests/prod_lite_e2e_report.json` (Status: ALL_PASSED_READY_FOR_PROD, 8.52s) |
+| Pytest E2E Suite (`tests/test_prod_lite_e2e.py`) | Pytest wrapper across all 3 live scenarios and report integrity | 4/4 PASS (100%) | Verified (9.58s duration) |
+| Rayon Parallel Secret Scan (`project/core/code_reviewer.py --scan-secrets`) | Codebase secret leak detection (API keys, Doppler tokens, private keys) | 0 LEAKS (100% clean) | 2,529 files scanned in parallel via Rayon |
+| Python AST Syntax Audit (`project/core/code_reviewer.py --audit-ast`) | Python syntax validity, zero null-byte corruption, zero lone surrogates | 0 ISSUES (100% clean) | 621 Python files scanned |
+| AI Agent Ecosystem Sync (`scripts/sync_ai_agent_ecosystem.py --check`) | Multi-agent rules, skills, profiles, and AGENTS.md parity | PASS (100% clean) | Exit code 0 |
+| **Total** | **Pre-Deployment Safety Gates & Release Verification** | **READY_FOR_PROD** | **100% Gates Passed** |
+
+---
+
 # HoroConsultant Release Notes — Sprint: Thai Localization & HITL NotebookLM Progressive Bridge (2026-10-15)
 
 |> **Release**: `Sprint: Thai Localization & HITL NotebookLM Progressive Bridge`

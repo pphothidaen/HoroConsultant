@@ -79,6 +79,9 @@ async def test_prod_lite_e2e_jack_scenario():
             check_names = [c["check"] for c in result["checks"]]
             assert "canonical_topic_cards_sequence" in check_names
             assert "prediction_copy_rendered" in check_names
+            assert "plain_summary_cards_rendered" in check_names
+            assert "fate_book_modal_and_copy" in check_names
+            assert "gender_pills_interactive" in check_names
             assert "hitl_3_pillar_alert_reassuring" in check_names
             assert "hitl_deep_synthesis_card_below_topics" in check_names
             assert "submit_cooldown_15s_behavior" in check_names
@@ -129,7 +132,7 @@ def test_prod_lite_e2e_report_integrity():
     assert REPORT_PATH.exists(), f"Missing report file at {REPORT_PATH}"
     report_data = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
 
-    assert report_data["ticket_id"] in ("TICKET-HLITE-014", "TICKET-FIX-003-E2E", "TICKET-THAI-005")
+    assert report_data["ticket_id"] in ("TICKET-HLITE-014", "TICKET-FIX-003-E2E", "TICKET-THAI-005", "TICKET-FATE-005")
     assert report_data["status"] == "ALL_PASSED_READY_FOR_PROD"
     assert len(report_data["scenarios"]) == 3
 
