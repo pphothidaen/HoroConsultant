@@ -1,8 +1,8 @@
 # HoroConsultant — Master Agile Plan & Architecture Specifications
 
-## Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card (2026-10-16)
+## Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card — 100% COMPLETE (2026-10-16)
 
-Status: TICKET-FOCUS-001 DONE; TICKET-FOCUS-002 DONE; TICKET-FOCUS-003 DONE; TICKET-FOCUS-004 DONE; TICKET-FOCUS-005 DOING -- SPRINT IN PROGRESS
+Status: 100% COMPLETE (TICKET-FOCUS-001 through TICKET-FOCUS-005 DONE; PR #218 merged; Vercel deployment run 38942067729 verified live)
 Task ID: `SPRINT-LITE-FOCUS-SMART-ROUTING`
 Lane ID: `LANE-FOCUS-001`
 Authorized By: Master Orchestrator directive & Approved Intake Report `plans/intake/sprint_focus_question_smart_routing.md` ("The user has selected option 1: Deterministic Smart Routing (<5ms, free) with dedicated hero card")
@@ -40,7 +40,7 @@ Authorized By: Master Orchestrator directive & Approved Intake Report `plans/int
 | **TICKET-FOCUS-002** | Core Engine & UI (`developer`) | Implement dropdown selector `primary_focus_topic` in `public/lite.html` (5 core domains + default unselected); build deterministic focus analysis synthesis in `api/unified_reading_engine.js` outputting structured `focus_analysis` payload with domain score, peak golden month, caution month, and strategic advice; build conditional `#focus-question-hero-card` in `public/lite.html`, `public/lite.css`, `public/lite.js` at top of `#result-panel`, fully hidden when unselected | `DONE` (Dropdown-driven focus topic selection and dedicated hero card implemented in public/lite.html [<select id="primary_focus_topic"> with 5 canonical options and default unselected, #focus-question-hero-card mounted before #plain-summary-section], public/lite.css [.pill-select and .focus-question-hero-card responsive tokens], api/unified_reading_engine.js [calculateFocusTopicAnalysis latency ~0.12ms, structured focus_topic_analysis, buildFateBookMasterPrompt integration], public/lite.js [renderFocusTopicHero reveals card when topic selected, hides when unselected]; verified node -c, node --test 11/11, pytest 22/22; ecosystem sync exit code 0; pure ASCII logs) [OK] |
 | **TICKET-FOCUS-003** | QA Verification (`qa_tester`) | QA contract test suite in `tests/api_unified_reading_edge.test.mjs` asserting deterministic `focus_analysis` payload across all topics and unselected fallback; Pytest regression assertions in `tests/test_horo_lite_unified_reading.py` verifying DOM dropdown options, `#focus-question-hero-card` rendering, peak golden month, caution month, and hidden state when unselected; register test provenance baseline manifest `plans/test_provenance/ticket-kan-123-focus-baseline.json` | `DONE` (QA contract verification completed: tests/api_unified_reading_edge.test.mjs added focus topic contract assertions [unselected returns null, career_business returns structured analysis with domain_score, peak_golden_month, caution_month, guidance strings, and fate_book_prompt integration; 12/12 tests pass]; tests/test_horo_lite_unified_reading.py added test_focus_topic_dropdown_and_hero_card_contract [select tag, 5 option values, hero card mounted before plain summary, 23/23 tests pass]; test provenance baseline manifest plans/test_provenance/ticket-kan-123-focus-baseline.json registered with schema test-provenance-v1; pure ASCII logs) [OK] |
 | **TICKET-FOCUS-004** | Security Review (`code_reviewer`) | Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem check, draft `ReleaseNotes.md`, and compile evidence manifest `plans/evidence/ticket-focus-004-code-review.json` with READY_FOR_PROD verdict | `DONE` (Pre-release security review completed: Rayon parallel secret scan 0 leaks across 2,539 files, Python AST syntax audit 0 issues across 621 Python files, AI agent ecosystem sync verified clean with exit code 0, pre-release review evidence manifest plans/evidence/ticket-focus-004-code-review.json created with READY_FOR_PROD verdict, ReleaseNotes.md prepended with release documentation for Sprint: Lite Focus Question Smart Routing & Dedicated Hero Card; pure ASCII logs) [OK] |
-| **TICKET-FOCUS-005** | Production Release (`devops`) | Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, and live production verification | `DOING` (In progress: release branch, pull request lifecycle, CI workflow checks, squash-merge, and production endpoint verification) |
+| **TICKET-FOCUS-005** | Production Release (`devops`) | Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, and live production verification | `DONE` (DevOps production release completed: PR #218 squash-merged into main at commit f3ae81da; CI workflows green; live Vercel production deployment run 38942067729 succeeded in 32s; live endpoint https://horo-consultant-psi.vercel.app/lite.html verified healthy [HTTP 200, <select id="primary_focus_topic"> and <section id="focus-question-hero-card"> verified]; pure ASCII logs) [OK] |
 
 ### 4. Definition of Done (TICKET-FOCUS-001 — COMPLETED)
 1. Document approved intake report in `plans/intake/sprint_focus_question_smart_routing.md`. [OK]
@@ -74,13 +74,13 @@ Authorized By: Master Orchestrator directive & Approved Intake Report `plans/int
 5. Draft and update `ReleaseNotes.md` documenting Lite Focus Question Smart Routing and Hero Card. [OK]
 6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
-### 8. Definition of Done (TICKET-FOCUS-005 — PENDING)
-1. Create release branch and pull request for Lite Focus Question Smart Routing & Dedicated Hero Card.
-2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass.
-3. Squash merge pull request into `main`.
-4. Verify local `main` sync and remote production deployment.
-5. Perform live curl verification against production endpoint verifying `#focus-question-hero-card`.
-6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]).
+### 8. Definition of Done (TICKET-FOCUS-005 — COMPLETED)
+1. Create release branch and pull request for Lite Focus Question Smart Routing & Dedicated Hero Card. [OK]
+2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass. [OK]
+3. Squash merge pull request into `main`. [OK]
+4. Verify local `main` sync and remote production deployment. [OK]
+5. Perform live curl verification against production endpoint verifying `#focus-question-hero-card`. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
 
 
 ## Sprint: Lite UI Collapsible Topics Drawer & Latency Masking — 100% COMPLETE (2026-10-16)
