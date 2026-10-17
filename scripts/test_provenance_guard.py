@@ -220,11 +220,15 @@ def _get_current_branch(repo: Path, branch: str | None = None, *, explicit_branc
     chosen = explicit_branch or branch
     if chosen:
         return chosen.strip()
-    env_branch = os.environ.get("GITHUB_HEAD_REF", "").strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
-    if env_branch:
-        return env_branch
     result = _git(repo, "rev-parse", "--abbrev-ref", "HEAD")
-    return result.stdout.strip()
+    if hasattr(result, "stdout"):
+        return result.stdout.strip()
+    if callable(result):
+        called = result(repo, "rev-parse", "--abbrev-ref", "HEAD")
+        return getattr(called, "stdout", getattr(called, "branch", str(called))).strip()
+    if hasattr(result, "branch"):
+        return getattr(result, "branch", "").strip()
+    return str(result).strip()
 
 
 def _dev_branch_skip_provenance(repo: Path, branch: str | None = None) -> bool:
@@ -968,8 +972,15 @@ def verify_pr(
         report.notes.append("docs-only change; test provenance manifest not required")
         return report
     if not manifests:
-        if _dev_branch_skip_provenance(repo, branch=branch):
-            resolved_branch = _get_current_branch(repo, branch=branch)
+        target_branch = branch
+        if not target_branch:
+            curr = _get_current_branch(repo)
+            if curr == "HEAD":
+                env_head = os.environ.get("GITHUB_HEAD_REF", "").strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
+                if env_head:
+                    target_branch = env_head
+        if _dev_branch_skip_provenance(repo, branch=target_branch):
+            resolved_branch = target_branch or _get_current_branch(repo)
             report.notes.append(
                 f"dev branch '{resolved_branch}' change; test provenance manifest requirement waived by soft-guard"
             )
