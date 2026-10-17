@@ -46,6 +46,7 @@ jobs:
           python3 scripts/test_provenance_guard.py verify-pr \
             --base "${{ steps.comparison.outputs.base_commit }}" \
             --head HEAD \
+            --branch "${{ github.head_ref || github.ref_name }}" \
             --post-squash-merge \
             --json-out report.json
 

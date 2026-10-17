@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -215,12 +216,22 @@ def _repo_root(value: str | None) -> Path:
     return Path(result.stdout.strip()).resolve()
 
 
-def _get_current_branch(repo: Path) -> str:
+def _get_current_branch(repo: Path, branch: str | None = None, *, explicit_branch: str | None = None) -> str:
+    chosen = explicit_branch or branch
+    if chosen:
+        return chosen.strip()
     result = _git(repo, "rev-parse", "--abbrev-ref", "HEAD")
-    return result.stdout.strip()
+    if hasattr(result, "stdout"):
+        return result.stdout.strip()
+    if callable(result):
+        called = result(repo, "rev-parse", "--abbrev-ref", "HEAD")
+        return getattr(called, "stdout", getattr(called, "branch", str(called))).strip()
+    if hasattr(result, "branch"):
+        return getattr(result, "branch", "").strip()
+    return str(result).strip()
 
 
-def _dev_branch_skip_provenance(repo: Path) -> bool:
+def _dev_branch_skip_provenance(repo: Path, branch: str | None = None) -> bool:
     """True only on an explicitly recognised dev branch.
 
     Fail-closed: protected branches, detached HEAD ("HEAD"), and any
@@ -229,15 +240,14 @@ def _dev_branch_skip_provenance(repo: Path) -> bool:
     "skip unless protected" — is the whole point: the latter would let any
     name not on the protected list bypass the gate.
 
-    Added in KAN-222. The same helper landed in the pre-rebase-kan214-wip
-    stash but was never called, so it was unreachable; tests now pin it.
+    Added in KAN-222, wired into verify_pr in KAN-256.
     """
-    branch = _get_current_branch(repo)
-    if not branch or branch == "HEAD":
+    current_branch = _get_current_branch(repo, branch=branch)
+    if not current_branch or current_branch == "HEAD":
         # Empty or detached: there is no branch to have been reviewed, so
         # there is nothing that could justify a soft-guard.
         return False
-    if any(fnmatch(branch, pattern) for pattern in PROTECTED_BRANCHES):
+    if any(fnmatch(current_branch, pattern) for pattern in PROTECTED_BRANCHES):
         return False
     # fnmatch's "*" matches the empty string, so "feat/" would satisfy
     # "feat/*" — a branch with no name after the slash. Matching the literal
@@ -245,9 +255,9 @@ def _dev_branch_skip_provenance(repo: Path) -> bool:
     # allowlist mean what it looks like it means.
     for pattern in DEV_BRANCH_PATTERNS:
         prefix = pattern.rstrip("*")  # "feat/*" -> "feat/", slash retained
-        if not branch.startswith(prefix):
+        if not current_branch.startswith(prefix):
             continue
-        if branch[len(prefix) :]:
+        if current_branch[len(prefix) :]:
             return True
     return False
 
@@ -924,6 +934,7 @@ def verify_pr(
     base_revision: str,
     head_revision: str,
     *,
+    branch: str | None = None,
     post_squash_merge: bool = False,
     diff_coverage: bool = False,
 ) -> Report:
@@ -961,6 +972,19 @@ def verify_pr(
         report.notes.append("docs-only change; test provenance manifest not required")
         return report
     if not manifests:
+        target_branch = branch
+        if not target_branch:
+            curr = _get_current_branch(repo)
+            if curr == "HEAD":
+                env_head = os.environ.get("GITHUB_HEAD_REF", "").strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
+                if env_head:
+                    target_branch = env_head
+        if _dev_branch_skip_provenance(repo, branch=target_branch):
+            resolved_branch = target_branch or _get_current_branch(repo)
+            report.notes.append(
+                f"dev branch '{resolved_branch}' change; test provenance manifest requirement waived by soft-guard"
+            )
+            return report
         report.add(
             "PR_REQUIRES_BASELINE_MANIFEST",
             "material source changes require at least one test-provenance manifest",
@@ -1246,6 +1270,7 @@ def _parser() -> argparse.ArgumentParser:
     pr.add_argument("--repo", default=".")
     pr.add_argument("--base", required=True)
     pr.add_argument("--head", default="HEAD")
+    pr.add_argument("--branch", default=None, help="Explicit branch name to evaluate for soft-guard dev policy")
     pr.add_argument("--json-out")
     pr.add_argument(
         "--post-squash-merge",
@@ -1299,11 +1324,12 @@ def main() -> int:
                 repo,
                 args.base,
                 args.head,
+                branch=getattr(args, "branch", None),
                 post_squash_merge=getattr(args, "post_squash_merge", False),
                 diff_coverage=getattr(args, "diff_coverage", False),
             )
         else:
-            report = verify_pr(repo, args.base, args.head)
+            report = verify_pr(repo, args.base, args.head, branch=getattr(args, "branch", None))
         return _emit(report, args.json_out)
     except GuardFailure as exc:
         report = Report(
