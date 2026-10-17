@@ -119,3 +119,86 @@ def test_dev_and_protected_patterns_do_not_overlap() -> None:
     guard = _load_guard()
     overlap = set(guard.PROTECTED_BRANCHES) & set(guard.DEV_BRANCH_PATTERNS)
     assert not overlap, f"a branch matching both lists would be ambiguous: {sorted(overlap)}"
+
+
+def test_verify_pr_waives_manifest_on_dev_branch(tmp_path: Path, monkeypatch) -> None:
+    """KAN-256: verify_pr must consult branch guard and waive manifest on dev branches."""
+    guard = _load_guard()
+    
+    # Mock _resolve_commit to return dummy commits
+    monkeypatch.setattr(guard, "_resolve_commit", lambda repo, rev: "dummy_" + rev)
+    # Mock _changed_paths to simulate material source change with no manifest
+    monkeypatch.setattr(guard, "_changed_paths", lambda repo, base, head, **kw: ["project/core/worker.py"])
+
+    # 1. On a protected branch (e.g. main) -> must fail with PR_REQUIRES_BASELINE_MANIFEST
+    monkeypatch.setattr(guard, "_get_current_branch", lambda repo, branch=None: "main")
+    report_protected = guard.verify_pr(tmp_path, "base", "head")
+    assert len(report_protected.issues) > 0
+    assert any(issue["code"] == "PR_REQUIRES_BASELINE_MANIFEST" for issue in report_protected.issues)
+
+    # 2. On a dev branch (e.g. feat/kan-256) -> must pass with soft-guard note
+    monkeypatch.setattr(guard, "_get_current_branch", lambda repo, branch=None: "feat/kan-256-soft-guard")
+    report_dev = guard.verify_pr(tmp_path, "base", "head")
+    assert len(report_dev.issues) == 0, f"expected dev branch to pass soft-guard, got: {report_dev.issues}"
+    assert any("waived" in note.lower() or "soft-guard" in note.lower() for note in report_dev.notes)
+
+
+def test_verify_pr_supports_explicit_branch_and_github_head_ref(tmp_path: Path, monkeypatch) -> None:
+    """KAN-256: verify_pr must accept explicit branch argument or GITHUB_HEAD_REF environment variable."""
+    guard = _load_guard()
+
+    monkeypatch.setattr(guard, "_resolve_commit", lambda repo, rev: "dummy_" + rev)
+    monkeypatch.setattr(guard, "_changed_paths", lambda repo, base, head, **kw: ["project/core/worker.py"])
+
+    # Explicit branch arg overrides current git branch
+    monkeypatch.setattr(guard, "_git", lambda *args, **kwargs: _FakeGit("main"))
+    report_explicit_dev = guard.verify_pr(tmp_path, "base", "head", branch="fix/urgent-patch")
+    assert len(report_explicit_dev.issues) == 0
+
+    # GITHUB_HEAD_REF env var used when HEAD is detached in GitHub Actions PR CI
+    monkeypatch.setattr(guard, "_git", lambda *args, **kwargs: _FakeGit("HEAD"))
+    monkeypatch.setenv("GITHUB_HEAD_REF", "feat/pr-from-fork")
+    report_env_dev = guard.verify_pr(tmp_path, "base", "head")
+    assert len(report_env_dev.issues) == 0
+
+
+def test_verify_pr_real_git_repository_enforcement(tmp_path: Path) -> None:
+    """KAN-256: end-to-end integration test against a real git repository."""
+    guard = _load_guard()
+    repo = tmp_path / "test_repo"
+    repo.mkdir()
+
+    def run_git(*args: str) -> None:
+        subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, text=True)
+
+    run_git("init", "-b", "main")
+    run_git("config", "user.email", "ci@example.com")
+    run_git("config", "user.name", "CI Bot")
+    run_git("config", "commit.gpgsign", "false")
+
+    # Initial base commit on main
+    (repo / "README.md").write_text("# Project\n", encoding="utf-8")
+    run_git("add", "README.md")
+    run_git("commit", "-m", "chore: initial commit")
+
+    # 1. Dev branch (feat/soft-guard-flow) -> material source change without manifest
+    run_git("checkout", "-b", "feat/soft-guard-flow")
+    (repo / "worker.py").write_text("print('hello')\n", encoding="utf-8")
+    run_git("add", "worker.py")
+    run_git("commit", "-m", "feat: add worker")
+
+    report_dev = guard.verify_pr(repo, "main", "HEAD")
+    assert len(report_dev.issues) == 0, f"dev branch must pass soft-guard: {report_dev.issues}"
+    assert any("waived" in n.lower() or "soft-guard" in n.lower() for n in report_dev.notes)
+
+    # 2. Protected branch (release/2.0) -> material source change without manifest must fail
+    run_git("checkout", "-b", "release/2.0")
+    (repo / "release_worker.py").write_text("print('release')\n", encoding="utf-8")
+    run_git("add", "release_worker.py")
+    run_git("commit", "-m", "fix: emergency release patch")
+
+    report_protected = guard.verify_pr(repo, "main", "HEAD")
+    assert len(report_protected.issues) > 0, "protected branch without manifest must fail"
+    assert any(issue["code"] == "PR_REQUIRES_BASELINE_MANIFEST" for issue in report_protected.issues)
+
+
