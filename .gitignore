@@ -52,3 +52,7 @@ tools/agent-broker/.build/
 # Agent tool scratch dirs: regenerated on every run, never source.
 .hermes/cache/
 tmp_test_render/
+
+# --- LOG FILES (clean pending) ---
+project/kaggle_kernel/horoconsultant-finetune-pipeline.log
+project/kaggle_kernel/train_execution.log
