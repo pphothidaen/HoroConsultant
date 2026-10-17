@@ -165,7 +165,7 @@ jobs:
           # Check if issue already exists
           result = subprocess.run(
               ["gh", "issue", "list", "--label", "cloudflare-worker-monitor", "--state", "open", "--json", "number,title"],
-              capture_output=True, text=True, cwd="/github/workspace"
+              capture_output=True, text=True, cwd=os.environ.get("GITHUB_WORKSPACE", ".")
           )
 
           if result.returncode == 0 and result.stdout.strip():
@@ -180,19 +180,19 @@ jobs:
                   # Update existing issue
                   subprocess.run(
                       ["gh", "issue", "edit", str(existing["number"]), "--body", body],
-                      check=True, cwd="/github/workspace"
+                      check=True, cwd=os.environ.get("GITHUB_WORKSPACE", ".")
                   )
                   print(f"[OK] Updated existing issue #{existing['number']}")
               else:
                   # Create new issue
                   subprocess.run(
                       ["gh", "issue", "create", "--title", title, "--body", body, "--label", "cloudflare-worker-monitor,monitoring,production"],
-                      check=True, cwd="/github/workspace"
+                      check=True, cwd=os.environ.get("GITHUB_WORKSPACE", ".")
                   )
                   print("[OK] Created new GitHub issue for degradation")
           else:
               print("[WARNING] Could not query existing issues")
-              PY
+          PY
 
       - name: Close GitHub issue on recovery
         if: ${{ !cancelled() && steps.synthetic.outcome == 'success' }}
@@ -219,7 +219,7 @@ jobs:
           # Find and close existing issue
           result = subprocess.run(
               ["gh", "issue", "list", "--label", "cloudflare-worker-monitor", "--state", "open", "--json", "number,title"],
-              capture_output=True, text=True, cwd="/github/workspace"
+              capture_output=True, text=True, cwd=os.environ.get("GITHUB_WORKSPACE", ".")
           )
 
           if result.returncode == 0 and result.stdout.strip():
@@ -228,7 +228,7 @@ jobs:
                   if "Cloudflare Worker production health" in issue["title"]:
                       subprocess.run(
                           ["gh", "issue", "close", str(issue["number"]), "--comment", "Auto-closed: All critical targets recovered"],
-                          check=True, cwd="/github/workspace"
+                          check=True, cwd=os.environ.get("GITHUB_WORKSPACE", ".")
                       )
                       print(f"[OK] Closed issue #{issue['number']} - recovery confirmed")
                       break
