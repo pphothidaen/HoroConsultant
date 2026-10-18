@@ -29,6 +29,7 @@ sys.path.insert(0, str(ROOT_DIR))
 ENV_FILE = ROOT_DIR / ".env"
 
 from project.core.model_activation import get_active_model_state
+from project.mlops.distillation.checklist_tracker import DistillationChecklistTracker
 from project.mlops.distillation.cookie_manager import CookieManager
 from project.mlops.distillation.curator import DatasetCurator
 from project.mlops.distillation.hermes_miner import MINING_ONTOLOGY, HermesKnowledgeMiner
@@ -84,8 +85,16 @@ class TelegramBotController:
 
         self.token = token
         self.notifier = WebhookNotifier(telegram_token=self.token)
-        self.miner = HermesKnowledgeMiner()
-        self.curator = DatasetCurator(output_dir=ROOT_DIR / "project" / "data")
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            self.miner = HermesKnowledgeMiner(
+                checklist_tracker=DistillationChecklistTracker(
+                    checklist_path=ROOT_DIR / "tmp_test_render" / "test_checklist.json"
+                )
+            )
+            self.curator = DatasetCurator(output_dir=ROOT_DIR / "tmp_test_render")
+        else:
+            self.miner = HermesKnowledgeMiner()
+            self.curator = DatasetCurator(output_dir=ROOT_DIR / "project" / "data")
         self.orchestrator = FineTuneOrchestrator(notifier=self.notifier)
         self.cookie_mgr = CookieManager(notifier=self.notifier)
 
