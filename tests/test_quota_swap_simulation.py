@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import time
 from typing import Any, Tuple
@@ -191,11 +192,14 @@ def test_inversion_workspace_branch_mismatch_rejection(simulation_env) -> None:
         )
 
 
-def test_generate_qa_simulation_evidence_receipt() -> None:
+def test_generate_qa_simulation_evidence_receipt(tmp_path: Path) -> None:
     """Run full simulated scenario and generate immutable signed QA evidence JSON."""
-    receipt_dir = Path(__file__).resolve().parents[1] / "plans" / "evidence" / "quota-swap-roadmap-20260904"
-    receipt_dir.mkdir(parents=True, exist_ok=True)
-    receipt_path = receipt_dir / "qa-simulation.json"
+    if os.environ.get("WRITE_QA_RECEIPT") == "1":
+        receipt_dir = Path(__file__).resolve().parents[1] / "plans" / "evidence" / "quota-swap-roadmap-20260904"
+        receipt_dir.mkdir(parents=True, exist_ok=True)
+        receipt_path = receipt_dir / "qa-simulation.json"
+    else:
+        receipt_path = tmp_path / "qa-simulation.json"
 
     receipt = {
         "program_id": "QUOTA-SWAP-ROADMAP-20260904",

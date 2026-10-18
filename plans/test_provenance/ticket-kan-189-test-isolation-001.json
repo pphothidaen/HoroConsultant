@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-189-TEST-ISOLATION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f73d9d62965f9d059c97ccc0f54a1444883cf597",
+  "test_files": [
+    {
+      "path": "tests/test_test_isolation_regression.py",
+      "sha256": "0333f285208faf86748d4202e3c7aa75b2387cc3e80bed5d6509e432e10fd86e"
+    },
+    {
+      "path": "tests/test_quota_swap_simulation.py",
+      "sha256": "20a01606402e08813ea45bc5063b19c8ee7f18ddeb7fe6c2600ad300a4f7fc01"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_test_isolation_regression.py::test_button_regression_leaves_hitl_reviews_clean"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: Test execution dirtied tracked files:"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/hitl_router.py",
+    "project/mcp_server.py",
+    "project/mlops/notifications/telegram_bot.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD baseline for KAN-189 test isolation defect. Running the test suite in a clean repository dirties tracked repository data files (plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json, project/data/hitl_reviews.json, project/data/distillation_checklist.json, project/data/bazi_bazi_manual_chatml.jsonl, and project/static/charts/*.svg). RED contract tests pin each scenario and assert that git status --porcelain on tracked data targets remains 100% clean."
+}
