@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-285-DIFF-COVERAGE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5354766d1c2e7f678423e9f84afcd5ef4b3230d7",
+  "test_files": [
+    {
+      "path": "tests/test_diff_coverage_modernization.py",
+      "sha256": "b922464295bfd90c57fb35aac67ee64ab005016553fc08e6f1d3384757795385"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [".venv/bin/python3", "-m", "pytest", "-q", "tests/test_diff_coverage_modernization.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "unrecognized arguments: --enforce-diff-coverage"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/commit_msg_trailer.py",
+    "scripts/tdd_gate.py",
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "TDD baseline for KAN-285 (GH-110) Test Provenance Guard Modernization: (1) rust_core/tests/ recognized in commit_msg_trailer.py; (2) fail-closed manifest validation and combined-ticket matching in tdd_gate.py; (3) --enforce-diff-coverage mode in test_provenance_guard.py."
+}
