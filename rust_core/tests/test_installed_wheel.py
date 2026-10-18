@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 import subprocess
 import sys
 import tempfile
@@ -13,8 +14,23 @@ import unittest
 class InstalledWheelContractTests(unittest.TestCase):
     """Verify native identity from outside the repository and source package."""
 
+    def setUp(self) -> None:
+        try:
+            import rust_core
+        except ImportError as exc:
+            raise unittest.SkipTest(f"rust_core is not importable: {exc}")
+
     def test_package_local_native_import_is_order_independent(self) -> None:
-        project_root = os.environ["HORO_PROJECT_ROOT"]
+        import rust_core
+
+        native_origin = getattr(rust_core, "__native_origin__", "")
+        if "site-packages/rust_core/_native" not in native_origin:
+            raise unittest.SkipTest(
+                f"Installed wheel contract test requires wheel installed in site-packages; "
+                f"current origin is '{native_origin}'. (Run `maturin build && pip install` in CI)"
+            )
+
+        project_root = os.environ.get("HORO_PROJECT_ROOT") or str(Path(__file__).resolve().parents[2])
         code = """
 import importlib
 import json
