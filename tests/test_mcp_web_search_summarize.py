@@ -15,7 +15,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock, patch
 
-from project.mcp_server import HoroMCPTools, call_tool, get_mcp_manifest
+from project.api_router import HybridRouter
+from project.mcp_server import HoroMCPTools, _get_router, call_tool, get_mcp_manifest
 from project.schemas.mcp_tools_v1 import (
     MCP_TOOL_REGISTRY,
     get_full_mcp_manifest,
@@ -61,15 +62,15 @@ class TestMCPWebSearchSummarizeContract(unittest.TestCase):
 
     def test_summarize_execution_with_gemini_flash_lite(self):
         """call_tool('summarize', ...) should call router with gemini-3.5-flash-lite."""
-        mock_router = MagicMock()
-        mock_router.generate.return_value = {
+        mock_res = {
             "text": "This is a concise summary.",
             "model_used": "gemini-3.5-flash-lite",
             "route": "cloud:gemini-3.5-flash-lite[...key1]",
             "latency_ms": 120,
         }
 
-        with patch("project.mcp_server._get_router", return_value=mock_router):
+        router = _get_router()
+        with patch.object(router, "generate", return_value=mock_res) as mock_gen:
             resp = call_tool(
                 "summarize",
                 {
@@ -85,22 +86,23 @@ class TestMCPWebSearchSummarizeContract(unittest.TestCase):
             self.assertEqual(res.get("model_used"), "gemini-3.5-flash-lite")
 
             # Verify mock call parameters
-            mock_router.generate.assert_called_once()
-            _, kwargs = mock_router.generate.call_args
+            mock_gen.assert_called_once()
+            _, kwargs = mock_gen.call_args
             self.assertEqual(kwargs.get("preferred_model"), "gemini-3.5-flash-lite")
 
     def test_summarize_default_model_is_gemini_flash_lite(self):
         """HoroMCPTools.summarize default model must be gemini-3.5-flash-lite."""
-        mock_router = MagicMock()
-        mock_router.generate.return_value = {
+        mock_res = {
             "text": "Default summary",
             "model_used": "gemini-3.5-flash-lite",
             "route": "cloud:gemini-3.5-flash-lite",
         }
-        with patch("project.mcp_server._get_router", return_value=mock_router):
+        router = _get_router()
+        with patch.object(router, "generate", return_value=mock_res) as mock_gen:
             res = HoroMCPTools.summarize("Short sample text")
             self.assertEqual(res.get("model_used"), "gemini-3.5-flash-lite")
-            _, kwargs = mock_router.generate.call_args
+            mock_gen.assert_called_once()
+            _, kwargs = mock_gen.call_args
             self.assertEqual(kwargs.get("preferred_model"), "gemini-3.5-flash-lite")
 
     def test_web_search_error_containment(self):

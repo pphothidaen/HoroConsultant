@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-171-GEMINI-MCP-TOOLS",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "46464f389fa4b06c8e4824cdc8d51c21ccafc6ea",
+  "test_files": [
+    {
+      "path": "tests/test_mcp_web_search_summarize.py",
+      "sha256": "622428166b1edd80784b8a3b1cb2ab8e33e4bdb8e69e6d2e9b8c36cf9eb79cea"
+    },
+    {
+      "path": "project/tests/test_meta_plan_003_m1_mcp.py",
+      "sha256": "ab4d1d41ea8bd8d8f21eaad0cb390d2a8b1ab02b990b9dc4e4862bbcc436f19f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_meta_plan_003_m1_mcp.py::TestMCPManifestSchemaIntegrity::test_all_36_tools_in_registry"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: assert 38 == 36"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/mcp_server.py",
+    "project/schemas/mcp_tools_v1.py",
+    "project/api_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "d637090888c058b50d6f68a239f296ae78c1935c",
+  "correction_reason": "Supersede sequence 1 manifest to update test_meta_plan_003_m1_mcp.py tool count assertions (>= 36 tools) for newly registered MCP tools and patch HybridRouter.generate across test runners in test_mcp_web_search_summarize.py.",
+  "rationale": "Updated contract test baseline for KAN-171. Ensures compatibility with meta plan MCP test suite while verifying web_search and summarize tools."
+}
