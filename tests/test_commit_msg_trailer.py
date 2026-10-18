@@ -128,19 +128,64 @@ def test_uncovered_source_path_is_untouched(trailer, repo):
 
 
 # --------------------------------------------------------------------------
-# 4. AMBIGUITY: two manifests both allow the path => refuse to guess.
+# 4. AMBIGUITY: multiple manifests claim path -> resolved deterministically.
 # --------------------------------------------------------------------------
-def test_ambiguous_two_manifests_is_untouched(trailer, repo):
-    write_manifest(repo, "t-004a.json", ["scripts/"])
-    write_manifest(repo, "t-004b.json", ["scripts/foo.py"])
-    (repo / "scripts").mkdir()
+def test_ambiguous_two_manifests_resolved_by_explicit_trailer(trailer, repo):
+    m1, b1 = write_manifest(repo, "t-004a.json", ["scripts/"])
+    m2, b2 = write_manifest(repo, "t-004b.json", ["scripts/foo.py"])
+    (repo / "scripts").mkdir(exist_ok=True)
+    (repo / "scripts" / "foo.py").write_text("VALUE = 1\n")
+    git(repo, "add", "scripts/foo.py")
+
+    msg = f"feat(core): implement foo\n\nTest-Baseline-Manifest: {m2}"
+    out, changed = trailer.append_trailer(repo, msg, None)
+    assert changed is True
+    assert f"Test-Baseline: {b2}" in out
+
+
+def test_ambiguous_two_manifests_resolved_by_recency(trailer, repo):
+    m1, b1 = write_manifest(repo, "t-004a.json", ["scripts/"])
+    m2, b2 = write_manifest(repo, "t-004b.json", ["scripts/foo.py"])
+    (repo / "scripts").mkdir(exist_ok=True)
     (repo / "scripts" / "foo.py").write_text("VALUE = 1\n")
     git(repo, "add", "scripts/foo.py")
 
     msg = "feat(core): implement foo"
     out, changed = trailer.append_trailer(repo, msg, None)
-    assert changed is False
-    assert out == msg
+    assert changed is True
+    assert f"Test-Baseline: {b2}" in out
+
+
+def test_ambiguous_two_manifests_resolved_by_supersession(trailer, repo):
+    m1, b1 = write_manifest(repo, "t-004a.json", ["scripts/"])
+    d = repo / "plans" / "test_provenance"
+    (d / "t-004b.json").write_text(json.dumps({
+        "schema_version": "test-provenance-v1",
+        "ticket_id": "TICKET-t-004b",
+        "sequence": 2,
+        "provenance_status": "VERIFIED",
+        "baseline_parent": b1,
+        "test_files": [{"path": "tests/test_foo.py", "sha256": "0" * 64}],
+        "allowed_source_paths": ["scripts/foo.py"],
+        "supersedes": b1,
+        "correction_reason": "supersede m1",
+        "test_owner_role": "qa_tester",
+        "reviewer_role": "code_reviewer",
+    }))
+    (repo / "tests").mkdir(exist_ok=True)
+    (repo / "tests" / "test_foo.py").write_text("def test_x(): pass\n")
+    git(repo, "add", "plans/test_provenance/t-004b.json", "tests/test_foo.py")
+    git(repo, "commit", "-q", "-m", "test baseline 2")
+    b2 = git(repo, "rev-parse", "HEAD").stdout.strip()
+
+    (repo / "scripts").mkdir(exist_ok=True)
+    (repo / "scripts" / "foo.py").write_text("VALUE = 1\n")
+    git(repo, "add", "scripts/foo.py")
+
+    msg = "feat(core): implement foo"
+    out, changed = trailer.append_trailer(repo, msg, None)
+    assert changed is True
+    assert f"Test-Baseline: {b2}" in out
 
 
 # --------------------------------------------------------------------------

@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-186-MANIFEST-OVERLAP-RESOLUTION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f73d9d62965f9d059c97ccc0f54a1444883cf597",
+  "test_files": [
+    {
+      "path": "tests/test_commit_msg_trailer.py",
+      "sha256": "b208c5faabbb87ce1cc907c4677e0b2e29e11b900dceff14bfbf11f0317c66f5"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_commit_msg_trailer.py",
+        "-k",
+        "test_ambiguous_two_manifests_resolved_by_explicit_trailer"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "FAILED tests/test_commit_msg_trailer.py::test_ambiguous_two_manifests_resolved_by_explicit_trailer"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/commit_msg_trailer.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract tests for KAN-186 resolving ambiguity when multiple provenance manifests claim the same source paths in allowed_source_paths. Tests verify explicit Test-Baseline-Manifest trailer override, supersession pruning, and recency disambiguation."
+}
