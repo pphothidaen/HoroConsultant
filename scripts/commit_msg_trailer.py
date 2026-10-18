@@ -222,7 +222,7 @@ def should_skip(message: str) -> bool:
                for line in message.splitlines())
 
 
-def _resolve_baseline(repo: Path, staged: list[str]) -> str | None:
+def _resolve_baseline(repo: Path, staged: list[str], message: str = "") -> str | None:
     """Return the single provable baseline SHA for these staged paths, or None.
 
     `governed` mirrors the guard's non_test_paths: every staged path that is
@@ -232,10 +232,25 @@ def _resolve_baseline(repo: Path, staged: list[str]) -> str | None:
     the guard rejects with SOURCE_PATH_OUTSIDE_MANIFEST -- strictly worse than
     staying silent, because the commit then looks baseline-stamped while failing
     the gate.
+
+    When multiple manifests match, ambiguity is resolved deterministically (KAN-186):
+      1. Explicit escape: `Test-Baseline-Manifest: <path>` in message
+      2. Supersession: drop manifests whose baseline is superseded by another match
+      3. Recency: select the manifest with the most recent add-commit in history
     """
     governed = [p for p in staged if _is_governed_path(p)]
     if not governed:
         return None
+
+    # Option 1: Explicit per-commit escape via Test-Baseline-Manifest trailer
+    manifest_match = re.search(r"^\s*Test-Baseline-Manifest:\s*(\S+)", message, re.MULTILINE)
+    if manifest_match:
+        explicit_manifest = manifest_match.group(1).strip()
+        manifest = _read_manifest(repo, explicit_manifest)
+        if manifest:
+            allowed = manifest.get("allowed_source_paths")
+            if isinstance(allowed, list) and all(_matches_allowed(p, allowed) for p in governed):
+                return _find_baseline(repo, explicit_manifest)
 
     candidates: list[str] = []
     for manifest_path in _committed_manifests(repo):
@@ -248,9 +263,37 @@ def _resolve_baseline(repo: Path, staged: list[str]) -> str | None:
         if all(_matches_allowed(p, allowed) for p in governed):
             candidates.append(manifest_path)
 
-    if len(candidates) != 1:
-        # Zero: nothing governs these paths. >1: ambiguous, refuse to guess.
+    if not candidates:
         return None
+
+    if len(candidates) > 1:
+        # Option 3: Prune candidates that are superseded by another candidate in the set
+        superseded_baselines = set()
+        for c in candidates:
+            m = _read_manifest(repo, c)
+            if m and m.get("supersedes"):
+                superseded_baselines.add(m["supersedes"])
+
+        pruned = [c for c in candidates if _find_baseline(repo, c) not in superseded_baselines]
+        if pruned:
+            candidates = pruned
+
+    if len(candidates) > 1:
+        # Option 2: Disambiguate deterministically by recency (most recent add-commit in history)
+        def _manifest_rank(m_path: str) -> tuple[int, int, str]:
+            b = _find_baseline(repo, m_path)
+            if not b:
+                return (0, 0, m_path)
+            ts_res = _git(repo, "log", "-1", "--format=%ct", b)
+            ts = int(ts_res.stdout.strip()) if ts_res.stdout.strip().isdigit() else 0
+            cnt_res = _git(repo, "rev-list", "--count", b)
+            cnt = int(cnt_res.stdout.strip()) if cnt_res.stdout.strip().isdigit() else 0
+            return (ts, cnt, m_path)
+
+        candidates.sort(key=_manifest_rank, reverse=True)
+        chosen = candidates[0]
+        print(f"[INFO] Ambiguous manifests matching staged paths; selected most recent: {chosen}", file=sys.stderr)
+        return _find_baseline(repo, chosen)
 
     return _find_baseline(repo, candidates[0])
 
@@ -259,7 +302,7 @@ def compute_trailer(repo: Path, message: str) -> str | None:
     """Return the full `Test-Baseline: <sha>` trailer, or None to no-op."""
     if should_skip(message):
         return None
-    baseline = _resolve_baseline(repo, _staged_paths(repo))
+    baseline = _resolve_baseline(repo, _staged_paths(repo), message=message)
     if not baseline:
         return None
     return f"{TRAILER_PREFIX} {baseline}"
