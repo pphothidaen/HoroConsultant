@@ -86,6 +86,7 @@
 | File | Path |
 |------|------|
 | `render-backend-deployment.md` | `deployment/render-backend-deployment.md` |
+| `shipping-channels-dod-runbook.md` | `deployment/shipping-channels-dod-runbook.md` |
 
 ### `jira/`
 
