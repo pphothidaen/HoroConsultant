@@ -87,7 +87,7 @@ is_docs_only_path() {
         *.md) return 0 ;;
     esac
     case "$1" in
-        docs/*|plans/*|.agents/*|.agy/*|.antigravity/*|.claude/*|.codex/*|.github/workflows/*)
+        docs/*|plans/*|.agents/*|.agy/*|.antigravity/*|.claude/*|.codex/*)
             return 0
             ;;
     esac
