@@ -27,7 +27,6 @@ DOC_PREFIXES = (
     ".antigravity/",
     ".claude/",
     ".codex/",
-    ".github/workflows/",
 )
 DOC_FILES = {
     "README.md",
