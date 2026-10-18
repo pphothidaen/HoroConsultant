@@ -13,6 +13,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 TRACKED_DATA_TARGETS = [
@@ -23,6 +25,24 @@ TRACKED_DATA_TARGETS = [
     "project/static/charts/bazi_chart.svg",
     "project/static/charts/zodiac_wheel.svg",
 ]
+
+
+@pytest.fixture(autouse=True)
+def clean_isolation_targets():
+    """Ensure tracked data targets are at pristine HEAD before and after test."""
+    subprocess.run(
+        ["git", "checkout", "HEAD", "--"] + TRACKED_DATA_TARGETS,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    yield
+    subprocess.run(
+        ["git", "checkout", "HEAD", "--"] + TRACKED_DATA_TARGETS,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
 
 
 def _get_dirty_tracked_files() -> list[str]:
