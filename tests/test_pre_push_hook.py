@@ -351,7 +351,7 @@ def test_docs_only_push_still_requires_manifest_when_one_exists_but_tests_fail(
         ".antigravity/notes.md",
         ".claude/notes.md",
         ".codex/notes.md",
-        ".github/workflows/ci.yml",
+        "docs/architecture/adr-001.md",
         "HANDOFF.md",
         "docs/notes.txt",
         "plans/adr/diagram.svg",
@@ -368,6 +368,17 @@ def test_documentation_path_variants_are_exempt(sandbox: Sandbox, doc_path: str)
     assert "waived" in _output(result)
 
 
+def test_workflow_only_changes_require_manifest(sandbox: Sandbox) -> None:
+    """Modifying .github/workflows/*.yml is executable CI code and requires provenance manifest."""
+    sandbox.write(".github/workflows/ci.yml", "name: CI\n")
+    sha = sandbox.commit("ci(KAN-188): modify CI workflow")
+
+    result = sandbox.run_hook(sandbox.ref_update(sha, sandbox.seed))
+
+    assert result.returncode == 1, _output(result)
+    assert "Missing test provenance manifest" in _output(result)
+
+
 @pytest.mark.parametrize(
     "material_path",
     [
@@ -376,6 +387,7 @@ def test_documentation_path_variants_are_exempt(sandbox: Sandbox, doc_path: str)
         "docsite/notes.txt",
         "tools/agent-broker/Package.swift",
         "configs/feature.toml",
+        ".github/workflows/ci.yml",
     ],
 )
 def test_any_non_documentation_path_keeps_the_manifest_requirement(
