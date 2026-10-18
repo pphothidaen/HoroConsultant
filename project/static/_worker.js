@@ -123,6 +123,12 @@ async function proxyToBackend(request, path, env) {
         headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'render' },
       });
     }
+    // KAN-283: Render returns x-render-routing: suspend when a service is administratively
+    // suspended (e.g. monthly free-tier quota exhaustion or manual suspension).
+    // Disambiguate this from a transient cold-start so clients and monitors do not loop.
+    if (response.headers.get('x-render-routing') === 'suspend') {
+      return backendSuspendedResponse(request);
+    }
     // An upstream 5xx is most likely a cold start: transient and retryable.
     return backendWakingResponse(request);
   } catch (err) {
@@ -159,6 +165,22 @@ function failureHeaders(request) {
     // KAN-272: never let a transient failure be cached.
     'Cache-Control': 'no-store',
   };
+}
+
+// Administrative: the hosting provider has suspended the service (quota or maintenance).
+function backendSuspendedResponse(request) {
+  return new Response(JSON.stringify({
+    code: 'backend_suspended',
+    detail: 'The backend service is administratively suspended by the hosting provider (quota or maintenance).',
+  }), {
+    status: 503,
+    headers: {
+      ...corsHeaders(request),
+      'content-type': 'application/json',
+      'Retry-After': '3600',
+      'Cache-Control': 'no-store',
+    },
+  });
 }
 
 // Transient: the backend is probably cold-starting and will answer shortly.
