@@ -820,6 +820,55 @@ class MCPCallToolResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+# --- Tool: Web Search ---
+class WebSearchParams(BaseModel):
+    """Parameters for web search tool."""
+    query: str = Field(..., description="Search query string", min_length=1)
+    max_results: int = Field(5, ge=1, le=20, description="Maximum number of search results to return")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class WebSearchResultItem(BaseModel):
+    """Single web search result item."""
+    title: str = Field(..., description="Title of the search result")
+    snippet: str = Field(..., description="Snippet / summary of the content")
+    url: Optional[str] = Field(None, description="URL source link")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class WebSearchResult(BaseModel):
+    """Result of web search tool."""
+    query: str = Field(..., description="Original search query")
+    results: List[WebSearchResultItem] = Field(default_factory=list, description="Search results")
+    total_results: int = Field(0, description="Total number of results returned")
+    source: Optional[str] = Field(None, description="Search engine / provider used")
+
+    model_config = ConfigDict(extra="allow")
+
+
+# --- Tool: Text Summarize ---
+class SummarizeParams(BaseModel):
+    """Parameters for text summarization tool."""
+    text: str = Field(..., description="Input text to summarize", min_length=1)
+    style: str = Field("concise", description="Summarization style (e.g., concise, detailed, bullet, short)")
+    max_tokens: int = Field(500, ge=10, le=4096, description="Maximum output tokens for summary")
+    model: str = Field("gemini-3.5-flash-lite", description="Target LLM model for summarization")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class SummarizeResult(BaseModel):
+    """Result of text summarization tool."""
+    summary: str = Field(..., description="Summarized output text")
+    model_used: str = Field(..., description="LLM model used for summarization")
+    route: Optional[str] = Field(None, description="Routing path taken")
+    style: Optional[str] = Field(None, description="Style applied")
+
+    model_config = ConfigDict(extra="allow")
+
+
 # ------------------------------------------------------------------------------
 # Tool Schema Registry & JSON Schema Exporter
 # ------------------------------------------------------------------------------
@@ -1063,6 +1112,20 @@ MCP_TOOL_REGISTRY: Dict[str, Dict[str, Any]] = {
         "param_model": MetaphysicsDebateParams,
         "result_model": MetaphysicsDebateResult,
         "category": "debate",
+    },
+
+    # Auxiliary Search & Summarization Tools
+    "web_search": {
+        "description": "Perform web search for real-time information, research articles, and astrological/cultural data.",
+        "param_model": WebSearchParams,
+        "result_model": WebSearchResult,
+        "category": "auxiliary",
+    },
+    "summarize": {
+        "description": "Summarize text content using gemini-3.5-flash-lite or configured LLM route with customizable styles.",
+        "param_model": SummarizeParams,
+        "result_model": SummarizeResult,
+        "category": "auxiliary",
     }
 }
 

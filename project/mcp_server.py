@@ -967,6 +967,105 @@ class HoroMCPTools:
             user_query=query,
         )
 
+    @staticmethod
+    def web_search(query: str, max_results: int = 5) -> dict[str, Any]:
+        """Search the web for real-time information, research articles, and astrological/cultural data."""
+        if not query or not str(query).strip():
+            raise ValueError("Query string cannot be empty")
+        if int(max_results) < 1:
+            raise ValueError("max_results must be >= 1")
+
+        query_str = str(query).strip()
+        limit = min(int(max_results), 20)
+
+        # 1. Try Gemini Web Bridge if enabled
+        from project.core.gemini_bridge_client import is_gemini_bridge_enabled, call_bridge_tool
+        if is_gemini_bridge_enabled():
+            bridge_res, reason = call_bridge_tool(query_str, tool="web_search")
+            if reason == "ok" and bridge_res and bridge_res.get("text"):
+                text_content = bridge_res["text"]
+                try:
+                    parsed = json.loads(text_content)
+                    if isinstance(parsed, dict) and "results" in parsed:
+                        return parsed
+                except Exception:
+                    pass
+                return {
+                    "query": query_str,
+                    "results": [{"title": f"Bridge Search: {query_str}", "snippet": text_content, "url": None}],
+                    "total_results": 1,
+                    "source": "gemini-web-bridge",
+                }
+
+        # 2. Grounded vector search fallback
+        vs = _get_vector_store()
+        search_out = vs.search(query_str, top_k=limit)
+        if isinstance(search_out, dict):
+            raw_items = search_out.get("results", [])
+        elif isinstance(search_out, list):
+            raw_items = search_out
+        else:
+            raw_items = []
+
+        results = []
+        for item in raw_items:
+            if isinstance(item, dict):
+                text_snip = item.get("text", "") or item.get("snippet", "")
+                title = item.get("title") or item.get("source") or (text_snip[:60] + "..." if len(text_snip) > 60 else text_snip)
+                url = item.get("source") or item.get("url")
+            else:
+                text_snip = str(item)
+                title = text_snip[:60] + "..." if len(text_snip) > 60 else text_snip
+                url = None
+            results.append({
+                "title": title,
+                "snippet": text_snip,
+                "url": url,
+            })
+
+        if not results:
+            results.append({
+                "title": f"Grounded Context: {query_str}",
+                "snippet": f"No direct index hits for '{query_str}'. Grounded retrieval active.",
+                "url": None,
+            })
+
+        return {
+            "query": query_str,
+            "results": results[:limit],
+            "total_results": len(results[:limit]),
+            "source": "grounded_retrieval",
+        }
+
+    @staticmethod
+    def summarize(
+        text: str,
+        style: str = "concise",
+        max_tokens: int = 500,
+        model: str = "gemini-3.5-flash-lite",
+    ) -> dict[str, Any]:
+        """Summarize text content using gemini-3.5-flash-lite or configured LLM route."""
+        if not text or not str(text).strip():
+            raise ValueError("Input text cannot be empty")
+
+        text_str = str(text).strip()
+        prompt = (
+            f"Summarize the following text (style: {style}, max tokens: {max_tokens}):\n\n"
+            f"{text_str}"
+        )
+        res = _get_router().generate(
+            prompt=prompt,
+            system_instruction="You are an expert summarizer. Provide a concise, clear, and objective summary.",
+            preferred_model=model,
+        )
+        summary_text = res.get("text") or ""
+        return {
+            "summary": summary_text,
+            "model_used": res.get("model_used") or model,
+            "route": res.get("route"),
+            "style": style,
+        }
+
 
 # ==============================================================================
 # MCP Tool Dispatcher & Invoker
@@ -1017,6 +1116,8 @@ TOOL_METHOD_MAP: Dict[str, Any] = {
     "rag_search": HoroMCPTools.rag_search,
     "bazi_interpret": HoroMCPTools.bazi_interpret,
     "bazi_validate": HoroMCPTools.bazi_validate,
+    "web_search": HoroMCPTools.web_search,
+    "summarize": HoroMCPTools.summarize,
 }
 
 
