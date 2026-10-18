@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-188-CI-WORKFLOWS-MANIFEST-GATE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f73d9d62965f9d059c97ccc0f54a1444883cf597",
+  "test_files": [
+    {
+      "path": "tests/test_pre_push_hook.py",
+      "sha256": "6faf3d8a3ecfa7753467310b0834a0d0c67621337718ae269a5604b6ee050dde"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pre_push_hook.py",
+        "-k",
+        "test_workflow_only_changes_require_manifest"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "FAILED tests/test_pre_push_hook.py::test_workflow_only_changes_require_manifest"
+    }
+  ],
+  "allowed_source_paths": [
+    ".githooks/pre-push",
+    "scripts/test_provenance_guard.py",
+    "scripts/tdd_gate.py",
+    "scripts/commit_msg_trailer.py",
+    "scripts/path_ruleset_classifier.py"
+  ],
+  "test_owner_role": "devops",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract tests for KAN-188 removing .github/workflows/*.yml from documentation-only exemptions. GitHub Actions YAML constitutes executable code with repository secrets access and must be governed by test provenance manifests. test_workflow_only_changes_require_manifest asserts that modifying .github/workflows/*.yml alone without a manifest blocks the pre-push gate."
+}
