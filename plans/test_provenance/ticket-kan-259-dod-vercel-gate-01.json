@@ -1,0 +1,48 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-259-DOD-VERCEL-GATE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "924e9c5752515077d4091034f9819f32f8b29500",
+  "test_files": [
+    {
+      "path": "tests/test_vercel_dod_gate.py",
+      "sha256": "c984d5163cbf82deecbf77bb718f80fefaa49024de39d73e566bb100c0cc414e"
+    },
+    {
+      "path": "tests/vercel_preview_policy.test.mjs",
+      "sha256": "56cea4d1e1e3f97f7cb7abb071d1a7943582683d42abcd31534a2a48a73598af"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_vercel_dod_gate.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Expected github.deploymentEnabled to be {'*': False, 'main': False}, got {'*': False, 'main': True}"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/vercel_preview_policy.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Vercel automatic Git deployments are disabled in favor of DoD Production Gate"
+    }
+  ],
+  "allowed_source_paths": [
+    "vercel.json",
+    "docs/deployment/shipping-channels-dod-runbook.md",
+    "docs/INDEX.md"
+  ],
+  "test_owner_role": "orchestrator",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-259 ensures Vercel Git integration deployments are disabled so that all deployments to production must strictly pass the DoD Production Gate workflow."
+}

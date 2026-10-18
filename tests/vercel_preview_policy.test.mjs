@@ -6,9 +6,9 @@ const vercelConfig = JSON.parse(
   readFileSync(new URL("../vercel.json", import.meta.url), "utf8"),
 );
 
-test("Vercel automatic Git deployments keep main production and disable previews", () => {
+test("Vercel automatic Git deployments are disabled in favor of DoD Production Gate", () => {
   assert.deepEqual(vercelConfig.github?.deploymentEnabled, {
     "*": false,
-    main: true,
+    main: false,
   });
 });
