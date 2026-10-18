@@ -78,7 +78,6 @@ DOC_PREFIXES = (
     ".antigravity/",
     ".claude/",
     ".codex/",
-    ".github/workflows/",
 )
 
 # Keep in sync with the release/governance bypass list in the guard
