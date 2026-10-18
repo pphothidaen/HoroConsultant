@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import sys
 import time
@@ -186,9 +187,13 @@ def _format_svg_result(
 
     svg_file = None
     if save_to_disk:
-        CHARTS_DIR.mkdir(parents=True, exist_ok=True)
+        if "PYTEST_CURRENT_TEST" in os.environ and CHARTS_DIR == (ROOT / "project" / "static" / "charts"):
+            target_dir = ROOT / "tmp_test_render"
+        else:
+            target_dir = CHARTS_DIR
+        target_dir.mkdir(parents=True, exist_ok=True)
         fname = output_filename or f"{discipline.lower().replace(' ', '_')}_chart.svg"
-        out_path = CHARTS_DIR / fname
+        out_path = target_dir / fname
         out_path.write_text(svg_content, encoding="utf-8")
         try:
             svg_file = str(out_path.relative_to(ROOT))
