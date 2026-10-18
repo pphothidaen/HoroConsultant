@@ -379,11 +379,17 @@ def _coverage_uncovered_lines(cov_path: Path) -> dict[str, set[int]]:
     return missing
 
 
-def _diff_coverage_notes(repo: Path, base: str, head: str) -> list[str]:
-    """Opt-in diff-coverage report: warn (never fail) on changed source lines not exercised.
+def _diff_coverage_notes(
+    repo: Path,
+    base: str,
+    head: str,
+    enforce: bool = False,
+    report: Report | None = None,
+) -> list[str]:
+    """Diff-coverage report: warn or fail on changed source lines not exercised.
 
-    Invoked only with --diff-coverage on `verify-pr`. Does NOT emit issues, so it can
-    never regress a PASSED into a FAILED result.
+    Invoked with --diff-coverage or --enforce-diff-coverage on `verify-pr`.
+    If enforce is True, emits DIFF_COVERAGE_UNCOVERED issues to fail the PR gate.
     """
     notes: list[str] = []
     cov_path = repo / "coverage.xml"
@@ -406,9 +412,13 @@ def _diff_coverage_notes(repo: Path, base: str, head: str) -> list[str]:
         if not miss:
             continue
         for lineno in sorted(lines & miss):
-            notes.append(
-                f"DIFF_COVERAGE_UNCOVERED: {path}:{lineno} changed but not exercised by tests (WARN)"
-            )
+            msg = f"{path}:{lineno} changed but not exercised by tests"
+            if enforce:
+                notes.append(f"DIFF_COVERAGE_UNCOVERED: {msg} (FAIL)")
+                if report is not None:
+                    report.add("DIFF_COVERAGE_UNCOVERED", msg, path)
+            else:
+                notes.append(f"DIFF_COVERAGE_UNCOVERED: {msg} (WARN)")
             found += 1
     if not found:
         notes.append("DIFF_COVERAGE_NO_UNCOVERED_CHANGED: changed source lines are covered by tests")
@@ -937,6 +947,7 @@ def verify_pr(
     branch: str | None = None,
     post_squash_merge: bool = False,
     diff_coverage: bool = False,
+    enforce_diff_coverage: bool = False,
 ) -> Report:
     report = Report(
         command="verify-pr",
@@ -1231,8 +1242,10 @@ def verify_pr(
                     "material PR path is not owned by any changed provenance manifest",
                     path,
                 )
-    if diff_coverage:
-        report.notes.extend(_diff_coverage_notes(repo, base, head))
+    if diff_coverage or enforce_diff_coverage:
+        report.notes.extend(
+            _diff_coverage_notes(repo, base, head, enforce=enforce_diff_coverage, report=report)
+        )
     report.ticket_id = ",".join(tickets) if tickets else None
     report.baseline_commit = ",".join(baselines) if baselines else None
     return report
@@ -1283,6 +1296,12 @@ def _parser() -> argparse.ArgumentParser:
         help="Append WARN notes for changed source lines not covered by tests "
              "(reads coverage.xml; never fails the gate)",
     )
+    pr.add_argument(
+        "--enforce-diff-coverage",
+        action="store_true",
+        help="Fail PR verification if changed source lines are not covered by tests "
+             "(reads coverage.xml; emits DIFF_COVERAGE_UNCOVERED issues)",
+    )
 
     squash_check = subparsers.add_parser(
         "check-squash-merge",
@@ -1327,6 +1346,7 @@ def main() -> int:
                 branch=getattr(args, "branch", None),
                 post_squash_merge=getattr(args, "post_squash_merge", False),
                 diff_coverage=getattr(args, "diff_coverage", False),
+                enforce_diff_coverage=getattr(args, "enforce_diff_coverage", False),
             )
         else:
             report = verify_pr(repo, args.base, args.head, branch=getattr(args, "branch", None))

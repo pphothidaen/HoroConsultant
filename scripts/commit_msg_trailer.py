@@ -65,6 +65,7 @@ _TRAILER_LINE_RE = re.compile(rf"{re.escape(TRAILER_PREFIX)} {_SHA}")
 TEST_PREFIXES = (
     "tests/",
     "project/tests/",
+    "rust_core/tests/",
     "TDD-HORO-v3.0/tests/",
     "tools/agent-broker/Tests/",
 )
