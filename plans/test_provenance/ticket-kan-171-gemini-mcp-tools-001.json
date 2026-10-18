@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-171-GEMINI-MCP-TOOLS",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "492e360353e55c71788ead6ed4ba3ca265ee8631",
+  "test_files": [
+    {
+      "path": "tests/test_mcp_web_search_summarize.py",
+      "sha256": "4e0d5dd3b9bd6745f14478f8730d56db1e5119e71829f7f6ab4701a20115bff4"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_mcp_web_search_summarize.py::TestMCPWebSearchSummarizeContract::test_tools_registered_in_schema_registry"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: 'web_search' not found in"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/mcp_server.py",
+    "project/schemas/mcp_tools_v1.py",
+    "project/api_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract test baseline for KAN-171 MCP web_search and summarize tools. Enforces tool schema registration in MCP_TOOL_REGISTRY, manifest publication via get_full_mcp_manifest and get_mcp_manifest, tool execution via call_tool with structured outputs, default model binding to gemini-3.5-flash-lite, and route prioritization in HybridRouter."
+}
