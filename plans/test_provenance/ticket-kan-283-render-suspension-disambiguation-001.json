@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-283-RENDER-SUSPENSION-DISAMBIGUATION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6d06a1b8b9a0529b9c80a69c874d12cc51ecab0a",
+  "test_files": [
+    {
+      "path": "tests/worker_render_suspension.test.mjs",
+      "sha256": "30eca3b6376db8ad635de6a1728a127a9f97b6f253c1ba97c824a12bf3f81453"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_render_suspension.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "must disambiguate from backend_waking"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "RED test baseline for KAN-283: Render upstream administrative suspension (x-render-routing: suspend) must be disambiguated from transient cold-start 503s."
+}
