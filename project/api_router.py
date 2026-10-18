@@ -572,6 +572,7 @@ class HybridRouter:
         self,
         prompt:             str,
         system_instruction: str = "",
+        preferred_model:    str | None = None,
     ) -> dict[str, Any]:
         """
         Execute prompt through route chain. Returns on first success.
@@ -580,7 +581,15 @@ class HybridRouter:
         -------
         dict: text, model_used, route, latency_ms, reason, attempted_routes
         """
-        routes    = self._build_routes()
+        routes = self._build_routes()
+        if preferred_model:
+            matched = [
+                r for r in routes
+                if r.get("model") == preferred_model or preferred_model in str(r.get("model", ""))
+            ]
+            unmatched = [r for r in routes if r not in matched]
+            routes = matched + unmatched
+
         attempted = []
 
         logger.info(
