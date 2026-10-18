@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-189-TEST-ISOLATION",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e6175ec6db96f911652bce1a9cd9c08c77dd58b0",
+  "test_files": [
+    {
+      "path": "tests/test_test_isolation_regression.py",
+      "sha256": "2bf22b18a605dc4aaf3b1f62c57f60cd0e73040356b4dd391fbc13e667e7b3c9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        ".venv/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_test_isolation_regression.py::test_button_regression_leaves_hitl_reviews_clean"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: Test execution dirtied tracked files:"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/hitl_router.py",
+    "project/mcp_server.py",
+    "project/mlops/notifications/telegram_bot.py",
+    "project/mlops/distillation/checklist_tracker.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0680b1ff7cb60722f6b020e249fd26847a2e8b4e",
+  "correction_reason": "Supersede sequence 1 manifest to add project/mlops/distillation/checklist_tracker.py to allowed_source_paths for global test isolation and bind tests/test_test_isolation_regression.py with autouse reset fixture.",
+  "rationale": "TDD baseline for KAN-189 test isolation defect. Running the test suite in a clean repository dirties tracked repository data files (plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json, project/data/hitl_reviews.json, project/data/distillation_checklist.json, project/data/bazi_bazi_manual_chatml.jsonl, and project/static/charts/*.svg). RED contract tests pin each scenario and assert that git status --porcelain on tracked data targets remains 100% clean."
+}

@@ -136,20 +136,35 @@ def load_catalog() -> dict[str, Any]:
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
+def get_hitl_db_path() -> Path:
+    env_path = os.getenv("HITL_DB_PATH")
+    if env_path:
+        return Path(env_path)
+    if "PYTEST_CURRENT_TEST" in os.environ and HITL_DB_PATH == (ROOT / "project" / "data" / "hitl_reviews.json"):
+        tmp_db = Path("/tmp") / "horo_test_hitl_reviews.json"
+        if not tmp_db.exists() and HITL_DB_PATH.exists():
+            import shutil
+            shutil.copyfile(HITL_DB_PATH, tmp_db)
+        return tmp_db
+    return HITL_DB_PATH
+
+
 def load_hitl_db() -> dict[str, Any]:
-    if not HITL_DB_PATH.exists():
+    db_path = get_hitl_db_path()
+    if not db_path.exists():
         return _ensure_hitl_automation_defaults({
             "reviews": {},
             "drafts": {},
             HITL_EXTERNAL_ITEMS_KEY: {},
             "stats": {"approved": 0, "edited": 0, "rejected": 0, "pending": 0},
         })
-    data = json.loads(HITL_DB_PATH.read_text(encoding="utf-8"))
+    data = json.loads(db_path.read_text(encoding="utf-8"))
     return _ensure_hitl_automation_defaults(data)
 
 
 def save_hitl_db(data: dict[str, Any]) -> None:
-    HITL_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    db_path = get_hitl_db_path()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
     reviews = data.get("reviews", {})
     data["stats"] = {
         "approved":  sum(1 for r in reviews.values() if r.get("decision") == DECISION_APPROVE),
@@ -158,7 +173,7 @@ def save_hitl_db(data: dict[str, Any]) -> None:
         "total_reviewed": len(reviews),
     }
     data["last_updated"] = datetime.now().isoformat()
-    HITL_DB_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    db_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _ensure_hitl_automation_defaults(hitl_db: dict[str, Any]) -> dict[str, Any]:

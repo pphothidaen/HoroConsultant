@@ -24,7 +24,21 @@ class DistillationChecklistTracker:
     """Persistent Checklist State Tracker for NotebookLM knowledge extraction."""
 
     def __init__(self, checklist_path: Optional[Path | str] = None):
-        self.path = Path(checklist_path) if checklist_path else DEFAULT_CHECKLIST_PATH
+        import os
+        if checklist_path:
+            self.path = Path(checklist_path)
+        elif "PYTEST_CURRENT_TEST" in os.environ and DEFAULT_CHECKLIST_PATH == (Path(__file__).resolve().parents[3] / "project" / "data" / "distillation_checklist.json"):
+            temp_dir = Path(__file__).resolve().parents[3] / "tmp_test_render"
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            self.path = temp_dir / "distillation_checklist.json"
+            if not self.path.exists() and DEFAULT_CHECKLIST_PATH.exists():
+                try:
+                    import shutil
+                    shutil.copyfile(DEFAULT_CHECKLIST_PATH, self.path)
+                except Exception:
+                    pass
+        else:
+            self.path = DEFAULT_CHECKLIST_PATH
         self.state: Dict[str, Any] = self._load()
 
     def _generate_topic_key(self, domain: str, topic: str, notebook_id: Optional[str] = None) -> str:
