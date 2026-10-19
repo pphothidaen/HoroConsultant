@@ -53,6 +53,12 @@ REASONING_API_KEY = os.getenv("NINEROUTER_API_KEY", os.getenv("REASONING_API_KEY
 # Circuit Breaker Configuration
 CIRCUIT_BREAKER_COOLDOWN_SECONDS = float(os.getenv("CIRCUIT_BREAKER_COOLDOWN_SECONDS", "60.0"))
 
+# Free Limit Guardrail Configuration ($0.00 Cost Guarantee)
+GEMINI_DAILY_FREE_LIMIT = int(os.getenv("GEMINI_DAILY_FREE_LIMIT", "1500"))
+GEMINI_WARNING_THRESHOLD = float(os.getenv("GEMINI_WARNING_THRESHOLD", "0.80"))  # 80%
+GEMINI_CUTOFF_THRESHOLD = float(os.getenv("GEMINI_CUTOFF_THRESHOLD", "0.90"))    # 90%
+GEMINI_FREE_LIMIT_CUTOFF = os.getenv("GEMINI_FREE_LIMIT_CUTOFF", "false").lower() == "true"
+
 
 class BillingMode(str, Enum):
     """Classification of AI Provider billing mode."""
@@ -387,6 +393,7 @@ class AIProviderRouter:
                 circuit_breaker=self.circuit_breakers["deterministic_safe_net"],
             ),
         }
+        self.gemini_request_count: int = 0
 
     def is_provider_zero_cost(self, provider_name: str) -> bool:
         """Check if provider operates under BillingMode.FREE or BillingMode.SUBSCRIPTION (zero cloud cost)."""
@@ -728,7 +735,31 @@ class AIProviderRouter:
     ) -> Dict[str, Any]:
         """
         Invoke GEMINI fallback provider (Free Tier / Local Engine Fallback).
+        Enforces 80% warning and 90% fail-closed cutoff to guarantee $0.00 cost.
         """
+        self.gemini_request_count += 1
+        usage_ratio = self.gemini_request_count / max(1, GEMINI_DAILY_FREE_LIMIT)
+
+        # Fail-closed cutoff at 90% free limit to guarantee $0.00 cost
+        if GEMINI_FREE_LIMIT_CUTOFF or usage_ratio >= GEMINI_CUTOFF_THRESHOLD:
+            self.circuit_breakers["gemini"].trip()
+            logger.warning(
+                f"[COST_GUARDRAIL_CUTOFF] Gemini API reached {usage_ratio * 100:.1f}% >= 90% free limit "
+                f"({self.gemini_request_count}/{GEMINI_DAILY_FREE_LIMIT}). Cutting off to prevent paid overage."
+            )
+            return self.invoke_deterministic_safe_net(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                reason_for_fallback="Gemini 90% free quota limit reached: fail-closed to deterministic engine to prevent cost",
+            )
+
+        # Warning alert at 80% free limit
+        if usage_ratio >= GEMINI_WARNING_THRESHOLD:
+            logger.warning(
+                f"[COST_GUARDRAIL_WARNING] Gemini API usage at {usage_ratio * 100:.1f}% >= 80% free limit "
+                f"({self.gemini_request_count}/{GEMINI_DAILY_FREE_LIMIT}). Approaching cutoff."
+            )
+
         logger.info(f"[AI Router] Falling back to GEMINI (Reason: {reason_for_fallback})")
 
         fallback_content = (
