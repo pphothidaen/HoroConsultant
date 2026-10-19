@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-286-FREE-LIMIT-GUARD",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c339e50030e0cd6006862df6db5084d40e7c9bb9",
+  "test_files": [
+    {
+      "path": "tests/test_multiplatform_free_limit_guard.py",
+      "sha256": "4ead2a497b6fbd59c2464663073f48065b0b32efa4086f1bf1152834187845b4"
+    },
+    {
+      "path": "tests/worker_free_limit_guard_behavior.test.mjs",
+      "sha256": "d60a7ab0b91bd67af19526311f363a4bab8bca7411dcf0642895f7c48e37bb7f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_multiplatform_free_limit_guard.py"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'scripts.multiplatform_free_limit_guard'"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_free_limit_guard_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "warning_approaching_free_limit_80"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiplatform_free_limit_guard.py",
+    "project/static/_worker.js",
+    "project/core/ai_provider_router.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Multi-platform free limit guard: 80% warning and 90% shutdown to prevent paid overage risks across Northflank, Cloudflare, Vercel, Gemini, and Kaggle."
+}
