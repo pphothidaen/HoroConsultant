@@ -1,0 +1,54 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-286-NORTHFLANK-BACKEND-MIGRATION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "472d077513817c48bcf24a4246b9da15f855248f",
+  "test_files": [
+    {
+      "path": "tests/worker_render_failover_behavior.test.mjs",
+      "sha256": "3de6cdfeb0e535af466329a5a03c952f5c746ca1350b000ef536a37792b4ac0d"
+    },
+    {
+      "path": "tests/test_kan268_backend_failover.py",
+      "sha256": "0d48142991db2851a4af083873ba19c25210d1e2c7b9de92993be6843d4b5a58"
+    },
+    {
+      "path": "tests/worker_backend_failfast_behavior.test.mjs",
+      "sha256": "e0c905d7ce84ce96aa92b8a8cd0849f88fd819f90af7c6df11ea86bab6ddd8a8"
+    },
+    {
+      "path": "tests/worker_cold_start_behavior.test.mjs",
+      "sha256": "0064e02fd3280dba14fa3d3b15ddd9ddb49110aa30cf595af952d5dacce78fe7"
+    },
+    {
+      "path": "tests/worker_render_suspension.test.mjs",
+      "sha256": "4a916a02ba434440042c7c6e758f5a0f442f713c48ebd223db207ebf696cfbdb"
+    },
+    {
+      "path": "tests/worker_root_path_behavior.test.mjs",
+      "sha256": "c9e30418c8de18752d5e4ef8d8c8af663398359cb1ef28de4bd13c479aa1c5c1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/worker_render_failover_behavior.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Render is the primary origin when env is unset"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js",
+    "wrangler.toml",
+    "wrangler.hermes.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "RED test baseline for KAN-286: Primary backend origin must be migrated from suspended Render to Northflank production URL (p01--horoconsultant--bc7hyqkdqgrf.code.run)."
+}
