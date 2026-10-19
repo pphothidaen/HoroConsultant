@@ -5,7 +5,7 @@
 // into api/index.js, which itself proxies to this same Render backend, so the
 // two share one failure domain and failing over would change nothing.
 const NORTHFLANK_BACKEND_URL = 'https://p01--horoconsultant--bc7hyqkdqgrf.code.run';
-const RENDER_BACKEND_URL = NORTHFLANK_BACKEND_URL;
+const RENDER_BACKEND_URL = 'https://p01--horoconsultant--bc7hyqkdqgrf.code.run';
 const VERCEL_FALLBACK_ORIGIN = 'https://horo-consultant-psi.vercel.app';
 const CORS_ALLOWED_ORIGINS = [
   'https://horo-consultant-psi.vercel.app',
@@ -253,8 +253,8 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // Static assets — pass through to Pages CDN
-    if (path.match(/\.(js|css|svg|png|ico|json|html)$/)) {
+    // Static assets — pass through to Pages CDN (excluding backend API proxy paths)
+    if (path.match(/\.(js|css|svg|png|ico|json|html)$/) && !isAllowedPath(path)) {
       return fetch(request);
     }
 
