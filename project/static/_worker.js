@@ -73,16 +73,23 @@ function isAllowedPath(path) {
          path === '/api/wake';
 }
 
-function costGuardrailHeaders() {
-  return {
+function costGuardrailHeaders(env = {}) {
+  const headers = {
     'X-Cost-Guardrail': 'free-tier-enforced',
     'X-R2-Policy': 'zero-cost-capped',
   };
+  const ratio = parseFloat(env?.USAGE_RATIO || '0');
+  if (ratio >= 0.80) {
+    headers['X-Cost-Guardrail-Alert'] = 'warning_approaching_free_limit_80';
+    headers['X-Cost-Guardrail-Ratio'] = String(env?.USAGE_RATIO);
+  }
+  return headers;
 }
 
 function corsHeaders(request) {
+  const env = arguments[1] || {};
   const origin = request.headers.get('origin');
-  const baseHeaders = { ...costGuardrailHeaders() };
+  const baseHeaders = { ...costGuardrailHeaders(env) };
   if (origin && CORS_ALLOWED_ORIGINS.includes(origin)) {
     return {
       ...baseHeaders,
@@ -93,6 +100,32 @@ function corsHeaders(request) {
     };
   }
   return baseHeaders;
+}
+
+function isCutoffActive(env = {}) {
+  if (env?.FREE_LIMIT_CUTOFF === 'true') return true;
+  const ratio = parseFloat(env?.USAGE_RATIO || '0');
+  return ratio >= 0.90;
+}
+
+function quotaExceededShutdownResponse(request, env = {}) {
+  return new Response(JSON.stringify({
+    code: 'free_limit_cutoff_90_percent',
+    status: 'cutoff_active',
+    threshold: '90%',
+    detail: 'Free-tier quota limit (90%) reached. Service is temporarily paused to guarantee $0.00 cost and prevent paid overage.',
+    retry_after_seconds: 3600,
+  }), {
+    status: 503,
+    headers: {
+      ...corsHeaders(request, env),
+      'X-Cost-Guardrail': 'cutoff-enforced',
+      'X-Cost-Guardrail-Alert': 'critical_shutdown_free_limit_90',
+      'Retry-After': '3600',
+      'Cache-Control': 'no-store',
+      'content-type': 'application/json',
+    },
+  });
 }
 
 function cacheKey(request) {
@@ -120,7 +153,7 @@ async function proxyToBackend(request, path, env) {
     if (!isFailoverStatus(response.status)) {
       return new Response(response.body, {
         status: response.status,
-        headers: { ...corsHeaders(request), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'render' },
+        headers: { ...corsHeaders(request, env), 'content-type': response.headers.get('content-type') || 'application/json', 'x-backend-origin': 'render' },
       });
     }
     // KAN-283: Render returns x-render-routing: suspend when a service is administratively
@@ -261,7 +294,22 @@ export default {
     // API proxy
     if (isAllowedPath(path)) {
       if (request.method === 'OPTIONS') {
-        return new Response(null, { status: 204, headers: corsHeaders(request) });
+        return new Response(null, { status: 204, headers: corsHeaders(request, env) });
+      }
+
+      // Free Limit 90% Cutoff Guardrail ($0.00 Guarantee)
+      if (isCutoffActive(env)) {
+        if (path === '/health') {
+          return new Response(JSON.stringify({
+            service: 'Computational Metaphysics Engine',
+            status: 'cutoff_active',
+            detail: 'Free-tier 90% threshold reached: proxying suspended to prevent financial costs.',
+          }), {
+            status: 200,
+            headers: { ...corsHeaders(request, env), 'content-type': 'application/json' },
+          });
+        }
+        return quotaExceededShutdownResponse(request, env);
       }
 
       // Wake-on-demand endpoint
