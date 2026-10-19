@@ -15,6 +15,7 @@ WRANGLER_PATH = Path(__file__).parent.parent / "wrangler.toml"
 WRANGLER_HERMES_PATH = Path(__file__).parent.parent / "wrangler.hermes.toml"
 
 RENDER_ORIGIN = "https://horoconsultant-core-backend.onrender.com"
+NORTHFLANK_ORIGIN = "https://p01--horoconsultant--bc7hyqkdqgrf.code.run"
 HF_ORIGIN = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 
 
@@ -34,18 +35,17 @@ class TestBackendOriginConfiguration:
     """Test that the backend origin is correctly configured with Render as primary."""
 
     def test_render_origin_is_primary_default(self):
-        """Render origin must be the default when env.BACKEND_BASE_URL is not set."""
+        """Render or Northflank origin must be the default when env.BACKEND_BASE_URL is not set."""
         content = read_worker()
-        assert RENDER_ORIGIN in content, "Render origin must be present in _worker.js"
+        assert RENDER_ORIGIN in content or NORTHFLANK_ORIGIN in content, "Primary origin must be present in _worker.js"
 
-        # Check that Render is the default fallback when env is not set.
-        # Accept either an inlined Render origin or the named RENDER_BACKEND_URL const.
+        # Check that primary backend is the default fallback when env is not set.
         default_pattern = re.search(
-            r'env\??\.BACKEND_BASE_URL\s*\|\|\s*(?:[\'"]' + re.escape(RENDER_ORIGIN) + r'[\'"]|RENDER_BACKEND_URL)',
+            r'env\??\.BACKEND_BASE_URL\s*\|\|\s*(?:[\'"]' + re.escape(NORTHFLANK_ORIGIN) + r'[\'"]|[\'"]' + re.escape(RENDER_ORIGIN) + r'[\'"]|RENDER_BACKEND_URL|PRIMARY_BACKEND_URL)',
             content
         )
         assert default_pattern, \
-            "Render must be the default when env.BACKEND_BASE_URL is not set"
+            "Primary backend must be the default when env.BACKEND_BASE_URL is not set"
 
     def test_hf_origin_is_not_an_origin(self):
         """KAN-271: the retired HF Space must not be an origin at all."""
@@ -57,24 +57,24 @@ class TestBackendOriginConfiguration:
             "the retired HF Space must not appear as a backend origin"
 
     def test_wrangler_toml_uses_render_as_primary(self):
-        """wrangler.toml must use Render origin as primary BACKEND_BASE_URL."""
+        """wrangler.toml must use primary origin as primary BACKEND_BASE_URL."""
         content = read_wrangler()
-        assert RENDER_ORIGIN in content, "Render origin must be in wrangler.toml"
+        assert RENDER_ORIGIN in content or NORTHFLANK_ORIGIN in content, "Primary origin must be in wrangler.toml"
 
         match = re.search(r'BACKEND_BASE_URL\s*=\s*"([^"]+)"', content)
         assert match, "BACKEND_BASE_URL must be set in wrangler.toml"
-        assert match.group(1) == RENDER_ORIGIN, \
-            f"wrangler.toml BACKEND_BASE_URL must be Render origin, got {match.group(1)}"
+        assert match.group(1) in (RENDER_ORIGIN, NORTHFLANK_ORIGIN), \
+            f"wrangler.toml BACKEND_BASE_URL must be valid primary origin, got {match.group(1)}"
 
     def test_wrangler_hermes_toml_uses_render_as_primary(self):
-        """wrangler.hermes.toml must use Render origin as primary BACKEND_BASE_URL."""
+        """wrangler.hermes.toml must use primary origin as primary BACKEND_BASE_URL."""
         content = read_wrangler_hermes()
-        assert RENDER_ORIGIN in content, "Render origin must be in wrangler.hermes.toml"
+        assert RENDER_ORIGIN in content or NORTHFLANK_ORIGIN in content, "Primary origin must be in wrangler.hermes.toml"
 
         match = re.search(r'BACKEND_BASE_URL\s*=\s*"([^"]+)"', content)
         assert match, "BACKEND_BASE_URL must be set in wrangler.hermes.toml"
-        assert match.group(1) == RENDER_ORIGIN, \
-            f"wrangler.hermes.toml BACKEND_BASE_URL must be Render origin, got {match.group(1)}"
+        assert match.group(1) in (RENDER_ORIGIN, NORTHFLANK_ORIGIN), \
+            f"wrangler.hermes.toml BACKEND_BASE_URL must be valid primary origin, got {match.group(1)}"
 
     def test_hf_not_primary_in_either_toml(self):
         """HF origin must not be the primary BACKEND_BASE_URL in either toml."""

@@ -11,7 +11,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const RENDER = "https://horoconsultant-core-backend.onrender.com";
+const RENDER = "https://p01--horoconsultant--bc7hyqkdqgrf.code.run";
 const WORKER_URL = new URL("../project/static/_worker.js", import.meta.url).href;
 
 async function callWorker({ path = "/health", method = "GET", env = {}, upstreams = [] } = {}) {
