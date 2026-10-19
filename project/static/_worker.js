@@ -4,8 +4,8 @@
 // A Vercel fallback was evaluated and rejected: vercel.json rewrites API paths
 // into api/index.js, which itself proxies to this same Render backend, so the
 // two share one failure domain and failing over would change nothing.
-// The honest behaviour is a single fast, explicit failure.
-const RENDER_BACKEND_URL = 'https://horoconsultant-core-backend.onrender.com';
+const NORTHFLANK_BACKEND_URL = 'https://p01--horoconsultant--bc7hyqkdqgrf.code.run';
+const RENDER_BACKEND_URL = NORTHFLANK_BACKEND_URL;
 const VERCEL_FALLBACK_ORIGIN = 'https://horo-consultant-psi.vercel.app';
 const CORS_ALLOWED_ORIGINS = [
   'https://horo-consultant-psi.vercel.app',

@@ -12,7 +12,7 @@ compatibility_flags = ["nodejs_compat"]
 account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
 
 [vars]
-BACKEND_BASE_URL = "https://horoconsultant-core-backend.onrender.com"
+BACKEND_BASE_URL = "https://p01--horoconsultant--bc7hyqkdqgrf.code.run"
 BACKEND_TIMEOUT_MS = "15000"
 CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com"
 ENVIRONMENT = "production"
@@ -58,7 +58,7 @@ enabled = true
 vars = { ENVIRONMENT = "preview" }
 
 [env.production]
-vars = { ENVIRONMENT = "production", BACKEND_BASE_URL = "https://horoconsultant-core-backend.onrender.com", BACKEND_TIMEOUT_MS = "15000", CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com" }
+vars = { ENVIRONMENT = "production", BACKEND_BASE_URL = "https://p01--horoconsultant--bc7hyqkdqgrf.code.run", BACKEND_TIMEOUT_MS = "15000", CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com" }
 
 [[env.production.kv_namespaces]]
 binding = "CACHE"
