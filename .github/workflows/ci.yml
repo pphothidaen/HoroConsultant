@@ -14,6 +14,7 @@ jobs:
   classify-changes:
     name: Classify Change Tier (Path-Based Ruleset)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       tier: ${{ steps.classifier.outputs.tier }}
       has_source_changes: ${{ steps.classifier.outputs.has_source_changes }}
@@ -51,6 +52,7 @@ jobs:
     needs: classify-changes
     if: github.event_name == 'pull_request' && needs.classify-changes.outputs.tier == 'MEDIUM'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       HORO_ALLOW_PYTHON_FALLBACK: "0"
     steps:
@@ -98,6 +100,7 @@ jobs:
     needs: [rust-core-audit, classify-changes]
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_heavy_pytest == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       HORO_ALLOW_PYTHON_FALLBACK: "0"
     steps:
@@ -175,6 +178,7 @@ jobs:
     needs: classify-changes
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.has_source_changes == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       HORO_ALLOW_PYTHON_FALLBACK: "1"
       PYTHONPATH: "."
@@ -226,6 +230,7 @@ jobs:
   lint-and-security:
     name: Code Quality & Security Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -260,6 +265,7 @@ jobs:
     needs: classify-changes
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_rust_audit == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
     steps:
@@ -306,6 +312,7 @@ jobs:
   test-provenance:
     name: Test Provenance
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
