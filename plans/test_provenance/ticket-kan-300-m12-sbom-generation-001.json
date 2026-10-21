@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-300-M12-SBOM-GENERATION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "53d49f050cc04d0bef122e4a1a69ff742ac3b6d4",
+  "test_files": [
+    {
+      "path": "tests/test_sbom_generation_contract.py",
+      "sha256": "049b21a2e3266f8a4ea362e814d61c63c04ba7e5cf90809d30ca7e353b2b599a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_sbom_generation_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_ci_has_sbom_generation_job: no sbom-generation job; test_sbom_generation_runs_on_medium_strict_tier: no MEDIUM/STRICT condition; test_sbom_generation_uses_cyclonedx_or_syft: no cyclonedx/syft/pip-licenses; test_sbom_generation_outputs_spdx_json_artifact: no upload-artifact with retention-days: 90; test_sbom_generation_fails_on_critical_vulns: no CVSS >= 7 fail logic"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M12 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-12: missing SBOM — software bill of materials must be generated for supply chain transparency. CI MUST include a job that generates an SBOM (CycloneDX/SPDX) on MEDIUM/STRICT tier changes and fails on critical vulnerabilities (CVSS >= 7). RED: ci.yml lacks sbom-generation job. GREEN: added job that uses cyclonedx-bom for Python and Node.js, runs on MEDIUM/STRICT tier, outputs JSON artifacts with 90-day retention, fails build on CVSS >= 7 vulnerabilities."
+}
