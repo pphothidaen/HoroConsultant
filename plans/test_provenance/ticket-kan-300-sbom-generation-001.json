@@ -1,9 +1,9 @@
 {
-  "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-KAN-300",
+  "schema_version": "1.1",
   "sequence": 1,
-  "provenance_status": "VERIFIED",
-  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "ticket": "KAN-300",
+  "provenance_status": "GREEN",
+  "baseline_parent": "058e0f77273fb56f878deef127e77f7ea58be7f1",
   "test_files": [
     {
       "path": "tests/test_sbom_generation_contract.py",
@@ -12,18 +12,15 @@
   ],
   "red_tests": [
     {
-      "command": ["python3", "-m", "pytest", "tests/test_sbom_generation_contract.py"],
+      "command": "python -m pytest tests/test_sbom_generation_contract.py -v",
       "expected_exit": 1,
-      "failure_fingerprint": "assert SBOM generation job uses CycloneDX with 90-day retention"
+      "failure_fingerprint": "FAILED tests/test_sbom_generation_contract.py::test_sbom_generation_job_exists - assert False"
     }
   ],
   "allowed_source_paths": [
-    ".github/workflows/ci.yml",
-    "tests/test_sbom_generation_contract.py"
+    ".github/workflows/ci.yml"
   ],
-  "test_owner_role": "qa_tester",
-  "reviewer_role": "code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
-  "rationale": "Add SBOM generation job using cyclonedx/bom@8.0.0 with 90-day artifact retention"
+  "test_owner_role": "agent-qa_tester",
+  "reviewer_role": "agent-code_reviewer",
+  "rationale": "M12: SBOM generation job for supply chain transparency. RED test validates CI workflow has sbom-generation job with CycloneDX, critical vulnerability checking (CVSS >= 7), and 90-day artifact retention. GREEN implementation adds the job with pinned action SHAs per M1."
 }
