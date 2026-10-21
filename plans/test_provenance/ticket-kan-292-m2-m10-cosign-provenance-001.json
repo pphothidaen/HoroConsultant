@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-292-M2-M10-COSIGN-PROVENANCE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_cosign_provenance_contract.py",
+      "sha256": "d6494b588f5b5f4234a63f8c46d613c6714b84e9e4b4f606ebfe671895b96fdd"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_cosign_provenance_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "All 7 cosign provenance tests failed: ci.yml lacks cosign install, sign, upload; deploy-render.yml lacks verify; no COSIGN_PUBLIC_KEY/PRIVATE_KEY refs"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/deploy-render.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M2/M10 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-2 (provenance gaps) and CRITICAL-10 (artifact integrity): builds and artifacts can be tampered without detection. RED: all 7 tests fail. GREEN: ci.yml installs cosign, signs version.json, uploads signature; deploy-render.yml downloads artifact, verifies signature before deploy; secrets COSIGN_PRIVATE_KEY + COSIGN_PUBLIC_KEY referenced."
+}
