@@ -1,0 +1,17 @@
+title = "Gitleaks Configuration for HoroConsultant"
+
+[allowlist]
+description = "Allowlisted paths and patterns"
+paths = [
+    "tests/fixtures/pii_test_data.json",
+    "tests/fixtures/pii_test_data.json.pii-allowlist",
+]
+commits = [
+    "d381eeaf4866b99e58a2ad26aab6dcc757493ec7",
+]
+rules = [
+    "generic-api-key",
+]
+
+[allowlist.files]
+description = "Files that should be ignored entirely"
