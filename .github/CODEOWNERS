@@ -1,0 +1,11 @@
+# CODEOWNERS
+# These owners will be requested for review when someone opens a pull request.
+# If code owners are required, all owners must approve the PR before it can be merged.
+
+* @kimlenglimwork @pphothidaen
+.github/ @kimlenglimwork @pphothidaen
+.github/workflows/ @kimlenglimwork @pphothidaen
+scripts/ @kimlenglimwork @pphothidaen
+tests/ @kimlenglimwork @pphothidaen
+docs/ @kimlenglimwork @pphothidaen
+packages/ @kimlenglimwork @pphothidaen

@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-293-M4-JIRA-VERIFY-COMMAND-INJECTION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_jira_verify_command_injection_contract.py",
+      "sha256": "b1d43f835f315ae84f6f12bb414135c5542a07b000b49e4918ca40d0f8998cc9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_jira_verify_command_injection_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_process_task_has_no_shell_true: shell=True present in process_task; test_subprocess_call_uses_argv_not_string: subprocess.run used shell form; test_verify_executable_allowlist_exists: no ALLOWED_VERIFY_EXECUTABLES; test_metacharacters_are_rejected: no metacharacter check"
+    }
+  ],
+  "allowed_source_paths": [
+    "sync_jira_hermes.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M4 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-4 command injection: sync_jira_hermes.py:process_task() executed the attacker-writable Jira 'Verification Command' custom field via subprocess.run(verify_cmd, shell=True). RED: shell=True present (5/5 tests fail). GREEN: shell=True removed; command parsed with shlex.split into argv; executable restricted to ALLOWED_VERIFY_EXECUTABLES {pytest,python,python3,ruff,bandit}; shell metacharacters rejected outright; functional helper tests 15/15 pass."
+}
