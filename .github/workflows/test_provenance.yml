@@ -14,6 +14,7 @@ jobs:
   test-provenance:
     name: Test Provenance
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout full Git history
         uses: actions/checkout@v4
