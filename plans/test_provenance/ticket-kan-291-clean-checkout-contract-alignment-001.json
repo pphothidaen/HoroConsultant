@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-291-CLEAN-CHECKOUT-CONTRACT-ALIGNMENT",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c7ecfdc6df8dba41a19144bad5981c4fa4dc741f",
+  "test_files": [
+    {
+      "path": "tests/test_ci_clean_checkout_contract.py",
+      "sha256": "f9256d59cbe3cf447ad423e2ecf81d287abd9fd8f9e3ccc1d36497f82a8797d1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_ci_clean_checkout_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_full_suite_jobs_fetch_complete_history[ci.yml-pytest-suite]: StopIteration \u2014 no step matched 'actions/checkout@v4' after M1 pinned the action to a 40-hex SHA"
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/test_ci_clean_checkout_contract.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "KAN-291 (M1). RED: the pre-existing clean-checkout contract asserted the unpinned form 'actions/checkout@v4'; after M1 pinned actions to commit SHAs that assertion raised StopIteration (verified 2026-10-21). GREEN: align the assertion to the pinned form via CHECKOUT_PIN_RE, a strictly-narrower regex that still requires actions/checkout and rejects a local/relative path. The fetch-depth: 0 requirement is unchanged \u2014 no assertion weakened."
+}
