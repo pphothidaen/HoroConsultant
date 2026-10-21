@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-299",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_config_drift_detection_contract.py",
+      "sha256": "34a3476c73e1f1893663ee89d7136b5fd9b56f96542a8be4dfcaf52b02b26426"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_config_drift_detection_contract.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert config drift detection job exists with SHA256 comparison"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml",
+    "tests/test_config_drift_detection_contract.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add daily scheduled config drift detection job comparing SHA256 of 10 critical config files"
+}
