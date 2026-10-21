@@ -319,7 +319,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install cosign (M2/M10 provenance)
-        uses: sigstore/cosign-installer@d926b9c40d8d3d07b8c6a8e3c4b5c7e3f1a2b3c4 # v3.5.0
+        uses: sigstore/cosign-installer@v3.5.0
         with:
           cosign-release: "v2.2.4"
 
