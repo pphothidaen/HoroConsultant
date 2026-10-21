@@ -381,60 +381,60 @@ jobs:
             "wrangler.toml"
             "wrangler.jsonc"
           )
-          echo "config_hashes<<EOF" >> "\$GITHUB_OUTPUT"
-          for f in "\${configs[@]}"; do
-            if [[ -f "\$f" ]]; then
-              sha=\$(sha256sum "\$f" | awk '{print \$1}')
-              echo "\$f:\$sha"
+          echo "config_hashes<<EOF" >> "$GITHUB_OUTPUT"
+          for f in "${configs[@]}"; do
+            if [[ -f "$f" ]]; then
+              sha=$(sha256sum "$f" | awk '{print $1}')
+              echo "$f:$sha"
             else
-              echo "\$f:MISSING"
+              echo "$f:MISSING"
             fi
           done
-          echo "EOF" >> "\$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Load baseline hashes (M11)
         id: baseline-hashes
         run: |
           set -euo pipefail
           baseline_file=".github/config-baseline.json"
-          if [[ -f "\$baseline_file" ]]; then
-            cat "\$baseline_file" >> "\$GITHUB_OUTPUT"
+          if [[ -f "$baseline_file" ]]; then
+            cat "$baseline_file" >> "$GITHUB_OUTPUT"
           else
-            echo "baseline_hashes={}" >> "\$GITHUB_OUTPUT"
-            echo "::warning::No baseline file found at \$baseline_file — creating from current state"
+            echo "baseline_hashes={}" >> "$GITHUB_OUTPUT"
+            echo "::warning::No baseline file found at $baseline_file — creating from current state"
           fi
 
       - name: Compare hashes and detect drift (M11)
         env:
-          CURRENT: \${{ steps.current-hashes.outputs.config_hashes }}
-          BASELINE: \${{ steps.baseline-hashes.outputs.baseline_hashes }}
+          CURRENT: ${{ steps.current-hashes.outputs.config_hashes }}
+          BASELINE: ${{ steps.baseline-hashes.outputs.baseline_hashes }}
         run: |
           set -euo pipefail
           echo "=== Config Drift Report ==="
           echo "Current hashes:"
-          echo "\$CURRENT"
+          echo "$CURRENT"
           echo ""
           echo "Baseline hashes:"
-          echo "\$BASELINE"
+          echo "$BASELINE"
           echo ""
-          
+
           drift_found=false
           while IFS= read -r line; do
-            if [[ -n "\$line" && "\$line" != "config_hashes<<EOF" && "\$line" != "EOF" ]]; then
-              file=\${line%%:*}
-              curr_sha=\${line#*:}
-              base_line=\$(echo "\$BASELINE" | grep "^\${file}:" || echo "\${file}:MISSING")
-              base_sha=\${base_line#*:}
-              if [[ "\$curr_sha" != "\$base_sha" ]]; then
-                echo "::error file=\${file}::DRIFT DETECTED: current=\${curr_sha} baseline=\${base_sha}"
+            if [[ -n "$line" && "$line" != "config_hashes<<EOF" && "$line" != "EOF" ]]; then
+              file=${line%%:*}
+              curr_sha=${line#*:}
+              base_line=$(echo "$BASELINE" | grep "^${file}:" || echo "${file}:MISSING")
+              base_sha=${base_line#*:}
+              if [[ "$curr_sha" != "$base_sha" ]]; then
+                echo "::error file=${file}::DRIFT DETECTED: current=${curr_sha} baseline=${base_sha}"
                 drift_found=true
               else
-                echo "OK: \${file}"
+                echo "OK: ${file}"
               fi
             fi
-          done <<< "\$CURRENT"
-          
-          if [[ "\$drift_found" == "true" ]]; then
+          done <<< "$CURRENT"
+
+          if [[ "$drift_found" == "true" ]]; then
             echo "::error::Config drift detected — see above for details"
             exit 1
           fi
@@ -444,7 +444,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
-          echo "\${{ steps.current-hashes.outputs.config_hashes }}" > .github/config-baseline.json
+          echo "${{ steps.current-hashes.outputs.config_hashes }}" > .github/config-baseline.json
           echo "Baseline updated from main push."
 
       - name: Upload drift report
@@ -455,3 +455,40 @@ jobs:
           path: |
             .github/config-baseline.json
           if-no-files-found: warn
+
+  sbom-generation:
+    name: SBOM Generation (M12)
+    needs: test-provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CycloneDX and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cyclonedx-bom
+
+      - name: Generate SBOM (CycloneDX)
+        id: sbom
+        uses: cyclonedx/bom@8.0.0
+        with:
+          output-file: sbom.json
+          format: json
+          include-all-repositories: true
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+          if-no-files-found: error
