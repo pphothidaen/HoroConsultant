@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-304",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "baseline_parent": "d381eeaf4866b99e58a2ad26aab6dcc757493ec7",
   "test_files": [
     {
       "path": "tests/test_dpia_retention_pii_contract.py",
@@ -11,7 +11,7 @@
     },
     {
       "path": "tests/fixtures/pii_test_data.json",
-      "sha256": "801ba2b649fc447ba13702125f6bea5444a22133566d8bedccf21e59a7462395"
+      "sha256": "3390128a651030029fad873bc13631b79b4c8f6480433b9ecadeb5f69dc7fa58"
     },
     {
       "path": "tests/fixtures/pii_test_data.json.pii-allowlist",
@@ -34,7 +34,9 @@
     ".github/workflows/cloudflare-worker-monitor.yml",
     ".github/workflows/gemini-bridge-tests.yml",
     ".github/workflows/scheduled_distill_finetune.yml",
-    "scripts/cloudflare_worker_monitor.py"
+    "scripts/cloudflare_worker_monitor.py",
+    ".gitleaks.toml",
+    ".gitleaksignore"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "ba_auditor",
