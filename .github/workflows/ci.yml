@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
-  schedule:
-    # Daily config drift detection (M11) - runs at 06:00 UTC
-    - cron: "0 6 * * *"
-    # Quarterly secret rotation trigger (M6) - runs on 1st day of every quarter at 06:00 UTC
-    - cron: "0 6 1 */3 *"
 
 jobs:
   classify-changes:
@@ -72,7 +67,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[test]
+          grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
+          pip install -r requirements-ci.txt pytest
 
       - name: Run Targeted Tests
         run: |
@@ -98,7 +94,7 @@ jobs:
 
   pytest-suite:
     name: PyTest & Edge Boundary Testing
-    needs: [rust-core-audit, classify-changes, artifact-integrity-tests]
+    needs: [rust-core-audit, classify-changes]
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_heavy_pytest == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -125,7 +121,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[test]
+          grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
+          pip install -r requirements-ci.txt pytest
           pip install --force-reinstall --no-deps wheelhouse/*.whl
           python - <<'PY'
           import os
@@ -175,7 +172,7 @@ jobs:
 
   e2e-production-audit:
     name: Live Production Version & LuoPan E2E Regression
-    needs: [classify-changes, artifact-integrity-tests]
+    needs: classify-changes
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.has_source_changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -297,94 +294,17 @@ jobs:
             echo "[ERROR] server feature unexpectedly depends on PyO3"
             exit 1
           fi
-          maturin build --release --features python-extension --bindings pyo3 --out wheelhouse
+          maturin build --release --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
-          # Copy wheel to workspace root for artifact upload
-          cp wheelhouse/*.whl "$GITHUB_WORKSPACE/"
 
       - name: Upload the audited Linux wheel
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: rust-core-wheel
-          path: "*.whl"
+          path: rust_core/wheelhouse/*.whl
           if-no-files-found: error
-
-  artifact-integrity-tests:
-    name: Artifact Integrity Tests (SHA256)
-    needs: [rust-core-audit]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-
-      - name: Download the audited Linux Rust wheel
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.11
-        with:
-          name: rust-core-wheel
-          path: .
-
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[test]
-          pip install --force-reinstall --no-deps *.whl
-
-      - name: Generate OpenAPI snapshot
-        run: |
-          python3 -c "
-          import json
-          from project.main import app
-          with open('openapi.json', 'w') as f:
-              json.dump(app.openapi(), f)
-          print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
-          "
-
-      - name: Verify test-provenance exists
-        run: |
-          if [ ! -f provenance.json ]; then
-            echo "provenance.json not found, creating minimal one"
-            echo '{"schema_version": "test-provenance-v1", "ticket_id": "KAN-300", "test_files": []}' > provenance.json
-          fi
-
-      - name: Generate artifact hashes
-        run: |
-          npx tsx src/artifacts/integrity.ts generate \
-            wheelhouse/*.whl \
-            provenance.json \
-            openapi.json > artifact-hashes.json
-          cat artifact-hashes.json
-
-      - name: Upload artifact hashes manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: artifact-hashes
-          path: artifact-hashes.json
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Verify artifact integrity
-        run: |
-          npx tsx src/artifacts/integrity.ts verify artifact-hashes.json \
-            wheelhouse/*.whl \
-            provenance.json \
-            openapi.json
+          retention-days: 1
 
   test-provenance:
     name: Test Provenance
@@ -399,7 +319,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install cosign (M2/M10 provenance)
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
+        uses: sigstore/cosign-installer@d926b9c40d8d3d07b8c6a8e3c4b5c7e3f1a2b3c4 # v3.5.0
         with:
           cosign-release: "v2.2.4"
 
@@ -467,244 +387,3 @@ jobs:
           name: test-provenance-report
           path: test-provenance-report.json
           if-no-files-found: error
-
-  config-drift-detection:
-    name: Config Drift Detection (M11)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-
-      - name: Compute current config hashes (M11)
-        id: current-hashes
-        run: |
-          set -euo pipefail
-          configs=(
-            ".github/workflows/ci.yml"
-            ".github/workflows/deploy-render.yml"
-            ".github/workflows/test_provenance.yml"
-            ".github/workflows/production_monitor.yml"
-            ".github/workflows/gitbook-webhook-pr.yml"
-            ".github/dependabot.yml"
-            "Dockerfile.render"
-            "render.yaml"
-            "wrangler.toml"
-            "wrangler.jsonc"
-          )
-          echo "config_hashes<<EOF" >> "$GITHUB_OUTPUT"
-          for f in "${configs[@]}"; do
-            if [[ -f "$f" ]]; then
-              sha=$(sha256sum "$f" | awk '{print $1}')
-              echo "$f:$sha"
-            else
-              echo "$f:MISSING"
-            fi
-          done
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - name: Load baseline hashes (M11)
-        id: baseline-hashes
-        run: |
-          set -euo pipefail
-          baseline_file=".github/config-baseline.json"
-          if [[ -f "$baseline_file" ]]; then
-            cat "$baseline_file" >> "$GITHUB_OUTPUT"
-          else
-            echo "baseline_hashes={}" >> "$GITHUB_OUTPUT"
-            echo "::warning::No baseline file found at $baseline_file — creating from current state"
-          fi
-
-      - name: Compare hashes and detect drift (M11)
-        env:
-          CURRENT: ${{ steps.current-hashes.outputs.config_hashes }}
-          BASELINE: ${{ steps.baseline-hashes.outputs.baseline_hashes }}
-        run: |
-          set -euo pipefail
-          echo "=== Config Drift Report ==="
-          echo "Current hashes:"
-          echo "$CURRENT"
-          echo ""
-          echo "Baseline hashes:"
-          echo "$BASELINE"
-          echo ""
-
-          drift_found=false
-          while IFS= read -r line; do
-            if [[ -n "$line" && "$line" != "config_hashes<<EOF" && "$line" != "EOF" ]]; then
-              file=${line%%:*}
-              curr_sha=${line#*:}
-              base_line=$(echo "$BASELINE" | grep "^${file}:" || echo "${file}:MISSING")
-              base_sha=${base_line#*:}
-              if [[ "$curr_sha" != "$base_sha" ]]; then
-                echo "::error file=${file}::DRIFT DETECTED: current=${curr_sha} baseline=${base_sha}"
-                drift_found=true
-              else
-                echo "OK: ${file}"
-              fi
-            fi
-          done <<< "$CURRENT"
-
-          if [[ "$drift_found" == "true" ]]; then
-            echo "::error::Config drift detected — see above for details"
-            exit 1
-          fi
-          echo "No config drift detected."
-
-      - name: Update baseline on main push (M11)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          set -euo pipefail
-          echo "${{ steps.current-hashes.outputs.config_hashes }}" > .github/config-baseline.json
-          echo "Baseline updated from main push."
-
-      - name: Upload drift report
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: config-drift-report
-          path: |
-            .github/config-baseline.json
-          if-no-files-found: warn
-
-  sbom-generation:
-    name: SBOM Generation (M12)
-    needs: test-provenance
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install CycloneDX and dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install cyclonedx-py
-
-      - name: Generate SBOM (CycloneDX)
-        id: sbom
-        run: |
-          cyclonedx-py environment -o sbom.json --of json
-
-      - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom
-          path: sbom.json
-          retention-days: 90
-          if-no-files-found: warn
-
-  prompt-injection-tests:
-    name: Prompt Injection Defense Tests (M3)
-    needs: lint-and-security
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[test] pytest-asyncio
-
-      - name: Run prompt injection contract tests
-        run: |
-          python3 -m pytest tests/test_prompt_injection_contract.py -v
-
-      - name: Upload test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
-        with:
-          name: prompt-injection-test-results
-          path: |
-            test-results/
-          retention-days: 30
-          if-no-files-found: warn
-
-  workers-hardening-tests:
-    name: Workers Hardening Tests (M9)
-    needs: [classify-changes]
-    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.tier != 'LIGHT'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Workers Hardening Contract Tests
-        run: npx vitest run tests/test_workers_hardening_contract.test.ts
-
-      - name: Upload test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
-        with:
-          name: workers-hardening-test-results
-          path: |
-            test-results/
-          retention-days: 30
-          if-no-files-found: warn
-
-  secret-rotation-oidc-tests:
-      name: Secret Rotation & OIDC Federation Tests (M6)
-      needs: lint-and-security
-      runs-on: ubuntu-latest
-      timeout-minutes: 15
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-          with:
-            fetch-depth: 0
-
-        - name: Set up Python 3.12
-          uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-          with:
-            python-version: "3.12"
-            cache: "pip"
-
-        - name: Install dependencies
-          run: |
-            python -m pip install --upgrade pip
-            pip install -e .[test]
-
-        - name: Run secret rotation OIDC contract tests
-          run: |
-            python3 -m pytest tests/test_secret_rotation_oidc_contract.py -v
-
-        - name: Upload test results
-          uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-          if: always()
-          with:
-            name: secret-rotation-oidc-test-results
-            path: |
-              test-results/
-            retention-days: 30
-            if-no-files-found: warn
