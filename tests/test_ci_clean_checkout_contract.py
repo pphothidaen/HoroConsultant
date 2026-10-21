@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -18,6 +19,12 @@ FULL_SUITE_JOBS = (
     (".github/workflows/ai_cicd.yml", "code-review-and-audit"),
 )
 
+# KAN-291 (M1, Phase 0 Foundation Hardening): supply-chain hardening pins every
+# GitHub Action to an immutable commit SHA, so `uses: actions/checkout@v4` (a
+# mutable tag that upstream can re-point) is no longer the repository contract.
+# This helper accepts the pinned form while still rejecting a bare local path.
+CHECKOUT_PIN_RE = re.compile(r"^actions/checkout@[0-9a-f]{40}(?:\s+#.*)?$")
+
 
 def _workflow(path: str) -> dict[str, object]:
     loaded = yaml.safe_load((ROOT / path).read_text(encoding="utf-8"))
@@ -34,7 +41,9 @@ def test_full_suite_jobs_fetch_complete_history(
     job = workflow["jobs"][job_name]
     steps = job["steps"]
     checkout = next(
-        step for step in steps if step.get("uses") == "actions/checkout@v4"
+        step
+        for step in steps
+        if CHECKOUT_PIN_RE.match(str(step.get("uses", "")))
     )
 
     assert checkout.get("with", {}).get("fetch-depth") == 0
