@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-295-M5-HMAC-WORKFLOW-RUN",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_deploy_hmac_verification_contract.py",
+      "sha256": "549a0d411328eafdc1c9ce6960272cda3ff03d2a4c3bd8e5ea59010e15b37986"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_deploy_hmac_verification_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_workflow_dispatch_has_hmac_token_input: workflow_dispatch lacks hmac_token input; test_deploy_job_references_hmac_secret: DEPLOY_HMAC_SECRET not in job env; test_hmac_verification_step_exists: no HMAC verification step; test_hmac_verification_handles_both_triggers: step not found"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/deploy-render.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M5 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-5: deploy spoofing via forged workflow_run or malicious manual dispatch. RED: workflow_dispatch lacks hmac_token, no DEPLOY_HMAC_SECRET env, no HMAC verification step. GREEN: added hmac_token input, DEPLOY_HMAC_SECRET env var, and first step that validates both trigger types before deploy."
+}
