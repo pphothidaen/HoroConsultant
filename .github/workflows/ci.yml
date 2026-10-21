@@ -109,11 +109,6 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install cosign (M2/M10 provenance)
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
-        with:
-          cosign-release: "v2.2.4"
-
       - name: Download the audited Linux Rust wheel
         uses: actions/download-artifact@v4
         with:
@@ -214,6 +209,7 @@ jobs:
         run: |
           python3 scripts/run_github_actions_regression.py
 
+
       - name: Upload E2E Regression Reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -301,7 +297,6 @@ jobs:
 
   test-provenance:
     name: Test Provenance
-    needs: [lint-and-security]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -314,30 +309,6 @@ jobs:
       - name: Post-squash-merge version restamp
         run: |
           python3 scripts/stamp_version.py --post-squash-merge
-
-      - name: Install cosign (M2/M10 provenance)
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
-        with:
-          cosign-release: "v2.2.4"
-
-      - name: Sign version.json with cosign (M2/M10)
-        env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: |
-          set -euo pipefail
-          cosign sign-blob --yes \
-            --output-signature project/static/version.json.sig \
-            project/static/version.json
-
-      - name: Upload version.json + signature (M2/M10)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: version-json-signed
-          path: |
-            project/static/version.json
-            project/static/version.json.sig
-          if-no-files-found: error
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -365,13 +336,13 @@ jobs:
           echo "base_commit=$base_commit" >> "$GITHUB_OUTPUT"
 
       - name: Verify test-first Git provenance
-        run: >-
-          python3 scripts/test_provenance_guard.py verify-pr
-          --base "${{ steps.provenance-comparison.outputs.base_commit }}"
-          --head HEAD
-          --branch "${{ github.head_ref || github.ref_name }}"
-          --post-squash-merge
-          --json-out test-provenance-report.json
+        run: |
+          python3 scripts/test_provenance_guard.py verify-pr \
+            --base "${{ steps.provenance-comparison.outputs.base_commit }}" \
+            --head HEAD \
+            --branch "${{ github.head_ref || github.ref_name }}" \
+            --post-squash-merge \
+            --json-out test-provenance-report.json
 
       - name: Upload provenance report
         if: always()
@@ -380,4 +351,3 @@ jobs:
           name: test-provenance-report
           path: test-provenance-report.json
           if-no-files-found: error
-          retention-days: 30
