@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-293",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_jira_verify_command_injection_contract.py",
+      "sha256": "b1d43f835f315ae84f6f12bb414135c5542a07b000b49e4918ca40d0f8998cc9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_jira_verify_command_injection_contract.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert shell=True removed and command injection prevented"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/sync_jira_hermes.py",
+    "tests/test_jira_verify_command_injection_contract.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Remove shell=True from subprocess calls, use shlex.split, restrict to ALLOWED_VERIFY_EXECUTABLES"
+}
