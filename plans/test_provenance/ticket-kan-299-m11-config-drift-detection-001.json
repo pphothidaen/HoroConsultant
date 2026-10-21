@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-299-M11-CONFIG-DRIFT-DETECTION",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "test_files": [
+    {
+      "path": "tests/test_config_drift_detection_contract.py",
+      "sha256": "34a3476c73e1f1893663ee89d7136b5fd9b56f96542a8be4dfcaf52b02b26426"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_config_drift_detection_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_ci_has_config_drift_detection_job: no config-drift-detection job; test_config_drift_detection_runs_on_schedule: no daily schedule trigger; test_config_drift_detection_computes_baseline_hashes: no baseline hash steps; test_config_drift_detection_fails_on_drift: no drift fail logic; test_config_drift_detection_uploads_report: no upload-artifact for drift"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M11 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-11: config drift \u2014 critical configuration files can drift from reviewed state without detection. RED: ci.yml lacks schedule trigger and config-drift-detection job. GREEN: added daily schedule (0 6 * * *) and job that computes SHA256 of 10 critical configs, compares to baseline, fails on drift, uploads report artifact."
+}
