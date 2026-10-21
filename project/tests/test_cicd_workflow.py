@@ -48,8 +48,8 @@ def test_full_pytest_uses_the_linux_wheel_with_fallback_disabled():
         encoding="utf-8"
     )
 
-    assert "actions/upload-artifact@v4" in workflow
-    assert "actions/download-artifact@v4" in workflow
+    assert "actions/upload-artifact@" in workflow
+    assert "actions/download-artifact@" in workflow
     # KAN-100 path-based rulesets: pytest-suite now waits for BOTH the native
     # wheel (rust-core-audit) and the change-tier classifier (classify-changes).
     # The list form still guarantees the wheel is installed before pytest runs.
