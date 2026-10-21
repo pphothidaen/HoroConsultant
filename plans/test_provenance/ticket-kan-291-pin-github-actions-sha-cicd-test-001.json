@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-291",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5d70ddf2f207d95c3637b633bdb2b0401ee60bc5",
+  "test_files": [
+    {
+      "path": "project/tests/test_cicd_workflow.py",
+      "sha256": "87a140bb7166a1d3207cd7673005f874de7a34f1050e408ed60ec985017ab351"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "project/tests/test_cicd_workflow.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert 'actions/upload-artifact@v4' in workflow"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_cicd_workflow.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Update cicd workflow test assertions for pinned action SHAs instead of version tags."
+}
