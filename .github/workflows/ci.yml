@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+  schedule:
+    # Daily config drift detection (M11) - runs at 06:00 UTC
+    - cron: "0 6 * * *"
 
 jobs:
   classify-changes:
@@ -351,3 +354,104 @@ jobs:
           name: test-provenance-report
           path: test-provenance-report.json
           if-no-files-found: error
+
+  config-drift-detection:
+    name: Config Drift Detection (M11)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Compute current config hashes (M11)
+        id: current-hashes
+        run: |
+          set -euo pipefail
+          configs=(
+            ".github/workflows/ci.yml"
+            ".github/workflows/deploy-render.yml"
+            ".github/workflows/test_provenance.yml"
+            ".github/workflows/production_monitor.yml"
+            ".github/workflows/gitbook-webhook-pr.yml"
+            ".github/dependabot.yml"
+            "Dockerfile.render"
+            "render.yaml"
+            "wrangler.toml"
+            "wrangler.jsonc"
+          )
+          echo "config_hashes<<EOF" >> "\$GITHUB_OUTPUT"
+          for f in "\${configs[@]}"; do
+            if [[ -f "\$f" ]]; then
+              sha=\$(sha256sum "\$f" | awk '{print \$1}')
+              echo "\$f:\$sha"
+            else
+              echo "\$f:MISSING"
+            fi
+          done
+          echo "EOF" >> "\$GITHUB_OUTPUT"
+
+      - name: Load baseline hashes (M11)
+        id: baseline-hashes
+        run: |
+          set -euo pipefail
+          baseline_file=".github/config-baseline.json"
+          if [[ -f "\$baseline_file" ]]; then
+            cat "\$baseline_file" >> "\$GITHUB_OUTPUT"
+          else
+            echo "baseline_hashes={}" >> "\$GITHUB_OUTPUT"
+            echo "::warning::No baseline file found at \$baseline_file — creating from current state"
+          fi
+
+      - name: Compare hashes and detect drift (M11)
+        env:
+          CURRENT: \${{ steps.current-hashes.outputs.config_hashes }}
+          BASELINE: \${{ steps.baseline-hashes.outputs.baseline_hashes }}
+        run: |
+          set -euo pipefail
+          echo "=== Config Drift Report ==="
+          echo "Current hashes:"
+          echo "\$CURRENT"
+          echo ""
+          echo "Baseline hashes:"
+          echo "\$BASELINE"
+          echo ""
+          
+          drift_found=false
+          while IFS= read -r line; do
+            if [[ -n "\$line" && "\$line" != "config_hashes<<EOF" && "\$line" != "EOF" ]]; then
+              file=\${line%%:*}
+              curr_sha=\${line#*:}
+              base_line=\$(echo "\$BASELINE" | grep "^\${file}:" || echo "\${file}:MISSING")
+              base_sha=\${base_line#*:}
+              if [[ "\$curr_sha" != "\$base_sha" ]]; then
+                echo "::error file=\${file}::DRIFT DETECTED: current=\${curr_sha} baseline=\${base_sha}"
+                drift_found=true
+              else
+                echo "OK: \${file}"
+              fi
+            fi
+          done <<< "\$CURRENT"
+          
+          if [[ "\$drift_found" == "true" ]]; then
+            echo "::error::Config drift detected — see above for details"
+            exit 1
+          fi
+          echo "No config drift detected."
+
+      - name: Update baseline on main push (M11)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          echo "\${{ steps.current-hashes.outputs.config_hashes }}" > .github/config-baseline.json
+          echo "Baseline updated from main push."
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: config-drift-report
+          path: |
+            .github/config-baseline.json
+          if-no-files-found: warn
