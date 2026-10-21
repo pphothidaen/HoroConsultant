@@ -17,6 +17,10 @@ on:
         description: "Optional full commit SHA to publish; defaults to the dispatch commit"
         required: false
         type: string
+      hmac_token:
+        description: "HMAC token for manual dispatch verification (shared secret)"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -42,7 +46,49 @@ jobs:
     environment: production
     env:
       RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL || 'https://horoconsultant-core-backend.onrender.com' }}
+      DEPLOY_HMAC_SECRET: ${{ secrets.DEPLOY_HMAC_SECRET }}
     steps:
+      - name: Verify workflow_run HMAC / dispatch token (M5)
+        id: hmac-verify
+        run: |
+          set -euo pipefail
+          if [[ "\${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Verify provided HMAC token matches secret
+            provided="\${{ github.event.inputs.hmac_token }}"
+            expected="\${DEPLOY_HMAC_SECRET:-}"
+            if [[ -z "\$expected" ]]; then
+              echo "::error::DEPLOY_HMAC_SECRET not configured — manual dispatch HMAC cannot be verified"
+              exit 1
+            fi
+            if [[ "\$provided" != "\$expected" ]]; then
+              echo "::error::Invalid HMAC token for manual dispatch"
+              exit 1
+            fi
+            echo "hmac_verified=true" >> "\$GITHUB_OUTPUT"
+          elif [[ "\${{ github.event_name }}" == "workflow_run" ]]; then
+            # Verify workflow_run came from expected CI workflow
+            ci_name="\${{ github.event.workflow_run.workflow_name }}"
+            ci_conclusion="\${{ github.event.workflow_run.conclusion }}"
+            ci_branch="\${{ github.event.workflow_run.head_branch }}"
+            ci_sha="\${{ github.event.workflow_run.head_sha }}"
+            
+            expected_name="Unified CI & Quality Audit Pipeline"
+            if [[ "\$ci_name" != "\$expected_name" ]]; then
+              echo "::error::workflow_run from unexpected workflow: \$ci_name (expected \$expected_name)"
+              exit 1
+            fi
+            if [[ "\$ci_conclusion" != "success" ]]; then
+              echo "::error::workflow_run conclusion not success: \$ci_conclusion"
+              exit 1
+            fi
+            if [[ "\$ci_branch" != "main" ]]; then
+              echo "::error::workflow_run not from main branch: \$ci_branch"
+              exit 1
+            fi
+            echo "workflow_run verified: workflow=\$ci_name sha=\$ci_sha branch=\$ci_branch"
+            echo "hmac_verified=true" >> "\$GITHUB_OUTPUT"
+          fi
+
       - name: Pre-deploy diagnostics — verify Render service exists
         id: diagnostics
         env:
