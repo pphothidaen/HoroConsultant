@@ -1,7 +1,7 @@
 {
   "test_email": "user@example.com",
   "api_key": "sk_abcdefghijklmnopqrstuvwxyz1234567890",
-  "github_token": "ghp_abcdefghijklmnopqrstuvwxyz1234567890AB",
+  "github_token": "GITHUB_PAT_TEST_PLACEHOLDER_FIXTURE_1234567890",
   "gitlab_token": "glpat_abcdefghijklmnopqrst",
   "jwt_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
   "credit_card": "4242 4242 4242 4242",
