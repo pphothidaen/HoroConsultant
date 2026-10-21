@@ -308,6 +308,59 @@ def transition_to(issue, target_name: str):
     return False
 
 
+# KAN-293 (M4, Phase 0 Foundation Hardening): the "Verification Command" custom
+# field is attacker-writable in Jira. It must never be executed through a shell.
+# Only executables on this allowlist may be run, and the command is split into
+# argv form so no shell metacharacters are interpreted.
+ALLOWED_VERIFY_EXECUTABLES = frozenset({
+    "pytest",
+    "python",
+    "python3",
+    "ruff",
+    "bandit",
+})
+
+# Shell metacharacters that would enable command chaining / substitution if the
+# command were ever passed to a shell. Their presence rejects the command outright.
+SHELL_METACHARACTERS = (";", "&&", "||", "|", "`", "$", "$(", ">", "<", "*", "?")
+
+
+def is_shell_injection(value: str) -> bool:
+    """Return True if the command string contains shell metacharacters."""
+    return any(tok in value for tok in SHELL_METACHARACTERS)
+
+
+def build_verify_argv(verify_cmd: str):
+    """Split a verification command into a safe argv list.
+
+    Returns (argv, None) on success, or (None, reason) when the command is
+    rejected. The executable is restricted to ALLOWED_VERIFY_EXECUTABLES.
+    """
+    import shlex
+
+    if not isinstance(verify_cmd, str) or not verify_cmd.strip():
+        return None, "empty verification command"
+
+    if is_shell_injection(verify_cmd):
+        return None, "command contains shell metacharacters"
+
+    try:
+        argv = shlex.split(verify_cmd)
+    except ValueError as exc:
+        return None, f"unparseable command: {exc}"
+
+    if not argv:
+        return None, "empty verification command"
+
+    # Resolve the executable name (strip a leading path) and enforce the allowlist.
+    import os
+    exe = os.path.basename(argv[0])
+    if exe not in ALLOWED_VERIFY_EXECUTABLES:
+        return None, f"executable not allowed: {exe} (allowed: {sorted(ALLOWED_VERIFY_EXECUTABLES)})"
+
+    return argv, None
+
+
 def process_task(task):
     """Process a single task through the full TDD workflow."""
     raw = jira.issue(task.key).raw["fields"]
@@ -330,8 +383,13 @@ def process_task(task):
     import subprocess
 
     if verify_cmd:
-        print(f"  [*] Running Gate: {verify_cmd}")
-        res = subprocess.run(verify_cmd, shell=True, capture_output=True, text=True)
+        argv, reason = build_verify_argv(verify_cmd)
+        if reason is not None or argv is None:
+            print(f"  [!] Verification command rejected: {reason}")
+            transition_to(task, "Review")
+            return
+        print(f"  [*] Running Gate (no shell): {argv}")
+        res = subprocess.run(argv, capture_output=True, text=True, check=False)
         print(res.stdout or res.stderr)
         if res.returncode == 0:
             print("  [✓] Verification passed!")
