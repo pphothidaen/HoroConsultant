@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-303-WORKFLOW-TIMEOUTS-ENFORCEMENT",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3c452544da34e0acdc5e9fcf7fdd5ef32e0682fa",
+  "test_files": [
+    {
+      "path": "tests/test_workflow_timeouts_contract.py",
+      "sha256": "e61e58dbfa06a5c3cf0e64a2c736e71110505058cf2263d1fb63754da2ca735f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_workflow_timeouts_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_ci_yml_all_jobs_have_timeout: ci.yml jobs missing timeout-minutes: classify-changes, pytest-targeted, pytest-suite, e2e-production-audit, lint-and-security, rust-core-audit, test-provenance; test_test_provenance_yml_all_jobs_have_timeout: test_provenance.yml jobs missing timeout-minutes: test-provenance"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/test_provenance.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M13 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-13: CI runs without enforced timeouts can stall indefinitely. RED: 7 jobs in ci.yml + 1 in test_provenance.yml lacked timeout-minutes. GREEN: added timeouts (10, 30, 60, 45, 20, 45, 20, 20)."
+}
