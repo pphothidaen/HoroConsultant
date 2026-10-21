@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-300-M12-SBOM-GENERATION",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "53d49f050cc04d0bef122e4a1a69ff742ac3b6d4",
+  "baseline_parent": "058e0f77273fb56f878deef127e77f7ea58be7f1",
   "test_files": [
     {
       "path": "tests/test_sbom_generation_contract.py",
