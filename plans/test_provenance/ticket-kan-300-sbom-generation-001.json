@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.1",
+  "sequence": 1,
+  "ticket": "KAN-300",
+  "provenance_status": "GREEN",
+  "baseline_parent": "058e0f77273fb56f878deef127e77f7ea58be7f1",
+  "test_files": [
+    {
+      "path": "tests/test_sbom_generation_contract.py",
+      "sha256": "049b21a2e3266f8a4ea362e814d61c63c04ba7e5cf90809d30ca7e353b2b599a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": "python -m pytest tests/test_sbom_generation_contract.py -v",
+      "expected_exit": 1,
+      "failure_fingerprint": "FAILED tests/test_sbom_generation_contract.py::test_sbom_generation_job_exists - assert False"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "agent-qa_tester",
+  "reviewer_role": "agent-code_reviewer",
+  "rationale": "M12: SBOM generation job for supply chain transparency. RED test validates CI workflow has sbom-generation job with CycloneDX, critical vulnerability checking (CVSS >= 7), and 90-day artifact retention. GREEN implementation adds the job with pinned action SHAs per M1."
+}
