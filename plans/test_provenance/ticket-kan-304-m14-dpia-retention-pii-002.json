@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-304",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7c00f7ad8ac364793cb1e5b52cc7c2e4b00192f3",
+  "test_files": [
+    {
+      "path": "tests/fixtures/pii_test_data.json",
+      "sha256": "3390128a651030029fad873bc13631b79b4c8f6480433b9ecadeb5f69dc7fa58"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "tests/test_dpia_retention_pii_contract.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: DPA document missing or retention-days not 30"
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/fixtures/pii_test_data.json",
+    ".github/CODEOWNERS"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": "7c00f7ad8ac364793cb1e5b52cc7c2e4b00192f3",
+  "correction_reason": "Updated test fixture github_token to safe placeholder for safety audit",
+  "rationale": "Updated test fixture to use GITHUB_PAT_TEST_PLACEHOLDER_FIXTURE_* pattern to pass safety audit."
+}

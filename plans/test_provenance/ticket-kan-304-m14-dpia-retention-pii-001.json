@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-304",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "d381eeaf4866b99e58a2ad26aab6dcc757493ec7",
+  "test_files": [
+    {
+      "path": "tests/test_dpia_retention_pii_contract.py",
+      "sha256": "80f1513b74373dfd14dedb8119617ec361ae35a0ceaa7b146be96e8dd90088b3"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json",
+      "sha256": "3390128a651030029fad873bc13631b79b4c8f6480433b9ecadeb5f69dc7fa58"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json.pii-allowlist",
+      "sha256": "c355c3459676d00941aab733b4576e731be33501827a5ebf7f9623067694ce0a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "tests/test_dpia_retention_pii_contract.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: DPA document missing or retention-days not 30"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/pii_scrub.py",
+    "docs/governance/DPA.md",
+    ".github/workflows/ci.yml",
+    ".github/workflows/test_provenance.yml",
+    ".github/workflows/production_monitor.yml",
+    ".github/workflows/cloudflare-worker-monitor.yml",
+    ".github/workflows/gemini-bridge-tests.yml",
+    ".github/workflows/scheduled_distill_finetune.yml",
+    "scripts/cloudflare_worker_monitor.py",
+    ".gitleaks.toml",
+    ".gitleaksignore",
+    ".github/CODEOWNERS"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "ba_auditor",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Contract test for M14 DPIA/retention/PII scrubbing mitigation. Ensures all 8 workflows with artifact uploads have retention-days: 30 and PII scrub steps, DPA document exists, and PII scrub utility validates 12 patterns."
+}
