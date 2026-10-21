@@ -18,7 +18,9 @@
     }
   ],
   "allowed_source_paths": [
-    "project/tests/test_cicd_workflow.py"
+    ".github/workflows/ci.yml",
+    "project/tests/test_cicd_workflow.py",
+    ".github/CODEOWNERS"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",

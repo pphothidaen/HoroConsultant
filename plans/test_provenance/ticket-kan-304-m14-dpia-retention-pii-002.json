@@ -7,7 +7,7 @@
   "test_files": [
     {
       "path": "tests/fixtures/pii_test_data.json",
-      "sha256": "cc53c290b6b9207115daf022272596f497decc437ce0614837c85f8d05fc67a8"
+      "sha256": "3390128a651030029fad873bc13631b79b4c8f6480433b9ecadeb5f69dc7fa58"
     }
   ],
   "red_tests": [
@@ -18,7 +18,8 @@
     }
   ],
   "allowed_source_paths": [
-    "tests/fixtures/pii_test_data.json"
+    "tests/fixtures/pii_test_data.json",
+    ".github/CODEOWNERS"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "ba_auditor",
