@@ -9,6 +9,8 @@ on:
   schedule:
     # Daily config drift detection (M11) - runs at 06:00 UTC
     - cron: "0 6 * * *"
+    # Quarterly secret rotation trigger (M6) - runs on 1st of Jan, Apr, Jul, Oct at 06:00 UTC
+    - cron: "0 6 1 1,4,7,10 *"
 
 jobs:
   classify-changes:
@@ -68,8 +70,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt pytest
+          pip install -r requirements-ci.txt
 
       - name: Run Targeted Tests
         run: |
@@ -241,7 +244,7 @@ jobs:
       - name: Install Audit Tools
         run: |
           python -m pip install --upgrade pip
-          pip install ruff bandit httpx pydantic
+          pip install ruff bandit httpx pydantic gitleaks
 
       - name: Run Ruff Linter
         run: |
@@ -251,6 +254,10 @@ jobs:
       - name: Run Security Audit (Bandit)
         run: |
           bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll
+
+      - name: Run Gitleaks Secret Scan
+        run: |
+          gitleaks detect --source . --verbose --redact --no-git
 
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
@@ -298,11 +305,47 @@ jobs:
           name: rust-core-wheel
           path: rust_core/wheelhouse/*.whl
           if-no-files-found: error
-          retention-days: 1
+
+  secret-rotation-oidc-tests:
+    name: Secret Rotation OIDC Tests (M6)
+    needs: [lint-and-security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio
+          grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
+          pip install -r requirements-ci.txt
+
+      - name: Run Secret Rotation OIDC Contract Tests
+        run: |
+          python3 -m pytest tests/test_secret_rotation_oidc_contract.py -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-rotation-oidc-test-results
+          path: test-results.xml
+          retention-days: 30
+          if-no-files-found: warn
 
   artifact-integrity-tests:
     name: Artifact Integrity Tests (SHA256)
-    needs: [rust-core-audit, pytest-suite]
+    needs: [rust-core-audit, pytest-suite, secret-rotation-oidc-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -333,8 +376,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt pytest
+          pip install -r requirements-ci.txt
 
       - name: Generate OpenAPI snapshot
         run: |
