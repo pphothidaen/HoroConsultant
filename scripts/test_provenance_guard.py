@@ -984,33 +984,47 @@ def verify_pr(
         return report
 
     # Load all manifests' allowed_source_paths from the repo to check coverage
+    # Include manifests from BOTH the feature branch AND the base branch (main)
+    # because gitleaks/config changes may be covered by manifests on main
     allowed_sets: list[list[str]] = []
-    manifest_dir = repo / "plans" / "test_provenance"
-    if manifest_dir.is_dir():
-        for mf in sorted(manifest_dir.glob("*.json")):
-            try:
-                rel = str(mf.relative_to(repo))
-                m_data = _load_manifest_from_worktree(repo, rel)
-                allowed = m_data.get("allowed_source_paths")
-                if isinstance(allowed, list):
-                    allowed_sets.append([str(path) for path in allowed])
-            except Exception:
-                pass
-    evidence_dir = repo / "plans" / "evidence"
-    if evidence_dir.is_dir():
-        for ef in sorted(evidence_dir.rglob("*.json")):
-            try:
-                rel = str(ef.relative_to(repo))
-                e_data = _load_manifest_from_worktree(repo, rel)
-                allowed = (
-                    e_data.get("allowed_source_paths")
-                    or e_data.get("target_source_paths")
-                    or e_data.get("governed_paths")
-                )
-                if isinstance(allowed, list):
-                    allowed_sets.append([str(path) for path in allowed])
-            except Exception:
-                pass
+    
+    def _load_allowed_from_manifests(commitish: str) -> None:
+        """Load allowed_source_paths from manifests at a given commit-ish."""
+        manifest_dir = repo / "plans" / "test_provenance"
+        if manifest_dir.is_dir():
+            for mf in sorted(manifest_dir.glob("*.json")):
+                try:
+                    rel = str(mf.relative_to(repo))
+                    result = _git(repo, "show", f"{commitish}:{rel}", text=False, check=False)
+                    if result.returncode == 0:
+                        m_data = _load_json_bytes(result.stdout, rel)
+                        allowed = m_data.get("allowed_source_paths")
+                        if isinstance(allowed, list):
+                            allowed_sets.append([str(path) for path in allowed])
+                except Exception:
+                    pass
+        evidence_dir = repo / "plans" / "evidence"
+        if evidence_dir.is_dir():
+            for ef in sorted(evidence_dir.rglob("*.json")):
+                try:
+                    rel = str(ef.relative_to(repo))
+                    result = _git(repo, "show", f"{commitish}:{rel}", text=False, check=False)
+                    if result.returncode == 0:
+                        e_data = _load_json_bytes(result.stdout, rel)
+                        allowed = (
+                            e_data.get("allowed_source_paths")
+                            or e_data.get("target_source_paths")
+                            or e_data.get("governed_paths")
+                        )
+                        if isinstance(allowed, list):
+                            allowed_sets.append([str(path) for path in allowed])
+                except Exception:
+                    pass
+    
+    # Load from feature branch (current HEAD)
+    _load_allowed_from_manifests("HEAD")
+    # Load from base branch (main) to catch manifests covering shared configs like .gitleaks
+    _load_allowed_from_manifests(base)
     allowed_sets.append([
         "project/",
         "scripts/",
