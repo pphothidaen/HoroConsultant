@@ -1,9 +1,14 @@
 {
-  "name": "horoconsultant",
+  "name": "hermes-workers-hardening",
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "engines": {
-    "node": ">=18.0.0"
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "@types/node": "^22.0.0"
   }
 }

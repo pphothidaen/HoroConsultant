@@ -5,6 +5,14 @@
  * File: src/security/middleware.ts
  */
 
+// ═══ Enums ═══
+
+export enum CircuitBreakerState {
+  CLOSED = 'CLOSED',
+  OPEN = 'OPEN',
+  HALF_OPEN = 'HALF_OPEN',
+}
+
 // ═══ Configuration Types ═══
 
 export interface SecurityConfig {
@@ -23,11 +31,13 @@ export interface SecurityConfig {
     rateLimit: {
       requestsPerMinute: number;  // default: 100
       burstAllowance: number;     // default: 20
+      windowMs: number;           // default: 60000 (1 minute)
     };
     circuitBreaker: {
       failureThreshold: number;   // 5xx rate % (default: 50)
       windowMs: number;           // evaluation window (default: 60000)
       halfOpenRequests: number;   // test requests in half-open (default: 3)
+      halfOpenTimeoutMs: number;  // timeout before trying half-open (default: 60000)
     };
     timeoutMs: number;            // max request duration (default: 30000)
     errorSanitization: boolean;   // strip stack traces (default: true)
@@ -39,6 +49,8 @@ export interface SecurityContext {
   requestId: string;              // correlation ID
   timestamp: number;
   metadata: Record<string, unknown>;
+  latencyMs?: number;             // for timeout enforcement
+  requestSize?: number;           // for request size limit
 }
 
 export interface SecurityResult {
@@ -46,10 +58,11 @@ export interface SecurityResult {
   reason?: string;                // if blocked
   sanitizedInput?: string;        // if sanitized
   sanitizedOutput?: string;       // if sanitized
+  error?: string;                 // sanitized error message
   metrics: {
     promptInjectionScore: number; // 0-1 confidence
     rateLimitRemaining: number;
-    circuitBreakerState: 'closed' | 'open' | 'half-open';
+    circuitBreakerState: CircuitBreakerState;
   };
 }
 
@@ -60,8 +73,10 @@ export interface SecurityMetrics {
   outputsSanitized: number;
   requestsByClient: Record<string, number>;
   rateLimitHits: number;
-  circuitBreakerState: 'closed' | 'open' | 'half-open';
+  circuitBreakerState: CircuitBreakerState;
   avgPromptInjectionScore: number;
+  totalRequests: number;
+  blockedRequests: number;
 }
 
 // ═══ Default Configuration ═══
@@ -116,11 +131,13 @@ export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
     rateLimit: {
       requestsPerMinute: 100,
       burstAllowance: 20,
+      windowMs: 60000, // 1 minute
     },
     circuitBreaker: {
       failureThreshold: 50, // 50% 5xx rate
       windowMs: 60000,      // 1 minute
       halfOpenRequests: 3,
+      halfOpenTimeoutMs: 60000, // 1 minute before trying half-open
     },
     timeoutMs: 30000,
     errorSanitization: true,
@@ -133,9 +150,10 @@ export class SecurityMiddleware {
   private config: SecurityConfig;
   private metrics: SecurityMetrics;
   private rateLimitStore: Map<string, { count: number; windowStart: number }> = new Map();
-  private circuitBreakerState: 'closed' | 'open' | 'half-open' = 'closed';
+  private circuitBreakerState: CircuitBreakerState = CircuitBreakerState.CLOSED;
   private circuitBreakerFailures = 0;
   private circuitBreakerSuccesses = 0;
+  private circuitBreakerOpenedAt = 0;  // Track when circuit breaker was opened
   private circuitBreakerLastCheck = 0;
   private compiledPatterns: RegExp[] = [];
 
@@ -168,8 +186,10 @@ export class SecurityMiddleware {
       outputsSanitized: 0,
       requestsByClient: {},
       rateLimitHits: 0,
-      circuitBreakerState: 'closed',
+      circuitBreakerState: CircuitBreakerState.CLOSED,
       avgPromptInjectionScore: 0,
+      totalRequests: 0,
+      blockedRequests: 0,
     };
 
     // Pre-compile regex patterns
@@ -188,6 +208,7 @@ export class SecurityMiddleware {
    */
   async checkRequest(input: string, context: SecurityContext): Promise<SecurityResult> {
     this.metrics.requestsProcessed++;
+    this.metrics.totalRequests++;
     this.metrics.requestsByClient[context.clientId] = 
       (this.metrics.requestsByClient[context.clientId] || 0) + 1;
 
@@ -196,6 +217,7 @@ export class SecurityMiddleware {
       const rateLimitResult = this.checkRateLimit(context.clientId);
       if (!rateLimitResult.allowed) {
         this.metrics.rateLimitHits++;
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
           reason: rateLimitResult.reason,
@@ -211,10 +233,11 @@ export class SecurityMiddleware {
     // Check circuit breaker (M9)
     if (this.config.workersHardening.enabled) {
       const cbState = this.getCircuitBreakerState();
-      if (cbState === 'open') {
+      if (cbState === CircuitBreakerState.OPEN) {
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
-          reason: 'Circuit breaker open - too many failures',
+          reason: 'circuit breaker open - too many failures',
           metrics: {
             promptInjectionScore: 0,
             rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
@@ -227,10 +250,27 @@ export class SecurityMiddleware {
     // Check max input size (M9)
     if (this.config.workersHardening.enabled) {
       const inputSize = new TextEncoder().encode(input).length;
-      if (inputSize > this.config.workersHardening.maxRequestSize) {
+      if (inputSize >= this.config.workersHardening.maxRequestSize) {
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
           reason: `Request size ${inputSize} bytes exceeds limit of ${this.config.workersHardening.maxRequestSize} bytes`,
+          metrics: {
+            promptInjectionScore: 0,
+            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            circuitBreakerState: this.circuitBreakerState,
+          },
+        };
+      }
+    }
+
+    // Check timeout (M9)
+    if (this.config.workersHardening.enabled && context.latencyMs !== undefined) {
+      if (context.latencyMs > this.config.workersHardening.timeoutMs) {
+        this.metrics.blockedRequests++;
+        return {
+          allowed: false,
+          reason: `Request timeout: ${context.latencyMs}ms exceeds limit of ${this.config.workersHardening.timeoutMs}ms`,
           metrics: {
             promptInjectionScore: 0,
             rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
@@ -250,6 +290,7 @@ export class SecurityMiddleware {
       if (injectionResult.detected) {
         this.metrics.injectionsDetected++;
         this.metrics.injectionsBlocked++;
+        this.metrics.blockedRequests++;
         
         // Sanitize input if needed
         const sanitizedInput = this.sanitizeInput(input);
@@ -363,7 +404,7 @@ export class SecurityMiddleware {
 
   private checkRateLimit(clientId: string): { allowed: boolean; remaining: number; reason?: string } {
     const now = Date.now();
-    const windowMs = 60000; // 1 minute
+    const windowMs = this.config.workersHardening.rateLimit.windowMs ?? 60000; // 1 minute default
     const limit = this.config.workersHardening.rateLimit.requestsPerMinute;
     const burst = this.config.workersHardening.rateLimit.burstAllowance;
     const effectiveLimit = limit + burst;
@@ -390,7 +431,7 @@ export class SecurityMiddleware {
 
   getRateLimitState(clientId: string): { remaining: number; resetAt: number } {
     const now = Date.now();
-    const windowMs = 60000;
+    const windowMs = this.config.workersHardening.rateLimit.windowMs ?? 60000;
     const limit = this.config.workersHardening.rateLimit.requestsPerMinute;
     const burst = this.config.workersHardening.rateLimit.burstAllowance;
     const effectiveLimit = limit + burst;
@@ -419,12 +460,12 @@ export class SecurityMiddleware {
     windowStart: Date.now(),
   };
 
-  getCircuitBreakerState(): 'closed' | 'open' | 'half-open' {
+  getCircuitBreakerState(): CircuitBreakerState {
     const now = Date.now();
-    const windowMs = this.config.workersHardening.circuitBreaker.windowMs;
+    const halfOpenTimeoutMs = this.config.workersHardening.circuitBreaker.halfOpenTimeoutMs;
 
     // Check if we should evaluate circuit breaker state
-    if (now - this.circuitBreakerLastCheck >= windowMs) {
+    if (now - this.circuitBreakerLastCheck >= halfOpenTimeoutMs) {
       this.evaluateCircuitBreaker();
       this.circuitBreakerLastCheck = now;
     }
@@ -444,27 +485,40 @@ export class SecurityMiddleware {
       this.circuitBreakerMetrics.failedRequests = 0;
     }
 
-    if (this.circuitBreakerState === 'closed') {
+    if (this.circuitBreakerState === CircuitBreakerState.CLOSED) {
       // Check failure rate percentage
       if (this.circuitBreakerMetrics.totalRequests >= 10) { // Minimum sample size
         const failureRate = (this.circuitBreakerMetrics.failedRequests / this.circuitBreakerMetrics.totalRequests) * 100;
         if (failureRate >= threshold) {
-          this.circuitBreakerState = 'open';
+          this.circuitBreakerState = CircuitBreakerState.OPEN;
+          this.circuitBreakerOpenedAt = now;
         }
       }
-    } else if (this.circuitBreakerState === 'open') {
-      // After window, try half-open
-      if (now - this.circuitBreakerLastCheck >= windowMs) {
-        this.circuitBreakerState = 'half-open';
+    } else if (this.circuitBreakerState === CircuitBreakerState.OPEN) {
+      // After halfOpenTimeoutMs, try half-open
+      const halfOpenTimeoutMs = this.config.workersHardening.circuitBreaker.halfOpenTimeoutMs;
+      if (now - this.circuitBreakerOpenedAt >= halfOpenTimeoutMs) {
+        this.circuitBreakerState = CircuitBreakerState.HALF_OPEN;
         this.circuitBreakerSuccesses = 0;
+        // Reset metrics for HALF_OPEN evaluation
+        this.circuitBreakerMetrics.totalRequests = 0;
+        this.circuitBreakerMetrics.failedRequests = 0;
       }
-    } else if (this.circuitBreakerState === 'half-open') {
+    } else if (this.circuitBreakerState === CircuitBreakerState.HALF_OPEN) {
       const halfOpenRequests = this.config.workersHardening.circuitBreaker.halfOpenRequests;
       if (this.circuitBreakerSuccesses >= halfOpenRequests) {
-        this.circuitBreakerState = 'closed';
+        this.circuitBreakerState = CircuitBreakerState.CLOSED;
         this.circuitBreakerFailures = 0;
         this.circuitBreakerMetrics.totalRequests = 0;
         this.circuitBreakerMetrics.failedRequests = 0;
+      }
+      // Check if we should reopen due to failure in HALF_OPEN
+      else if (this.circuitBreakerMetrics.failedRequests > 0 && this.circuitBreakerMetrics.totalRequests > 0) {
+        const failureRate = (this.circuitBreakerMetrics.failedRequests / this.circuitBreakerMetrics.totalRequests) * 100;
+        if (failureRate >= this.config.workersHardening.circuitBreaker.failureThreshold) {
+          this.circuitBreakerState = CircuitBreakerState.OPEN;
+          this.circuitBreakerOpenedAt = now;
+        }
       }
     }
 
@@ -485,7 +539,16 @@ export class SecurityMiddleware {
     this.circuitBreakerMetrics.totalRequests++;
     if (statusCode >= 500 && statusCode < 600) {
       this.circuitBreakerMetrics.failedRequests++;
+    } else {
+      // Track successful requests for HALF_OPEN transition
+      if (this.circuitBreakerState === CircuitBreakerState.HALF_OPEN) {
+        this.circuitBreakerSuccesses++;
+      }
     }
+
+    // Evaluate circuit breaker after recording response
+    this.evaluateCircuitBreaker();
+    this.circuitBreakerLastCheck = now;
   }
 
   recordFailure(): void {
@@ -495,9 +558,62 @@ export class SecurityMiddleware {
 
   recordSuccess(): void {
     this.circuitBreakerMetrics.totalRequests++;
-    if (this.circuitBreakerState === 'half-open') {
+    if (this.circuitBreakerState === CircuitBreakerState.HALF_OPEN) {
       this.circuitBreakerSuccesses++;
     }
+    // Evaluate circuit breaker after recording success
+    this.evaluateCircuitBreaker();
+  }
+
+  // ═══ Error Sanitization ═══
+
+  sanitizeError(error: Error): string {
+    if (!this.config.workersHardening.errorSanitization) {
+      return error.message;
+    }
+
+    // Strip sensitive information
+    let sanitized = error.message;
+    let hasSecrets = false;
+    
+    // Remove potential secrets/keys
+    sanitized = sanitized.replace(/sk-[a-zA-Z0-9]{20,}/g, () => { hasSecrets = true; return '[REDACTED]'; });
+    sanitized = sanitized.replace(/api[_-]?key[=:]\\s*[a-zA-Z0-9_-]{20,}/gi, () => { hasSecrets = true; return 'api_key=[REDACTED]'; });
+    sanitized = sanitized.replace(/password[=:]\\s*[^\\s]+/gi, () => { hasSecrets = true; return 'password=[REDACTED]'; });
+    sanitized = sanitized.replace(/token[=:]\\s*[^\\s]+/gi, () => { hasSecrets = true; return 'token=[REDACTED]'; });
+    sanitized = sanitized.replace(/secret[=:]\\s*[^\\s]+/gi, () => { hasSecrets = true; return 'secret=[REDACTED]'; });
+    
+    // If secrets were found, return generic error message
+    if (hasSecrets) {
+      return 'Internal server error';
+    }
+
+    // Remove stack traces
+    sanitized = sanitized.replace(/\\n\\s*at\\s+.*/g, '');
+    sanitized = sanitized.replace(/\\(.*:\\d+:\\d+\\)/g, '');
+    
+    // Remove internal hostnames/IPs
+        sanitized = sanitized.replace(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g, '[REDACTED IP]');
+        // Remove internal host patterns (like prod-db-1, staging-app, etc.)
+        sanitized = sanitized.replace(/[a-z]+-[a-z]+-\d+/g, '[REDACTED HOST]');
+        // Remove port numbers
+        sanitized = sanitized.replace(/port\s*=\s*\d+/gi, 'port=[REDACTED]');
+        sanitized = sanitized.replace(/port\s*:\s*\d+/gi, 'port=[REDACTED]');
+        sanitized = sanitized.replace(/\bport\s+\d+\b/gi, 'port=[REDACTED]');
+        sanitized = sanitized.replace(/:\d{2,5}\b/g, ':[REDACTED PORT]');
+        // Remove user credentials
+        sanitized = sanitized.replace(/user\s*=\s*[^\s,]+/gi, 'user=[REDACTED]');
+        sanitized = sanitized.replace(/user\s*:\s*[^\s,]+/gi, 'user=[REDACTED]');
+        sanitized = sanitized.replace(/\buser\s+[^\s,]+\b/gi, 'user=[REDACTED]');
+    sanitized = sanitized.replace(/\\b[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b/g, (match) => {
+      // Keep common domains, redact internal ones
+      if (match.includes('localhost') || match.includes('internal') || match.includes('.local')) {
+        return '[REDACTED HOST]';
+      }
+      return match;
+    });
+
+    return sanitized || 'Internal server error';
   }
 
   // ═══ Metrics ═══
@@ -548,13 +664,16 @@ export class SecurityMiddleware {
       outputsSanitized: 0,
       requestsByClient: {},
       rateLimitHits: 0,
-      circuitBreakerState: 'closed',
+      circuitBreakerState: CircuitBreakerState.CLOSED,
       avgPromptInjectionScore: 0,
+      totalRequests: 0,
+      blockedRequests: 0,
     };
     this.rateLimitStore.clear();
-    this.circuitBreakerState = 'closed';
+    this.circuitBreakerState = CircuitBreakerState.CLOSED;
     this.circuitBreakerFailures = 0;
     this.circuitBreakerSuccesses = 0;
+    this.circuitBreakerOpenedAt = 0;
     this.circuitBreakerLastCheck = 0;
   }
 }
