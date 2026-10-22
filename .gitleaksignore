@@ -220,3 +220,10 @@ ebfeee9eb19624d5dc6ce70338b17e51d5726753:project/tests/artifacts/delegate_spark_
 d381eeaf4866b99e58a2ad26aab6dcc757493ec7:tests/fixtures/pii_test_data.json:generic-api-key:***
 # Allow generic-api-key in test fixtures for PII scrubbing tests
 :tests/fixtures/pii_test_data.json:generic-api-key:***
+
+# Historical findings from repo history - these are test/data files with placeholder values
+9eeee4b494836912aafbda047141f086e23ffe75:plans/active/meta-008-support/spark_safety_lane_dispatch_queue.md:generic-api-key:***
+9eeee4b494836912aafbda047141f086e23ffe75:project/data/hitl_reviews.json:generic-api-key:***
+9eeee4b494836912aafbda047141f086e23ffe75:project/tests/artifacts/delegate_spark_governance/5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b/smoke-result.json:generic-api-key:***
+9eeee4b494836912aafbda047141f086e23ffe75:tests/test_lease_manager.py:generic-api-key:***
+9eeee4b494836912aafbda047141f086e23ffe75:tests/test_keychain_isolation.py:generic-api-key:***
