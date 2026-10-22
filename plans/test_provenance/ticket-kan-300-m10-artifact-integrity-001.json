@@ -8,10 +8,6 @@
     {
       "path": "tests/test_artifact_integrity_contract.py",
       "sha256": "08f60f184396da8cea7a933f15814feb01b99f839bf9b4e1c205f931b8ecc42c"
-    },
-    {
-      "path": "src/artifacts/integrity.ts",
-      "sha256": "fc1b24ea78469a466a0c38fd545faba28a6bc5fe0c791182865566e225dd8db4"
     }
   ],
   "red_tests": [
