@@ -69,3 +69,4 @@ jobs:
           name: test-provenance-report
           path: test-provenance-report.json
           if-no-files-found: error
+          retention-days: 30

@@ -3,11 +3,19 @@
   "ticket_id": "TICKET-KAN-304",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "baseline_parent": "fef00f7806c23938d503a8d9d2784ef52a855aa3",
   "test_files": [
     {
       "path": "tests/test_dpia_retention_pii_contract.py",
       "sha256": "80f1513b74373dfd14dedb8119617ec361ae35a0ceaa7b146be96e8dd90088b3"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json",
+      "sha256": "801ba2b649fc447ba13702125f6bea5444a22133566d8bedccf21e59a7462395"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json.pii-allowlist",
+      "sha256": "c355c3459676d00941aab733b4576e731be33501827a5ebf7f9623067694ce0a"
     }
   ],
   "red_tests": [
