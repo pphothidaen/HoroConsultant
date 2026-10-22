@@ -26,6 +26,7 @@
     "scripts/",
     ".github/workflows/",
     "package.json",
+    "package-lock.json",
     "vitest.config.ts",
     ".gitleaks.toml",
     ".gitleaksignore"
