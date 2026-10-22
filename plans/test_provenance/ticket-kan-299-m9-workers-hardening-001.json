@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-299",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9ea650a8752a9af8d55edb031208115ba8004fb2",
+  "supersedes": "9ea650a8752a9af8d55edb031208115ba8004fb2",
+  "correction_reason": "Implemented GREEN: Workers hardening (circuit breaker, rate limiting, timeout enforcement, error sanitization) with 25 contract tests",
+  "rationale": "Implement Workers hardening (M9): circuit breaker, rate limiting, request size limits, timeout enforcement, and error sanitization",
+  "test_files": [
+    {
+      "path": "tests/test_workers_hardening_contract.test.ts",
+      "sha256": "91b6dc8dd3ba0fa4aa8068b1dd17f6d4b692c58780bf4e79f84635cec9b41f7e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": "npx vitest run tests/test_workers_hardening_contract.test.ts",
+      "expected_exit": 1,
+      "failure_fingerprint": "circuit breaker should trip to OPEN when 5xx rate exceeds 50%"
+    }
+  ],
+  "allowed_source_paths": [
+    "src/security/",
+    "tests/",
+    "scripts/",
+    ".github/workflows/",
+    "package.json",
+    "package-lock.json",
+    "vitest.config.ts",
+    ".gitleaks.toml",
+    ".gitleaksignore"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-qa_tester"
+}
