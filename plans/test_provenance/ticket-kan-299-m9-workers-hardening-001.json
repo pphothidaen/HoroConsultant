@@ -26,7 +26,9 @@
     "scripts/",
     ".github/workflows/",
     "package.json",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    ".gitleaks.toml",
+    ".gitleaksignore"
   ],
   "test_owner_role": "agent-developer_core",
   "reviewer_role": "agent-qa_tester"
