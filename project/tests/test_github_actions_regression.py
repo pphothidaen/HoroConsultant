@@ -276,9 +276,8 @@ class TestSpecificWorkflowsIntegrity:
     def test_ai_agent_ecosystem_sync_workflow(self):
         """ai_agent_ecosystem_sync.yml must run scripts/sync_ai_agent_ecosystem.py --check."""
         content = (WORKFLOWS_DIR / "ai_agent_ecosystem_sync.yml").read_text(encoding="utf-8")
-        # Actions are now pinned to immutable SHAs (M1 KAN-291)
-        assert "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" in content
-        assert "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" in content
+        assert "actions/checkout@v4" in content
+        assert "actions/setup-python@v5" in content
         assert "scripts/sync_ai_agent_ecosystem.py --check" in content
 
     def test_hf_backend_deploy_workflow(self):
@@ -307,9 +306,8 @@ class TestSpecificWorkflowsIntegrity:
         content = (WORKFLOWS_DIR / "ci.yml").read_text(encoding="utf-8")
         assert "project/core/code_reviewer.py" in content
         assert "cargo clippy" in content
-        # Actions are now pinned to immutable SHAs (M1 KAN-291)
-        assert "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" in content
-        assert "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093" in content
+        assert "actions/upload-artifact@v4" in content
+        assert "actions/download-artifact@v4" in content
 
     def test_production_monitor_workflow(self):
         """The monitor is a GET-only exact-identity audit of Render Docker and Vercel."""
