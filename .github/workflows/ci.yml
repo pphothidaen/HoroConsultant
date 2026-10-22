@@ -69,7 +69,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt pytest
+          pip install -r requirements-ci.txt pytest pytest-asyncio
 
       - name: Run Targeted Tests
         run: |
@@ -122,7 +122,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt pytest
+          pip install -r requirements-ci.txt pytest pytest-asyncio
           pip install --force-reinstall --no-deps wheelhouse/*.whl
           python - <<'PY'
           import os
@@ -192,7 +192,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt pytest
+          pip install -r requirements-ci.txt pytest pytest-asyncio
 
       - name: Run Production Version E2E Regression
         # Candidate identity can only be required after main has deployed it.
@@ -475,7 +475,7 @@ jobs:
       - name: Install CycloneDX and dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install cyclonedx-bom
+          pip install cyclonedx-py
 
       - name: Generate SBOM (CycloneDX)
         id: sbom
