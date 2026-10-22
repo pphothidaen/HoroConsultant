@@ -25,7 +25,7 @@
   ],
   "test_owner_role": "agent-qa_tester",
   "reviewer_role": "agent-code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
+  "supersedes": ["9e6b6988dadbaaaea4e561aa2434ed9d21ae26df"],
+  "correction_reason": "Implemented GREEN: prompt injection detection/sanitization, max token limits, configurable patterns, Workers integration",
   "rationale": "Implement prompt injection detection and sanitization per CONTRACT 1 Security Middleware Interface. Detects common injection patterns (ignore previous instructions, system prompt extraction, role manipulation), sanitizes outputs, enforces max input token limits, provides configurable pattern list. Includes Python mirror for contract testing."
 }
