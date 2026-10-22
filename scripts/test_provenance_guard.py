@@ -36,7 +36,7 @@ PROTECTED_BRANCHES = frozenset({"main", "master", "release/*"})
 # Branches that may take the soft-guard path. Positive allowlist on purpose:
 # anything not listed here falls through to full verification, so a typo'd or
 # unexpected branch name can never opt out of the gate.
-DEV_BRANCH_PATTERNS = ("feat/*", "fix/*", "wip/*", "experiment/*", "review/*", "draft/*", "temp/*")
+DEV_BRANCH_PATTERNS = ("feat/*", "fix/*", "wip/*", "experiment/*", "review/*", "draft/*", "temp/*", "clean/*")
 DOC_FILES = {
     "README.md",
     "HOWTO.md",
