@@ -267,8 +267,8 @@ jobs:
 
       - name: Run Gitleaks Secret Scan
         uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --source . --verbose --redact --no-git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
