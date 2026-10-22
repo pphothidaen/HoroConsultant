@@ -4,7 +4,7 @@
   "sequence": 1,
   "provenance_status": "VERIFIED",
   "baseline_parent": "9ea650a8752a9af8d55edb031208115ba8004fb2",
-  "supersedes": ["9ea650a8752a9af8d55edb031208115ba8004fb2"],
+  "supersedes": "9ea650a8752a9af8d55edb031208115ba8004fb2",
   "correction_reason": "Implemented GREEN: Workers hardening (circuit breaker, rate limiting, timeout enforcement, error sanitization) with 25 contract tests",
   "rationale": "Implement Workers hardening (M9): circuit breaker, rate limiting, request size limits, timeout enforcement, and error sanitization",
   "test_files": [
