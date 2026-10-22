@@ -8,14 +8,6 @@
     {
       "path": "tests/test_prompt_injection_contract.py",
       "sha256": "522a0399242df8a13521d9733ad601d5fdad93f60a087a66b5812e06e66cf5fc"
-    },
-    {
-      "path": "src/security/middleware.ts",
-      "sha256": "e4bd1cbb36d730a784e5d14a60828e88d0add3d1517370406d0e0801efde9176"
-    },
-    {
-      "path": "src/security/middleware.py",
-      "sha256": "cdf4e9842ce5a864a8aebadf9d75164fe551f244540f95edfe4a523a866a8db9"
     }
   ],
   "red_tests": [
@@ -33,7 +25,7 @@
   ],
   "test_owner_role": "agent-qa_tester",
   "reviewer_role": "agent-code_reviewer",
-  "supersedes": ["9e6b6988e3d8c5a7b3c6f2d9e4a8b7c6d5e4f3a2b"],
+  "supersedes": ["9e6b6988dadbaaaea4e561aa2434ed9d21ae26df"],
   "correction_reason": "Implemented GREEN: prompt injection detection/sanitization, max token limits, configurable patterns, Workers integration",
   "rationale": "Implement prompt injection detection and sanitization per CONTRACT 1 Security Middleware Interface. Detects common injection patterns (ignore previous instructions, system prompt extraction, role manipulation), sanitizes outputs, enforces max input token limits, provides configurable pattern list. Includes Python mirror for contract testing."
 }
