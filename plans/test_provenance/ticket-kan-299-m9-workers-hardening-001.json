@@ -3,9 +3,9 @@
   "ticket_id": "TICKET-KAN-299",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "4d741acf4c31b3b414230001f8b6c65c1d1a772d",
-  "supersedes": ["4d741acf4c31b3b414230001f8b6c65c1d1a772d"],
-  "correction_reason": "Initial baseline for KAN-299 Workers hardening (M9)",
+  "baseline_parent": "9ea650a8752a9af8d55edb031208115ba8004fb2",
+  "supersedes": ["9ea650a8752a9af8d55edb031208115ba8004fb2"],
+  "correction_reason": "Implemented GREEN: Workers hardening (circuit breaker, rate limiting, timeout enforcement, error sanitization) with 25 contract tests",
   "rationale": "Implement Workers hardening (M9): circuit breaker, rate limiting, request size limits, timeout enforcement, and error sanitization",
   "test_files": [
     {
