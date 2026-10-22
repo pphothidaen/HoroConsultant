@@ -21,7 +21,9 @@
     "src/security/",
     "tests/",
     "scripts/",
-    ".github/workflows/"
+    ".github/workflows/",
+    "package-lock.json",
+    ".gitleaks.toml"
   ],
   "test_owner_role": "agent-qa_tester",
   "reviewer_role": "agent-code_reviewer",
