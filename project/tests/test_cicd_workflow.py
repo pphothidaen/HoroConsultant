@@ -43,23 +43,24 @@ def test_rust_ci_exercises_each_feature_boundary_and_installed_wheel():
 
 
 def test_full_pytest_uses_the_linux_wheel_with_fallback_disabled():
-    """The Python release suite must exercise the artifact built by Rust CI."""
-    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
-        encoding="utf-8"
-    )
+        """The Python release suite must exercise the artifact built by Rust CI."""
+        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
+            encoding="utf-8"
+        )
 
-    assert "actions/upload-artifact@v4" in workflow
-    assert "actions/download-artifact@v4" in workflow
-    # KAN-100 path-based rulesets: pytest-suite now waits for BOTH the native
-    # wheel (rust-core-audit) and the change-tier classifier (classify-changes).
-    # The list form still guarantees the wheel is installed before pytest runs.
-    assert "needs: [rust-core-audit, classify-changes]" in workflow
-    assert "pip install --force-reinstall --no-deps wheelhouse/*.whl" in workflow
-    assert "rust_core.__native_origin__" in workflow
-    assert "shutil.copy2(native_origin, target)" in workflow
-    assert 'package_dir.parent / "rust_core.libs"' in workflow
-    assert "shutil.copytree(libs_dir, libs_target)" in workflow
-    assert "HORO_ALLOW_PYTHON_FALLBACK: \"0\"" in workflow
+        # Actions are now pinned to immutable SHAs (M1 KAN-291)
+        assert "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" in workflow
+        assert "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093" in workflow
+        # KAN-100 path-based rulesets: pytest-suite now waits for BOTH the native
+        # wheel (rust-core-audit) and the change-tier classifier (classify-changes).
+        # The list form still guarantees the wheel is installed before pytest runs.
+        assert "needs: [rust-core-audit, classify-changes]" in workflow
+        assert "pip install --force-reinstall --no-deps wheelhouse/*.whl" in workflow
+        assert "rust_core.__native_origin__" in workflow
+        assert "shutil.copy2(native_origin, target)" in workflow
+        assert 'package_dir.parent / "rust_core.libs"' in workflow
+        assert "shutil.copytree(libs_dir, libs_target)" in workflow
+        assert 'HORO_ALLOW_PYTHON_FALLBACK: "0"' in workflow
 
 
 def test_release_auditor_runs_only_after_the_native_wheel_is_installed():
