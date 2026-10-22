@@ -138,12 +138,12 @@ jobs:
           shutil.copy2(native_origin, target)
           package_dir = native_origin.parent
           for libs_dir in (package_dir.parent / "rust_core.libs", package_dir / ".libs"):
-              if libs_dir.is_dir():
-                  libs_target = workspace / libs_dir.name
-                  if libs_target.exists():
-                      shutil.rmtree(libs_target)
-                  shutil.copytree(libs_dir, libs_target)
-                  print(f"Copied installed Rust shared libraries to {libs_target}")
+            if libs_dir.is_dir():
+              libs_target = workspace / libs_dir.name
+              if libs_target.exists():
+                shutil.rmtree(libs_target)
+              shutil.copytree(libs_dir, libs_target)
+              print(f"Copied installed Rust shared libraries to {libs_target}")
           print(f"Copied installed Rust extension artifact from {native_origin} to {target}")
           PY
 
@@ -157,7 +157,7 @@ jobs:
           import json
           from project.main import app
           with open('/tmp/oa.json', 'w') as f:
-              json.dump(app.openapi(), f)
+            json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
           python3 -m pytest tests/test_route_sync.py -v -m contract
@@ -479,11 +479,8 @@ jobs:
 
       - name: Generate SBOM (CycloneDX)
         id: sbom
-        uses: cyclonedx/bom@8.0.0
-        with:
-          output-file: sbom.json
-          format: json
-          include-all-repositories: true
+        run: |
+          cyclonedx-bom -o sbom.json --format json
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
@@ -492,3 +489,41 @@ jobs:
           path: sbom.json
           retention-days: 90
           if-no-files-found: error
+
+  artifact-integrity-tests:
+    name: Artifact Integrity Tests (M10)
+    needs: [pytest-suite, sbom-generation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run artifact integrity contract tests
+        run: |
+          python3 -m pytest tests/test_artifact_integrity_contract.py -v
+
+      - name: Upload test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: artifact-integrity-test-results
+          path: |
+            .pytest_cache/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Test Provenance Guard
+        run: python scripts/test_provenance_guard.py
