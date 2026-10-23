@@ -348,7 +348,7 @@ jobs:
           PYO3_NO_ABI3: "1"
         run: |
           cd rust_core
-          maturin build --release --features python --bindings pyo3 --out wheelhouse
+          maturin build --release --features python-extension --bindings pyo3 --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
 
       - name: Install dependencies
