@@ -320,7 +320,7 @@ jobs:
 
   artifact-integrity-tests:
     name: Artifact Integrity Tests (SHA256)
-    needs: [rust-core-audit, pytest-suite]
+    needs: [rust-core-audit]
     runs-on: ubuntu-latest
     permissions:
       contents: read
