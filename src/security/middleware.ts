@@ -480,6 +480,7 @@ export class SecurityMiddleware {
         const failureRate = (this.circuitBreakerMetrics.failedRequests / this.circuitBreakerMetrics.totalRequests) * 100;
         if (failureRate >= threshold) {
           this.circuitBreakerState = 'open';
+          this.circuitBreakerLastCheck = now;
         }
       }
     } else if (this.circuitBreakerState === 'open') {
@@ -516,6 +517,9 @@ export class SecurityMiddleware {
     if (statusCode >= 500 && statusCode < 600) {
       this.circuitBreakerMetrics.failedRequests++;
     }
+
+    // Evaluate circuit breaker state after recording response
+    this.evaluateCircuitBreaker();
   }
 
   recordFailure(): void {
