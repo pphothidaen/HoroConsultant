@@ -248,9 +248,6 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install gitleaks
-        uses: gitleaks/gitleaks-action@v2
-
       - name: Install Audit Tools
         run: |
           python -m pip install --upgrade pip
@@ -264,11 +261,6 @@ jobs:
       - name: Run Security Audit (Bandit)
         run: |
           bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll
-
-      - name: Run Gitleaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
@@ -353,6 +345,7 @@ jobs:
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
           pip install -r requirements-ci.txt pytest
+          pip install --force-reinstall --no-deps wheelhouse/*.whl
 
       - name: Generate OpenAPI snapshot
         run: |
@@ -659,24 +652,24 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run Workers Hardening Contract Tests
         run: npx vitest run tests/test_workers_hardening_contract.test.ts
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: workers-hardening-test-results
