@@ -1,0 +1,27 @@
+# Gitleaks Configuration for HoroConsultant
+# Allows legitimate test fixtures and historical patterns
+
+[allowlist]
+# Test fixtures - safe token patterns used in contract tests
+paths = [
+    "tests/test_workers_hardening_contract.test.ts",
+    "tests/test_prompt_injection_contract.py",
+    "tests/test_secret_rotation_oidc_contract.py",
+    "tests/test_artifact_integrity_contract.py",
+    "tests/fixtures/pii_test_data.json",
+    "tests/fixtures/pii_test_data.json.pii-allowlist"
+]
+
+# Historical commits with known test patterns (gitleaksignore entries)
+commits = [
+    "d381eeaf",   # M14 PII test fixtures
+    "9eeee4b4",   # Historical test patterns
+    "9ea650a8",   # KAN-299 test fixture with sk-* pattern
+    "0515b89b",   # KAN-299 SBOM fix commit
+    "016cbb41",   # KAN-299 GREEN implementation
+]
+
+# Allow generic-api-key pattern for test files only
+rules = [
+    { id = "generic-api-key", description = "Allow test fixture secrets in test files" }
+]
