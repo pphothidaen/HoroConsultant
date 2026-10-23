@@ -1,9 +1,9 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-KAN-291-REGRESSION-TEST-UPDATE",
-  "sequence": 2,
+  "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "803a90d800d5b5b442dfad1c3c1dc557d9f82d70",
+  "baseline_parent": "f23d90109931d99cd190ee411ab279519ed328de",
   "test_files": [
     {
       "path": "project/tests/test_github_actions_regression.py",
