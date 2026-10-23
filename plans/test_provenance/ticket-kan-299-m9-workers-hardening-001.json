@@ -3,14 +3,11 @@
   "ticket_id": "TICKET-KAN-299",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "4d741acf4c31b3b414230001f8b6c65c1d1a772d",
-  "supersedes": ["4d741acf4c31b3b414230001f8b6c65c1d1a772d"],
-  "correction_reason": "Initial baseline for KAN-299 Workers hardening (M9)",
-  "rationale": "Implement Workers hardening (M9): circuit breaker, rate limiting, request size limits, timeout enforcement, and error sanitization",
+  "baseline_parent": "9d3cbfbe1d0edfd9aa2effc4ff785cf289725874",
   "test_files": [
     {
       "path": "tests/test_workers_hardening_contract.test.ts",
-      "sha256": "91b6dc8dd3ba0fa4aa8068b1dd17f6d4b692c58780bf4e79f84635cec9b41f7e"
+      "sha256": "490ae6d22b14c5c52e64287fb3b3fa676436bd80c9fcbac54c77a80569aa32b0"
     }
   ],
   "red_tests": [
@@ -31,5 +28,8 @@
     ".gitleaksignore"
   ],
   "test_owner_role": "agent-developer_core",
-  "reviewer_role": "agent-qa_tester"
+  "reviewer_role": "agent-qa_tester",
+  "supersedes": "4d741acf4c31b3b414230001f8b6c65c1d1a772d",
+  "correction_reason": "Fixed metric property name from totalRequests to requestsProcessed in test",
+  "rationale": "Implement Workers hardening (M9): circuit breaker, rate limiting, request size limits, timeout enforcement, and error sanitization"
 }

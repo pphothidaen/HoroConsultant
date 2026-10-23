@@ -464,7 +464,7 @@ describe('SecurityMiddleware - workersHardening Contract', () => {
 
       const metrics = middleware.getMetrics();
       expect(metrics).toBeDefined();
-      expect(metrics.totalRequests).toBeGreaterThan(0);
+      expect(metrics.requestsProcessed).toBeGreaterThan(0);
       expect(metrics.blockedRequests).toBeGreaterThanOrEqual(0);
     });
   });
