@@ -297,7 +297,7 @@ jobs:
             echo "[ERROR] server feature unexpectedly depends on PyO3"
             exit 1
           fi
-          maturin build --release --features server,python-extension --bindings pyo3 --out wheelhouse
+          maturin build --release --features python-extension --bindings pyo3 --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
 
