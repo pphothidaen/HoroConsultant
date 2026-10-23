@@ -1,0 +1,10 @@
+# Allowlist for PII test fixture - all patterns allowed in this file
+email:-1
+api_key_openai:-1
+api_key_github:-1
+api_key_gitlab:-1
+jwt:-1
+credit_card:-1
+ssn:-1
+cf_ray:-1
+cf_connecting_ip:-1

@@ -1,0 +1,45 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-304",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "fef00f7806c23938d503a8d9d2784ef52a855aa3",
+  "test_files": [
+    {
+      "path": "tests/test_dpia_retention_pii_contract.py",
+      "sha256": "80f1513b74373dfd14dedb8119617ec361ae35a0ceaa7b146be96e8dd90088b3"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json",
+      "sha256": "801ba2b649fc447ba13702125f6bea5444a22133566d8bedccf21e59a7462395"
+    },
+    {
+      "path": "tests/fixtures/pii_test_data.json.pii-allowlist",
+      "sha256": "c355c3459676d00941aab733b4576e731be33501827a5ebf7f9623067694ce0a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_dpia_retention_pii_contract.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: DPIA/retention/PII workflow modifications not present"
+    }
+  ],
+  "allowed_source_paths": [
+    "docs/governance/DPA.md",
+    "scripts/pii_scrub.py",
+    "scripts/cloudflare_worker_monitor.py",
+    ".github/workflows/test_provenance.yml",
+    ".github/workflows/ci.yml",
+    "tests/fixtures/pii_test_data.json",
+    "tests/fixtures/pii_test_data.json.pii-allowlist",
+    "tests/test_dpia_retention_pii_contract.py",
+    ".gitleaks.toml",
+    ".gitleaksignore"
+  ],
+  "test_owner_role": "agent-qa_tester",
+  "reviewer_role": "agent-lead_ba",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M14 DPIA/retention/PII scrubbing (KAN-304). RED test validates workflow modifications for 30-day artifact retention and PII scrubbing before upload. GREEN implements DPA reference document, PII scrubber utility with 12 patterns, --scrub-logs mode in worker monitor, and retention-days:30 on artifact uploads."
+}
