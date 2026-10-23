@@ -355,10 +355,11 @@ jobs:
 
       - name: Generate OpenAPI snapshot
         run: |
+          cd /tmp
           python3 -c "
           import json
           from project.main import app
-          with open('openapi.json', 'w') as f:
+          with open('/home/runner/work/HoroConsultant/HoroConsultant/openapi.json', 'w') as f:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
