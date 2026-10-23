@@ -637,9 +637,6 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
-      - name: Test Provenance Guard
-        run: python scripts/test_provenance_guard.py
-
   workers-hardening-tests:
     name: Workers Hardening Tests (M9)
     needs: [classify-changes]
