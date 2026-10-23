@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-KAN-291-REGRESSION-TEST-UPDATE",
   "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "75f058b4aea17fb2d28c8ed9ce1a1195f460b373",
+  "baseline_parent": "caf1724ca48612accfdcd5c37015b8b1ff640b09",
   "test_files": [
     {
       "path": "project/tests/test_github_actions_regression.py",
-      "sha256": "fa6486d0b4389e7bf40298e73e03911206f7b41301b5e04e57a664df3f19553b"
+      "sha256": "39c27ed52f7849bdac879ea765ba0ecf86e5aab85dcd256c838f9279464f7749"
     }
   ],
   "red_tests": [

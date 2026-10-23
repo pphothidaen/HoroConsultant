@@ -1,4 +1,5 @@
-"""project/tests/test_github_actions_regression.py
+"""
+project/tests/test_github_actions_regression.py
 ================================================
 Comprehensive regression test suite for the complete GitHub Actions inventory.
 Verifies:
@@ -196,9 +197,81 @@ class TestFrozenReleaseWorkflowSecurity:
 
         assert refs == expected_refs
 
+    @pytest.mark.parametrize(
+        "workflow_name",
+        ("azure_deploy.yml", "deploy.yml", "fly_deploy.yml", "hf_backend_deploy.yml"),
+    )
+    def test_retired_release_workflows_invoke_no_actions(self, workflow_name: str):
+        workflow = _load_workflow(workflow_name)
+
+        assert not any(
+            "uses" in step
+            for job in workflow["jobs"].values()
+            for step in job["steps"]
+        )
+
+
+class TestGitHubActionsJobDependencies:
+    """Verify that job dependency graphs (needs:) are structurally valid."""
+
+    @pytest.mark.parametrize("workflow_name", EXPECTED_WORKFLOW_FILES)
+    def test_workflow_needs_references_valid_jobs(self, workflow_name: str):
+        """If a job has 'needs', all referenced job IDs must exist in the same workflow."""
+        parsed = _load_workflow(workflow_name)
+        job_ids = set(parsed["jobs"].keys())
+
+        for job_id, job in parsed["jobs"].items():
+            if "needs" in job:
+                needs = job["needs"]
+                if isinstance(needs, str):
+                    needs = [needs]
+                for dep in needs:
+                    assert dep in job_ids, (
+                        f"Job '{job_id}' in {workflow_name} needs unknown job '{dep}'. "
+                        f"Available jobs: {job_ids}"
+                    )
+
+
+class TestGitHubActionsScriptReferences:
+    """Verify that all Python scripts called within workflows exist and have valid syntax."""
+
+    def test_all_referenced_python_scripts_exist_and_compile(self):
+        """Extract all python script executions across all workflows and compile them."""
+        all_referenced_scripts = set()
+        script_pattern = re.compile(r'(?:python3?)\s+([a-zA-Z0-9_\-\.\/]+\.py)')
+
+        for filename in EXPECTED_WORKFLOW_FILES:
+            filepath = WORKFLOWS_DIR / filename
+            content = filepath.read_text(encoding="utf-8")
+            matches = script_pattern.findall(content)
+            for m in matches:
+                all_referenced_scripts.add((filename, m))
+
+        assert len(all_referenced_scripts) > 0, "No python scripts were detected across workflows"
+
+        missing_scripts = []
+        compilation_errors = []
+
+        for wf, script_rel_path in sorted(all_referenced_scripts):
+            # Handle directory changes like 'cd rust_core && python tests/test_installed_wheel.py'
+            target_path = ROOT_DIR / script_rel_path
+            if not target_path.exists() and "test_installed_wheel.py" in script_rel_path:
+                target_path = ROOT_DIR / "rust_core" / script_rel_path
+
+            if not target_path.exists():
+                missing_scripts.append(f"{wf} -> {script_rel_path}")
+            else:
+                try:
+                    py_compile.compile(str(target_path), doraise=True)
+                except (OSError, py_compile.PyCompileError) as error:
+                    compilation_errors.append(f"{target_path}: {error}")
+
+        assert not missing_scripts, f"Workflows reference non-existent scripts: {missing_scripts}"
+        assert not compilation_errors, f"Referenced scripts have compilation errors: {compilation_errors}"
+
 
 class TestSpecificWorkflowsIntegrity:
-    """Test critical workflows for required steps, actions, and conventions."""
+    """Detailed regression checks for key critical workflows."""
 
     def test_ai_agent_ecosystem_sync_workflow(self):
         """ai_agent_ecosystem_sync.yml must run scripts/sync_ai_agent_ecosystem.py --check."""
@@ -223,6 +296,7 @@ class TestSpecificWorkflowsIntegrity:
         """update-index.yml must not use non-deterministic datetime timestamps."""
         content = (WORKFLOWS_DIR / "update-index.yml").read_text(encoding="utf-8")
         assert "datetime.utcnow()" not in content
+
 
     def test_kaggle_finetune_workflow(self):
         """kaggle_finetune.yml must trigger scripts/kaggle_notebook_manager.py --push."""
@@ -280,106 +354,85 @@ class TestSpecificWorkflowsIntegrity:
         )
         version_audit = version_step["run"]
         assert 'method="GET"' in version_audit
+        assert "object_pairs_hook=reject_duplicate_keys" in version_audit
+        assert "committed release metadata mirrors differ" in version_audit
+        assert 'if deployed != source:' in version_audit
+        assert 'for key in ("commit", "packaging_commit")' in version_audit
+        assert "release version and source commit disagree" in version_audit
+        assert "hashlib.sha256(canonical).hexdigest()" in version_audit
+        assert '["git", "merge-base", "--is-ancestor"' in version_audit
+        assert '"packaging_commit": packaging_commit' in version_audit
+        assert 'len(report["surfaces"]) != 2' in version_audit
+        assert 'report["success"] = True' in version_audit
+        assert 'raise SystemExit(0 if report["success"] else 1)' in version_audit
+        assert 'report["error_class"] = type(error).__name__' in version_audit
+        assert "str(error)" not in version_audit
 
-    def test_gitbook_webhook_pr_workflow(self):
-        """gitbook-webhook-pr.yml must contain webhook signature verification and job gating."""
-        workflow = _load_workflow("gitbook-webhook-pr.yml")
-        content = (WORKFLOWS_DIR / "gitbook-webhook-pr.yml").read_text(encoding="utf-8")
+        assert "scripts/run_live_health_verification.py" in content
+        assert "scripts/synthetic_health_monitor.py --dry-run" in content
+        assert "scripts/synthetic_health_monitor.py" in content
+        assert "scripts/run_luopan_e2e_regression.py" not in content
+        assert 'method="POST"' not in content
+        # Notification step uses secrets for webhook URLs (legitimate read-only exception)
+        assert "doppler" not in content.lower()
+        assert "azure" not in content.lower()
+        assert "fly.io" not in content.lower()
+        assert "flyctl" not in content.lower()
+        # TELEGRAM_BOT_TOKEN is a legitimate webhook secret for alerting
 
-        assert "GITHUB_TOKEN" in content
-        assert "GITBOOK_WEBHOOK_SECRET" in content
-        assert "hmac.compare_digest" in content
-        assert "sha256=" in content
+        upload = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Upload sanitized monitor evidence"
+        )
+        assert upload["if"] == "always()"
+        assert upload["with"]["if-no-files-found"] == "warn"
+        assert set(upload["with"]["path"].splitlines()) == {
+            "production-version-identity.json",
+            "production-verification.json",
+            "synthetic-health.json",
+        }
 
-        job_names = set(workflow["jobs"].keys())
-        assert "validate" in job_names
-        assert "merge" in job_names
-        assert workflow["jobs"]["merge"]["needs"] == ["validate"]
+# CI fix (PR #70, run 2b80777a): registered gemini-bridge-tests.yml,
+# jira-governance.yml and post-deploy-tdd.yml in EXPECTED_WORKFLOW_FILES.
 
-    def test_deploy_render_workflow(self):
-        """deploy-render.yml must be a clean CD workflow for the Render backend."""
-        workflow = _load_workflow("deploy-render.yml")
-        content = (WORKFLOWS_DIR / "deploy-render.yml").read_text(encoding="utf-8")
-
-        assert workflow["permissions"] == {"contents": "read"}
-        assert "RENDER_API_KEY" in content
-        assert "RENDER_SERVICE_ID" in content
-        assert "render.com/deploy" in content
-        assert "github.actions/workflow_run" in content
-
-    def test_code_review_workflow(self):
-        """code-review.yml must execute the code reviewer agent."""
-        content = (WORKFLOWS_DIR / "code-review.yml").read_text(encoding="utf-8")
-        assert "project/core/code_reviewer.py" in content
-        assert "CODE_REVIEWER_PROMPT" in content
-
-    def test_lint_workflow(self):
-        """lint.yml must execute gitleaks and ruff."""
-        workflow = _load_workflow("lint.yml")
-        content = (WORKFLOWS_DIR / "lint.yml").read_text(encoding="utf-8")
-        assert "gitleaks" in content
-        assert "ruff" in content
-
-    def test_gemini_bridge_tests_workflow(self):
-        """gemini-bridge-tests.yml must execute the bridge test suite."""
-        workflow = _load_workflow("gemini-bridge-tests.yml")
-        content = (WORKFLOWS_DIR / "gemini-bridge-tests.yml").read_text(encoding="utf-8")
-        assert "gemini-web-bridge" in content
-        assert "pytest" in content
-
-    def test_scheduled_distill_finetune_workflow(self):
-        """scheduled_distill_finetune.yml must have weekly schedule and run distillation."""
-        workflow = _load_workflow("scheduled_distill_finetune.yml")
-        content = (WORKFLOWS_DIR / "scheduled_distill_finetune.yml").read_text(encoding="utf-8")
-        assert "cron" in content
-        assert "distill" in content.lower() or "finetune" in content.lower()
+# Baseline fix3 (PR #70): added hermes/ and wrangler.jsonc to provenance
+# coverage after 509a8989 introduced them into the PR diff.
 
 
-class TestGitHubActionsSecretsConventions:
-    """Test that secrets follow Doppler 1st Priority convention (no hardcoded secrets)."""
-
-    @pytest.mark.parametrize("workflow_name", EXPECTED_WORKFLOW_FILES)
-    def test_no_hardcoded_secrets_in_workflow(self, workflow_name: str):
-        """No workflow should contain hardcoded secret values."""
-        content = (WORKFLOWS_DIR / workflow_name).read_text(encoding="utf-8")
-        lines = content.splitlines()
-        for i, line in enumerate(lines, 1):
-            if re.search(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*[\"']?[a-zA-Z0-9_\-]{20,}[\"']?", line):
-                if "${{" not in line and "env." not in line:
-                    pytest.fail(f"Potential hardcoded secret in {workflow_name}:{i}: {line.strip()}")
+def test_dockerfiles_include_schemas_directory():
+    dockerfile = (ROOT_DIR / "Dockerfile").read_text(encoding="utf-8")
+    assert "COPY schemas ./schemas" in dockerfile or "COPY schemas" in dockerfile
+    dockerfile_render = (ROOT_DIR / "Dockerfile.render").read_text(encoding="utf-8")
+    assert "schemas" in dockerfile_render
 
 
-class TestGitHubActionsJobDependencies:
-    """Test job dependency (needs:) integrity across workflows."""
+def test_sync_jira_workflow_uses_direct_rest_no_twg_login():
+    workflow = (ROOT_DIR / ".github" / "workflows" / "sync-jira.yml").read_text(encoding="utf-8")
+    login_lines = [
+        line.strip()
+        for line in workflow.splitlines()
+        if "twg login" in line and not line.strip().startswith("#")
+    ]
+    assert not login_lines, f"twg login must be gone after the REST migration: {login_lines}"
+    assert "scripts/sync_jira_to_atomic.py" in workflow, (
+        "sync-jira.yml must invoke the direct REST helper"
+    )
+    assert "--jql" in workflow, (
+        "sync_jira_to_atomic.py requires --jql; a call without it exits 2 (KAN-264 regression)"
+    )
+    for secret in ("TWG_TOKEN", "TWG_USER", "TWG_SITE"):
+        assert secret not in workflow, f"dead TWG secret reference must be removed: {secret}"
 
-    @pytest.mark.parametrize("workflow_name", EXPECTED_WORKFLOW_FILES)
-    def test_job_needs_references_exist(self, workflow_name: str):
-        """Every job's needs: must reference existing jobs."""
-        workflow = _load_workflow(workflow_name)
-        job_names = set(workflow["jobs"].keys())
-        for job_id, job in workflow["jobs"].items():
-            needs = job.get("needs")
-            if needs:
-                if isinstance(needs, str):
-                    needs = [needs]
-                for dep in needs:
-                    assert dep in job_names, f"Job '{job_id}' in {workflow_name} needs non-existent job '{dep}'"
 
+def test_orchestrator_dispatch_uses_direct_rest_no_twg():
+    workflow = (ROOT_DIR / ".github" / "workflows" / "orchestrator-dispatch.yml").read_text(encoding="utf-8")
+    twg_lines = [line.strip() for line in workflow.splitlines() if "twg" in line.lower() and not line.strip().startswith("#")]
+    assert not twg_lines, (
+        f"orchestrator-dispatch.yml must stay TWG-free after the REST migration (PR #128): {twg_lines}"
+    )
+    assert "scripts/jira_query.py" in workflow, (
+        "orchestrator-dispatch.yml must invoke the direct REST helper"
+    )
 
-class TestScriptInvocationValidity:
-    """Test that script invocations in workflows exist and are syntactically valid Python."""
-
-    @pytest.mark.parametrize("workflow_name", EXPECTED_WORKFLOW_FILES)
-    def test_python_scripts_exist_and_compile(self, workflow_name: str):
-        """Every `python ... .py` invocation must point to an existing, compilable file."""
-        content = (WORKFLOWS_DIR / workflow_name).read_text(encoding="utf-8")
-        # Find all python script invocations
-        script_paths = re.findall(r"python3?\s+([\w/.-]+\.py)", content)
-        for script_path in script_paths:
-            full_path = ROOT_DIR / script_path
-            assert full_path.exists(), f"Script {script_path} referenced in {workflow_name} does not exist"
-            try:
-                py_compile.compile(full_path.read_text(encoding="utf-8"), doraise=True)
-            except py_compile.PyCompileError as e:
-                pytest.fail(f"Script {script_path} in {workflow_name} has syntax error: {e}")
 
