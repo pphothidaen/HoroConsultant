@@ -520,6 +520,13 @@ export class SecurityMiddleware {
     this.circuitBreakerMetrics.totalRequests++;
     if (statusCode >= 500 && statusCode < 600) {
       this.circuitBreakerMetrics.failedRequests++;
+
+      // Handle failure in HALF_OPEN state - reopen circuit breaker
+      if (this.circuitBreakerState === 'half-open') {
+        this.circuitBreakerState = 'open';
+        this.circuitBreakerLastCheck = now;
+        this.circuitBreakerSuccesses = 0;
+      }
     }
 
     // Evaluate circuit breaker state after recording response
