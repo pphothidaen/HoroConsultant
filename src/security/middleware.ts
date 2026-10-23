@@ -233,7 +233,7 @@ export class SecurityMiddleware {
     // Check max input size (M9)
     if (this.config.workersHardening.enabled) {
       const inputSize = new TextEncoder().encode(input).length;
-      if (inputSize > this.config.workersHardening.maxRequestSize) {
+      if (inputSize >= this.config.workersHardening.maxRequestSize) {
         this.metrics.blockedRequests++;
         return {
           allowed: false,
