@@ -60,6 +60,7 @@ export interface SecurityMetrics {
   outputsSanitized: number;
   requestsByClient: Record<string, number>;
   rateLimitHits: number;
+  blockedRequests: number;
   circuitBreakerState: 'closed' | 'open' | 'half-open';
   avgPromptInjectionScore: number;
 }
@@ -170,6 +171,7 @@ export class SecurityMiddleware {
       outputsSanitized: 0,
       requestsByClient: {},
       rateLimitHits: 0,
+      blockedRequests: 0,
       circuitBreakerState: 'closed',
       avgPromptInjectionScore: 0,
     };
@@ -198,6 +200,7 @@ export class SecurityMiddleware {
       const rateLimitResult = this.checkRateLimit(context.clientId);
       if (!rateLimitResult.allowed) {
         this.metrics.rateLimitHits++;
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
           reason: rateLimitResult.reason,
@@ -214,6 +217,7 @@ export class SecurityMiddleware {
     if (this.config.workersHardening.enabled) {
       const cbState = this.getCircuitBreakerState();
       if (cbState === 'open') {
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
           reason: 'Circuit breaker open - too many failures',
@@ -230,9 +234,26 @@ export class SecurityMiddleware {
     if (this.config.workersHardening.enabled) {
       const inputSize = new TextEncoder().encode(input).length;
       if (inputSize > this.config.workersHardening.maxRequestSize) {
+        this.metrics.blockedRequests++;
         return {
           allowed: false,
           reason: `Request size ${inputSize} bytes exceeds limit of ${this.config.workersHardening.maxRequestSize} bytes`,
+          metrics: {
+            promptInjectionScore: 0,
+            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            circuitBreakerState: this.circuitBreakerState,
+          },
+        };
+      }
+    }
+
+    // Check request timeout (M9)
+    if (this.config.workersHardening.enabled && context.latencyMs) {
+      if (context.latencyMs > this.config.workersHardening.timeoutMs) {
+        this.metrics.blockedRequests++;
+        return {
+          allowed: false,
+          reason: `Request timeout: ${context.latencyMs}ms exceeds limit of ${this.config.workersHardening.timeoutMs}ms`,
           metrics: {
             promptInjectionScore: 0,
             rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
@@ -250,10 +271,11 @@ export class SecurityMiddleware {
         / this.metrics.requestsProcessed;
 
       if (injectionResult.detected) {
-        this.metrics.injectionsDetected++;
-        this.metrics.injectionsBlocked++;
-        
-        // Sanitize input if needed
+              this.metrics.injectionsDetected++;
+              this.metrics.injectionsBlocked++;
+              this.metrics.blockedRequests++;
+
+              // Sanitize input if needed
         const sanitizedInput = this.sanitizeInput(input);
         
         return {
