@@ -351,17 +351,30 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --force-reinstall --no-deps rust_core/wheelhouse/*.whl
-          pip install .[test]
-          # Copy schemas directory to site-packages for OpenAPI snapshot
-          SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
-          cp -r /home/runner/work/HoroConsultant/HoroConsultant/schemas "$SITE_PACKAGES/"
+          # Install test dependencies only, NOT the package from source
+          pip install pytest pytest-asyncio pytest-mock pytest-cov httpx fastapi pydantic uvicorn starlette anyio cryptography numpy pyyaml python-dotenv rich typer click jsonschema referencing opentelemetry-api markdown-it-py httpcore h11 sniffio outcome trio rpds-py typing-extensions typing-inspection shellingham timezonefinder timezonefinder-data geographiclib uvloop watchfiles websockets flatbuffers sortedcontainers
 
       - name: Generate OpenAPI snapshot
         run: |
+          cd /tmp
           python3 -c "
+          import sys
+          import site
+          # Remove checkout directory from sys.path if present
+          checkout = '/home/runner/work/HoroConsultant/HoroConsultant'
+          if checkout in sys.path:
+              sys.path.remove(checkout)
+          # Ensure site-packages is first
+          for p in site.getsitepackages():
+              if p not in sys.path:
+                  sys.path.insert(0, p)
+          # Now import - project module will be found in site-packages (from pip install .[test] in other jobs)
+          # But we didn't install the package, so we need checkout in path for project
+          # Add checkout LAST so wheel's rust_core takes precedence
+          sys.path.append(checkout)
           import json
           from project.main import app
-          with open('openapi.json', 'w') as f:
+          with open('/home/runner/work/HoroConsultant/HoroConsultant/openapi.json', 'w') as f:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
