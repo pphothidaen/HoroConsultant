@@ -344,7 +344,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-          pip install --force-reinstall --no-deps rust-core-wheel.whl
+          pip install --force-reinstall --no-deps *.whl
 
       - name: Generate OpenAPI snapshot
         run: |
