@@ -301,13 +301,13 @@ jobs:
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
           # Copy wheel to workspace root for artifact upload
-          cp wheelhouse/*.whl "$GITHUB_WORKSPACE/rust-core-wheel.whl"
+          cp wheelhouse/*.whl "$GITHUB_WORKSPACE/"
 
       - name: Upload the audited Linux wheel
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: rust-core-wheel
-          path: rust-core-wheel.whl
+          path: "*.whl"
           if-no-files-found: error
 
   artifact-integrity-tests:
