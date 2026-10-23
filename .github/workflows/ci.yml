@@ -346,8 +346,9 @@ jobs:
           cd rust_core
           maturin build --release --features python-extension --bindings pyo3 --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
-          # Copy wheel to workspace root for artifact integrity checks
-          cp wheelhouse/*.whl "$GITHUB_WORKSPACE/"
+          # Copy wheel to workspace root wheelhouse/ for artifact integrity checks
+          mkdir -p "$GITHUB_WORKSPACE/wheelhouse"
+          cp wheelhouse/*.whl "$GITHUB_WORKSPACE/wheelhouse/"
 
       - name: Install dependencies
         run: |
