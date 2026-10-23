@@ -305,7 +305,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: rust-core-wheel
-          path: rust_core/wheelhouse/*.whl
+          path: rust_core/wheelhouse
           if-no-files-found: error
 
   artifact-integrity-tests:
@@ -342,7 +342,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-          pip install --force-reinstall --no-deps wheelhouse/*.whl
+          pip install --force-reinstall --no-deps wheelhouse/rust_core/wheelhouse/*.whl
 
       - name: Generate OpenAPI snapshot
         run: |
