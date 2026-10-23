@@ -484,8 +484,9 @@ export class SecurityMiddleware {
         }
       }
     } else if (this.circuitBreakerState === 'open') {
-      // After window, try half-open
-      if (now - this.circuitBreakerLastCheck >= windowMs) {
+      // After halfOpenTimeoutMs, try half-open
+      const halfOpenTimeoutMs = this.config.workersHardening.circuitBreaker.halfOpenTimeoutMs;
+      if (now - this.circuitBreakerLastCheck >= halfOpenTimeoutMs) {
         this.circuitBreakerState = 'half-open';
         this.circuitBreakerSuccesses = 0;
       }
