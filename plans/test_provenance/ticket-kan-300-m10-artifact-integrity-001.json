@@ -1,36 +1,28 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-KAN-300",
-  "sequence": 1,
+  "sequence": 2,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "058e0f77273fb56f878deef127e77f7ea58be7f1",
+  "baseline_parent": "7d6730d10d6321a05f4a99412dcbe3aec09d9d85",
   "test_files": [
     {
-      "path": "tests/test_artifact_integrity_contract.py",
-      "sha256": "08f60f184396da8cea7a933f15814feb01b99f839bf9b4e1c205f931b8ecc42c"
-    },
-    {
-      "path": "src/artifacts/integrity.ts",
-      "sha256": "fc1b24ea78469a466a0c38fd545faba28a6bc5fe0c791182865566e225dd8db4"
+      "path": "rust_core/tests/test_installed_wheel.py",
+      "sha256": "455f4fcf9096d5500dc6328b22bdc6c774f63b213b0db76f9be10bb84ad5f742"
     }
   ],
   "red_tests": [
     {
-      "command": "python3 -m pytest tests/test_artifact_integrity_contract.py -v",
+      "command": "python3 -m pytest rust_core/tests/test_installed_wheel.py -v",
       "expected_exit": 1,
-      "failure_fingerprint": "FAIL: test_generate_hashes_all_artifacts"
+      "failure_fingerprint": "FAIL: test_package_local_native_import_is_order_independent"
     }
   ],
   "allowed_source_paths": [
-    "src/artifacts/",
-    "tests/",
-    ".github/workflows/",
-    ".gitleaks.toml",
-    ".gitleaksignore"
+    "rust_core/"
   ],
   "test_owner_role": "agent-qa_tester",
   "reviewer_role": "agent-code_reviewer",
-"supersedes": "06b82280e3d8c5a7b3c6f2d9e4a8b7c6d5e4f3a2b",
-  "correction_reason": "Implemented GREEN: artifact integrity SHA256 generation/verification for wheel/provenance/openapi, tamper detection, deployment manifest recording, TypeScript CLI for CI integration",
+  "supersedes": "9edc0bdc4fb93b6e0f9bc64b71b3a51bed2c0139",
+  "correction_reason": "Made server entrypoint test conditional on server feature",
   "rationale": "Implement artifact integrity verification (SHA256) per CONTRACT 3. Generate hashes for Rust wheel, provenance JSON, and OpenAPI snapshot. Verify in pytest-suite, test-provenance, and e2e jobs. Reject tampered artifacts. Record hashes in deployment manifest. TypeScript implementation with CLI for CI integration."
 }
