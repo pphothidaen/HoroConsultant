@@ -226,7 +226,7 @@ export class SecurityMiddleware {
         this.metrics.blockedRequests++;
         return {
           allowed: false,
-          reason: 'Circuit breaker open - too many failures',
+          reason: 'circuit breaker open - too many failures',
           metrics: {
             promptInjectionScore: 0,
             rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
