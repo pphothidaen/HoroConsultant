@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-291-REGRESSION-TEST-UPDATE",
   "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "f23d90109931d99cd190ee411ab279519ed328de",
+  "baseline_parent": "75f058b4aea17fb2d28c8ed9ce1a1195f460b373",
   "test_files": [
     {
       "path": "project/tests/test_github_actions_regression.py",
