@@ -266,8 +266,6 @@ jobs:
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_rust_audit == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -346,7 +344,7 @@ jobs:
       - name: Build Python extension wheel
         run: |
           cd rust_core
-          maturin build --release --features python-extension --bindings pyo3 --out wheelhouse
+          maturin build --release --features python-extension --bindings pyo3 --no-abi3 --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
 
       - name: Install dependencies
