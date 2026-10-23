@@ -197,7 +197,7 @@ export class SecurityMiddleware {
 
     // Check rate limiting (M9)
     if (this.config.workersHardening.enabled) {
-      const rateLimitResult = this.checkRateLimit(context.clientId);
+      const rateLimitResult = this.checkRateLimit(context.clientId, context.timestamp);
       if (!rateLimitResult.allowed) {
         this.metrics.rateLimitHits++;
         this.metrics.blockedRequests++;
@@ -223,7 +223,7 @@ export class SecurityMiddleware {
           reason: 'Circuit breaker open - too many failures',
           metrics: {
             promptInjectionScore: 0,
-            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
             circuitBreakerState: cbState,
           },
         };
@@ -240,7 +240,7 @@ export class SecurityMiddleware {
           reason: `Request size ${inputSize} bytes exceeds limit of ${this.config.workersHardening.maxRequestSize} bytes`,
           metrics: {
             promptInjectionScore: 0,
-            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
             circuitBreakerState: this.circuitBreakerState,
           },
         };
@@ -256,7 +256,7 @@ export class SecurityMiddleware {
           reason: `Request timeout: ${context.latencyMs}ms exceeds limit of ${this.config.workersHardening.timeoutMs}ms`,
           metrics: {
             promptInjectionScore: 0,
-            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
             circuitBreakerState: this.circuitBreakerState,
           },
         };
@@ -284,7 +284,7 @@ export class SecurityMiddleware {
           sanitizedInput,
           metrics: {
             promptInjectionScore: injectionResult.score,
-            rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+            rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
             circuitBreakerState: this.circuitBreakerState,
           },
         };
@@ -295,7 +295,7 @@ export class SecurityMiddleware {
       allowed: true,
       metrics: {
         promptInjectionScore: 0,
-        rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+        rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
         circuitBreakerState: this.circuitBreakerState,
       },
     };
@@ -324,7 +324,7 @@ export class SecurityMiddleware {
       sanitizedOutput: wasSanitized ? sanitizedOutput : undefined,
       metrics: {
         promptInjectionScore: 0,
-        rateLimitRemaining: this.getRateLimitState(context.clientId).remaining,
+        rateLimitRemaining: this.getRateLimitState(context.clientId, context.timestamp).remaining,
         circuitBreakerState: this.circuitBreakerState,
       },
     };
@@ -385,8 +385,8 @@ export class SecurityMiddleware {
 
   // ═══ Rate Limiting (M9) ═══
 
-  private checkRateLimit(clientId: string): { allowed: boolean; remaining: number; reason?: string } {
-    const now = Date.now();
+  private checkRateLimit(clientId: string, timestamp?: number): { allowed: boolean; remaining: number; reason?: string } {
+    const now = timestamp ?? Date.now();
     const windowMs = 60000; // 1 minute
     const limit = this.config.workersHardening.rateLimit.requestsPerMinute;
     const burst = this.config.workersHardening.rateLimit.burstAllowance;
@@ -412,8 +412,8 @@ export class SecurityMiddleware {
     return { allowed: true, remaining: effectiveLimit - clientData.count };
   }
 
-  getRateLimitState(clientId: string): { remaining: number; resetAt: number } {
-    const now = Date.now();
+  getRateLimitState(clientId: string, timestamp?: number): { remaining: number; resetAt: number } {
+    const now = timestamp ?? Date.now();
     const windowMs = 60000;
     const limit = this.config.workersHardening.rateLimit.requestsPerMinute;
     const burst = this.config.workersHardening.rateLimit.burstAllowance;
