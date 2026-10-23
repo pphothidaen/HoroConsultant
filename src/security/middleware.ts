@@ -64,6 +64,8 @@ export interface SecurityMetrics {
   avgPromptInjectionScore: number;
 }
 
+export type CircuitBreakerState = 'closed' | 'open' | 'half-open';
+
 // ═══ Default Configuration ═══
 
 export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
@@ -507,6 +509,41 @@ export class SecurityMiddleware {
   }
 
   // ═══ Utility Methods ═══
+
+  /**
+   * Sanitize error messages to strip sensitive information
+   * Used for error sanitization in workers hardening (M9)
+   */
+  sanitizeError(error: Error): string {
+    if (!this.config.workersHardening.errorSanitization) {
+      return error.message;
+    }
+
+    let message = error.message;
+
+    // Sanitize database connection strings
+    message = message.replace(/host=\w+/gi, 'host=[REDACTED]');
+    message = message.replace(/port=\d+/gi, 'port=[REDACTED]');
+    message = message.replace(/user=\w+/gi, 'user=[REDACTED]');
+    message = message.replace(/password=\w+/gi, 'password=[REDACTED]');
+
+    // Sanitize secret keys (sk-*, pk-*, etc.)
+    message = message.replace(/sk-[a-zA-Z0-9]+/g, 'sk-[REDACTED]');
+    message = message.replace(/pk-[a-zA-Z0-9]+/g, 'pk-[REDACTED]');
+    message = message.replace(/api[_-]?key[=:]\s*[a-zA-Z0-9]+/gi, 'api_key=[REDACTED]');
+    message = message.replace(/secret[=:]\s*[a-zA-Z0-9]+/gi, 'secret=[REDACTED]');
+    message = message.replace(/token[=:]\s*[a-zA-Z0-9]+/gi, 'token=[REDACTED]');
+
+    // Sanitize IP addresses
+    message = message.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '[REDACTED IP]');
+
+    // If message contains sensitive patterns, return generic message
+    if (message !== error.message) {
+      return 'Internal server error';
+    }
+
+    return message;
+  }
 
   /**
    * Update prompt injection patterns at runtime
