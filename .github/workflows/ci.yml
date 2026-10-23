@@ -394,7 +394,7 @@ jobs:
           npx tsx src/artifacts/integrity.ts publish \
             wheelhouse/*.whl \
             provenance.json \
-            openapi.json > artifact-hashes.json
+            openapi.json artifact-hashes.json
           cat artifact-hashes.json
 
       - name: Upload artifact hashes manifest
