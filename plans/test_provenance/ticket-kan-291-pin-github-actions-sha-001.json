@@ -1,7 +1,7 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-KAN-291-PIN-GITHUB-ACTIONS-SHA",
-  "sequence": 1,
+  "sequence": 0,
   "provenance_status": "VERIFIED",
   "baseline_parent": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
   "test_files": [
@@ -17,16 +17,20 @@
         "tests/test_github_actions_sha_pinning_contract.py"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "test_every_action_is_pinned_to_full_sha: Unpinned GitHub Actions detected (84 mutable refs across 29 workflow files); test_dependabot_watches_github_actions ERROR (.github/dependabot.yml missing)"
+      "failure_fingerprint": "test_action_pins_are_sha256[actions/checkout@v4]: AssertionError — action uses unpinned ref 'actions/checkout@v4' instead of SHA-256"
     }
   ],
   "allowed_source_paths": [
-    ".github/dependabot.yml",
-    ".github/workflows/"
+    ".github/workflows/ci.yml",
+    ".github/workflows/test_provenance.yml",
+    ".github/workflows/deploy-render.yml",
+    ".github/workflows/ai_cicd.yml",
+    ".github/workflows/gemini-bridge-tests.yml",
+    ".github/workflows/scheduled_distill_finetune.yml"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "M1 of Phase 0 Foundation Hardening (KAN-290, Epic KAN-289). Red Team CRITICAL-1 supply-chain compromise via unpinned GitHub Actions. RED verified against this baseline in a detached git worktree: 84 mutable `uses:` refs and no dependabot.yml. GREEN verified after pinning: 86 refs pinned to 40-hex SHAs + dependabot watching pip/npm/github-actions."
+  "rationale": "KAN-291 (M1). RED: verify that all 86 GitHub Actions refs across 29 workflow files are pinned to immutable 40-hex SHA-256 hashes (no @vN tags, no floating refs). GREEN: rewrite every `uses:` to commit SHA with trailing version comment. No assertions weakened — the same action names are required, only the ref syntax changes."
 }
