@@ -452,9 +452,12 @@ export class SecurityMiddleware {
   getCircuitBreakerState(): 'closed' | 'open' | 'half-open' {
     const now = Date.now();
     const windowMs = this.config.workersHardening.circuitBreaker.windowMs;
+    const halfOpenTimeoutMs = this.config.workersHardening.circuitBreaker.halfOpenTimeoutMs;
 
     // Check if we should evaluate circuit breaker state
-    if (now - this.circuitBreakerLastCheck >= windowMs) {
+    // Use halfOpenTimeoutMs when in OPEN state for faster transition check
+    const checkInterval = this.circuitBreakerState === 'open' ? halfOpenTimeoutMs : windowMs;
+    if (now - this.circuitBreakerLastCheck >= checkInterval) {
       this.evaluateCircuitBreaker();
       this.circuitBreakerLastCheck = now;
     }
