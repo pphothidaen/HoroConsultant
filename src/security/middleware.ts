@@ -527,6 +527,18 @@ export class SecurityMiddleware {
         this.circuitBreakerLastCheck = now;
         this.circuitBreakerSuccesses = 0;
       }
+    } else if (statusCode >= 200 && statusCode < 300) {
+      // Handle success in HALF_OPEN state - count towards closing
+      if (this.circuitBreakerState === 'half-open') {
+        this.circuitBreakerSuccesses++;
+        const halfOpenRequests = this.config.workersHardening.circuitBreaker.halfOpenRequests;
+        if (this.circuitBreakerSuccesses >= halfOpenRequests) {
+          this.circuitBreakerState = 'closed';
+          this.circuitBreakerFailures = 0;
+          this.circuitBreakerMetrics.totalRequests = 0;
+          this.circuitBreakerMetrics.failedRequests = 0;
+        }
+      }
     }
 
     // Evaluate circuit breaker state after recording response
