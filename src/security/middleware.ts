@@ -67,6 +67,12 @@ export interface SecurityMetrics {
 
 export type CircuitBreakerState = 'closed' | 'open' | 'half-open';
 
+export const CircuitBreakerState = {
+  CLOSED: 'closed' as CircuitBreakerState,
+  OPEN: 'open' as CircuitBreakerState,
+  HALF_OPEN: 'half-open' as CircuitBreakerState,
+} as const;
+
 // ═══ Default Configuration ═══
 
 export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
