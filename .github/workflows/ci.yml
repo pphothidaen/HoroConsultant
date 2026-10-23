@@ -391,7 +391,7 @@ jobs:
 
       - name: Generate artifact hashes
         run: |
-          npx tsx src/artifacts/integrity.ts generate \
+          npx tsx src/artifacts/integrity.ts publish \
             wheelhouse/*.whl \
             provenance.json \
             openapi.json > artifact-hashes.json
