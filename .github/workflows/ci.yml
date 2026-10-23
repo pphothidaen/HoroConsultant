@@ -352,14 +352,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install --force-reinstall --no-deps rust_core/wheelhouse/*.whl
           pip install .[test]
+          # Copy schemas directory to site-packages for OpenAPI snapshot
+          SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
+          cp -r /home/runner/work/HoroConsultant/HoroConsultant/schemas "$SITE_PACKAGES/"
 
       - name: Generate OpenAPI snapshot
         run: |
-          cd /tmp
           python3 -c "
           import json
           from project.main import app
-          with open('/home/runner/work/HoroConsultant/HoroConsultant/openapi.json', 'w') as f:
+          with open('openapi.json', 'w') as f:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
