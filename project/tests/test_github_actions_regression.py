@@ -276,8 +276,11 @@ class TestSpecificWorkflowsIntegrity:
     def test_ai_agent_ecosystem_sync_workflow(self):
         """ai_agent_ecosystem_sync.yml must run scripts/sync_ai_agent_ecosystem.py --check."""
         content = (WORKFLOWS_DIR / "ai_agent_ecosystem_sync.yml").read_text(encoding="utf-8")
-        assert "actions/checkout@v4" in content
-        assert "actions/setup-python@v5" in content
+        import re
+        sha_pinned_checkout = re.search(r'actions/checkout@[0-9a-f]{40}', content)
+        sha_pinned_setup_python = re.search(r'actions/setup-python@[0-9a-f]{40}', content)
+        assert sha_pinned_checkout, "actions/checkout must be pinned to 40-hex SHA"
+        assert sha_pinned_setup_python, "actions/setup-python must be pinned to 40-hex SHA"
         assert "scripts/sync_ai_agent_ecosystem.py --check" in content
 
     def test_hf_backend_deploy_workflow(self):
@@ -306,8 +309,9 @@ class TestSpecificWorkflowsIntegrity:
         content = (WORKFLOWS_DIR / "ci.yml").read_text(encoding="utf-8")
         assert "project/core/code_reviewer.py" in content
         assert "cargo clippy" in content
-        assert "actions/upload-artifact@v4" in content
-        assert "actions/download-artifact@v4" in content
+        import re
+        assert re.search(r'actions/upload-artifact@[0-9a-f]{40}', content), "actions/upload-artifact must be pinned to 40-hex SHA"
+        assert re.search(r'actions/download-artifact@[0-9a-f]{40}', content), "actions/download-artifact must be pinned to 40-hex SHA"
 
     def test_production_monitor_workflow(self):
         """The monitor is a GET-only exact-identity audit of Render Docker and Vercel."""
