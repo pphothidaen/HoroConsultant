@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-308",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1edbca345c286108b6cf806fb1aa5d3ce70395c3",
+  "test_files": [
+    {
+      "path": "tests/test_phase4_release_notes.py",
+      "sha256": "661c9a39eb7f7dd9866179ec1b595c93f9bea1a0dc5a6773c6a75229cf82855d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_release_notes.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Release notes automation scripts not yet implemented"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/release_notes.py",
+    "tests/test_phase4_release_notes.py",
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add release notes automation for Phase 4 of AI-SDLC transformation (4A)"
+}
