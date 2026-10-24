@@ -1,0 +1,19 @@
+{
+  "base_commit": "43159f66d12ed256108fb2a4c016dd5727e10eb8",
+  "baseline_commit": "6cd5bcd179f47339eaa7c619268281c88680b7b4,0f55c43ea0456eac369e4514833a9714b3d7d3f0,c0142ffcc8ab1de575695e4199b86c496ebd2fca",
+  "command": "verify-pr",
+  "head_commit": "c0142ffcc8ab1de575695e4199b86c496ebd2fca",
+  "issues": [],
+  "notes": [
+    "POST_SQUASH_MERGE: manifest plans/test_provenance/ticket-kan-291-clean-checkout-contract-alignment-001.json baseline 6cd5bcd179f47339eaa7c619268281c88680b7b4 is ancestor of HEAD (regular commit)",
+    "POST_SQUASH_MERGE: manifest plans/test_provenance/ticket-kan-291-pin-github-actions-sha-001.json baseline 0f55c43ea0456eac369e4514833a9714b3d7d3f0 is ancestor of HEAD (regular commit)",
+    "baseline 6cd5bcd179f47339eaa7c619268281c88680b7b4 verified only through its preserved cutoff 6cd5bcd179f47339eaa7c619268281c88680b7b4",
+    "baseline 0f55c43ea0456eac369e4514833a9714b3d7d3f0 verified only through its preserved cutoff 889b5dffe2730a9e3332ed5c78b077e4dcd14e43"
+  ],
+  "requested_base": "43159f66",
+  "requested_head": "HEAD",
+  "schema_version": "test-provenance-report-v2",
+  "status": "PASSED",
+  "test_files_verified": 3,
+  "ticket_id": "TICKET-KAN-291-CLEAN-CHECKOUT-CONTRACT-ALIGNMENT,TICKET-KAN-291-PIN-GITHUB-ACTIONS-SHA,TICKET-KAN-291-REGRESSION-TEST-UPDATE"
+}
