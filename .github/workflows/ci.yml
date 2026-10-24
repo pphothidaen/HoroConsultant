@@ -344,7 +344,11 @@ jobs:
       - name: Run quality gate
         run: |
           if [ -f ai-review-result.json ]; then
-            python3 scripts/quality_gate.py --review-file ai-review-result.json --override "${{ steps.override-check.outputs.override }}"
+            if [ "${{ steps.override-check.outputs.override }}" = "true" ]; then
+              python3 scripts/quality_gate.py --review-file ai-review-result.json --override
+            else
+              python3 scripts/quality_gate.py --review-file ai-review-result.json
+            fi
           else
             echo "No AI review result found, skipping quality gate"
             exit 0
