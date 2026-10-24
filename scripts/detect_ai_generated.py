@@ -53,18 +53,14 @@ def is_ai_generated_commit(repo: Path, commit: str) -> bool:
 
 
 def get_pr_labels(repo: Path, base: str, head: str) -> list[str]:
-    """Get PR labels (simulated - in CI we'd use GitHub API)."""
-    # In CI, this would use GitHub API
-    # For local testing, check commit messages for label patterns
-    labels = []
-    commits = get_pr_commits(base, head, repo)
-    for commit in commits:
-        subject = get_commit_subject(repo, commit)
-        if "ai-generated" in subject.lower():
-            labels.append("ai-generated")
-        if "ai-review-required" in subject.lower():
-            labels.append("ai-review-required")
-    return labels
+    """Get PR labels - in CI we should use GitHub API, not commit subjects.
+    
+    This function is a placeholder for local testing. In CI, labels should be
+    fetched via GitHub API and passed as an environment variable or file.
+    """
+    # In CI, this would use GitHub API to fetch actual PR labels
+    # For local testing, return empty list to avoid false positives
+    return []
 
 
 def check_human_review_checkbox(pr_body: str) -> bool:
@@ -82,6 +78,7 @@ def main():
     parser.add_argument("--base", required=True, help="Base commit SHA")
     parser.add_argument("--head", default="HEAD", help="Head commit SHA")
     parser.add_argument("--pr-body", default="", help="PR body text")
+    parser.add_argument("--pr-labels", default="", help="Comma-separated PR labels from GitHub API")
     parser.add_argument("--repo", default=".", help="Repository path")
     parser.add_argument("--json-out", help="Output JSON report path")
     args = parser.parse_args()
@@ -101,9 +98,9 @@ def main():
             files = get_commit_files(repo, commit)
             ai_files.update(files)
 
-    # Also check for ai-generated label
-    labels = get_pr_labels(repo, args.base, args.head)
-    has_ai_label = "ai-generated" in labels
+    # Check for ai-generated label from GitHub API
+    pr_labels = [label.strip() for label in args.pr_labels.split(",") if label.strip()]
+    has_ai_label = "ai-generated" in pr_labels
 
     # Determine if AI review is required
     ai_review_required = bool(ai_commits) or has_ai_label

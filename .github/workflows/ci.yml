@@ -198,23 +198,26 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Get PR body
-        id: pr-body
+      - name: Get PR body and labels
+        id: pr-info
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body' 2>/dev/null || echo "")
+          LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
           # Escape for GitHub Actions output
           BODY="${BODY//'%'/'%25'}"
           BODY="${BODY//$'\n'/'%0A'}"
           BODY="${BODY//$'\r'/'%0D'}"
           echo "body=$BODY" >> "$GITHUB_OUTPUT"
+          echo "labels=$LABELS" >> "$GITHUB_OUTPUT"
 
       - name: Run AI detection and review check
         run: |
           python3 scripts/detect_ai_generated.py \
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
-            --pr-body "${{ steps.pr-body.outputs.body }}" \
+            --pr-body "${{ steps.pr-info.outputs.body }}" \
+            --pr-labels "${{ steps.pr-info.outputs.labels }}" \
             --repo "." \
             --json-out ai-review-report.json
 
