@@ -1,0 +1,31 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-305",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1bd99dfdc08ad6779019b3e11d42f15e54dd520a",
+  "test_files": [
+    {
+      "path": "tests/test_detect_ai_generated.py",
+      "sha256": "4400c0abdb866afe08a03ca8b5625e043f5920f1e6f2c055a3431eb9cfbe7714"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_detect_ai_generated.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AI detection and human review enforcement tests fail before implementation"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/detect_ai_generated.py",
+    ".github/workflows/ci.yml",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "tests/test_detect_ai_generated.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add AI code/test generation CI pipeline with human review enforcement via PR template checkbox and AI detection script"
+}
