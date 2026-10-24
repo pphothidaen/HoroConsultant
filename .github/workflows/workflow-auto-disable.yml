@@ -28,11 +28,11 @@ jobs:
       github.event.workflow_run.event == 'schedule'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Count recent consecutive failures
         id: count
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.0.1
         with:
           script: |
             const run = context.payload.workflow_run;
@@ -65,7 +65,7 @@ jobs:
 
       - name: Disable workflow if N=5 consecutive failures
         if: steps.count.outputs.consecutive >= 5
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.0.1
         with:
           script: |
             const workflowId = parseInt('${{ steps.count.outputs.workflow_id }}');
