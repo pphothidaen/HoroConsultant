@@ -1,0 +1,62 @@
+# Dependabot configuration — KAN-291 (M1: Pin GitHub Actions to commit SHAs)
+#
+# Supply-chain hardening: every GitHub Action in .github/workflows is pinned to an
+# immutable commit SHA (see the `# vX.Y.Z` comments). Dependabot now monitors those
+# pins and opens PRs to bump them when a newer release is published, so the pins
+# never silently rot back to a stale tag.
+#
+# Note: the SHA comments (`# v4.4.0`) are what Dependabot matches against upstream
+# releases. Keep them accurate when bumping.
+
+version: 2
+updates:
+  # Python dependencies (pip / uv / requirements*.txt / pyproject.toml)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Bangkok"
+    open-pull-requests-limit: 10
+    labels:
+      - "agent-hermes"
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "[KAN-XXX] deps"
+      include: "scope"
+
+  # Node dependencies (root + workspace packages)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Bangkok"
+    open-pull-requests-limit: 10
+    labels:
+      - "agent-hermes"
+      - "dependencies"
+      - "security"
+
+  # GitHub Actions — the core of M1: keeps SHA pins fresh
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Bangkok"
+    open-pull-requests-limit: 10
+    labels:
+      - "agent-hermes"
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "[KAN-XXX] actions"
+      include: "scope"
+    # Only bump actions that are already SHA-pinned (never introduce tag refs)
+    allow:
+      - dependency-type: "direct"
