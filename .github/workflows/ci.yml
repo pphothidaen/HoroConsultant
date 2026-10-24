@@ -315,6 +315,18 @@ jobs:
           name: ai-code-review-result
           path: .
 
+      - name: Debug - list files
+        run: |
+          echo "Files in workspace:"
+          ls -la
+          echo "---"
+          if [ -f ai-review-result.json ]; then
+            echo "ai-review-result.json exists"
+            cat ai-review-result.json
+          else
+            echo "ai-review-result.json NOT FOUND"
+          fi
+
       - name: Check for human override label
         id: override-check
         run: |
