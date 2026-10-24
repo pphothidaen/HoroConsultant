@@ -394,6 +394,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      id-token: write  # Required for keyless cosign signing with GitHub OIDC
     steps:
       - name: Checkout full Git history
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -409,13 +410,16 @@ jobs:
         run: |
           python3 scripts/stamp_version.py --post-squash-merge
 
-      - name: Sign version.json with cosign (M2/M10)
+      - name: Sign version.json with cosign (keyless via GitHub OIDC)
         env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_EXPERIMENTAL: "1"
         run: |
           set -euo pipefail
+          # Fetch GitHub OIDC token for sigstore audience
+          ID_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" | jq -r .value)
           cosign sign-blob --yes \
+            --identity-token "$ID_TOKEN" \
             --output-signature project/static/version.json.sig \
             project/static/version.json
 
