@@ -96,9 +96,139 @@ jobs:
           echo "Running targeted tests: $FILES"
           python3 -m pytest $FILES -v -m "not network"
 
+  ai-code-generation:
+    name: AI Code/Test Generation (KAN-305)
+    needs: classify-changes
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+
+      - name: Detect AI generation trigger
+        id: ai-trigger
+        run: |
+          # Check if PR has ai-generate label or new feature files
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if [ -z "$PR_NUMBER" ]; then
+            echo "triggered=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          # Get PR labels via GitHub CLI
+          LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null || echo "")
+          
+          if echo "$LABELS" | grep -q "ai-generate"; then
+            echo "triggered=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "triggered=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate AI code for new features
+        if: steps.ai-trigger.outputs.triggered == 'true'
+        run: |
+          echo "AI code generation triggered for PR #${{ github.event.pull_request.number }}"
+          # This step would invoke AI coding assistant (Cursor/Copilot)
+          # For now, we simulate by creating a marker file
+          mkdir -p .ai-generated
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .ai-generated/generation.timestamp
+          echo "PR #${{ github.event.pull_request.number }}" > .ai-generated/pr-number.txt
+          
+          # In production, this would call:
+          # - Cursor CLI with --generate flag
+          # - GitHub Copilot API
+          # - Custom AI agent for code generation
+
+      - name: Generate AI tests for new functions
+        if: steps.ai-trigger.outputs.triggered == 'true'
+        run: |
+          echo "AI test generation triggered"
+          # This would generate unit tests for new functions/classes
+          # For now, create marker
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .ai-generated/test_generation.timestamp
+
+      - name: Commit AI-generated changes
+        if: steps.ai-trigger.outputs.triggered == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "AI-Generated: code and tests for PR #${{ github.event.pull_request.number }}
+            
+            This commit contains AI-generated code and tests.
+            ai-generated
+            ai-review-required"
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "No AI-generated changes to commit"
+          fi
+
+  ai-review-enforcement:
+    name: AI Review Enforcement (KAN-305)
+    needs: [classify-changes]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Get PR body
+        id: pr-body
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body' 2>/dev/null || echo "")
+          # Escape for GitHub Actions output
+          BODY="${BODY//'%'/'%25'}"
+          BODY="${BODY//$'\n'/'%0A'}"
+          BODY="${BODY//$'\r'/'%0D'}"
+          echo "body=$BODY" >> "$GITHUB_OUTPUT"
+
+      - name: Run AI detection and review check
+        run: |
+          python3 scripts/detect_ai_generated.py \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}" \
+            --pr-body "${{ steps.pr-body.outputs.body }}" \
+            --repo "." \
+            --json-out ai-review-report.json
+
+      - name: Upload AI review report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ai-review-report
+          path: ai-review-report.json
+          if-no-files-found: warn
+
   pytest-suite:
     name: PyTest & Edge Boundary Testing
-    needs: [rust-core-audit, classify-changes, artifact-integrity-tests]
+    needs: [rust-core-audit, classify-changes, artifact-integrity-tests, ai-review-enforcement]
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_heavy_pytest == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
