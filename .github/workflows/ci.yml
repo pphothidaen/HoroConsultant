@@ -606,7 +606,6 @@ jobs:
   prompt-injection-tests:
     name: Prompt Injection Defense Tests (M3)
     needs: lint-and-security
-    if: github.event_name != 'pull_request' || github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -642,7 +641,6 @@ jobs:
   secret-rotation-oidc-tests:
       name: Secret Rotation & OIDC Federation Tests (M6)
       needs: lint-and-security
-      if: github.event_name != 'pull_request' || github.base_ref == 'main'
       runs-on: ubuntu-latest
       timeout-minutes: 15
       steps:
