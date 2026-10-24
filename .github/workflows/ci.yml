@@ -259,8 +259,9 @@ jobs:
         id: pr-diff
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          # Get the diff for the PR
-          gh pr diff "$PR_NUMBER" > pr.diff 2>/dev/null || echo "" > pr.diff
+          # Get the diff for the PR using git (more reliable than gh pr diff)
+          git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=50 2>/dev/null || true
+          git diff "origin/${{ github.event.pull_request.base.ref }}"...HEAD > pr.diff 2>/dev/null || echo "" > pr.diff
           DIFF_SIZE=$(wc -c < pr.diff)
           echo "diff_size=$DIFF_SIZE" >> "$GITHUB_OUTPUT"
 
