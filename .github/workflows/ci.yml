@@ -263,7 +263,7 @@ jobs:
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
     needs: classify-changes
-    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_rust_audit == 'true'
+    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_rust_audit == 'true' || github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -623,7 +623,7 @@ jobs:
   workers-hardening-tests:
     name: Workers Hardening Tests (M9)
     needs: [classify-changes]
-    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.tier != 'LIGHT'
+    if: github.event_name != 'pull_request' || needs.classify-changes.outputs.tier != 'LIGHT' || github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
