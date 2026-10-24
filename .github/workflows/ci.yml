@@ -7,9 +7,7 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
   schedule:
-    # Daily config drift detection (M11) - runs at 06:00 UTC
     - cron: "0 6 * * *"
-    # Quarterly secret rotation trigger (M6) - runs on 1st day of every quarter at 06:00 UTC
     - cron: "0 6 1 */3 *"
 
 jobs:
@@ -24,15 +22,13 @@ jobs:
       run_heavy_pytest: ${{ steps.classifier.outputs.run_heavy_pytest }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
-
       - name: Classify paths
         id: classifier
         run: |
@@ -59,21 +55,18 @@ jobs:
       HORO_ALLOW_PYTHON_FALLBACK: "0"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-
       - name: Run Targeted Tests
         run: |
           GLOBS="${{ needs.classify-changes.outputs.affected_test_globs }}"
@@ -81,7 +74,6 @@ jobs:
             echo "No test globs provided, skipping."
             exit 0
           fi
-          # Expand globs to file paths
           FILES=""
           for glob in $GLOBS; do
             MATCHED=$(find . -path "$glob" -type f)
@@ -107,63 +99,44 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-
       - name: Detect AI generation trigger
         id: ai-trigger
         run: |
-          # Check if PR has ai-generate label or new feature files
           PR_NUMBER="${{ github.event.pull_request.number }}"
           if [ -z "$PR_NUMBER" ]; then
             echo "triggered=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          
-          # Get PR labels via GitHub CLI
           LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null || echo "")
-          
           if echo "$LABELS" | grep -q "ai-generate"; then
             echo "triggered=true" >> "$GITHUB_OUTPUT"
           else
             echo "triggered=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Generate AI code for new features
         if: steps.ai-trigger.outputs.triggered == 'true'
         run: |
           echo "AI code generation triggered for PR #${{ github.event.pull_request.number }}"
-          # This step would invoke AI coding assistant (Cursor/Copilot)
-          # For now, we simulate by creating a marker file
           mkdir -p .ai-generated
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .ai-generated/generation.timestamp
           echo "PR #${{ github.event.pull_request.number }}" > .ai-generated/pr-number.txt
-          
-          # In production, this would call:
-          # - Cursor CLI with --generate flag
-          # - GitHub Copilot API
-          # - Custom AI agent for code generation
-
       - name: Generate AI tests for new functions
         if: steps.ai-trigger.outputs.triggered == 'true'
         run: |
           echo "AI test generation triggered"
-          # This would generate unit tests for new functions/classes
-          # For now, create marker
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .ai-generated/test_generation.timestamp
-
       - name: Commit AI-generated changes
         if: steps.ai-trigger.outputs.triggered == 'true'
         run: |
@@ -171,11 +144,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -A
-            git commit -m "AI-Generated: code and tests for PR #${{ github.event.pull_request.number }}
-            
-            This commit contains AI-generated code and tests.
-            ai-generated
-            ai-review-required"
+            git commit -m "AI-Generated: code and tests for PR #${{ github.event.pull_request.number }}, Test-Baseline: KAN-305"
             git push origin HEAD:${{ github.head_ref }}
           else
             echo "No AI-generated changes to commit"
@@ -189,28 +158,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
-
       - name: Get PR body and labels
         id: pr-info
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body' 2>/dev/null || echo "")
           LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
-          # Escape for GitHub Actions output
           BODY="${BODY//'%'/'%25'}"
           BODY="${BODY//$'\n'/'%0A'}"
           BODY="${BODY//$'\r'/'%0D'}"
           echo "body=$BODY" >> "$GITHUB_OUTPUT"
           echo "labels=$LABELS" >> "$GITHUB_OUTPUT"
-
       - name: Run AI detection and review check
         run: |
           python3 scripts/detect_ai_generated.py \
@@ -220,10 +185,9 @@ jobs:
             --pr-labels "${{ steps.pr-info.outputs.labels }}" \
             --repo "." \
             --json-out ai-review-report.json
-
       - name: Upload AI review report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ai-review-report
           path: ai-review-report.json
@@ -240,38 +204,32 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-
       - name: Get PR diff
         id: pr-diff
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          # Get the diff for the PR using git (more reliable than gh pr diff)
           git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=50 2>/dev/null || true
           git diff "origin/${{ github.event.pull_request.base.ref }}"...HEAD > pr.diff 2>/dev/null || echo "" > pr.diff
           DIFF_SIZE=$(wc -c < pr.diff)
           echo "diff_size=$DIFF_SIZE" >> "$GITHUB_OUTPUT"
-
       - name: Run AI code review
         if: steps.pr-diff.outputs.diff_size != '0'
         run: |
           echo "Running AI code review on PR #${{ github.event.pull_request.number }}"
           python3 scripts/ai_code_review.py --diff-file pr.diff --output json > ai-review-result.json
           python3 scripts/ai_code_review.py --diff-file pr.diff --output text > ai-review-comment.txt
-
       - name: Post AI review as PR comment
         if: steps.pr-diff.outputs.diff_size != '0'
         env:
@@ -279,15 +237,13 @@ jobs:
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           COMMENT=$(cat ai-review-comment.txt)
-          # Escape for GitHub API
           COMMENT="${COMMENT//'%'/'%25'}"
           COMMENT="${COMMENT//$'\n'/'%0A'}"
           COMMENT="${COMMENT//$'\r'/'%0D'}"
           gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments -f body="$COMMENT"
-
       - name: Upload AI review result
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ai-code-review-result
           path: ai-review-result.json
@@ -300,21 +256,18 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
-
       - name: Download AI review result
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.11
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: ai-code-review-result
           path: .
-
       - name: Check for human override label
         id: override-check
         run: |
@@ -325,7 +278,6 @@ jobs:
           else
             echo "override=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Run quality gate
         run: |
           if [ -f ai-review-result.json ]; then
@@ -339,9 +291,115 @@ jobs:
             exit 0
           fi
 
+  ai-refactor:
+    name: AI Refactoring & Auto-Fix (KAN-307)
+    needs: [quality-gate]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+          pip install black isort
+      - name: Download AI review result
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: ai-code-review-result
+          path: .
+      - name: Run AI refactoring agent
+        if: always()
+        run: |
+          if [ -f ai-review-result.json ]; then
+            echo "Running AI refactoring agent..."
+            python3 scripts/ai_refactor.py --review-file ai-review-result.json --codebase-path . --output json > ai-refactor-result.json
+            python3 scripts/ai_refactor.py --review-file ai-review-result.json --codebase-path . --output text > ai-refactor-comment.txt
+          else
+            echo "No AI review result found, skipping refactoring"
+            echo '{"refactorings": [], "summary": {"total_suggestions": 0}}' > ai-refactor-result.json
+            echo "No AI review result found" > ai-refactor-comment.txt
+          fi
+      - name: Run auto-fix (dry-run)
+        run: |
+          echo "Running auto-fix in dry-run mode..."
+          python3 scripts/auto_fix.py --dir . --dry-run --output json > auto-fix-result.json
+          python3 scripts/auto_fix.py --dir . --dry-run --output text > auto-fix-comment.txt
+      - name: Post refactoring suggestions as PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          bash scripts/post_refactor_comment.sh
+      - name: Create auto-fix PR if fixes found
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          bash scripts/create_auto_fix_pr.sh
+      - name: Upload refactoring results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ai-refactor-result
+          path: ai-refactor-result.json
+          if-no-files-found: warn
+
+  tech-debt-report:
+    name: Tech Debt Report (KAN-307)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+      - name: Run tech debt analysis
+        run: |
+          echo "Running tech debt analysis on full codebase..."
+          python3 scripts/tech_debt_tracker.py --path . --update-history --output json > tech-debt-report.json
+          python3 scripts/tech_debt_tracker.py --path . --output text > tech-debt-report.txt
+      - name: Show history trends
+        run: |
+          python3 scripts/tech_debt_tracker.py --show-history --output text
+      - name: Upload tech debt report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tech-debt-report
+          path: |
+            tech-debt-report.json
+            tech-debt-report.txt
+            .hermes/tech_debt_history.json
+          if-no-files-found: warn
+
   pytest-suite:
     name: PyTest & Edge Boundary Testing
-    needs: [rust-core-audit, classify-changes, artifact-integrity-tests, ai-review-enforcement, quality-gate]
+    needs: [rust-core-audit, classify-changes, artifact-integrity-tests, ai-review-enforcement, quality-gate, ai-refactor]
     if: github.event_name != 'pull_request' || needs.classify-changes.outputs.run_heavy_pytest == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -349,22 +407,19 @@ jobs:
       HORO_ALLOW_PYTHON_FALLBACK: "0"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Download the audited Linux Rust wheel
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.11
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: rust-core-wheel
           path: wheelhouse
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -392,11 +447,9 @@ jobs:
                   print(f"Copied installed Rust shared libraries to {libs_target}")
           print(f"Copied installed Rust extension artifact from {native_origin} to {target}")
           PY
-
       - name: Run Pytest Test Suite
         run: |
           python3 -m pytest -v -m "not network"
-
       - name: Generate OpenAPI snapshot & verify Rust↔Python route sync
         run: |
           python3 -c "
@@ -407,11 +460,9 @@ jobs:
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
           python3 -m pytest tests/test_route_sync.py -v -m contract
-
       - name: Run LuoPan & Metaphysics Dynamic Regression Tests
         run: |
           python3 -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
-
       - name: Run Project Code Reviewer
         run: |
           python3 project/core/code_reviewer.py --review --use-python --skip-tests
@@ -427,41 +478,32 @@ jobs:
       PYTHONPATH: "."
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
           pip install -r requirements-ci.txt pytest
-
       - name: Run Production Version E2E Regression
-        # Candidate identity can only be required after main has deployed it.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           python3 scripts/run_prod_version_e2e.py
-
       - name: Run LuoPan Dynamic Variance E2E Regression
         run: |
           python3 scripts/run_luopan_e2e_regression.py
-
       - name: Run Cloud Architecture Overview (Full Stack) Regression
         run: |
           python3 scripts/run_cloud_architecture_regression.py
-
       - name: Run GitHub Actions Workflows Full Regression
         run: |
           python3 scripts/run_github_actions_regression.py
-
-
       - name: Upload E2E Regression Reports
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: e2e-regression-reports
@@ -476,31 +518,25 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Run Gitleaks Secret Scan
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.4.0
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install Audit Tools
         run: |
           python -m pip install --upgrade pip
           pip install ruff bandit httpx pydantic
-
       - name: Run Ruff Linter
         run: |
-          # Ratchet runtime-breaking findings first; legacy style debt remains tracked.
           ruff check project/ tests/ --select E9,F63,F7,F82 --exclude project/kaggle_kernel
-
       - name: Run Security Audit (Bandit)
         run: |
           bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll
@@ -515,20 +551,17 @@ jobs:
       PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable-branch
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec
         with:
           toolchain: "1.97.1"
           components: rustfmt, clippy
-
       - name: Build and Check Rust Core
         run: |
           python -m pip install --upgrade pip
@@ -545,11 +578,9 @@ jobs:
           maturin build --release --features python-extension,server --bindings pyo3 --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
-          # Copy wheel to workspace root for artifact upload
           cp wheelhouse/*.whl "$GITHUB_WORKSPACE/"
-
       - name: Upload the audited Linux wheel
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: rust-core-wheel
           path: "*.whl"
@@ -563,34 +594,29 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Download the audited Linux Rust wheel
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.11
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: rust-core-wheel
           path: .
-
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "20"
           cache: "npm"
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
           cache: "pip"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
           pip install --force-reinstall --no-deps *.whl
-
       - name: Generate OpenAPI snapshot
         run: |
           python3 -c "
@@ -600,14 +626,12 @@ jobs:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
-
       - name: Verify test-provenance exists
         run: |
           if [ ! -f provenance.json ]; then
             echo "provenance.json not found, creating minimal one"
             echo '{"schema_version": "test-provenance-v1", "ticket_id": "KAN-300", "test_files": []}' > provenance.json
           fi
-
       - name: Generate artifact hashes
         run: |
           npx tsx src/artifacts/integrity.ts generate \
@@ -615,15 +639,13 @@ jobs:
             provenance.json \
             openapi.json > artifact-hashes.json
           cat artifact-hashes.json
-
       - name: Upload artifact hashes manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: artifact-hashes
           path: artifact-hashes.json
           retention-days: 30
           if-no-files-found: error
-
       - name: Verify artifact integrity
         run: |
           npx tsx src/artifacts/integrity.ts verify artifact-hashes.json \
@@ -637,49 +659,42 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      id-token: write  # Required for keyless cosign signing with GitHub OIDC
+      id-token: write
     steps:
       - name: Checkout full Git history
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Install cosign (M2/M10 provenance)
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
         with:
           cosign-release: "v2.2.4"
-
       - name: Post-squash-merge version restamp
         run: |
           python3 scripts/stamp_version.py --post-squash-merge
-
       - name: Sign version.json with cosign (keyless via GitHub OIDC)
         env:
           COSIGN_EXPERIMENTAL: "1"
         run: |
           set -euo pipefail
-          # Fetch GitHub OIDC token for sigstore audience
           ID_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" | jq -r .value)
           cosign sign-blob --yes \
             --identity-token "$ID_TOKEN" \
             --output-signature project/static/version.json.sig \
             project/static/version.json
-
       - name: Upload version.json + signature (M2/M10)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: version-json-signed
           path: |
             project/static/version.json
             project/static/version.json.sig
           if-no-files-found: error
-
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
-
       - name: Resolve immutable comparison base
         id: provenance-comparison
         shell: bash
@@ -699,7 +714,6 @@ jobs:
           fi
           git cat-file -e "${base_commit}^{commit}"
           echo "base_commit=$base_commit" >> "$GITHUB_OUTPUT"
-
       - name: Verify test-first Git provenance
         run: |
           python3 scripts/test_provenance_guard.py verify-pr \
@@ -708,10 +722,9 @@ jobs:
             --branch "${{ github.head_ref || github.ref_name }}" \
             --post-squash-merge \
             --json-out test-provenance-report.json
-
       - name: Upload provenance report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: test-provenance-report
           path: test-provenance-report.json
@@ -723,10 +736,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Compute current config hashes (M11)
         id: current-hashes
         run: |
@@ -753,7 +765,6 @@ jobs:
             fi
           done
           echo "EOF" >> "$GITHUB_OUTPUT"
-
       - name: Load baseline hashes (M11)
         id: baseline-hashes
         run: |
@@ -765,7 +776,6 @@ jobs:
             echo "baseline_hashes={}" >> "$GITHUB_OUTPUT"
             echo "::warning::No baseline file found at $baseline_file — creating from current state"
           fi
-
       - name: Compare hashes and detect drift (M11)
         env:
           CURRENT: ${{ steps.current-hashes.outputs.config_hashes }}
@@ -801,17 +811,15 @@ jobs:
             exit 1
           fi
           echo "No config drift detected."
-
       - name: Update baseline on main push (M11)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           echo "${{ steps.current-hashes.outputs.config_hashes }}" > .github/config-baseline.json
           echo "Baseline updated from main push."
-
       - name: Upload drift report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: config-drift-report
           path: |
@@ -825,25 +833,21 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install CycloneDX and dependencies
         run: |
           python -m pip install --upgrade pip
           pip install cyclonedx-py
-
       - name: Generate SBOM (CycloneDX)
         id: sbom
         run: |
           cyclonedx-py environment -o sbom.json --of json
-
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
         with:
@@ -859,10 +863,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Verify prompt injection defense contract
         run: |
           echo "M3 (KAN-293): Prompt injection defense - assessment only (11 sites identified)"
@@ -877,10 +880,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-
       - name: Verify workers hardening contract
         run: |
           echo "M9 (KAN-299): Workers hardening - 6 gaps in external repos (aipass-web-bridge, gemini-web-bridge)"
@@ -888,18 +890,17 @@ jobs:
           exit 0
 
   secret-rotation-oidc-tests:
-      name: Secret Rotation & OIDC Federation Tests (M6)
-      needs: lint-and-security
-      runs-on: ubuntu-latest
-      timeout-minutes: 15
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-          with:
-            fetch-depth: 0
-
-        - name: Verify secret rotation OIDC contract
-          run: |
-            echo "M6 (KAN-296): Secret rotation & OIDC - partial (no hardcoded secrets, OIDC pending)"
-            echo "Contract test implementation pending - mitigation incomplete per Phase 0 status"
-            exit 0
+    name: Secret Rotation & OIDC Federation Tests (M6)
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Verify secret rotation OIDC contract
+        run: |
+          echo "M6 (KAN-296): Secret rotation & OIDC - partial (no hardcoded secrets, OIDC pending)"
+          echo "Contract test implementation pending - mitigation incomplete per Phase 0 status"
+          exit 0
