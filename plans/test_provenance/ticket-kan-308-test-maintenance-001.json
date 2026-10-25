@@ -38,7 +38,8 @@
     "scripts/test_maintenance.py",
     "tests/test_phase4_test_maintenance.py",
     ".github/workflows/ci.yml",
-    "scripts/run_test_maintenance.sh"
+    "scripts/run_test_maintenance.sh",
+    "pyproject.toml"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
