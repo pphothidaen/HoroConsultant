@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-293",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "058e0f77273fb56f878deef127e77f7ea58be7f1",
+  "test_files": [
+    {
+      "path": "tests/test_prompt_injection_contract.py",
+      "sha256": "522a0399242df8a13521d9733ad601d5fdad93f60a087a66b5812e06e66cf5fc"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": "python3 tests/test_prompt_injection_contract.py",
+      "expected_exit": 1,
+      "failure_fingerprint": "FAIL: test_detect_injection"
+    }
+  ],
+  "allowed_source_paths": [
+    "src/security/",
+    "tests/",
+    "scripts/",
+    ".github/workflows/",
+    "package-lock.json",
+    ".gitleaks.toml"
+  ],
+  "test_owner_role": "agent-qa_tester",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": "9e6b6988dadbaaaea4e561aa2434ed9d21ae26df",
+  "correction_reason": "Implemented GREEN: prompt injection detection/sanitization, max token limits, configurable patterns, Workers integration",
+  "rationale": "Implement prompt injection detection and sanitization per CONTRACT 1 Security Middleware Interface. Detects common injection patterns (ignore previous instructions, system prompt extraction, role manipulation), sanitizes outputs, enforces max input token limits, provides configurable pattern list. Includes Python mirror for contract testing."
+}
