@@ -1,0 +1,68 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-306",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
+  "test_files": [
+    {
+      "path": "tests/test_ai_code_review.py",
+      "sha256": "12a0a9bf5702534dd6dc2f114ad4bcd3600b5af59b4fa596ec91f27564f6134d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_ai_code_review.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AI code review and quality gate scripts not yet implemented"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/ai_code_review.py",
+    "scripts/quality_gate.py",
+    "scripts/ai_refactor.py",
+    "scripts/auto_fix.py",
+    "scripts/tech_debt_tracker.py",
+    "scripts/test_provenance_guard.py",
+    "scripts/create_auto_fix_pr.sh",
+    "scripts/post_refactor_comment.sh",
+    "scripts/sast_scan.py",
+    "scripts/dependency_scan.py",
+    "scripts/run_security_scan.sh",
+    "scripts/run_test_maintenance.sh",
+    "scripts/test_maintenance.py",
+    "scripts/run_doc_sync.sh",
+    "scripts/run_observability.sh",
+    "scripts/doc_sync.py",
+    "scripts/observability.py",
+    "scripts/release_notes.py",
+    "scripts/create_release_notes.sh",
+    "tests/test_ai_code_review.py",
+    "tests/test_ai_refactor.py",
+    "tests/test_phase4_test_maintenance.py",
+    "tests/test_phase4_security.py",
+    "tests/test_phase4_doc_sync.py",
+    "tests/test_phase4_observability.py",
+    "tests/test_phase4_release_notes.py",
+    ".github/workflows/ci.yml",
+    ".github/workflows/test_provenance.yml",
+    ".hermes/tech_debt_history.json",
+    "test-provenance-report.json",
+    "package-lock.json",
+    "plans/test_provenance/ticket-kan-306-seq2-allowed-paths-002.json",
+    "src/artifacts/integrity.ts",
+    "plans/test_provenance/ticket-kan-306-seq3-integrity-ts-003.json",
+    "pyproject.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "479176ffd96ef71fff671161725a02546bfac596",
+  "correction_reason": "Add artifact integrity TypeScript file and its provenance manifest to allowed_source_paths",
+  "rationale": "The artifact-integrity-tests CI job requires src/artifacts/integrity.ts to generate SHA256 hashes for wheels, provenance, and OpenAPI snapshots. The wheelhouse path was fixed (download to . not wheelhouse/)."
+}
+

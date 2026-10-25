@@ -124,6 +124,7 @@ ALLOWED_GOVERNANCE_EXTENSION_KEYS = {
     "user_authorizations",
     "user_exclusions",
     "worktree_boundary",
+    "green_tests",
 }
 TEST_FILE_KEYS = {"path", "sha256"}
 ALLOWED_TEST_FILE_EXTENSION_KEYS = {
@@ -425,8 +426,10 @@ def _diff_coverage_notes(
     return notes
 
 
-def _resolve_commit(repo: Path, revision: str) -> str:
-    result = _git(repo, "rev-parse", "--verify", f"{revision}^{{commit}}")
+def _resolve_commit(repo: Path, revision: str) -> str | None:
+    result = _git(repo, "rev-parse", "--verify", f"{revision}^{{commit}}", check=False)
+    if result.returncode != 0:
+        return None
     return result.stdout.strip()
 
 
@@ -618,7 +621,13 @@ def verify_history(
     report.ticket_id = manifest.get("ticket_id") if isinstance(manifest.get("ticket_id"), str) else None
 
     head = _resolve_commit(repo, head_revision)
+    if head is None:
+        report.add("PR_PROVENANCE_ERROR", f"head revision {head_revision} not found in repository")
+        return report
     baseline = _resolve_commit(repo, baseline_revision) if baseline_revision else _find_baseline(repo, manifest_path)
+    if baseline is None:
+        report.add("PR_PROVENANCE_ERROR", f"baseline revision {baseline_revision} not found in repository")
+        return report
     report.head_commit = head
     report.baseline_commit = baseline
 
@@ -680,10 +689,7 @@ def verify_history(
             except GuardFailure as exc:
                 report.add("MANIFEST_OBJECT_MISSING", str(exc), manifest_path)
 
-        try:
-            actual_parent = _resolve_commit(repo, f"{baseline}^")
-        except GuardFailure:
-            actual_parent = ""
+        actual_parent = _resolve_commit(repo, f"{baseline}^") or ""
         if manifest.get("baseline_parent") != actual_parent:
             report.add("BASELINE_PARENT_MISMATCH", "manifest baseline_parent does not match baseline parent")
     else:
@@ -695,12 +701,11 @@ def verify_history(
 
     supersedes = manifest.get("supersedes")
     if isinstance(supersedes, str) and GIT_SHA_RE.fullmatch(supersedes):
-        try:
-            superseded = _resolve_commit(repo, supersedes)
-            if actual_parent and not _is_ancestor(repo, superseded, actual_parent):
-                report.add("SUPERSEDED_BASELINE_NOT_ANCESTOR", "superseded baseline is not in prior history")
-        except GuardFailure:
+        superseded = _resolve_commit(repo, supersedes)
+        if superseded is None:
             report.add("SUPERSEDED_BASELINE_INVALID", "superseded baseline cannot be resolved")
+        elif actual_parent and not _is_ancestor(repo, superseded, actual_parent):
+            report.add("SUPERSEDED_BASELINE_NOT_ANCESTOR", "superseded baseline is not in prior history")
 
     listed_tests: set[str] = set()
     test_files = manifest.get("test_files")
@@ -1197,9 +1202,13 @@ def verify_pr(
                             subsequent_parents.append(parent_of_ca)
                             break
             if subsequent_parents:
-                subsequent_parents.sort(
-                    key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
-                )
+                def _count_commits(p):
+                    try:
+                        return int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
+                    except GuardFailure:
+                        # Baseline not in history (e.g., after rebase), treat as infinite distance
+                        return float("inf")
+                subsequent_parents.sort(key=_count_commits)
                 verification_head = subsequent_parents[0]
                 is_superseded = True
             else:

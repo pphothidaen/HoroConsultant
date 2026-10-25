@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-306",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
+  "test_files": [
+    {
+      "path": "project/tests/test_cicd_workflow.py",
+      "sha256": "c48fd5b4d3d6c752fea2b1c58400096d917c9efa09d6157f2c361f0390d65271"
+    },
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "0e84079bac17dd86759a6e6cef613487bfbd78cdc6d5d0aedb163c4776dba573"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "project/tests/test_cicd_workflow.py::test_full_pytest_uses_the_linux_wheel_with_fallback_disabled"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Regression test expects @v4 but workflow uses pinned SHA per KAN-291"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "project/tests/test_github_actions_regression.py::TestSpecificWorkflowsIntegrity::test_ci_workflow_has_safety_audits"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Regression test expects @v4 but workflow uses pinned SHA per KAN-291"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_cicd_workflow.py",
+    "project/tests/test_github_actions_regression.py",
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "479176ffd96ef71fff671161725a02546bfac596",
+  "correction_reason": "Fix regression tests to accept pinned SHA action refs per KAN-291 pinning policy",
+  "rationale": "Update AI Safety Audit regression tests to check for action name without version tag, allowing pinned SHAs as required by KAN-291"
+}

@@ -306,8 +306,8 @@ class TestSpecificWorkflowsIntegrity:
         content = (WORKFLOWS_DIR / "ci.yml").read_text(encoding="utf-8")
         assert "project/core/code_reviewer.py" in content
         assert "cargo clippy" in content
-        assert "actions/upload-artifact@v4" in content
-        assert "actions/download-artifact@v4" in content
+        assert "actions/upload-artifact@" in content
+        assert "actions/download-artifact@" in content
 
     def test_production_monitor_workflow(self):
         """The monitor is a GET-only exact-identity audit of Render Docker and Vercel."""

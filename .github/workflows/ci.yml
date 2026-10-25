@@ -259,6 +259,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
+          python -m pip install pytest pytest-cov
           pip install --force-reinstall --no-deps wheelhouse/*.whl
           python - <<'PY'
           import os
@@ -283,28 +284,34 @@ jobs:
           print(f"Copied installed Rust extension artifact from {native_origin} to {target}")
           PY
 
+      - name: Make scripts executable (except library modules)
+        run: |
+          chmod +x scripts/*.py scripts/*.sh
+          # jira_label_gate.py is a library module, must stay 100644 (KAN-119)
+          chmod -x scripts/jira_label_gate.py
+
       - name: Run Pytest Test Suite
         run: |
-          python3 -m pytest -v -m "not network"
+          python -m pytest -v -m "not network"
 
       - name: Generate OpenAPI snapshot & verify Rust↔Python route sync
         run: |
-          python3 -c "
+          python -c "
           import json
           from project.main import app
           with open('/tmp/oa.json', 'w') as f:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
-          python3 -m pytest tests/test_route_sync.py -v -m contract
+          python -m pytest tests/test_route_sync.py -v -m contract
 
       - name: Run LuoPan & Metaphysics Dynamic Regression Tests
         run: |
-          python3 -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
+          python -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
 
       - name: Run Project Code Reviewer
         run: |
-          python3 project/core/code_reviewer.py --review --use-python --skip-tests
+          python project/core/code_reviewer.py --review --use-python --skip-tests
 
   e2e-production-audit:
     name: Live Production Version & LuoPan E2E Regression
@@ -451,6 +458,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      HORO_ALLOW_PYTHON_FALLBACK: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -479,12 +488,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-          pip install --force-reinstall --no-deps *.whl
+          # Skip Rust wheel install - not needed for hash generation, avoids platform compat issues
+          # pip install --force-reinstall --no-deps *.whl
 
       - name: Generate OpenAPI snapshot
+        env:
+          HORO_ALLOW_PYTHON_FALLBACK: "1"
         run: |
-          python3 -c "
+          python -c "
           import json
+          import os
+          os.environ['HORO_ALLOW_PYTHON_FALLBACK'] = '1'
           from project.main import app
           with open('openapi.json', 'w') as f:
               json.dump(app.openapi(), f)
@@ -501,7 +515,7 @@ jobs:
       - name: Generate artifact hashes
         run: |
           npx tsx src/artifacts/integrity.ts generate \
-            wheelhouse/*.whl \
+            ./*.whl \
             provenance.json \
             openapi.json > artifact-hashes.json
           cat artifact-hashes.json
@@ -596,7 +610,7 @@ jobs:
             --base "${{ steps.provenance-comparison.outputs.base_commit }}" \
             --head HEAD \
             --branch "${{ github.head_ref || github.ref_name }}" \
-            --post-squash-merge \
+            ${{ github.event_name == 'push' && '--post-squash-merge' || '' }} \
             --json-out test-provenance-report.json
 
       - name: Upload provenance report
@@ -778,18 +792,217 @@ jobs:
           exit 0
 
   secret-rotation-oidc-tests:
-      name: Secret Rotation & OIDC Federation Tests (M6)
-      needs: lint-and-security
-      runs-on: ubuntu-latest
-      timeout-minutes: 15
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-          with:
-            fetch-depth: 0
+    name: Secret Rotation & OIDC Federation Tests (M6)
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
 
-        - name: Verify secret rotation OIDC contract
-          run: |
-            echo "M6 (KAN-296): Secret rotation & OIDC - partial (no hardcoded secrets, OIDC pending)"
-            echo "Contract test implementation pending - mitigation incomplete per Phase 0 status"
-            exit 0
+      - name: Verify secret rotation OIDC contract
+        run: |
+          echo "M6 (KAN-296): Secret rotation & OIDC - partial (no hardcoded secrets, OIDC pending)"
+          echo "Contract test implementation pending - mitigation incomplete per Phase 0 status"
+          exit 0
+
+  release-notes:
+    name: Release Notes Automation (KAN-308 4A)
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+      - name: Run release notes generation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          bash scripts/create_release_notes.sh
+      - name: Upload release notes artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-notes
+          path: release-notes-*.md
+          if-no-files-found: warn
+
+  security-scan:
+    name: Security Scan (KAN-308 4B)
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+          pip install semgrep
+      - name: Run security scan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          bash scripts/run_security_scan.sh
+      - name: Upload security scan artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: security-scan
+          path: |
+            sast-result.json
+            dependency-result.json
+            security-comment.txt
+            if-no-files-found: warn
+
+  test-maintenance:
+    name: Test Maintenance (KAN-308 4C)
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+          pip install pytest-cov
+      - name: Run test maintenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          bash scripts/run_test_maintenance.sh
+      - name: Upload test maintenance artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: test-maintenance
+          path: |
+            .hermes/flaky_history.json
+            .hermes/coverage_baseline.json
+            .hermes/coverage.json
+            tests/generated/
+          if-no-files-found: warn
+
+  doc-sync:
+    name: Documentation Sync (KAN-308 4D)
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+      - name: Run documentation sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          bash scripts/run_doc_sync.sh
+      - name: Upload doc sync artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: doc-sync
+          path: |
+            doc-sync-report.json
+            drift-report.json
+          if-no-files-found: warn
+
+  observability:
+    name: AI Governance Observability (KAN-308 4E)
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+      - name: Run observability dashboard
+        run: |
+          bash scripts/run_observability.sh pr
+      - name: Run anomaly detection
+        run: |
+          bash scripts/run_observability.sh detect-anomalies
+      - name: Run telemetry aggregation
+        run: |
+          bash scripts/run_observability.sh telemetry
+      - name: Upload observability artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: observability
+          path: |
+            .hermes/pr_health_dashboard.json
+            .hermes/weekly_health_report.json
+            .hermes/ci_history.json
+            .hermes/quality_gate_history.json
+          if-no-files-found: warn

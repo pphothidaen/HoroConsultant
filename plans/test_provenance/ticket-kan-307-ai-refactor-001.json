@@ -1,0 +1,32 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-307",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
+  "test_files": [
+    {
+      "path": "tests/test_ai_refactor.py",
+      "sha256": "1597e8b7a55d638041918e52e6d9890cba1ca975884fddc9f0efdb458881332d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_ai_refactor.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AI refactoring agent, auto-fix engine, and tech debt tracker not yet implemented"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/ai_refactor.py",
+    "scripts/auto_fix.py",
+    "scripts/tech_debt_tracker.py",
+    "tests/test_ai_refactor.py",
+    ".github/workflows/ci.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add AI-powered refactoring agent, auto-fix engine, and tech debt tracker for Phase 3 of AI-SDLC transformation"
+}

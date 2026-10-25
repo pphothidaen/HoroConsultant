@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-308",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
+  "test_files": [
+    {
+      "path": "tests/test_phase4_doc_sync.py",
+      "sha256": "df1590c976f27db0b7878ce9e9d3cc20286f84f8835baf74f23cfa831f333ab7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_doc_sync.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Documentation sync scripts not yet implemented"
+    }
+  ],
+  "green_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_doc_sync.py"],
+      "expected_exit": 0,
+      "pass_fingerprint": "All 20 tests pass: script exists, executable, help works, CI job defined"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/doc_sync.py",
+    "tests/test_phase4_doc_sync.py",
+    ".github/workflows/ci.yml",
+    "scripts/run_doc_sync.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add documentation sync for Phase 4 of AI-SDLC transformation (4D): doc/code drift detection, API docs generation, architecture diagram sync, code example validation"
+}
