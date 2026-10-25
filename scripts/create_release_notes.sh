@@ -25,38 +25,29 @@ fi
 echo "Installing dependencies..."
 pip install -e .[test] > /dev/null 2>&1
 
+# Get previous tag for version comparison
+PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
 # Generate release notes
 echo "Generating release notes..."
-python3 scripts/release_notes.py generate \
-    --from-tag $(git describe --tags --abbrev=0 2>/dev/null || echo "") \
-    --to-tag HEAD \
-    --output RELEASE_NOTES.md \
-    --format markdown
-
-# Update CHANGELOG.md
-echo "Updating CHANGELOG.md..."
-python3 scripts/release_notes.py changelog \
-    --release-notes RELEASE_NOTES.md \
-    --changelog CHANGELOG.md
+if [[ -n "${PREV_TAG}" ]]; then
+    python3 scripts/release_notes.py         --previous-version "${PREV_TAG}"         --version "auto"         --output RELEASE_NOTES.md         --changelog CHANGELOG.md         --repo-path .
+else
+    python3 scripts/release_notes.py         --version "auto"         --output RELEASE_NOTES.md         --changelog CHANGELOG.md         --repo-path .
+fi
 
 # Create GitHub Release (draft)
 if [[ "${MODE}" == "tag_push" && -n "${GITHUB_TOKEN:-}" && -n "${GITHUB_REPOSITORY:-}" ]]; then
     echo "Creating GitHub Release..."
     TAG_NAME="${GITHUB_REF#refs/tags/}"
-    RELEASE_BODY=$(cat RELEASE_NOTES.md | sed ':a;N;s/\n/\\n/g;ta' | sed 's/"/\\"/g')
-    
-    gh api repos/${GITHUB_REPOSITORY}/releases \
-        -f tag_name="${TAG_NAME}" \
-        -f name="Release ${TAG_NAME}" \
-        -f body="${RELEASE_BODY}" \
-        -f draft=true \
-        -f prerelease=false || echo "Failed to create release (may already exist)"
+    python3 scripts/release_notes.py         --version "${TAG_NAME}"         --github-release         --draft         --repo "${GITHUB_REPOSITORY}"
 fi
 
 # Post as PR comment if on PR (for manual trigger on PR)
 if [[ "${GITHUB_EVENT_NAME}" == "pull_request" && -n "${GITHUB_TOKEN:-}" && -n "${GITHUB_REPOSITORY:-}" && -n "${GITHUB_PR_NUMBER:-}" ]]; then
     echo "Posting release notes preview as PR comment..."
-    RELEASE_BODY=$(cat RELEASE_NOTES.md | sed ':a;N;s/\n/\\n/g;ta' | sed 's/"/\\"/g')
+    RELEASE_BODY=$(cat RELEASE_NOTES.md | sed ':a;N;s/
+/\n/g;ta' | sed 's/"/\"/g')
     gh api repos/${GITHUB_REPOSITORY}/issues/${GITHUB_PR_NUMBER}/comments -f body="${RELEASE_BODY}" || echo "Failed to post comment"
 fi
 
