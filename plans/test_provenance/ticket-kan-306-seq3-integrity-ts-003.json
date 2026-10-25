@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-306",
   "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "11d6bcb1423715fd7fe0cbaf7634ff2c79eb4651",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
   "test_files": [
     {
       "path": "tests/test_ai_code_review.py",
@@ -61,7 +61,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "11d6bcb1423715fd7fe0cbaf7634ff2c79eb4651",
+  "supersedes": "479176ffd96ef71fff671161725a02546bfac596",
   "correction_reason": "Add artifact integrity TypeScript file and its provenance manifest to allowed_source_paths",
   "rationale": "The artifact-integrity-tests CI job requires src/artifacts/integrity.ts to generate SHA256 hashes for wheels, provenance, and OpenAPI snapshots. The wheelhouse path was fixed (download to . not wheelhouse/)."
 }

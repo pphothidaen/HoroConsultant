@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-308",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "ccfa8fb3a81058fc895c9347dfeac88b601fb971",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
   "test_files": [
     {
       "path": "tests/test_phase4_release_notes.py",
