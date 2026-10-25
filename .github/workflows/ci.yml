@@ -503,7 +503,7 @@ jobs:
       - name: Generate artifact hashes
         run: |
           npx tsx src/artifacts/integrity.ts generate \
-            wheelhouse/*.whl \
+            ./*.whl \
             provenance.json \
             openapi.json > artifact-hashes.json
           cat artifact-hashes.json
