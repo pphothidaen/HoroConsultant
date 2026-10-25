@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-308",
+  "sequence": 5,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "2f3eaef7057ea88212f0df08ffbaaa3e1aa7537d",
+  "test_files": [
+    {
+      "path": "tests/test_phase4_observability.py",
+      "sha256": "e5706a0eb110968238001273c75efc0a9ea346e8158a5ef1eaad8367eb85ba10"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_observability.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Observability script and CI job not yet implemented"
+    }
+  ],
+  "green_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_observability.py"],
+      "expected_exit": 0,
+      "pass_fingerprint": "All 25 tests pass: script exists, executable, help works, CI job defined"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/observability.py",
+    "tests/test_phase4_observability.py",
+    ".github/workflows/ci.yml",
+    "scripts/run_observability.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add AI Governance Observability for Phase 4 of AI-SDLC transformation (4E): LangSmith/MLflow tracing, CI/CD anomaly detection, SDLC health dashboard (alerting only, no control authority), quality gate telemetry"
+}
