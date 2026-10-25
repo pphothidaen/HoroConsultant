@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-RETIRE-RECOVERY-ANCHOR-001",
-  "sequence": 1,
+  "sequence": 2,
   "provenance_status": "VERIFIED",
   "baseline_parent": "6dc90e34c1db728b4474f23dd113c65eb4a6004c",
   "test_files": [
     {
       "path": "tests/test_ci_clean_checkout_contract.py",
-      "sha256": "2dc051010191c6812b56e0c9e154190ee84a7d21e1807a2f2eb82efcca3b2dc1"
+      "sha256": "1a626bfc3beb6c5355c39036ede74f5eddba045972bd3b27d9f432402c493d1a"
     },
     {
       "path": "tests/test_test_provenance_guard.py",
@@ -30,11 +30,12 @@
   "allowed_source_paths": [
     ".github/workflows/ci.yml",
     ".github/workflows/ai_cicd.yml",
-    "scripts/branch_migration_action_priority_guard.py"
+    "scripts/branch_migration_action_priority_guard.py",
+    "tests/test_ci_clean_checkout_contract.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
+  "supersedes": "ticket-retire-recovery-anchor-baseline-20260831",
+  "correction_reason": "Updated test_ci_clean_checkout_contract.py SHA256 after fixing pinned checkout step matching (actions/checkout@<sha> vs v4). Test now correctly validates pinned action format.",
   "rationale": "Retire obsolete recovery/pre-test-provenance-20260827 branch anchor across CI workflows, test contracts, and branch migration action priority guard so that the remote branch can be cleanly deleted from GitHub origin without CI failure."
 }
