@@ -1198,9 +1198,13 @@ def verify_pr(
                             subsequent_parents.append(parent_of_ca)
                             break
             if subsequent_parents:
-                subsequent_parents.sort(
-                    key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
-                )
+                def _count_commits(p):
+                    try:
+                        return int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
+                    except GuardFailure:
+                        # Baseline not in history (e.g., after rebase), treat as infinite distance
+                        return float("inf")
+                subsequent_parents.sort(key=_count_commits)
                 verification_head = subsequent_parents[0]
                 is_superseded = True
             else:
