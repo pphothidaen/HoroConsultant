@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-308",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "101d7209944c8898f9fad9622d7ceb74d7d885e9",
+  "test_files": [
+    {
+      "path": "tests/test_phase4_test_maintenance.py",
+      "sha256": "f4d87cf3999061a1261d30612d746a6e6f04979577331c6eec87a3cf904c70db"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_test_maintenance.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Test maintenance automation scripts not yet implemented"
+    }
+  ],
+  "green_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "tests/test_phase4_test_maintenance.py"],
+      "expected_exit": 0,
+      "pass_fingerprint": "All 21 tests pass: script exists, executable, help works, CI job defined"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/test_maintenance.py",
+    "tests/test_phase4_test_maintenance.py",
+    ".github/workflows/ci.yml",
+    "scripts/run_test_maintenance.sh"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add test maintenance automation for Phase 4 of AI-SDLC transformation (4C): flaky detection, snapshot auto-update, coverage regression gate, AI test generation"
+}
