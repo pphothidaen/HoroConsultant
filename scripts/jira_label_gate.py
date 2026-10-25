@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Jira agent-label governance gate.
 
 Enforces the agent-* label taxonomy on the KAN board
