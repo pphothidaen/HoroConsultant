@@ -19,6 +19,7 @@
   ],
   "allowed_source_paths": [
     "scripts/release_notes.py",
+    "scripts/create_release_notes.sh",
     "tests/test_phase4_release_notes.py",
     ".github/workflows/ci.yml"
   ],

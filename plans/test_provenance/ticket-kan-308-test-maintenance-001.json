@@ -36,7 +36,17 @@
   ],
   "allowed_source_paths": [
     "scripts/test_maintenance.py",
+    "scripts/tech_debt_tracker.py",
+    "scripts/test_provenance_guard.py",
+    "scripts/ai_code_review.py",
+    "scripts/ai_refactor.py",
+    "scripts/auto_fix.py",
+    "scripts/quality_gate.py",
+    "scripts/create_auto_fix_pr.sh",
+    "scripts/post_refactor_comment.sh",
     "tests/test_phase4_test_maintenance.py",
+    "tests/test_ai_code_review.py",
+    "tests/test_ai_refactor.py",
     ".github/workflows/ci.yml",
     "scripts/run_test_maintenance.sh",
     "pyproject.toml"

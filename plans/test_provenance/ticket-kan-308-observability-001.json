@@ -28,6 +28,7 @@
     "scripts/observability.py",
     "tests/test_phase4_observability.py",
     ".github/workflows/ci.yml",
+    ".github/workflows/test_provenance.yml",
     "scripts/run_observability.sh"
   ],
   "test_owner_role": "qa_tester",
