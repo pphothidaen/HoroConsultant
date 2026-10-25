@@ -22,6 +22,14 @@ fi
 echo "Installing dependencies..."
 pip install -e .[test] > /dev/null 2>&1
 
+# Install gitleaks binary (not a Python package)
+if ! command -v gitleaks &> /dev/null; then
+    echo "Installing gitleaks..."
+    GITLEAKS_VERSION="8.18.2"
+    curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz -C /usr/local/bin gitleaks
+    chmod +x /usr/local/bin/gitleaks
+fi
+
 # Run SAST scan
 echo "Running SAST scan (gitleaks + Semgrep)..."
 python3 scripts/sast_scan.py scan --output sast-result.json --format sarif > /dev/null 2>&1 || true
