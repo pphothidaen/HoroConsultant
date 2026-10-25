@@ -9,7 +9,29 @@ paths = [
     "tests/test_secret_rotation_oidc_contract.py",
     "tests/test_artifact_integrity_contract.py",
     "tests/fixtures/pii_test_data.json",
-    "tests/fixtures/pii_test_data.json.pii-allowlist"
+# Test fixtures - safe token patterns used in contract tests
+paths = [
+    "tests/fixtures/pii_test_data.json.pii-allowlist",
+    "plans/active/meta-008-support/spark_safety_lane_dispatch_queue.md",
+    "project/data/hitl_reviews.json",
+    "project/tests/artifacts/delegate_spark_governance/5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b/smoke-result.json",
+    "tests/test_lease_manager.py",
+    "tests/test_keychain_isolation.py",
+    "d381eeaf4866b99e58a2ad26aab6dcc757493ec7",
+    "9eeee4b494836912aafbda047141f086e23ffe75",
+    "generic-api-key",
+]
+
+commits = [
+    "d381eeaf4866b99e58a2ad26aab6dcc757493ec7",
+    "9eeee4b494836912aafbda047141f086e23ffe75",
+]
+
+rules = [
+    "generic-api-key",
+]
+
+
 ]
 
 # Historical commits with known test patterns (gitleaksignore entries)

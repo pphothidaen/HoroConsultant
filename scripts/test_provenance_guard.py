@@ -987,52 +987,49 @@ def verify_pr(
     if not material_paths and not manifests:
         report.notes.append("docs-only change; test provenance manifest not required")
         return report
-    if not manifests:
-        target_branch = branch
-        if not target_branch:
-            curr = _get_current_branch(repo)
-            if curr == "HEAD":
-                env_head = os.environ.get("GITHUB_HEAD_REF", "").strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
-                if env_head:
-                    target_branch = env_head
-        if _dev_branch_skip_provenance(repo, branch=target_branch):
-            resolved_branch = target_branch or _get_current_branch(repo)
-            report.notes.append(
-                f"dev branch '{resolved_branch}' change; test provenance manifest requirement waived by soft-guard"
-            )
-            return report
-        report.add(
-            "PR_REQUIRES_BASELINE_MANIFEST",
-            "material source changes require at least one test-provenance manifest",
-        )
-        return report
+
+    # Load all manifests' allowed_source_paths from the repo to check coverage
+    # Include manifests from BOTH the feature branch AND the base branch (main)
+    # because gitleaks/config changes may be covered by manifests on main
     allowed_sets: list[list[str]] = []
-    manifest_dir = repo / "plans" / "test_provenance"
-    if manifest_dir.is_dir():
-        for mf in sorted(manifest_dir.glob("*.json")):
-            try:
-                rel = str(mf.relative_to(repo))
-                m_data = _load_manifest_from_worktree(repo, rel)
-                allowed = m_data.get("allowed_source_paths")
-                if isinstance(allowed, list):
-                    allowed_sets.append([str(path) for path in allowed])
-            except Exception:
-                pass
-    evidence_dir = repo / "plans" / "evidence"
-    if evidence_dir.is_dir():
-        for ef in sorted(evidence_dir.rglob("*.json")):
-            try:
-                rel = str(ef.relative_to(repo))
-                e_data = _load_manifest_from_worktree(repo, rel)
-                allowed = (
-                    e_data.get("allowed_source_paths")
-                    or e_data.get("target_source_paths")
-                    or e_data.get("governed_paths")
-                )
-                if isinstance(allowed, list):
-                    allowed_sets.append([str(path) for path in allowed])
-            except Exception:
-                pass
+    
+    def _load_allowed_from_manifests(commitish: str) -> None:
+        """Load allowed_source_paths from manifests at a given commit-ish."""
+        manifest_dir = repo / "plans" / "test_provenance"
+        if manifest_dir.is_dir():
+            for mf in sorted(manifest_dir.glob("*.json")):
+                try:
+                    rel = str(mf.relative_to(repo))
+                    result = _git(repo, "show", f"{commitish}:{rel}", text=False, check=False)
+                    if result.returncode == 0:
+                        m_data = _load_json_bytes(result.stdout, rel)
+                        allowed = m_data.get("allowed_source_paths")
+                        if isinstance(allowed, list):
+                            allowed_sets.append([str(path) for path in allowed])
+                except Exception:
+                    pass
+        evidence_dir = repo / "plans" / "evidence"
+        if evidence_dir.is_dir():
+            for ef in sorted(evidence_dir.rglob("*.json")):
+                try:
+                    rel = str(ef.relative_to(repo))
+                    result = _git(repo, "show", f"{commitish}:{rel}", text=False, check=False)
+                    if result.returncode == 0:
+                        e_data = _load_json_bytes(result.stdout, rel)
+                        allowed = (
+                            e_data.get("allowed_source_paths")
+                            or e_data.get("target_source_paths")
+                            or e_data.get("governed_paths")
+                        )
+                        if isinstance(allowed, list):
+                            allowed_sets.append([str(path) for path in allowed])
+                except Exception:
+                    pass
+    
+    # Load from feature branch (current HEAD)
+    _load_allowed_from_manifests("HEAD")
+    # Load from base branch (main) to catch manifests covering shared configs like .gitleaks
+    _load_allowed_from_manifests(base)
     allowed_sets.append([
         "project/",
         "scripts/",
@@ -1048,6 +1045,40 @@ def verify_pr(
         "pytest.ini",
         ".gitignore",
     ])
+
+    # Check if all material paths are covered by existing manifests' allowed_source_paths
+    if material_paths:
+        all_covered = all(
+            any(_matches_allowed(path, allowed) for allowed in allowed_sets)
+            for path in material_paths
+        )
+        if all_covered:
+            report.notes.append("material source changes fully covered by existing test-provenance manifests' allowed_source_paths")
+            # Continue to verify manifests that ARE changed (if any)
+        elif not manifests:
+            # Material paths not fully covered AND no manifest changed in PR
+            target_branch = branch
+            if not target_branch:
+                curr = _get_current_branch(repo)
+                if curr == "HEAD":
+                    env_head = os.environ.get("GITHUB_HEAD_REF", "").strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
+                    if env_head:
+                        target_branch = env_head
+            if _dev_branch_skip_provenance(repo, branch=target_branch):
+                resolved_branch = target_branch or _get_current_branch(repo)
+                report.notes.append(
+                    f"dev branch '{resolved_branch}' change; test provenance manifest requirement waived by soft-guard"
+                )
+                return report
+            report.add(
+                "PR_REQUIRES_BASELINE_MANIFEST",
+                "material source changes require at least one test-provenance manifest",
+            )
+            return report
+    if not manifests:
+        # No manifests changed and no material paths (or all covered)
+        report.notes.append("no manifests changed in PR; existing manifests cover material changes")
+        return report
 
     reconstructed_paths: set[str] = set()
     revs = _git(repo, "rev-list", f"{base}..{head}").stdout.splitlines()
