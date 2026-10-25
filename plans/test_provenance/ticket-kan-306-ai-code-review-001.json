@@ -23,7 +23,8 @@
     "tests/test_ai_code_review.py",
     ".github/workflows/ci.yml",
     ".hermes/tech_debt_history.json",
-    "test-provenance-report.json"
+    "test-provenance-report.json",
+    "package-lock.json"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
