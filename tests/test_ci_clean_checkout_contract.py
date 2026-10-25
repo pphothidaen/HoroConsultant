@@ -34,7 +34,8 @@ def test_full_suite_jobs_fetch_complete_history(
     job = workflow["jobs"][job_name]
     steps = job["steps"]
     checkout = next(
-        step for step in steps if step.get("uses") == "actions/checkout@v4"
+        step for step in steps 
+        if step.get("uses", "").startswith("actions/checkout@")
     )
 
     assert checkout.get("with", {}).get("fetch-depth") == 0

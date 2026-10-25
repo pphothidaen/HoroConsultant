@@ -44,6 +44,15 @@
     "scripts/quality_gate.py",
     "scripts/create_auto_fix_pr.sh",
     "scripts/post_refactor_comment.sh",
+    "scripts/sast_scan.py",
+    "scripts/dependency_scan.py",
+    "scripts/run_security_scan.sh",
+    "scripts/doc_sync.py",
+    "scripts/run_doc_sync.sh",
+    "scripts/observability.py",
+    "scripts/run_observability.sh",
+    "scripts/release_notes.py",
+    "scripts/create_release_notes.sh",
     "tests/test_phase4_test_maintenance.py",
     "tests/test_ai_code_review.py",
     "tests/test_ai_refactor.py",
@@ -54,6 +63,6 @@
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
-  "correction_reason": null,
-  "rationale": "Add test maintenance automation for Phase 4 of AI-SDLC transformation (4C): flaky detection, snapshot auto-update, coverage regression gate, AI test generation"
+  "correction_reason": "Add all KAN-308 Phase 4 scripts to allowed_source_paths for PyTest fix commit",
+  "rationale": "The commit fixing PyTest & Edge Boundary Testing failures adds all Phase 4 AI-SDLC scripts. They must be allowed in the test-maintenance provenance manifest."
 }

@@ -67,6 +67,17 @@ class AutoFixer:
                 return result.stdout
         except Exception:
             pass
+        # Fallback: basic formatting without black
+        return self._basic_format(code)
+    
+    def _basic_format(self, code: str) -> str:
+        """Basic formatting without external tools."""
+        # Fix function definition spacing: def  bad_function ( x , y ) : -> def bad_function(x, y):
+        import re
+        # Fix multiple spaces in function definitions
+        code = re.sub(r'def\s+(\w+)\s*\(\s*([^)]*)\s*\)\s*:', 
+                     lambda m: f"def {m.group(1)}({', '.join(arg.strip() for arg in m.group(2).split(','))}):", 
+                     code)
         return code
     
     def _fix_imports(self, code: str) -> str:
