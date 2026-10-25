@@ -24,8 +24,8 @@ pip install -e .[test] > /dev/null 2>&1
 
 # Run documentation sync
 echo "Running documentation sync..."
-# Run drift detection (outputs JSON by default)
-python3 scripts/doc_sync.py --root . drift > drift-report.json 2>&1
+# Run drift detection (outputs JSON by default, exits 1 if issues found - allow failure)
+python3 scripts/doc_sync.py --root . drift > drift-report.json 2>&1 || true
 
 # Run all checks (outputs human-readable text, don't parse as JSON)
 python3 scripts/doc_sync.py --root . all --allow-drift --allow-invalid --allow-failed > doc-sync-report.txt 2>&1 || true
