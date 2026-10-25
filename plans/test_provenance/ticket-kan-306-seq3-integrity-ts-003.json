@@ -4,7 +4,6 @@
   "sequence": 3,
   "provenance_status": "VERIFIED",
   "baseline_parent": "11d6bcb1423715fd7fe0cbaf7634ff2c79eb4651",
-  "baseline": "11d6bcb1423715fd7fe0cbaf7634ff2c79eb4651",
   "test_files": [
     {
       "path": "tests/test_ai_code_review.py",
@@ -33,7 +32,7 @@
     "package-lock.json",
     "plans/test_provenance/ticket-kan-306-seq2-allowed-paths-002.json",
     "src/artifacts/integrity.ts",
-    "plans/test_provenance/ticket-kan-306-integrity-ts-003.json"
+    "plans/test_provenance/ticket-kan-306-seq3-integrity-ts-003.json"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
