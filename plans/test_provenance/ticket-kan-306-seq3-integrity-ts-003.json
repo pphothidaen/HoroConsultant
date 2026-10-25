@@ -32,7 +32,8 @@
     "package-lock.json",
     "plans/test_provenance/ticket-kan-306-seq2-allowed-paths-002.json",
     "src/artifacts/integrity.ts",
-    "plans/test_provenance/ticket-kan-306-seq3-integrity-ts-003.json"
+    "plans/test_provenance/ticket-kan-306-seq3-integrity-ts-003.json",
+    "pyproject.toml"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
