@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-306",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "086e167a86f68f00a5bc17b799e8a405966d7a84",
+  "baseline_parent": "d3bb7f6975fa847ae487aeda4e7d7d8c4dea3303",
   "test_files": [
     {
       "path": "tests/test_ai_code_review.py",
@@ -21,7 +21,9 @@
     "scripts/ai_code_review.py",
     "scripts/quality_gate.py",
     "tests/test_ai_code_review.py",
-    ".github/workflows/ci.yml"
+    ".github/workflows/ci.yml",
+    ".hermes/tech_debt_history.json",
+    "test-provenance-report.json"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",

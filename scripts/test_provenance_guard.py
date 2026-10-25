@@ -124,6 +124,7 @@ ALLOWED_GOVERNANCE_EXTENSION_KEYS = {
     "user_authorizations",
     "user_exclusions",
     "worktree_boundary",
+    "green_tests",
 }
 TEST_FILE_KEYS = {"path", "sha256"}
 ALLOWED_TEST_FILE_EXTENSION_KEYS = {
