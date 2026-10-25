@@ -8,6 +8,8 @@ import os
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS_DIR = REPO_ROOT / "scripts"
 
 def run_cmd(cmd, cwd=None):
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
@@ -19,7 +21,7 @@ def run_cmd(cmd, cwd=None):
 
 def test_ai_refactor_script_exists():
     """Test that ai_refactor.py script exists and is executable."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/ai_refactor.py")
+    script_path = SCRIPTS_DIR / "ai_refactor.py"
     assert script_path.exists(), "ai_refactor.py should exist"
     assert os.access(script_path, os.X_OK), "ai_refactor.py should be executable"
     print("✅ ai_refactor.py exists and is executable")
@@ -27,7 +29,7 @@ def test_ai_refactor_script_exists():
 
 def test_ai_refactor_help():
     """Test that ai_refactor.py shows help."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/ai_refactor.py")
+    script_path = SCRIPTS_DIR / "ai_refactor.py"
     result = run_cmd(["python3", str(script_path), "--help"])
     assert result.returncode == 0, "Should show help successfully"
     print("✅ ai_refactor.py --help works")
@@ -35,7 +37,7 @@ def test_ai_refactor_help():
 
 def test_ai_refactor_basic():
     """Test basic refactoring with review input."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/ai_refactor.py")
+    script_path = SCRIPTS_DIR / "ai_refactor.py"
     
     # Sample review with issues that could be refactored
     review_input = {
@@ -93,7 +95,7 @@ def test_ai_refactor_basic():
 
 def test_auto_fix_script_exists():
     """Test that auto_fix.py script exists and is executable."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/auto_fix.py")
+    script_path = SCRIPTS_DIR / "auto_fix.py"
     assert script_path.exists(), "auto_fix.py should exist"
     assert os.access(script_path, os.X_OK), "auto_fix.py should be executable"
     print("✅ auto_fix.py exists and is executable")
@@ -101,7 +103,7 @@ def test_auto_fix_script_exists():
 
 def test_auto_fix_help():
     """Test that auto_fix.py shows help."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/auto_fix.py")
+    script_path = SCRIPTS_DIR / "auto_fix.py"
     result = run_cmd(["python3", str(script_path), "--help"])
     assert result.returncode == 0, "Should show help successfully"
     print("✅ auto_fix.py --help works")
@@ -109,7 +111,7 @@ def test_auto_fix_help():
 
 def test_auto_fix_dry_run():
     """Test auto-fix dry-run mode."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/auto_fix.py")
+    script_path = SCRIPTS_DIR / "auto_fix.py"
     
     # Create a test file with fixable issues
     test_code = """import os
@@ -120,6 +122,7 @@ def  bad_function ( x , y ) :
     return x + y
 
 unused_var = 42
+
 """
     
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -142,13 +145,14 @@ unused_var = 42
 
 def test_auto_fix_apply():
     """Test auto-fix apply mode (should fix formatting)."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/auto_fix.py")
+    script_path = SCRIPTS_DIR / "auto_fix.py"
     
     test_code = """import os
 import sys
 
 def  bad_function ( x , y ) :
     return x + y
+
 """
     
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -183,7 +187,7 @@ def  bad_function ( x , y ) :
 
 def test_tech_debt_script_exists():
     """Test that tech_debt_tracker.py script exists and is executable."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/tech_debt_tracker.py")
+    script_path = SCRIPTS_DIR / "tech_debt_tracker.py"
     assert script_path.exists(), "tech_debt_tracker.py should exist"
     assert os.access(script_path, os.X_OK), "tech_debt_tracker.py should be executable"
     print("✅ tech_debt_tracker.py exists and is executable")
@@ -191,7 +195,7 @@ def test_tech_debt_script_exists():
 
 def test_tech_debt_help():
     """Test that tech_debt_tracker.py shows help."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/tech_debt_tracker.py")
+    script_path = SCRIPTS_DIR / "tech_debt_tracker.py"
     result = run_cmd(["python3", str(script_path), "--help"])
     assert result.returncode == 0, "Should show help successfully"
     print("✅ tech_debt_tracker.py --help works")
@@ -199,11 +203,11 @@ def test_tech_debt_help():
 
 def test_tech_debt_analyze():
     """Test tech debt analysis on a sample directory."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/tech_debt_tracker.py")
+    script_path = SCRIPTS_DIR / "tech_debt_tracker.py"
     
     result = run_cmd([
         "python3", str(script_path),
-        "--path", "/Users/kimlenglim/Project/HoroConsultant/scripts",
+        "--path", str(SCRIPTS_DIR),
         "--output", "json"
     ])
     
@@ -219,12 +223,12 @@ def test_tech_debt_analyze():
 
 def test_tech_debt_history():
     """Test tech debt history tracking."""
-    script_path = Path("/Users/kimlenglim/Project/HoroConsultant/scripts/tech_debt_tracker.py")
+    script_path = SCRIPTS_DIR / "tech_debt_tracker.py"
     
     # First run to create history
     result1 = run_cmd([
         "python3", str(script_path),
-        "--path", "/Users/kimlenglim/Project/HoroConsultant/scripts",
+        "--path", str(SCRIPTS_DIR),
         "--update-history"
     ])
     
