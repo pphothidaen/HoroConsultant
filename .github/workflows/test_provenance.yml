@@ -59,7 +59,7 @@ jobs:
           --base "${{ steps.comparison.outputs.base_commit }}"
           --head HEAD
           --branch "${{ github.head_ref || github.ref_name }}"
-          --post-squash-merge
+          ${{ github.event_name == 'push' && '--post-squash-merge' || '' }}
           --json-out test-provenance-report.json
 
       - name: Upload provenance report
