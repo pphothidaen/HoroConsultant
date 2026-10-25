@@ -8,7 +8,7 @@
   "test_files": [
     {
       "path": "tests/test_ai_code_review.py",
-      "sha256": "b4a8b4b74292954e019122575601bf1ba4631e29fa9db7c2783fd292886094cb"
+      "sha256": "12a0a9bf5702534dd6dc2f114ad4bcd3600b5af59b4fa596ec91f27564f6134d"
     }
   ],
   "red_tests": [

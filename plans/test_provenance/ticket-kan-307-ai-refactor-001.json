@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-KAN-307",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "ccfa8fb3a81058fc895c9347dfeac88b601fb971",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
   "test_files": [
     {
       "path": "tests/test_ai_refactor.py",
-      "sha256": "17600062a19f1ccdba6061e0af8cfaa245d8bf3479d24d7a4a0bea204c3b9119"
+      "sha256": "1597e8b7a55d638041918e52e6d9890cba1ca975884fddc9f0efdb458881332d"
     }
   ],
   "red_tests": [
