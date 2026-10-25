@@ -284,6 +284,9 @@ jobs:
           print(f"Copied installed Rust extension artifact from {native_origin} to {target}")
           PY
 
+      - name: Make scripts executable
+        run: chmod +x scripts/*.py scripts/*.sh
+
       - name: Run Pytest Test Suite
         run: |
           python -m pytest -v -m "not network"
