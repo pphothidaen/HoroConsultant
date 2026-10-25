@@ -3,7 +3,7 @@
   "ticket_id": "TICKET-KAN-308",
   "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "101d7209944c8898f9fad9622d7ceb74d7d885e9",
+  "baseline_parent": "44b56174edb63731c27f0f9ce7a252edec2c89c7",
   "test_files": [
     {
       "path": "tests/test_phase4_test_maintenance.py",
@@ -12,14 +12,24 @@
   ],
   "red_tests": [
     {
-      "command": ["python3", "-m", "pytest", "tests/test_phase4_test_maintenance.py"],
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_phase4_test_maintenance.py"
+      ],
       "expected_exit": 1,
       "failure_fingerprint": "Test maintenance automation scripts not yet implemented"
     }
   ],
   "green_tests": [
     {
-      "command": ["python3", "-m", "pytest", "tests/test_phase4_test_maintenance.py"],
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_phase4_test_maintenance.py"
+      ],
       "expected_exit": 0,
       "pass_fingerprint": "All 21 tests pass: script exists, executable, help works, CI job defined"
     }
