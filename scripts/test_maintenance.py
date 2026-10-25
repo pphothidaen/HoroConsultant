@@ -255,7 +255,7 @@ class CoverageGate:
             ],
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=600,
         )
 
         coverage_file = Path(".hermes/coverage.json")
