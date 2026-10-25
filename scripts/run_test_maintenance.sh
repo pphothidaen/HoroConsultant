@@ -25,10 +25,9 @@ pip install pytest-cov > /dev/null 2>&1
 
 # Run all maintenance tasks
 echo "Running test maintenance..."
-# Only run on our test files to avoid timeout from pre-existing failing tests
-OUR_TESTS="tests/test_ai_code_review.py tests/test_ai_refactor.py tests/test_phase4_release_notes.py tests/test_phase4_security.py tests/test_phase4_test_maintenance.py tests/test_phase4_doc_sync.py tests/test_phase4_observability.py tests/test_detect_ai_generated.py"
+# Pass tests directory (pytest handles pattern matching; baseline accounts for pre-existing failures)
 python3 scripts/test_maintenance.py all \
-    --path $OUR_TESTS \
+    --path tests \
     --output tests/generated \
     --update-baseline \
     --force
