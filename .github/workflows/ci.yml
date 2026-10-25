@@ -481,12 +481,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-          pip install --force-reinstall --no-deps *.whl
+          # Skip Rust wheel install - not needed for hash generation, avoids platform compat issues
+          # pip install --force-reinstall --no-deps *.whl
 
       - name: Generate OpenAPI snapshot
+        env:
+          HORO_ALLOW_PYTHON_FALLBACK: "1"
         run: |
-          python3 -c "
+          python -c "
           import json
+          import os
+          os.environ['HORO_ALLOW_PYTHON_FALLBACK'] = '1'
           from project.main import app
           with open('openapi.json', 'w') as f:
               json.dump(app.openapi(), f)
