@@ -215,6 +215,7 @@ bcd21cf14631d5bc33e3f92b8a4328a01094c8dc:plans/evidence/keychain-purge-20260904/
 ebfeee9eb19624d5dc6ce70338b17e51d5726753:project/tests/artifacts/delegate_spark_governance/5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b/smoke-result.json:generic-api-key:51
 2a2dbd0e231dc695ef8d1ef962c987ed84a35c96:api/index.js:gcp-api-key:76
 2a2dbd0e231dc695ef8d1ef962c987ed84a35c96:api/index.js:gcp-api-key:77
+
 048f6aa76945e165c2cac429b8c7b37ab450cfb3:tests/fixtures/pii_test_data.json:generic-api-key:***
 1a12d940e3093ad75fb03407773c136cad70371a:tests/fixtures/pii_test_data.json:generic-api-key:***
 3cb6e6f245e9c10d65d0ccb95dc7f0716a3774e3:tests/fixtures/pii_test_data.json:generic-api-key:***
@@ -224,17 +225,3 @@ c5741cc38d7c1646d50edbc00acd1a79ccb362f1:tests/test_workers_hardening_contract.t
 9ea650a8752a9af8d55edb031208115ba8004fb2:tests/test_workers_hardening_contract.test.ts:generic-api-key:***
 e87edf003e8e7d661383e83dc3cac52f2ce07755:project/data/hitl_reviews.json:generic-api-key:***
 87c86218c203f4a537c9ad928a3ee27eabf8ece1:docs/jira/api_token_setup.md:atlassian-api-token:7
-ebfeee9eb19624d5dc6ce70338b17e51d5726753:project/tests/artifacts/delegate_spark_governance/5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b/smoke-result.json:generic-api-key:***
-2a2dbd0e231dc695ef8d1ef962c987ed84a35c96:api/index.js:gcp-api-key:***
-2a2dbd0e231dc695ef8d1ef962c987ed84a35c96:api/index.js:gcp-api-key:***
-# Test fixtures for M14 PII scrubbing - JWT is a test fixture, not a real secret
-# Allow generic-api-key in test fixtures for PII scrubbing tests
-:tests/fixtures/pii_test_data.json:generic-api-key:***
-# Historical findings from repo history - these are test/data files with placeholder values
-9eeee4b494836912aafbda047141f086e23ffe75:plans/active/meta-008-support/spark_safety_lane_dispatch_queue.md:generic-api-key:***
-9eeee4b494836912aafbda047141f086e23ffe75:project/data/hitl_reviews.json:generic-api-key:***
-9eeee4b494836912aafbda047141f086e23ffe75:project/tests/artifacts/delegate_spark_governance/5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b/smoke-result.json:generic-api-key:***
-9eeee4b494836912aafbda047141f086e23ffe75:tests/test_lease_manager.py:generic-api-key:***
-9eeee4b494836912aafbda047141f086e23ffe75:tests/test_keychain_isolation.py:generic-api-key:***
-
-
