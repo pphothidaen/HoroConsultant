@@ -285,26 +285,26 @@ jobs:
 
       - name: Run Pytest Test Suite
         run: |
-          python3 -m pytest -v -m "not network"
+          python -m pytest -v -m "not network"
 
       - name: Generate OpenAPI snapshot & verify Rust↔Python route sync
         run: |
-          python3 -c "
+          python -c "
           import json
           from project.main import app
           with open('/tmp/oa.json', 'w') as f:
               json.dump(app.openapi(), f)
           print('OpenAPI snapshot generated with', len(app.openapi()['paths']), 'paths')
           "
-          python3 -m pytest tests/test_route_sync.py -v -m contract
+          python -m pytest tests/test_route_sync.py -v -m contract
 
       - name: Run LuoPan & Metaphysics Dynamic Regression Tests
         run: |
-          python3 -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
+          python -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
 
       - name: Run Project Code Reviewer
         run: |
-          python3 project/core/code_reviewer.py --review --use-python --skip-tests
+          python project/core/code_reviewer.py --review --use-python --skip-tests
 
   e2e-production-audit:
     name: Live Production Version & LuoPan E2E Regression
