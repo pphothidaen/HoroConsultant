@@ -1,0 +1,19 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-306",
+  "baseline_parent": "479176ffd96ef71fff671161725a02546bfac596",
+  "supersedes": null,
+  "test_files": [
+    "src/artifacts/integrity.ts"
+  ],
+  "allowed_source_paths": [
+    "src/artifacts/integrity.ts",
+    ".github/workflows/ci.yml"
+  ],
+  "governance_extensions": [
+    "green_tests"
+  ],
+  "created_at": "2026-10-25T08:58:00+07:00",
+  "notes": "Manifest for artifact integrity TypeScript file and CI workflow fix"
+}
+
