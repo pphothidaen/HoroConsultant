@@ -24,20 +24,30 @@ pip install -e .[test] > /dev/null 2>&1
 
 # Run documentation sync
 echo "Running documentation sync..."
-python3 scripts/doc_sync.py --root . all --allow-drift --allow-invalid --allow-failed > doc-sync-report.json 2>&1 || true
+# Run drift detection (outputs JSON by default)
+python3 scripts/doc_sync.py --root . drift > drift-report.json 2>&1
 
-# Also run drift detection separately for reporting
-python3 scripts/doc_sync.py --root . drift > drift-report.json 2>&1 || true
+# Run all checks (outputs human-readable text, don't parse as JSON)
+python3 scripts/doc_sync.py --root . all --allow-drift --allow-invalid --allow-failed > doc-sync-report.txt 2>&1 || true
 
 # Display results
 echo "=== Drift Detection Results ==="
 python3 -c "
 import json
-with open('drift-report.json') as f:
-    data = json.load(f)
-print(f\"Issues: {data.get('count', 0)}\")
-for issue in data.get('issues', [])[:10]:
-    print(f\"  - {issue['type']}: {issue['message']}\")
+import os
+
+drift_file = 'drift-report.json'
+if os.path.exists(drift_file) and os.path.getsize(drift_file) > 0:
+    try:
+        with open(drift_file) as f:
+            data = json.load(f)
+        print(f\"Issues: {data.get('count', 0)}\")
+        for issue in data.get('issues', [])[:10]:
+            print(f\"  - {issue['type']}: {issue['message']}\")
+    except json.JSONDecodeError:
+        print(\"Warning: drift-report.json contains invalid JSON\")
+else:
+    print(\"Warning: drift-report.json is empty or missing\")
 "
 
 # Post results as PR comment if on PR
@@ -49,16 +59,19 @@ import json
 import os
 
 drift_file = 'drift-report.json'
-sync_file = 'doc-sync-report.json'
+sync_file = 'doc-sync-report.txt'
 
 drift_count = 0
 drift_issues = []
-if os.path.exists(drift_file):
-    with open(drift_file) as f:
-        data = json.load(f)
-    drift_count = data.get('count', 0)
-    for issue in data.get('issues', [])[:10]:
-        drift_issues.append(f'- **{issue[\"type\"]}**: {issue[\"message\"]}')
+if os.path.exists(drift_file) and os.path.getsize(drift_file) > 0:
+    try:
+        with open(drift_file) as f:
+            data = json.load(f)
+        drift_count = data.get('count', 0)
+        for issue in data.get('issues', [])[:10]:
+            drift_issues.append(f'- **{issue[\"type\"]}**: {issue[\"message\"]}')
+    except json.JSONDecodeError:
+        pass
 
 lines = [
     '## Documentation Sync Results (KAN-308 4D)',
@@ -77,7 +90,7 @@ lines.append('')
 lines.append(f'*Generated at {__import__(\"subprocess\").check_output([\"date\", \"-u\", \"+%Y-%m-%d %H:%M:%S UTC\"]).decode().strip()}*')
 
 with open('doc-sync-comment.txt', 'w') as f:
-    f.write('\n'.join(lines))
+    f.write('\\n'.join(lines))
 "
 
     COMMENT_BODY=$(cat doc-sync-comment.txt | sed ':a;N;s/\n/\\n/g;ta' | sed 's/"/\\"/g')
