@@ -780,7 +780,6 @@ jobs:
           exit 0
 
   secret-rotation-oidc-tests:
-  secret-rotation-oidc-tests:
     name: Secret Rotation & OIDC Federation Tests (M6)
     needs: lint-and-security
     runs-on: ubuntu-latest
