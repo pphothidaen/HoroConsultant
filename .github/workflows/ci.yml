@@ -223,7 +223,7 @@ jobs:
 
       - name: Upload AI review report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ai-review-report
           path: ai-review-report.json
@@ -358,7 +358,7 @@ jobs:
 
 
       - name: Upload E2E Regression Reports
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-regression-reports
@@ -446,7 +446,7 @@ jobs:
           cp wheelhouse/*.whl "$GITHUB_WORKSPACE/"
 
       - name: Upload the audited Linux wheel
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rust-core-wheel
           path: "*.whl"
@@ -521,7 +521,7 @@ jobs:
           cat artifact-hashes.json
 
       - name: Upload artifact hashes manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: artifact-hashes
           path: artifact-hashes.json
@@ -597,7 +597,7 @@ jobs:
           cat artifact-hashes.json
 
       - name: Upload artifact hashes manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: artifact-hashes
           path: artifact-hashes.json
@@ -647,7 +647,7 @@ jobs:
             project/static/version.json
 
       - name: Upload version.json + signature (M2/M10)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: version-json-signed
           path: |
@@ -691,7 +691,7 @@ jobs:
 
       - name: Upload provenance report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-provenance-report
           path: test-provenance-report.json
@@ -791,7 +791,7 @@ jobs:
 
       - name: Upload drift report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: config-drift-report
           path: |
@@ -825,7 +825,7 @@ jobs:
           cyclonedx-py environment -o sbom.json --of json
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom
           path: sbom.json
@@ -913,7 +913,7 @@ jobs:
         run: |
           bash scripts/create_release_notes.sh
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: release-notes
           path: release-notes-*.md
@@ -950,7 +950,7 @@ jobs:
         run: |
           bash scripts/run_security_scan.sh
       - name: Upload security scan artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: security-scan
@@ -991,7 +991,7 @@ jobs:
         run: |
           bash scripts/run_test_maintenance.sh
       - name: Upload test maintenance artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-maintenance
@@ -1032,7 +1032,7 @@ jobs:
         run: |
           bash scripts/run_doc_sync.sh
       - name: Upload doc sync artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: doc-sync
@@ -1072,7 +1072,7 @@ jobs:
         run: |
           bash scripts/run_observability.sh telemetry
       - name: Upload observability artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: observability
