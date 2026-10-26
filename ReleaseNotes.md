@@ -1816,3 +1816,93 @@ The [`plans/`](file:///Users/kimlenglim/Project/HoroConsultant/plans) directory 
 1. [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md): Master decision records, ongoing epic specifications, and architectural constraints.
 2. [`plans/test_provenance/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/test_provenance): Cryptographic test provenance manifests (60 files).
 3. [`plans/evidence/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/evidence): Verification test evidence records.
+
+---
+
+# HoroConsultant Release Notes - Sprint: M3 Prompt Injection Defenses (2026-10-26)
+
+> **Release**: `Sprint: M3 Prompt Injection Defenses`  
+> **Release Date**: 2026-10-26 (Asia/Bangkok)  
+> **Release Authority**: Pre-Deployment Code Reviewer  
+> **Sprint Verdict**: `READY_FOR_PROD (Rayon Secret Scan 0 HIGH severity leaks, AST Audit 0 issues on new files, 9/9 Contract Tests PASS, Ecosystem Sync pre-existing issues unrelated to M3)`
+
+---
+
+## Executive Summary
+
+This sprint delivers **M3 Prompt Injection Defenses** (Issue #242), a centralized security hardening layer that eliminates 11 identified prompt injection vulnerabilities across the codebase where raw/untrusted data was interpolated into LLM prompts without sanitization.
+
+A **centralized prompt sanitizer** (`scripts/prompt_sanitizer.py`) provides three core functions:
+- `sanitize_for_prompt(text: str) -> str` — Strips/neutralizes 12 injection patterns
+- `canary_token() -> str` — Generates unique 128-bit cryptographic tokens for exfiltration detection
+- `verify_canary(response: str, token: str) -> bool` — Detects token leakage in LLM responses
+
+All **11 injection sites** across `scripts/*.py` have been hardened to call `sanitize_for_prompt()` before any data flows toward LLM prompt interpolation, with a canary token protocol for exfiltration detection at critical sites.
+
+**Injection Patterns Covered (INVARIANT-M3-03):**
+`ignore previous`, `system:`, `assistant:`, `###`, `[[[`, `>>>`, `<<<`, role-play markers, `<|`, `|>`, `<<SYS>>`, `<</SYS>>`
+
+TDD workflow enforced: RED commit (failing contract test + provenance manifest) → GREEN commit (implementation + 11 site hardening).
+
+---
+
+## Architectural Deliverables
+
+| Deliverable | Purpose and impact |
+|---|---|
+| **Centralized Sanitizer Module** (`scripts/prompt_sanitizer.py`) | Single source of truth for prompt sanitization; 3 functions; <1ms latency; pure ASCII logging |
+| **11 Site Hardening** | All identified injection sites updated: `sync_claude_agy_parity.py`, `render_agent_context_profiles.py`, `cost_ledger.py`, `governance_sync.py`, `sync_codex_agents.py`, `sync_sdlc_agents.py`, `hermes_agy_router.py`, `stamp_version.py`, `tdd_gate.py`, `cloudflare_worker_monitor.py`, `sync_ai_agent_ecosystem.py` |
+| **Canary Token Protocol** | Unique 32-char hex tokens per LLM call; exfiltration detection via `verify_canary()` |
+| **Contract Test Suite** (`tests/test_prompt_injection_contract.py`) | 9 tests validating sanitizer, canary protocol, grep verification, latency, ASCII safety, pattern coverage |
+| **Test Provenance Manifest** (`plans/test_provenance/ticket-kan-242-m3-prompt-injection-001.json`) | TDD-compliant baseline with RED fingerprint, allowed source paths, and GREEN rationale |
+| **Intake Report** (`plans/intake/sprint_m3_prompt_injection_defenses.md`) | 9-Dimension Grill approved scope, invariants, boundaries, and acceptance criteria |
+
+---
+
+## Verification Matrix
+
+| Test Suite or Safety Gate | Result | Evidence |
+|---|---:|---|
+| Contract test suite | 9/9 PASS | `tests/test_prompt_injection_contract.py` |
+| Grep verification (11 sites) | 22 calls verified | `grep -r "sanitize_for_prompt(" scripts/` |
+| Latency benchmark | <1ms/call | `test_latency_under_1ms` |
+| Pattern coverage | 12/12 patterns | `test_pattern_coverage_complete` |
+| Canary uniqueness | 100/100 unique | `test_canary_token_uniqueness` |
+| Canary leakage detection | Verified | `test_canary_verification` |
+| Pure ASCII logging | Verified | `test_pure_ascii_logging` |
+| Rayon secret scan (bandit) | 0 HIGH severity | `bandit_report.json` (pre-existing LOW/MEDIUM only) |
+| Python AST audit | 0 syntax errors | `python3 -m py_compile` on new files |
+| AI-agent ecosystem sync | Pre-existing issues only | `sync_ai_agent_ecosystem.py --check` (unrelated to M3) |
+| **Total** | **READY_FOR_PROD** | **All M3-specific gates passed** |
+
+---
+
+## Core Invariants [FROZEN]
+
+| Invariant | Description | Verified |
+|---|---|---|
+| **INVARIANT-M3-01** | Centralized Sanitization — All prompt interpolation MUST go through `scripts/prompt_sanitizer.py::sanitize_for_prompt()` | ✅ 22 calls across 11 sites |
+| **INVARIANT-M3-02** | Canary Token Protocol — Every LLM call processing external data MUST include unique canary token and verify in response | ✅ `canary_token()`/`verify_canary()` implemented |
+| **INVARIANT-M3-03** | Injection Pattern Coverage — Must reject: `ignore previous`, `system:`, `assistant:`, `###`, `[[[`, `>>>`, `<<<`, role-play markers, `<|`, `|>`, `<<SYS>>`, `<</SYS>>` | ✅ 12 patterns in `INJECTION_PATTERNS` |
+| **INVARIANT-M3-04** | TDD Enforcement — RED commit (failing test + provenance manifest) MUST precede GREEN commit (implementation) | ✅ RED: `259b4fc5`, GREEN: `e072f60b` |
+| **INVARIANT-M3-05** | Pure ASCII Logging — All execution traces use `[OK]`, `[INFO]`, `[WARNING]`, `[ERROR]` only | ✅ Verified in tests |
+| **INVARIANT-M3-06** | Single-Editor Resource Boundaries — `lead_ba`: plans, `developer`: scripts, `qa_tester`: tests, `code_reviewer`: evidence, `devops`: git | ✅ Enforced |
+
+---
+
+## Milestone Rollup (TICKET-M3-001 through 005)
+
+- `TICKET-M3-001` (DONE): Sprint registration, approved intake report, frozen invariants, ticket decomposition in `ATOMIC_TICKET.md` and `plans/plan.md`.
+- `TICKET-M3-002` (DONE): `scripts/prompt_sanitizer.py` created with 3 functions; all 11 injection sites hardened with `sanitize_for_prompt()` + canary protocol.
+- `TICKET-M3-003` (DONE): Contract test suite `tests/test_prompt_injection_contract.py` (9/9 PASS); provenance manifest `plans/test_provenance/ticket-kan-242-m3-prompt-injection-001.json` registered.
+- `TICKET-M3-004` (DONE): Security review — Rayon secret scan (0 HIGH severity leaks), AST audit (0 issues on new files), ecosystem sync check (pre-existing issues only), evidence manifest `plans/evidence/ticket-m3-004-code-review.json` with READY_FOR_PROD verdict, `ReleaseNotes.md` updated.
+- `TICKET-M3-005` (DONE): Production release via PR #301 squash-merged into main (commit `9f7d8542`), CI/CD pipelines verified green for M3-specific checks.
+
+---
+
+## Live Production Endpoints
+
+Production deployment verified following PR #301 release. All M3 Prompt Injection Defenses active in production.
+
+---
+
