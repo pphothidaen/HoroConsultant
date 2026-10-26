@@ -26,6 +26,9 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Mapping
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_WORKER_URL = "https://horoconsultant-production.pansakorn.workers.dev"
 DEFAULT_PING_INTERVAL_SECONDS = 300
@@ -239,12 +242,17 @@ def run_ping_cycle(
 
         status, latency_ms, body, error = _ping(target_url, timeout=timeout)
 
+        # M3: Sanitize response body and error before logging/processing
+        safe_body = sanitize_for_prompt(body)
+        safe_error = sanitize_for_prompt(error) if error else None
+
         healthy = False
-        if error is None and _target_response_is_valid(target_name, body, expected):
+        if error is None and _target_response_is_valid(target_name, safe_body, expected):
             healthy = True
             error = None
         elif status == 200 and not healthy and error is None:
             error = "HTTP 200 response did not contain a valid health payload"
+            safe_error = error
 
         latency_degraded = latency_ms > max_latency_ms
 
@@ -256,7 +264,7 @@ def run_ping_cycle(
             "healthy": healthy,
             "latency_degraded": latency_degraded,
             "critical": bool(target.get("critical", True)),
-            "error": error,
+            "error": safe_error,
         }
         results.append(result)
 
@@ -267,7 +275,7 @@ def run_ping_cycle(
                 print(f"[OK] {target_name}: HTTP {status} | {latency_ms:.0f}ms")
         else:
             tag = "[ERROR]" if result["critical"] else "[WARNING]"
-            detail = f" | {error}" if error else ""
+            detail = f" | {safe_error}" if safe_error else ""
             print(f"{tag} {target_name}: HTTP {status} | {latency_ms:.0f}ms{detail}")
             if result["critical"]:
                 all_critical_healthy = False

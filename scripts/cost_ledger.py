@@ -19,6 +19,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LEDGER = REPO_ROOT / "plans" / "evidence" / "cost-ledger" / "sessions.jsonl"
 
@@ -37,6 +40,8 @@ def _parse_iso(value: str) -> datetime:
 def cmd_record(args: argparse.Namespace) -> int:
     ledger = Path(args.ledger)
     ledger.parent.mkdir(parents=True, exist_ok=True)
+    # M3: Sanitize free-form notes before they could flow into LLM prompts
+    safe_notes = sanitize_for_prompt(args.notes)
     entry = {
         "date": args.date,
         "pr_url": args.pr_url,
@@ -45,7 +50,7 @@ def cmd_record(args: argparse.Namespace) -> int:
         "tool_calls": int(args.tool_calls),
         "model_tier": args.model_tier,
         "outcome": args.outcome,
-        "notes": args.notes,
+        "notes": safe_notes,
     }
     with ledger.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(entry) + "\n")

@@ -42,6 +42,9 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 DEFAULT_REPO = "pphothidaen/HoroConsultant"
 DEFAULT_BRANCH = "main"
 GOVERNANCE_DIR = "governance"
@@ -262,8 +265,9 @@ def _write_step_summary(drifts: list[tuple[str, str]]) -> None:
         lines.append("| Setting | Difference |")
         lines.append("| --- | --- |")
         for label, detail in drifts:
-            safe_label = label.replace("|", "\\|")
-            safe_detail = detail.replace("|", "\\|")
+            # M3: Sanitize drift details before markdown interpolation
+            safe_label = sanitize_for_prompt(label.replace("|", "\\|"))
+            safe_detail = sanitize_for_prompt(detail.replace("|", "\\|"))
             lines.append(f"| `{safe_label}` | {safe_detail} |")
         lines.append("")
         lines.append(

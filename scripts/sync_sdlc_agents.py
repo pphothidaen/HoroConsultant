@@ -29,6 +29,9 @@ from typing import Any
 
 import yaml
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 ROOT = Path(__file__).resolve().parents[1]
 ANTIGRAVITY_DIR = ROOT / ".antigravity" / "agents"
 AGENTS_DIR = ROOT / ".agents" / "agents"
@@ -50,14 +53,19 @@ def parse_antigravity_agent(filepath: Path) -> dict[str, Any]:
     with open(filepath, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
     name = normalize_agent_name(data.get("name", filepath.stem))
+    # M3: Sanitize all string fields from external YAML source
+    system_prompt = sanitize_for_prompt(data.get("system_prompt", ""))
+    description = sanitize_for_prompt(data.get("description", ""))
+    display_name = sanitize_for_prompt(data.get("display_name", name))
+    model = sanitize_for_prompt(data.get("model", "Gemini 3.6 Flash"))
     return {
         "name": name,
-        "display_name": data.get("display_name", name),
-        "description": data.get("description", ""),
-        "model": data.get("model", "Gemini 3.6 Flash"),
+        "display_name": display_name,
+        "description": description,
+        "model": model,
         "effort": data.get("effort", "standard"),
         "thinking": bool(data.get("thinking", False)),
-        "system_prompt": data.get("system_prompt", ""),
+        "system_prompt": system_prompt,
         "tools": data.get("tools", []),
         "fallback_agent": data.get("fallback_agent", "orchestrator" if name != "orchestrator" else "default")
     }

@@ -27,6 +27,9 @@ from typing import Any
 
 import yaml
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -358,6 +361,11 @@ def check_hf_static_release_governance() -> CheckResult:
                 data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             except Exception as error:
                 return CheckResult("HF Static release governance", False, f"invalid {relative(path)}: {error}")
+            # M3: Sanitize system_prompt and tools from external YAML source
+            if "system_prompt" in data:
+                data["system_prompt"] = sanitize_for_prompt(data["system_prompt"])
+            if "tools" in data and isinstance(data["tools"], list):
+                data["tools"] = [sanitize_for_prompt(t) for t in data["tools"]]
             if "hf-static-release-verification" not in data.get("tools", []):
                 return CheckResult("HF Static release governance", False, f"{filename} missing release skill")
             if owner_contracts[owner] not in str(data.get("system_prompt", "")):
@@ -370,6 +378,11 @@ def check_hf_static_release_governance() -> CheckResult:
         downstream_codex = ROOT / ".codex" / "agents" / f"{owner}.toml"
         try:
             downstream_data = load_json(downstream_json)
+            # M3: Sanitize system_prompt and tools from downstream JSON
+            if "system_prompt" in downstream_data:
+                downstream_data["system_prompt"] = sanitize_for_prompt(downstream_data["system_prompt"])
+            if "tools" in downstream_data and isinstance(downstream_data["tools"], list):
+                downstream_data["tools"] = [sanitize_for_prompt(t) for t in downstream_data["tools"]]
             codex_text = downstream_codex.read_text(encoding="utf-8")
         except Exception as error:
             return CheckResult(

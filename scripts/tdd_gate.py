@@ -19,6 +19,9 @@ import subprocess
 import sys
 from typing import Optional, Tuple
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 # Documentation prefixes and files exempt from test provenance requirements
 # These are copied from scripts/test_provenance_guard.py (with fix for leading space in .githooks/pre-push)
 DOC_PREFIXES = (
@@ -153,7 +156,9 @@ def check_red_state(test_target: Optional[str] = None, commit: Optional[str] = N
             res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode == 0:
                 return False, "Tests passed. TDD RED requires at least one failing test."
-            return True, f"Failing test verified (exit code {res.returncode})."
+            # M3: Sanitize test output before including in error message
+            safe_stderr = sanitize_for_prompt(res.stderr)
+            return True, f"Failing test verified (exit code {res.returncode}). Output: {safe_stderr[:500]}"
         except FileNotFoundError:
             return False, "pytest command not found in environment."
     except Exception:
@@ -173,7 +178,9 @@ def check_green_state(issue_key: str, test_target: Optional[str] = None, commit:
         try:
             res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode != 0:
-                return False, f"Tests failed with exit code {res.returncode}. TDD GREEN requires all tests to pass."
+                # M3: Sanitize test output before including in error message
+                safe_stderr = sanitize_for_prompt(res.stderr)
+                return False, f"Tests failed with exit code {res.returncode}. TDD GREEN requires all tests to pass. Output: {safe_stderr[:500]}"
         except FileNotFoundError:
             return False, "pytest command not found in environment."
 

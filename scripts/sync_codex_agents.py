@@ -14,6 +14,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = ROOT / ".agents" / "agents"
@@ -101,7 +104,9 @@ def render_codex_agent(source: Path, data: dict[str, Any]) -> str:
             f"- When the task matches their descriptions, use the relevant repository skills: {rendered_skills}."
         )
 
-    instructions = data["system_prompt"].rstrip() + "\n" + "\n".join(guidance) + "\n"
+    # M3: Sanitize system_prompt from external source before interpolation
+    safe_system_prompt = sanitize_for_prompt(data["system_prompt"])
+    instructions = safe_system_prompt.rstrip() + "\n" + "\n".join(guidance) + "\n"
     return "\n".join(
         (
             f"{GENERATED_HEADER}{relative_display(source)}. Do not edit manually.",
