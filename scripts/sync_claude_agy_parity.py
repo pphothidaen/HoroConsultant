@@ -28,6 +28,9 @@ from typing import Any
 
 import yaml
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt, canary_token, verify_canary
+
 ROOT = Path(__file__).resolve().parents[1]
 
 CLAUDE_DIR = ROOT / ".claude"
@@ -80,6 +83,8 @@ def parse_frontmatter(content: str) -> tuple[dict[str, Any], str]:
         if len(parts) >= 3:
             fm = yaml.safe_load(parts[1]) or {}
             body = parts[2]
+            # M3: Sanitize body content before it could flow into LLM prompts
+            body = sanitize_for_prompt(body)
             return fm, body
     except Exception:
         pass

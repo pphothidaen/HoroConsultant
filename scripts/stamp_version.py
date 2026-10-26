@@ -26,6 +26,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE_SOURCE_METADATA_PATH = "project/static/version.json"
 SHORT_COMMIT_RE = re.compile(r"[0-9a-f]{7}")

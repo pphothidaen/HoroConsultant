@@ -23,6 +23,9 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore
     _HAS_YAML = False
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT_DIR / ".agents" / "config" / "gemini_parity.yaml"
@@ -214,8 +217,9 @@ def resolve_hermes_route(
     if not isinstance(selected_slot, dict):
         selected_slot = role_config.get("medium", {})
 
-    model = str(selected_slot.get("model", "deepseek-v3"))
-    time_label = str(selected_slot.get("time", "medium"))
+    # M3: Sanitize model name from config before use in routing
+    model = sanitize_for_prompt(str(selected_slot.get("model", "deepseek-v3")))
+    time_label = sanitize_for_prompt(str(selected_slot.get("time", "medium")))
     if not model:
         model = "deepseek-v3"
     if not time_label:

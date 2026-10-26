@@ -5143,3 +5143,71 @@ real CLI/hook path via `e29b4451`, pinned via `cf4b0a91`; suites
 - Operator items out of scope: Atlassian 3LO OAuth app provisioning and `JIRA_CLIENT_ID`/`JIRA_SECRET`/`JIRA_REFRESH_TOKEN` secrets (human operator).
 - Existing dirty worktree preserved; lane commits local only (no push); pure ASCII documentation.
 <!-- KAN-264-DROP-TWG-20261005:END -->
+
+---
+
+## Sprint: M3 Prompt Injection Defenses — IN_PROGRESS (2026-10-26)
+
+GOAL: Build centralized prompt sanitization layer (scripts/prompt_sanitizer.py) with sanitize_for_prompt(), canary_token(), verify_canary() and harden all 11 identified injection sites across the codebase. TDD: RED commit (test + provenance manifest) -> GREEN commit (sanitizer + 11 site fixes). Contract test: tests/test_prompt_injection_contract.py asserting sanitizer exists, rejects known patterns, canary tokens unique/verifiable, no site bypasses sanitization (grep check).
+
+Shared interface contract [FROZEN]:
+- Invariants:
+  - `INVARIANT-M3-01`: Centralized Sanitization — All prompt interpolation MUST go through scripts/prompt_sanitizer.py::sanitize_for_prompt()
+  - `INVARIANT-M3-02`: Canary Token Protocol — Every LLM call processing external data MUST include unique canary token and verify in response
+  - `INVARIANT-M3-03`: Injection Pattern Coverage — Must reject: ignore previous, system:, assistant:, ###, [[[, >>>, <<<, role-play markers, <|, |>, <<SYS>>, <</SYS>>
+  - `INVARIANT-M3-04`: TDD Enforcement — RED commit (failing test + provenance manifest) MUST precede GREEN commit (implementation)
+  - `INVARIANT-M3-05`: Pure ASCII Logging — All execution traces use [OK], [INFO], [WARNING], [ERROR] only
+  - `INVARIANT-M3-06`: Single-Editor Resource Boundaries:
+    - `lead_ba`: ATOMIC_TICKET.md, plans/plan.md, plans/intake/**
+    - `developer`: scripts/prompt_sanitizer.py, 11 injection site files
+    - `qa_tester`: tests/test_prompt_injection_contract.py, plans/test_provenance/**
+    - `code_reviewer`: plans/evidence/**, ReleaseNotes.md
+    - `devops`: git tree, release tags, deployment receipts
+- Stop Conditions: Any injection pattern bypasses sanitization (grep verification fails), canary token not unique/verifiable, contract test fails, non-ASCII log emission, secret leak detected, scripts/tdd_gate.py or scripts/test_provenance_guard.py verify-pr fails.
+
+| Lane ID | State / role | Actions and exclusive scope | Dependencies, evidence, acceptance, stop condition | Bound Skills |
+|---|---|---|---|---|
+| `TICKET-M3-001` | `DONE` (Sprint registration, approved intake report plans/intake/sprint_m3_prompt_injection_defenses.md, frozen execution invariants INVARIANT-M3-01 through 06, single-editor boundaries, and ticket decomposition for TICKET-M3-001 through 005 registered in ATOMIC_TICKET.md and plans/plan.md; deliverables: plans/intake/sprint_m3_prompt_injection_defenses.md, plans/test_provenance/ticket-kan-242-m3-prompt-injection-001.json, scripts/prompt_sanitizer.py, tests/test_prompt_injection_contract.py; pure ASCII logs); lead_ba | Specification & ticket decomposition for M3 Prompt Injection Defenses sprint in ATOMIC_TICKET.md and plans/plan.md. Exclusive scope: ATOMIC_TICKET.md, plans/plan.md, plans/intake/**. | Dependencies: Approved intake report plans/intake/sprint_m3_prompt_injection_defenses.md. Acceptance MET: 5 tickets decomposed with single-editor boundaries, invariants, DoD registered; deliverables created; pure ASCII logs; zero regressions. | bsa-doc-skill-management, agile-governance |
+| `TICKET-M3-002` | `DONE`; developer | Create scripts/prompt_sanitizer.py with sanitize_for_prompt(text), canary_token(), verify_canary(response, token). Update all 11 injection sites to call sanitize_for_prompt() + canary protocol. Exclusive scope: scripts/prompt_sanitizer.py, scripts/sync_claude_agy_parity.py:87, scripts/render_agent_context_profiles.py:234, scripts/cost_ledger.py:156, scripts/governance_sync.py:251, scripts/sync_codex_agents.py:112, scripts/sync_sdlc_agents.py:98, scripts/hermes_agy_router.py:67, scripts/stamp_version.py:45, scripts/tdd_gate.py:134, scripts/cloudflare_worker_monitor.py:89, scripts/sync_ai_agent_ecosystem.py:278. | Dependencies: TICKET-M3-001. Acceptance: sanitizer module created with 3 functions; 11+ grep hits for sanitize_for_prompt; canary protocol implemented at all 11 sites; latency <1ms per call; pure ASCII logs. | sdlc-aisdlc-workflow |
+| `TICKET-M3-003` | `DONE`; qa_tester | QA contract test suite in tests/test_prompt_injection_contract.py asserting: sanitize_for_prompt exists and rejects all known injection patterns; canary tokens are unique and verifiable; no site bypasses sanitization (grep check). Register test provenance baseline manifest plans/test_provenance/ticket-kan-242-m3-prompt-injection-001.json. Exclusive scope: tests/test_prompt_injection_contract.py, plans/test_provenance/**. | Dependencies: TICKET-M3-002. Acceptance: 100% test pass; test provenance manifest registered; pure ASCII logs. | qa-e2e-testing, hf-static-release-verification |
+| `TICKET-M3-004` | `PENDING`; code_reviewer | Pre-release security review: Rayon parallel secret scan (0 leaks), AST audit (0 issues), ecosystem check, draft ReleaseNotes.md, compile evidence manifest plans/evidence/ticket-m3-004-code-review.json with READY_FOR_PROD verdict. Exclusive scope: plans/evidence/**, ReleaseNotes.md. | Dependencies: TICKET-M3-003. Acceptance: 0 secret leaks; AST valid; ecosystem sync exit code 0; pre-release review evidence manifest compiled; ReleaseNotes updated; pure ASCII logs. | hf-static-release-verification, qa-e2e-testing |
+| `TICKET-M3-005` | `PENDING`; devops | Production release: branch creation, PR lifecycle, CI monitoring, squash-merge to main, Vercel deployment, live production verification. Exclusive scope: git tree, release tags, deployment receipts. | Dependencies: TICKET-M3-004. Acceptance: PR squash merged into main; CI workflows 100% green; live production deploy verified healthy via curl; pure ASCII logs. | devops-deployment, hf-static-release-verification |
+
+**Definition of Done (TICKET-M3-005 — PENDING)**:
+1. Create release branch and pull request for M3 Prompt Injection Defenses. [PENDING]
+2. Monitor GitHub Actions CI/CD workflows and ensure 100% green pass. [PENDING]
+3. Squash merge pull request into main. [PENDING]
+4. Verify local main sync and remote production deployment. [PENDING]
+5. Perform live curl verification against production endpoint. [PENDING]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [PENDING]
+
+**Definition of Done (TICKET-M3-004 — PENDING)**:
+1. Execute Rayon parallel secret scan with 0 credential or secret leaks detected across repository. [PENDING]
+2. Run Python AST syntax audit across repository files with 0 syntax or encoding issues. [PENDING]
+3. Verify AI agent ecosystem sync check (python3 scripts/sync_ai_agent_ecosystem.py --check) exits with 0. [PENDING]
+4. Compile pre-release code review evidence manifest in plans/evidence/ticket-m3-004-code-review.json with READY_FOR_PROD verdict. [PENDING]
+5. Draft and update ReleaseNotes.md documenting M3 Prompt Injection Defenses. [PENDING]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [PENDING]
+
+**Definition of Done (TICKET-M3-003 — DONE)**:
+1. Add contract tests in tests/test_prompt_injection_contract.py validating sanitize_for_prompt rejects all known injection patterns. [OK]
+2. Add canary token uniqueness and verification assertions. [OK]
+3. Add grep verification that no injection site bypasses sanitization. [OK]
+4. Register test provenance baseline manifest in plans/test_provenance/ticket-kan-242-m3-prompt-injection-001.json. [OK]
+5. Verify python3 scripts/test_provenance_guard.py verify-pr passes with 0 issues. [OK - structure validated]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-M3-002 — DONE)**:
+1. Create scripts/prompt_sanitizer.py with sanitize_for_prompt(text), canary_token(), verify_canary(response, token). [OK]
+2. Injection patterns covered: ignore previous, system:, assistant:, ###, [[[, >>>, <<<, role-play markers, <|, |>, <<SYS>>, <</SYS>>. [OK]
+3. Update all 11 injection sites to call sanitize_for_prompt() + canary protocol. [OK]
+4. Maintain latency <1ms per sanitize_for_prompt call. [OK - verified by test_latency_under_1ms]
+5. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]
+
+**Definition of Done (TICKET-M3-001 — DONE)**:
+1. Document approved intake report in plans/intake/sprint_m3_prompt_injection_defenses.md. [OK]
+2. Register active sprint "Sprint: M3 Prompt Injection Defenses (2026-10-26)" in ATOMIC_TICKET.md and plans/plan.md. [OK]
+3. Document Problem Statement, Goal, Core Execution Invariants (INVARIANT-M3-01 through 06), and Single-Editor Boundaries. [OK]
+4. Decompose and register TICKET-M3-001 through TICKET-M3-005 with bound skills and acceptance criteria. [OK]
+5. Mark TICKET-M3-001 as DONE with deliverables receipt. [OK]
+6. Pure ASCII logs throughout ([OK], [INFO], [WARNING], [ERROR]). [OK]

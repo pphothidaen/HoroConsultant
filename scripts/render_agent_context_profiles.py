@@ -29,6 +29,9 @@ from typing import Any
 import unicodedata
 import uuid
 
+# M3 Prompt Injection Defenses: centralized sanitizer
+from prompt_sanitizer import sanitize_for_prompt
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / ".agents/config/scope_skill_registry.v1.json"
 APPROVED_TICKETS_DIR = ROOT / ".agents/context/tickets"
@@ -234,11 +237,15 @@ def get_current_manifest(
     additional.update(root.glob('.agents/agents/*/agent.json'))
     additional.update(root.glob('.agents/skills/*/SKILL.md'))
     for path in sorted(additional):
-        inventory.append({'path': path.relative_to(root).as_posix(),
+        # M3: Sanitize path strings before they could flow into LLM prompts
+        safe_path = sanitize_for_prompt(path.relative_to(root).as_posix())
+        inventory.append({'path': safe_path,
                           'sha256': hashlib.sha256(safe_open_bounded(path, root)).hexdigest()})
     for pattern in ('.codex/agents/*.toml', '.antigravity/agents/*.agent'):
         for path in sorted(destination.glob(pattern)):
-            inventory.append({'path': path.relative_to(destination).as_posix(),
+            # M3: Sanitize path strings before they could flow into LLM prompts
+            safe_path = sanitize_for_prompt(path.relative_to(destination).as_posix())
+            inventory.append({'path': safe_path,
                               'sha256': hashlib.sha256(safe_open_bounded(path, destination)).hexdigest()})
     inventory = sorted(inventory, key=lambda x: x["path"])
 

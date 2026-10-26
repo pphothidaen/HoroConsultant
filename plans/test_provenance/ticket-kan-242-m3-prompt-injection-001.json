@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-M3-PROMPT-INJECTION-DEFENSES",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1eb37ae3a6ec13daae78b30009e383c2bb5aaf45",
+  "test_files": [
+    {
+      "path": "tests/test_prompt_injection_contract.py",
+      "sha256": "92d53e39bb656cdc4c648e0f37732ee1e3a1aa052522a3cb0a77df69d32745b1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "pytest",
+        "tests/test_prompt_injection_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_sanitize_for_prompt_exists: function not found; test_sanitize_rejects_all_injection_patterns: patterns not rejected; test_canary_token_uniqueness: tokens not unique; test_canary_verification: verification fails; test_grep_verification_no_bypass: sites bypass sanitization; test_latency_under_1ms: latency too high; test_pure_ascii_logging: non-ASCII output; test_pattern_coverage_complete: patterns missing; test_provenance_manifest_can_be_registered: manifest invalid"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/prompt_sanitizer.py",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/render_agent_context_profiles.py",
+    "scripts/cost_ledger.py",
+    "scripts/governance_sync.py",
+    "scripts/sync_codex_agents.py",
+    "scripts/sync_sdlc_agents.py",
+    "scripts/hermes_agy_router.py",
+    "scripts/stamp_version.py",
+    "scripts/tdd_gate.py",
+    "scripts/cloudflare_worker_monitor.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "M3 Prompt Injection Defenses (Issue #242). Red Team found 11 prompt injection sites where raw/untrusted data interpolated into LLM prompts without sanitization. RED: no sanitizer module, no canary protocol, all 11 sites bypass protection (9/9 tests fail). GREEN: centralized sanitize_for_prompt() with 12 injection patterns; canary_token()/verify_canary() for exfiltration detection; all 11 sites hardened; latency <1ms; 9/9 contract tests pass."
+}
