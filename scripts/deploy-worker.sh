@@ -20,6 +20,7 @@ cd "$ROOT_DIR"
 
 usage() {
     echo "Usage: ./scripts/deploy-worker.sh {horo|root|hermes|gemini|aipass} [preview|production]"
+    echo "       ./scripts/deploy-worker.sh rollback [VERSION_ID] ACCOUNT"
     echo "       ./scripts/deploy-worker.sh --check"
     echo ""
     echo "Account -> config mapping (repo root):"
@@ -148,6 +149,70 @@ run_check_all() {
         return 1
     fi
 }
+
+# Handle rollback mode: deploy-worker.sh rollback [VERSION_ID] ACCOUNT
+if [ "$1" = "rollback" ]; then
+    if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+        echo "[ERROR] rollback requires: rollback [VERSION_ID] ACCOUNT"
+        usage
+        exit 2
+    fi
+    VERSION_ID=""
+    ACCOUNT=""
+    if [ "$#" -eq 2 ]; then
+        ACCOUNT="$2"
+    else
+        VERSION_ID="$2"
+        ACCOUNT="$3"
+    fi
+
+    # Resolve config from account
+    case "$ACCOUNT" in
+        horo|root) CONFIG="wrangler.toml"; TOKEN_VAR="CF_API_TOKEN" ;;
+        hermes)    CONFIG="wrangler.hermes.toml"; TOKEN_VAR="CF_API_TOKEN_HERMES" ;;
+        gemini)    CONFIG="wrangler.gemini.toml"; TOKEN_VAR="CF_API_TOKEN_GEMINI" ;;
+        aipass)    CONFIG="wrangler.aipass.toml"; TOKEN_VAR="CF_API_TOKEN_AIPASS" ;;
+        *) echo "[ERROR] Unknown account for rollback: $ACCOUNT"; usage; exit 2 ;;
+    esac
+
+    if [ ! -f "$CONFIG" ]; then
+        echo "[ERROR] Config not found: $CONFIG"
+        exit 2
+    fi
+
+    # Token gate
+    if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+        ACCOUNT_TOKEN_VAL=""
+        case "$TOKEN_VAR" in
+            CF_API_TOKEN)        ACCOUNT_TOKEN_VAL="${CF_API_TOKEN:-}" ;;
+            CF_API_TOKEN_HERMES) ACCOUNT_TOKEN_VAL="${CF_API_TOKEN_HERMES:-}" ;;
+            CF_API_TOKEN_GEMINI) ACCOUNT_TOKEN_VAL="${CF_API_TOKEN_GEMINI:-}" ;;
+            CF_API_TOKEN_AIPASS) ACCOUNT_TOKEN_VAL="${CF_API_TOKEN_AIPASS:-}" ;;
+        esac
+        if [ -n "$ACCOUNT_TOKEN_VAL" ]; then
+            export CLOUDFLARE_API_TOKEN="$ACCOUNT_TOKEN_VAL"
+        fi
+    fi
+    if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+        echo "[ERROR] CLOUDFLARE_API_TOKEN (or $TOKEN_VAR) is not set; refusing rollback."
+        exit 1
+    fi
+
+    echo "======================================================================"
+    echo " HOROCONSULTANT WORKERS ROLLBACK"
+    echo "======================================================================"
+    echo " [INFO] Account:     $ACCOUNT"
+    echo " [INFO] Config:      $CONFIG"
+    if [ -n "$VERSION_ID" ]; then
+        echo " [INFO] Version ID:  $VERSION_ID"
+        npx wrangler rollback "$VERSION_ID" --config "$CONFIG"
+    else
+        echo " [INFO] Version ID:  (previous)"
+        npx wrangler rollback --config "$CONFIG"
+    fi
+    echo "[OK] Rollback completed for account $ACCOUNT."
+    exit 0
+fi
 
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     echo "[ERROR] Invalid argument count: $# (expected 1 or 2)."
