@@ -1,0 +1,9 @@
+--- /dev/null
++++ b/false_positive.py
+@@ -0,0 +1,5 @@
++# This is a placeholder, not a real secret
++placeholder_key = "AIzaSy"
++def process_data(x: int) -> int:
++    return x + 1
+---
+Expected outcome: PASS — the short placeholder string does not match any SECRET_PATTERN (minimum 33 chars after AIzaSy), so bandit/secret-scan finds nothing. radon reports low complexity.

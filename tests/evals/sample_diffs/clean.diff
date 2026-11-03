@@ -1,0 +1,8 @@
+--- /dev/null
++++ b/clean.py
+@@ -0,0 +1,4 @@
++def clean_function(x: int) -> int:
++    """A simple, clean function."""
++    return x * 2
+---
+Expected outcome: PASS — no radon complexity findings, no bandit security findings. Clean code should always clear the reviewer.

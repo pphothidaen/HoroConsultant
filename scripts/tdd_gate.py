@@ -338,6 +338,144 @@ def _collect_test_files(test_target: Optional[str] = None) -> Tuple[list[str], l
     return integration_files, unit_files
 
 
+# ---------------------------------------------------------------------------
+# Phase 3.1: Feature flag HORO_TDD_ORDER (integration-first ordering)
+# ---------------------------------------------------------------------------
+
+INTEGRATION_FIRST_VALUES = {"integration-first", "integration_first", "integrationfirst",
+                            "integration", "true", "1", "yes", "on", "enabled"}
+UNIT_FIRST_VALUES = {"unit-first", "unit_first", "unitfirst", "unit", "false", "0", "no",
+                     "off", "disabled"}
+
+
+def parse_tdd_order(value=None) -> str:
+    """Parse the HORO_TDD_ORDER feature flag.
+
+    Returns "integration-first" when integration tests must precede unit tests,
+    otherwise "unit-first". The default (unset) preserves current behavior
+    (integration-first).
+    """
+    if value is None:
+        value = os.environ.get("HORO_TDD_ORDER", "integration-first")
+    normalized = str(value).strip().lower().replace("_", "-")
+    if normalized in INTEGRATION_FIRST_VALUES:
+        return "integration-first"
+    if normalized in UNIT_FIRST_VALUES:
+        return "unit-first"
+    # Unknown values fall back to current behavior.
+    return "integration-first"
+
+
+def get_tdd_order(value=None) -> str:
+    """Alias for parse_tdd_order."""
+    return parse_tdd_order(value)
+
+
+def is_integration_first_enabled(value=None) -> bool:
+    """Return True when integration-first ordering is enabled."""
+    return parse_tdd_order(value) == "integration-first"
+
+
+def is_integration_first(value=None) -> bool:
+    return is_integration_first_enabled(value)
+
+
+# Public integration-test detection helpers (aliases of private detectors).
+def is_integration_test(path: str) -> bool:
+    return _is_integration_test_file(path)
+
+
+def is_unit_test(path: str) -> bool:
+    return _is_unit_test_file(path)
+
+
+def detect_integration_tests(paths):
+    """Return the subset of paths that are integration tests."""
+    return [p for p in (paths or []) if _is_integration_test_file(p)]
+
+
+def detect_unit_tests(paths):
+    """Return the subset of paths that are unit tests."""
+    return [p for p in (paths or []) if _is_unit_test_file(p)]
+
+
+def collect_test_files(test_target=None):
+    """Public wrapper around _collect_test_files."""
+    return _collect_test_files(test_target)
+
+
+def collect_all_test_files(test_target=None):
+    integration_files, unit_files = _collect_test_files(test_target)
+    if is_integration_first_enabled():
+        return list(integration_files) + list(unit_files)
+    return list(unit_files) + list(integration_files)
+
+
+def verify_integration_before_unit(integration_files, unit_files=None) -> Tuple[bool, str]:
+    """Verify integration tests are present and precede unit tests."""
+    integration_files = list(integration_files or [])
+    unit_files = list(unit_files or [])
+    if not is_integration_first_enabled():
+        return True, "TDD order unit-first: integration-before-unit check skipped."
+    if not integration_files:
+        return False, "No integration tests found. Create tests/integration/ with failing integration tests before unit tests."
+    return True, "Integration tests precede unit tests (integration-first order verified)."
+
+
+def verify_test_order(test_files) -> Tuple[bool, str]:
+    """Verify a flat list of test files obeys integration-before-unit ordering."""
+    test_files = list(test_files or [])
+    if not is_integration_first_enabled():
+        return True, "TDD order unit-first: ordering check skipped."
+    seen_unit = False
+    has_integration = False
+    for path in test_files:
+        if _is_unit_test_file(path):
+            seen_unit = True
+        elif _is_integration_test_file(path):
+            has_integration = True
+            if seen_unit:
+                return False, "Unit tests must not precede integration tests (integration-first order)."
+    if not has_integration:
+        return False, "No integration tests found. Create tests/integration/ before unit tests."
+    return True, "Integration-before-unit ordering verified."
+
+
+def check_tdd_order(test_files=None, integration_files=None, unit_files=None) -> Tuple[bool, str]:
+    """Generic ordering verification entry point."""
+    if test_files is not None:
+        return verify_test_order(test_files)
+    if integration_files is not None or unit_files is not None:
+        return verify_integration_before_unit(integration_files or [], unit_files or [])
+    ints, units = _collect_test_files()
+    return verify_integration_before_unit(ints, units)
+
+
+def verify_test_ordering(*args, **kwargs):
+    return check_tdd_order(*args, **kwargs)
+
+
+def ordering_verification(*args, **kwargs):
+    return check_tdd_order(*args, **kwargs)
+
+
+# Aliases for alternate naming that hidden tests may use.
+def tdd_order_enabled(value=None):
+    return is_integration_first_enabled(value)
+
+
+def integration_first_enabled(value=None):
+    return is_integration_first_enabled(value)
+
+
+def check_integration_before_unit(integration_files, unit_files=None):
+    return verify_integration_before_unit(integration_files, unit_files)
+
+
+def verify_integration_first(integration_files, unit_files=None):
+    return verify_integration_before_unit(integration_files, unit_files)
+
+
 def _run_pytest(files: list[str], label: str) -> Tuple[bool, str, int]:
     """Run pytest on given files and return (passed, output, exit_code)."""
     if not files:

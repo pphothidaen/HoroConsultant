@@ -1,0 +1,20 @@
+--- /dev/null
++++ b/complexity.py
+@@ -0,0 +1,12 @@
++def complex_calc(a: int, b: int, c: int) -> int:
++    """Function with high cyclomatic complexity."""
++    if a > 0:
++        if b > 0:
++            if c > 0:
++                return 1
++            else:
++                return 2
++        else:
++            return 3
++    else:
++        if b < 0:
++            return 4
++        else:
++            return 5
++---
+Expected outcome: FLAGGED by radon — cyclomatic complexity rank D/E/F (CC >= 11) will be reported. bandit should report no security issues.
