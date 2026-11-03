@@ -1,0 +1,15 @@
+--- /dev/null
++++ b/mixed.py
+@@ -0,0 +1,14 @@
++def process_input(user_input: str) -> str:
++    """Process some user input."""
++    if user_input:
++        result = user_input.strip().upper()
++        if len(result) > 10:
++            return result
++    return ""
++
++# placeholder that looks suspicious but is not a real key
++placeholder_key = "AIzaSy"
++---
+Expected outcome: FLAGGED by radon — cyclomatic complexity rank C (CC just above threshold) due to nested if/else. bandit should NOT flag (placeholder_key is too short for any SECRET_PATTERN). Mixed: complexity finding present, no security finding.

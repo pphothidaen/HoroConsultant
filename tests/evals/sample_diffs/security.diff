@@ -1,0 +1,9 @@
+--- /dev/null
++++ b/security.py
+@@ -0,0 +1,5 @@
++import subprocess
++def run_cmd(cmd: str) -> None:
++    """Run a command with shell=True (bandit-detectable)."""
++    subprocess.run(cmd, shell=True)
+---
+Expected outcome: FLAGGED by bandit — MEDIUM/HIGH severity issue for shell=True usage. radon should report no complexity issues.

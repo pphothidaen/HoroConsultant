@@ -57,6 +57,7 @@ EXPECTED_WORKFLOW_FILES = [
     "workers-hermes.yml",
     "workflow-auto-disable.yml",
     "workflow-mttr-monitor.yml",
+    "hardening-cleanup-sprint.yml",
 ]
 
 # Archived (retired) workflows — still governed but moved to _archive/

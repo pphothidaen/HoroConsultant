@@ -23,6 +23,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -34,6 +35,21 @@ log = logging.getLogger("code_reviewer")
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+
+# ============================================================================
+# Phase 2.1: Layered Review Configuration
+# ============================================================================
+
+# Layer 1A: Complexity thresholds (radon)
+COMPLEXITY_THRESHOLD_RANK = "C"  # Rank C or worse (CC >= 11)
+COMPLEXITY_THRESHOLD_CC = 11     # Cyclomatic Complexity >= 11
+MAINTAINABILITY_THRESHOLD = 20   # Maintainability Index < 20
+
+# Layer 1B: Security thresholds (bandit)
+BANDIT_SEVERITY_LEVELS = ["MEDIUM", "HIGH"]  # Block on MEDIUM/HIGH in enforce mode
+
+# Noise control
+MAX_FINDINGS_CAP = 8  # Max findings displayed per review
 
 # Regex patterns for detecting hardcoded secrets
 SECRET_PATTERNS = [
@@ -435,6 +451,7 @@ class CodeReviewer:
             "issues": issues,
         }
 
+
     def run_full_review(
         self,
         *,
@@ -521,17 +538,228 @@ class CodeReviewer:
         return audit_report
 
 
-def scan_repository_secrets(root_dir: Path | str | None = None) -> dict[str, Any]:
-    """Scan repository for secret leaks using Rust Rayon parallel audit."""
-    return CodeReviewer.scan_secrets(root_dir=root_dir)
+# ============================================================================
+# Phase 2.1: Layered Review Architecture (Layer 1: Static Analysis)
+# ============================================================================
+
+class LayeredCodeReviewer:
+    """Layer 1 Deterministic Surface Analysis: Complexity (radon) + Security (bandit).
+
+    Integrates with ai_sdlc_metrics.py for telemetry recording.
+    """
+
+    def __init__(
+        self,
+        target_files: list[str],
+        ticket_id: str = "UNKNOWN",
+        mode: str | None = None,
+        root_dir: Path | None = None,
+    ):
+        self.root_dir = root_dir or ROOT
+        # Filter to existing .py files
+        self.target_files = [
+            str(self.root_dir / f) for f in target_files
+            if f.endswith(".py") and (self.root_dir / f).exists()
+        ]
+        self.ticket_id = ticket_id
+        resolved_mode = mode if mode is not None else os.getenv("HORO_GATE_MODE", "observation")
+        self.mode = str(resolved_mode).lower()
+        self.findings: list[dict[str, Any]] = []
+
+    def run_radon_complexity(self) -> None:
+        """Inspects Cyclomatic Complexity & Maintainability using radon (Layer 1A)."""
+        if not self.target_files:
+            return
+
+        # Use venv python if available
+        python_bin = sys.executable
+        venv_python = self.root_dir / ".venv" / "bin" / "python"
+        if venv_python.exists():
+            python_bin = str(venv_python)
+
+        # CC check: radon cc -j -n C (show functions with rank C or worse)
+        cmd_cc = [python_bin, "-m", "radon", "cc", "-j", "-n", COMPLEXITY_THRESHOLD_RANK] + self.target_files
+        res_cc = subprocess.run(cmd_cc, capture_output=True, text=True)
+        if res_cc.returncode == 0 and res_cc.stdout.strip():
+            try:
+                data = json.loads(res_cc.stdout)
+                for file_path, blocks in data.items():
+                    for block in blocks:
+                        cc = block.get("complexity", 0)
+                        rank = block.get("rank", "")
+                        if cc >= COMPLEXITY_THRESHOLD_CC:
+                            severity = "ERROR" if rank in ("D", "E", "F") else "WARNING"
+                            self.findings.append({
+                                "tool": "radon_cc",
+                                "file": str(Path(file_path).relative_to(self.root_dir)),
+                                "line": block.get("lineno", 1),
+                                "name": block.get("name"),
+                                "severity": severity,
+                                "score": cc,
+                                "rank": rank,
+                                "message": f"High Cyclomatic Complexity ({cc}, Rank {rank}) in {block.get('type', 'function')} '{block.get('name', 'unknown')}'"
+                            })
+            except json.JSONDecodeError:
+                pass
+
+        # MI check: radon mi -j (Maintainability Index)
+        cmd_mi = [python_bin, "-m", "radon", "mi", "-j"] + self.target_files
+        res_mi = subprocess.run(cmd_mi, capture_output=True, text=True)
+        if res_mi.returncode == 0 and res_mi.stdout.strip():
+            try:
+                data = json.loads(res_mi.stdout)
+                for file_path, mi_score in data.items():
+                    if isinstance(mi_score, (int, float)) and mi_score < MAINTAINABILITY_THRESHOLD:
+                        self.findings.append({
+                            "tool": "radon_mi",
+                            "file": str(Path(file_path).relative_to(self.root_dir)),
+                            "line": 1,
+                            "name": "module",
+                            "severity": "WARNING",
+                            "score": mi_score,
+                            "rank": "N/A",
+                            "message": f"Low Maintainability Index ({mi_score:.1f} < {MAINTAINABILITY_THRESHOLD})"
+                        })
+            except json.JSONDecodeError:
+                pass
+
+    def run_bandit_security(self) -> None:
+        """Inspects security vulnerabilities using bandit (Layer 1B)."""
+        if not self.target_files:
+            return
+
+        python_bin = sys.executable
+        venv_python = self.root_dir / ".venv" / "bin" / "python"
+        if venv_python.exists():
+            python_bin = str(venv_python)
+
+        cmd = [python_bin, "-m", "bandit", "-f", "json", "-q"] + self.target_files
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        if res.stdout.strip():
+            try:
+                data = json.loads(res.stdout)
+                for result in data.get("results", []):
+                    severity = result.get("issue_severity", "LOW").upper()
+                    if severity in BANDIT_SEVERITY_LEVELS:
+                        self.findings.append({
+                            "tool": "bandit",
+                            "file": str(Path(result.get("filename", "")).relative_to(self.root_dir)),
+                            "line": result.get("line_number", 1),
+                            "name": result.get("test_id"),
+                            "severity": severity,
+                            "confidence": result.get("issue_confidence"),
+                            "message": result.get("issue_text")
+                        })
+            except json.JSONDecodeError:
+                pass
+
+    def record_telemetry(self) -> None:
+        """Sends each finding to SQLite metrics via ai_sdlc_metrics.py."""
+        for finding in self.findings[:MAX_FINDINGS_CAP]:
+            tool = finding["tool"]
+            severity = finding["severity"]
+
+            # Map tool to finding_type
+            if tool in ("radon_cc", "radon_mi"):
+                finding_type = "complexity"
+                severity_map = {"ERROR": "high", "WARNING": "medium", "HIGH": "high"}
+            elif tool == "bandit":
+                finding_type = "security"
+                severity_map = {"HIGH": "high", "MEDIUM": "medium", "LOW": "low"}
+            else:
+                finding_type = "syntax"
+                severity_map = {"ERROR": "high", "WARNING": "medium"}
+
+            mapped_severity = severity_map.get(severity.upper(), "medium")
+
+            cmd = [
+                sys.executable, "scripts/ai_sdlc_metrics.py", "record-review-signal",
+                "--ticket-id", self.ticket_id,
+                "--finding-type", finding_type,
+                "--severity", mapped_severity,
+                "--file", finding["file"],
+                "--line", str(finding["line"]),
+                "--message", finding["message"]
+            ]
+            subprocess.run(cmd, capture_output=True, cwd=self.root_dir)
+
+    def record_gate(self) -> None:
+        """Record a gate event to ai_sdlc_metrics.py (Observation Mode)."""
+        try:
+            # Compute a risk tier consistent with tdd_gate
+            try:
+                import sys as _sys
+                _sys.path.insert(0, str(self.root_dir / "scripts"))
+                import tdd_gate as _tg
+                rel_files = [str(Path(f).relative_to(self.root_dir)) for f in self.target_files]
+                tier = _tg.detect_risk_tier(rel_files) if rel_files else "Tier 1"
+            except Exception:
+                tier = "Tier 2"
+
+            if not self.findings:
+                result = "PASS"
+            elif self.mode == "observation":
+                result = "FAIL_OBSERVED"
+            else:
+                result = "FAIL"
+
+            script = self.root_dir / "scripts" / "ai_sdlc_metrics.py"
+            cmd = [
+                sys.executable, str(script), "record-gate",
+                "--gate-name", "code_reviewer",
+                "--gate-mode", self.mode,
+                "--tier", tier,
+                "--result", result,
+                "--ticket-id", self.ticket_id,
+            ]
+            subprocess.run(cmd, capture_output=True, text=True, cwd=self.root_dir)
+        except Exception:
+            pass
+
+    def evaluate(self) -> tuple[int, list[dict[str, Any]]]:
+        """Run all Layer 1 checks. Returns (exit_code, findings)."""
+        self.run_radon_complexity()
+        self.run_bandit_security()
+        self.record_telemetry()
+        self.record_gate()
+
+        if not self.findings:
+            print("[LAYERED-REVIEW] All static checks passed cleanly (radon + bandit).")
+            return 0, []
+
+        print(f"\n[LAYERED-REVIEW] Found {len(self.findings)} static issues (Capped display at {MAX_FINDINGS_CAP}):")
+        for idx, item in enumerate(self.findings[:MAX_FINDINGS_CAP], 1):
+            print(f"  {idx}. [{item['tool'].upper()}] {item['file']}:{item['line']} - {item['severity']}: {item['message']}")
+
+        if len(self.findings) > MAX_FINDINGS_CAP:
+            print(f"  ... and {len(self.findings) - MAX_FINDINGS_CAP} additional findings suppressed.")
+
+        if self.mode == "enforce":
+            has_blocking = any(f["severity"] in ["HIGH", "ERROR", "MEDIUM"] for f in self.findings)
+            if has_blocking:
+                print("\n[LAYERED-REVIEW BLOCKED] Hard errors found in enforce mode.")
+                return 1, self.findings[:MAX_FINDINGS_CAP]
+
+        if self.mode == "observation":
+            print(f"\nWARNING: Layered review found {len(self.findings)} issue(s); observation mode allows (exit 0).")
+
+        print(f"\n[LAYERED-REVIEW NOTICE] Mode is '{self.mode}'. Non-blocking exit 0.")
+        return 0, self.findings[:MAX_FINDINGS_CAP]
+
+
+def run_layered_review(
+    target_files: list[str],
+    ticket_id: str = "UNKNOWN",
+    mode: str | None = None,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Convenience function for CI/CD integration."""
+    reviewer = LayeredCodeReviewer(target_files, ticket_id, mode)
+    return reviewer.evaluate()
 
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="HoroConsultant Pre-Deployment Code Reviewer")
-    parser.add_argument("--review", action="store_true", help="Run full code review & safety audit")
-    parser.add_argument("--scan-secrets", action="store_true", help="Scan for secret leaks only")
-    parser.add_argument("--audit-ast", action="store_true", help="Audit Python AST syntax and encoding safety")
+    parser = argparse.ArgumentParser(description="Code Reviewer & Safety Auditor")
     parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
     parser.add_argument("--ticket", help="Ticket ID bound to a test-provenance manifest")
     parser.add_argument("--test-baseline", help="Exact committed test-baseline SHA")
@@ -547,6 +775,13 @@ def main():
         default=None,
         help="Run only the specified test paths/globs instead of full suite (TIER_MEDIUM).",
     )
+    parser.add_argument("--scan-secrets", action="store_true", help="Run secret scan only")
+    parser.add_argument("--audit-ast", action="store_true", help="Run AST audit only")
+    parser.add_argument("--review", action="store_true", help="Run full review (default)")
+    parser.add_argument("--layered-review", action="store_true", help="Run Layer 1 static analysis (radon + bandit)")
+    parser.add_argument("--layered-files", nargs="*", default=None, help="Files to analyze in layered review (default: all .py files)")
+    parser.add_argument("--ticket-id", help="Ticket ID for telemetry correlation")
+    parser.add_argument("--gate-mode", choices=["observation", "enforce"], default=os.getenv("HORO_GATE_MODE", "observation"), help="Gate mode for layered review")
     args = parser.parse_args()
 
     rust_binary = ROOT / "rust_core" / "target" / "release" / "code_reviewer"
@@ -566,6 +801,15 @@ def main():
         report = CodeReviewer.audit_python_ast()
         print(json.dumps(report, indent=2, ensure_ascii=True))
         sys.exit(0 if report["status"] == "PASSED" else 1)
+
+    if args.layered_review:
+        target_files = args.layered_files if args.layered_files else [
+            str(p.relative_to(ROOT)) for p in ROOT.rglob("*.py") if "tests/" not in str(p)
+        ]
+        ticket_id = args.ticket_id or os.getenv("TICKET_ID", "UNKNOWN")
+        exit_code, findings = run_layered_review(target_files, ticket_id, args.gate_mode)
+        print(json.dumps({"findings": findings}, indent=2, ensure_ascii=True))
+        sys.exit(exit_code)
 
     report = reviewer.run_full_review(
         ticket=args.ticket,

@@ -3,7 +3,7 @@
 > This file is auto-generated from `docs/` structure.
 > Do not edit manually — changes will be overwritten.
 
-**Total documents:** 79
+**Total documents:** 84
 
 ## Document Registry
 
@@ -17,10 +17,13 @@
 | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` | `CLAUDE_CODE_COMMAND_GOVERNANCE.md` |
 | `GITHUB_SECRETS_WORKERS.md` | `GITHUB_SECRETS_WORKERS.md` |
 | `HITL_OPERATING_GUIDE.md` | `HITL_OPERATING_GUIDE.md` |
+| `PROJECT.md` | `PROJECT.md` |
+| `README.md` | `README.md` |
 | `RELEASE_HANDOFF_CHECKLIST.md` | `RELEASE_HANDOFF_CHECKLIST.md` |
 | `RELEASE_NOTES.md` | `RELEASE_NOTES.md` |
 | `RELEASE_ROLLBACK_RUNBOOK.md` | `RELEASE_ROLLBACK_RUNBOOK.md` |
 | `SUMMARY.md` | `SUMMARY.md` |
+| `TEST.md` | `TEST.md` |
 | `agent-permission-policy.md` | `agent-permission-policy.md` |
 | `audit_discrepancies.md` | `audit_discrepancies.md` |
 | `branch_migration_action_priority_runbook.md` | `branch_migration_action_priority_runbook.md` |
@@ -37,6 +40,12 @@
 | `skill-audit-2026-09-23.md` | `skill-audit-2026-09-23.md` |
 | `tradeoff.md` | `tradeoff.md` |
 | `v3_api_specification.md` | `v3_api_specification.md` |
+
+### `adr/`
+
+| File | Path |
+|------|------|
+| `0001-template.md` | `adr/0001-template.md` |
 
 ### `api-guide/`
 

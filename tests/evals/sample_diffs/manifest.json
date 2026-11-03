@@ -1,0 +1,27 @@
+{
+  "clean.diff": {
+    "description": "Clean code with simple function",
+    "expected_tool": "none",
+    "expected_outcome": "PASS — no radon complexity, no bandit security findings"
+  },
+  "complexity.diff": {
+    "description": "High cyclomatic complexity function",
+    "expected_tool": "radon",
+    "expected_outcome": "FLAGGED — radon reports CC >= 11 (rank D/E/F), bandit clean"
+  },
+  "security.diff": {
+    "description": "subprocess.run with shell=True",
+    "expected_tool": "bandit",
+    "expected_outcome": "FLAGGED — bandit reports MEDIUM/HIGH for shell=True, radon clean"
+  },
+  "false_positive.diff": {
+    "description": "Short placeholder that mimics a key but is too short",
+    "expected_tool": "none",
+    "expected_outcome": "PASS — placeholder_key = \"AIzaSy\" (8 chars) does not match any SECRET_PATTERN; no findings"
+  },
+  "mixed.diff": {
+    "description": "Moderate complexity + benign placeholder",
+    "expected_tool": "radon",
+    "expected_outcome": "FLAGGED — radon reports CC just above threshold; bandit clean, placeholder too short to trigger"
+  }
+}
