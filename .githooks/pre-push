@@ -1,6 +1,47 @@
 #!/usr/bin/env bash
-# Git pre-push hook: Enforce TDD State Gate & Provenance — KAN-95/KAN-105
-#
+# Phase 1.4 — Risk-Tiered Observation with Telemetry Correlation
+# Reads TICKET_ID from branch name and passes to tdd_gate for metrics linkage
+
+HORO_GATE_MODE="${HORO_GATE_MODE:-observation}"
+echo "[PRE-PUSH] Risk-Tier check (mode=${HORO_GATE_MODE})..."
+
+if [ -x ".venv/bin/python3" ]; then
+    PYTHON=".venv/bin/python3"
+else
+    PYTHON="python3"
+fi
+
+# Infer TICKET_ID from current branch (feat/KAN-123-xxx -> KAN-123)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+INFERRED_TICKET=$(echo "$CURRENT_BRANCH" | grep -oE "KAN-[0-9]+" | head -n 1)
+TICKET_ID="${INFERRED_TICKET:-UNKNOWN_TICKET}"
+
+# Gather changed files
+CHANGED_FILES=$(git diff --name-only "@{push}..HEAD" 2>/dev/null || git diff --name-only origin/main..HEAD 2>/dev/null)
+
+echo "[PRE-PUSH] Ticket: ${TICKET_ID} | Files: $(echo "$CHANGED_FILES" | wc -l | tr -d ' ')"
+
+# Pass TICKET_ID to tdd_gate for telemetry correlation
+"$PYTHON" scripts/tdd_gate.py \
+    --verify-push \
+    --files "$CHANGED_FILES" \
+    --mode "$HORO_GATE_MODE" \
+    --ticket-id "$TICKET_ID" || true
+
+# Phase 2.2: Jira ↔ Repo SHA Binding
+echo "[PRE-PUSH] Jira SHA Binding (mode=${HORO_GATE_MODE})..."
+"$PYTHON" scripts/jira_sha_bind.py \
+    --ticket-id "$TICKET_ID" \
+    --mode "$HORO_GATE_MODE" \
+    --event "PRE_PUSH" || true
+
+echo "[PRE-PUSH] Tier check complete (observation mode never blocks)."
+echo ""
+
+# ============================================================================
+# Full per-commit validation with provenance + TDD gate (KAN-180 remediation)
+# ============================================================================
+
 # KAN-180 remediation:
 #   (A) Interpreter selection — prefer the repository virtualenv
 #       (.venv/bin/python3) over a bare `python3`. The system interpreter is
@@ -15,10 +56,10 @@
 #   (C) Per-commit coverage — every commit in the pushed range is validated,
 #       not only `git log -1`. The pre-push ref updates arrive on stdin as
 #       `<local_ref> <local_sha> <remote_ref> <remote_sha>`.
-#
+
 # Strictness contract: if ANY changed path is not documentation, behaviour is
 # exactly as before the exemption existed.
-#
+
 # Read-only gate: never edits repository files, refs, or the index.
 
 set -u
