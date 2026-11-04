@@ -1,0 +1,61 @@
+@startuml
+skinparam backgroundColor #1B2430
+skinparam defaultFontName "Arial"
+skinparam roundcorner 12
+skinparam ActorBackgroundColor #2E4A6B
+skinparam ActorFontColor #FFFFFF
+skinparam BoxBackgroundColor #3A4A62
+
+title HoroConsultant SDLC Hooks + CI + Release Gate + Production
+
+rectangle "SDLC Lifecycle totality" as SDLC {
+  box "🖥️ LOCAL (Developer Mac)" AIS {
+    participant "BA\n(business_analyst /\nba_intake)" as BA
+    participant "QA\n(qa_tester)" as QA
+    participant "PRE-COMMIT" as PRE_COMMIT
+    participant "PRE-PUSH" as PRE_PUSH
+    participant "Developer\n(developer)" as DEV
+  }
+
+  box "📡 GITHUB ACTIONS CI" AIS {
+    participant "CI.\yml\n(Unified CI)" as CI
+    participant "AI_CICD.yml\n(AI Safety Audit)" as AICI
+    participant "JIRA-GOV\n(jira-governance)" as JIRA_GOV
+  }
+
+  box "🧪 POST-DEPLOY TDD" AIS {
+    participant "TEAM RED\n(attack simulation)" as TEAM_RED
+    participant "TEAM BLUE\n(validation)" as TEAM_BLUE
+  }
+
+  box "🚪 RELEASE GATE (dod-production-gate.yml)" AIS {
+    participant "ORCH\n(orchestrator)" as ORCH
+    participant "HITL" as HITL
+    participant "DEVOPS" as DEVOPS
+  }
+
+  box "🏭 PRODUCTION" AIS {
+    participant "HF Docker\npphothidaen/horoconsultant-core-backend\\n(sdk: docker)" as HF_SPACE
+    participant "Vercel\\nhttps://horo-consultant-psi.vercel.app" as VERCEL
+  }
+
+  participant "TDD GATE\\n(tdd_gate.py)\\nTOD RED->GREEN->Review->Done" as TDD_GATE
+  participant "PROVENANCE GUARD\\n(test_provenance_guard.py)" as PROV_GUARD
+  participant "DOC SYNC\\n(run_doc_sync.sh)" as DOC_SYNC
+  participant "CODE REVIEW\\n(code_reviewer.py)" as CODE_REV
+  participant "SECRET SCAN" as SEC_SCAN
+  participant "POST-COMMIT CHECK\\n(post_commit_check.py)" as POST_CHECK
+}
+
+BA -> QA: 9-Dim grill specs -> ATOMIC_TICKET.md / plans/plan.md
+BA -> QA: ticket READY (agent-* label)
+
+QA -> TDD_GATE: Red test first (tests/ + manifest)
+TDD_GATE -> TDD_GATE: Backlog -> TDD RED (failing test)
+
+QA -> TDD_GATE: all tests pass + provenance manifest
+TDD_GATE -> TDD_GATE: TDD RED -> TDD GREEN
+TDD_GATE -> PROV_GUARD: test provenance verified TEST_BASELINE_VERIFIED
+
+QA -> PRE_COMMIT: commit (test_provenance_guard.py + jira_label_gate.py)
+PRE_COMMIT -> PRE_COMMIT: read-only, console only (exit 0/1, non-blocking)

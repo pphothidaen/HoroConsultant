@@ -1,0 +1,20 @@
+{
+  "fingerprint": "nonexistent123",
+  "ticket_id": "KAN-INC-NONEXI",
+  "resolved_at": "2026-11-03T10:48:06.876085Z",
+  "resolution_reason": "test",
+  "original_error_trace": "",
+  "eval_type": "configuration_regression",
+  "description": "Regression test for KAN-INC-NONEXI. Ensures agent behavior changes don't reintroduce this failure class.",
+  "test_criteria": [
+    "Agent must detect this error pattern in post-deploy verification",
+    "Agent must classify severity correctly (Tier 2/3)",
+    "Agent must generate correct ticket type (ATOMIC_TICKET/intent.md)"
+  ],
+  "agent_files_to_monitor": [
+    "AGENTS.md",
+    "skills/*/SKILL.md",
+    ".githooks/*",
+    "scripts/auto_intent_generator.py"
+  ]
+}

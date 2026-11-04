@@ -1,0 +1,126 @@
+@startuml
+' ============================================================================
+' HOROCONSULTANT — Code Review + Security/Static Scan ライフサイクル ライフサイクル
+' (โฟกัสที่เมื่อไหร่ไหร่ไหน ที่มีการตรวจสอบ)
+' แหล่งอ้างอิง: .github/workflows/{ai_cicd.yml, ci.yml} + .githooks/{pre-commit, pre-push}
+' ============================================================================
+skinparam backgroundColor #1B2430
+skinparam defaultFontName "Arial"
+skinparam roundcorner 12
+skinparam ActorBackgroundColor #2E4A6B
+skinparam ActorFontColor #FFFFFF
+skinparam BoxBackgroundColor #3A4A62
+
+title "Code Review + Security/Static Scan — เมื่อไหร่ไหร่ไหน" \n(PlantUML: Focused Verification Flow)
+
+rectangle "Verification Pipeline (โฟกัส)" as VERIFY {
+  box "🖥️ LOCAL (Developer Mac) — read-only verify only" AIS {
+    participant "BA\n(business_analyst)" as BA
+    participant "QA\n(qa_tester)" as QA
+    participant "PRE-COMMIT" as PC
+    participant "PRE-PUSH" as PP
+  }
+
+  box "📡 GITHUB ACTIONS CI" AIS {
+    participant "CI.yml\n(Unified CI)" as CI
+    participant "ai_cicd.yml\n(AI Safety Audit)" as AIF
+  }
+
+  box "🚪 RELEASE GATE" AIS {
+    participant "DOd-GATE\n(dod-production-gate.yml)" as DOD
+    participant "HITL\n(human approval)" as HITL
+  }
+
+  participant "code_reviewer.py\n(--review --use-python --skip-tests)" as CR
+  participant "test_provenance_guard.py" as TPG
+  participant "jira_label_gate.py" as JLG
+  participant "tdd_gate.py" as TDG
+}
+
+' --- LOCAL: BA >> QA ---
+BA -> QA : requirement -> ATOMIC_TICKET.md / plans/plan.md
+BA -> QA : ticket READY (+ agent-* label)
+
+' --- LOCAL: pre-commit ---
+QA -> PC : git commit
+PC -> TPG : test_provenance_guard.py staged\n(เช็ก test baseline)
+PC -> JLG : jira_label_gate.py check\n(KAN-XX + agent-* label)
+PC --> QA : exit 0 (ทุกอย่างพร้อม) หรือ FAIL (report 1)
+
+' --- LOCAL: pre-push ---
+QA -> PP : git push
+PP -> TDG : tdd_gate.py (TDD state gate)\nper-commit coverage
+PP -> TPG : test_provenance_guard.py\n(heredoc / push range)
+PP --> QA : exit 0 (แต่งานทุก work ตรวจสอบแล้ว)\nหรือ FAIL (report)
+
+' --- CI: push/PR trigger ---
+QA -> CI : push / PR (feature branch)
+DEV -> AIF : push / PR (feature branch)
+AIF -> CR : python3 project/core/code_reviewer.py --review --use-python --skip-tests\n(security audit, AST, static scan)
+AIF -> CR : architecture regression\nGitHub Actions workflow regression
+CI -> TPG : test_provenance_guard.py verify-pr\n(PR: base main -> head)
+CI -> JLG : Jira sync\n(issue transit Review -> Done)
+
+' --- Post-deploy TDD ---
+CI -> DOD : PR merge (main) + 100% green
+DOD -> HITL : HITL approval\n(release, data safety, model promotion)
+HITL --> DOD : approve / reject
+DOD -> CI : (flow กลับ) post-deploy-tdd.yml\nTeam Red (attack) + Team Blue (validate)
+
+' --- Production ---
+DOD -> HITL : DoD verification (5 criteria)\n1. tests green  2. release notes\n3. tag  4. push  5. worktree clean
+HITL --> DOD : complete
+DOD -> DEV : production release\nHF Docker + Vercel
+DEV -> QA : 100% DONE\narchive plans\nsync agents
+
+' ============================================================================
+' ২ ผลสรุป (Key takeaways)
+' ============================================================================
+note right of PC
+  pre-commit:
+  - test provenance (TDD gate)
+  - Jira label governance
+  - read-only, ไม่บล็อก commits
+end note
+
+note right of PP
+  pre-push:
+  - TDD state gate (tdd_gate.py)
+  - test provenance (verifying all commits)
+  - docs-only exemption (KAN-180)
+  - read-only, ไม่บล็อก push
+end note
+
+note right of AI_CICD
+  ai_cicd.yml (ชื่องาน: code-review-and-audit):
+  - Pre-Deployment Code Review and Safety Audit
+  - code_reviewer.py --review --use-python
+  - Architecture regression
+  - GitHub Actions workflow regression
+  (Trigger: push/PR)
+end note
+
+note right of CI
+  ci.yml (ชื่องาน: Unified CI & Quality Audit):
+  - code_reviewer.py --review (line 314)
+  - test_provenance_guard.py verify-pr
+  - config drift detection (M11)
+  - doc sync (run_doc_sync.sh)
+  (Trigger: push/PR)
+end note
+
+note right of DOD
+  dod-production-gate.yml:
+  - PR merge + 100% green
+  - 5 DoD criteria (tests, release notes, tag, push, worktree)
+  - HITL approval (human) + 2 production surfaces
+end note
+
+footer
+  .githooks/ : pre-commit, pre-push, commit-msg, prepare-commit-msg\n
+  .github/workflows/ : ai_cicd.yml, ci.yml, jira-governance.yml,\n
+    post-deploy-tdd.yml, dod-production-gate.yml, update-index.yml\n
+  scripts/ : tdd_gate.py, test_provenance_guard.py,\n
+    post_commit_check.py, run_doc_sync.sh, verify_doc_index.py
+end footer
+@enduml
