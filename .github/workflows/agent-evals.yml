@@ -1,0 +1,87 @@
+# Agent Configuration Regression Eval Verification
+# -----------------------------------------------
+# Runs Configuration Regression Evals (tests/evals/eval_*.json) whenever
+# agent behavior files are modified. Prevents re-introduction of previously
+# fixed failure classes when AGENTS.md, skills/*, or .githooks/* change.
+#
+# Triggered by: push/pull_request affecting agent behavior files
+# Also runs on workflow_dispatch for manual verification
+name: Agent Configuration Regression Evals
+
+on:
+  push:
+    paths:
+      - 'AGENTS.md'
+      - '.githooks/**'
+      - 'skills/**/SKILL.md'
+      - 'scripts/auto_intent_generator.py'
+      - 'scripts/verify_agent_evals.py'
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - '.githooks/**'
+      - 'skills/**/SKILL.md'
+      - 'scripts/auto_intent_generator.py'
+      - 'scripts/verify_agent_evals.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-agent-evals:
+    name: Verify Agent Configuration Regression Evals
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 2  # Need history for git status checks
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Configuration Regression Evals
+        id: evals
+        run: |
+          python scripts/verify_agent_evals.py --changed-files --fail-fast
+        continue-on-error: true  # Don't block on eval failures, but report them
+
+      - name: Report Eval Results
+        if: always()
+        run: |
+          if [ "${{ steps.evals.outcome }}" == "success" ]; then
+            echo "✅ All Configuration Regression Evals passed"
+          elif [ "${{ steps.evals.outcome }}" == "failure" ]; then
+            echo "❌ Some Configuration Regression Evals failed"
+            echo "This indicates agent behavior changes may have reintroduced a fixed failure class."
+            echo "Review the eval output above and the corresponding eval_*.json files in tests/evals/"
+            exit 1
+          else
+            echo "ℹ️ No agent behavior files changed, evals skipped"
+          fi
+
+      - name: Upload Eval Artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e9274886a138575053 # v4.6.2
+        with:
+          name: agent-eval-results
+          path: |
+            tests/evals/eval_*.json
+          retention-days: 7

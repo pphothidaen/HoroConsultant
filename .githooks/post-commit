@@ -1,0 +1,124 @@
+#!/usr/bin/env zsh
+#
+# HoroConsultant — post-commit hook
+# ============================================================================
+# Purpose:  Verify documentation consistency and doc/code sync after every commit.
+# Trigger:  After `git commit` (commit is already created; hook is non-blocking).
+# Mode:     Read-only verification — NEVER edits/stages repo files.
+#           Exits 0 = pass, non-zero = warn (console only).
+#
+# What it checks:
+#   1. If `docs/**/*.md` changed  -> `docs/INDEX.md` consistency check
+#   2. If source changed          -> doc/code drift detection (KAN-308 4D)
+#   3. If only non-doc changed    -> pass-through
+#
+# ---------------------------------------------------------------------------
+# Note: hooksPath = .githooks, so this file must live at
+#   .githooks/post-commit
+# Install: ln -sf ../../.githooks/post-commit .git/hooks/post-commit
+# ============================================================================
+
+set -u
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$REPO_ROOT" ]; then
+    echo "[INFO] post-commit: cannot resolve repository root, skipping."
+    exit 0
+fi
+
+cd "$REPO_ROOT" || exit 0
+
+# ---------------------------------------------------------------------------
+# Locate interpreter
+# ---------------------------------------------------------------------------
+if [ -x "$REPO_ROOT/.venv/bin/python3" ]; then
+    PYTHON="$REPO_ROOT/.venv/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON="python3"
+else
+    echo "[INFO] post-commit: python3 not found, skipping verification."
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Resolve changed files in the last commit
+# ---------------------------------------------------------------------------
+CHANGED_FILES="$("$PYTHON" -c "
+import subprocess, sys
+sys.path.insert(0, 'scripts')
+from post_commit_check import get_last_commit_files
+files = get_last_commit_files()
+print('\n'.join(files))
+" 2>/dev/null)"
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo "[INFO] post-commit: no files changed in this commit."
+    exit 0
+fi
+
+# Branch
+BRANCH="$("$PYTHON" -c "import subprocess; print(subprocess.run(['git','rev-parse','--abbrev-ref','HEAD'],capture_output=True,text=True).stdout.strip())" 2>/dev/null || echo 'unknown')"
+
+echo ""
+echo "======================================================================"
+echo "  [post-commit] HoroConsultant SDLC verification"
+echo "  Branch : $BRANCH"
+echo "  Files  : $(echo "$CHANGED_FILES" | wc -l) file(s)"
+echo "======================================================================"
+echo "$CHANGED_FILES" | while read -r f; do
+    echo "    - $f"
+done
+
+# ---------------------------------------------------------------------------
+# Route to appropriate check
+# ---------------------------------------------------------------------------
+DOC_REGEX="\.(md|txt)$"
+DOC_DIRS=("docs" "plans" "RELEASE_NOTES.md")
+
+DOC_CHANGED=0
+CODE_CHANGED=0
+
+while IFS= read -r f; do
+    if [[ "$f" == *.md ]] || [[ "$f" == *.txt ]] || [[ "$f" == *.puml ]]; then
+        # Docs-related
+        DOC_CHANGED=1
+        echo "[INFO] doc-related: $f"
+    else
+        CODE_CHANGED=1
+        echo "[INFO] source: $f"
+    fi
+done <<< "$CHANGED_FILES"
+
+if [ "$DOC_CHANGED" -eq 1 ]; then
+    echo ""
+    echo "[INFO] >>> Verifying docs/INDEX.md consistency..."
+    "$PYTHON" -c "
+import subprocess, sys
+sys.path.insert(0, 'scripts')
+from post_commit_check import check_index_consistency
+ok, msg = check_index_consistency()
+print(f'[INFO] >>> {msg}')
+if not ok:
+    print('[WARN] Run: python3 scripts/verify_doc_index.py')
+    sys.exit(1)
+" 2>&1 || true
+fi
+
+if [ "$CODE_CHANGED" -eq 1 ]; then
+    echo ""
+    echo "[INFO] >>> Running doc/code drift check (KAN-308 4D)..."
+    "$PYTHON" -c "
+import subprocess, sys
+sys.path.insert(0, 'scripts')
+from post_commit_check import check_doc_sync_drift
+ok, msg = check_doc_sync_drift()
+print(f'[INFO] >>> {msg}')
+if not ok:
+    print('[WARN] Review doc sync drift before merge to main.')
+    sys.exit(1)
+" 2>&1 || true
+fi
+
+echo ""
+echo "[OK] post-commit verification complete (non-blocking, console only)."
+exit 0

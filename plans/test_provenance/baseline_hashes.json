@@ -1,0 +1,8 @@
+{
+  "issue_key": "KAN-101",
+  "timestamp": "2026-11-04T11:37:36Z",
+  "hashes": {
+    "/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/tmpjr6fsus7/tests/integration/test_sample_int.py": "b77dc96a5a7394fcce121a98e6ee040b5d233e8a14ad8ef9970a46ee62d03755",
+    "/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/tmpjr6fsus7/tests/unit/test_sample_unit.py": "6d032631a591793bad6ecf31b92efa8655fe72132d390dc69aa59edd1c671724"
+  }
+}

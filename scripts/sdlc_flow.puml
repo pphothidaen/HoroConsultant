@@ -1,0 +1,157 @@
+@startuml
+' ============================================================================
+' HOROCONSULTANT — SDLC ライフサイクル ライフサイクル (PlantUML)
+' ขอบเขต: Hooks + CI + Release Gate + Production
+' แหล่งอ้างอิง:
+'   - .github/workflows/{ai_cicd.yml, ci.yml, jira-governance.yml, post-deploy-tdd.yml, dod-production-gate.yml}
+'   - .githooks/{pre-commit, pre-push}
+'   - scripts/tdd_gate.py, scripts/test_provenance_guard.py, scripts/post_commit_check.py
+' ============================================================================
+skinparam backgroundColor #1B2430
+skinparam defaultFontName "Arial"
+skinparam roundcorner 12
+skinparam ActorBackgroundColor #2E4A6B
+skinparam ActorFontColor #FFFFFF
+skinparam BoxBackgroundColor #3A4A62
+
+title HoroConsultant SDLC ライフサイクル (Hooks + CI + Release Gate + Production)
+
+rectangle "SDLC ライフサイクル วงจร totality" as SDLC {
+  ' --- LOCAL (Developer Mac) ---
+  box "🖥️ LOCAL (Developer Mac)" AIS {
+    participant "BA\n(business_analyst /\nba_intake)" as BA
+    participant "QA\n(qa_tester)" as QA
+    participant "PRE-COMMIT" as PRE_COMMIT
+    participant "PRE-PUSH" as PRE_PUSH
+    participant "Developer\n(developer)" as DEV
+  }
+
+  ' --- GITHUB ACTIONS CI ---
+  box "📡 GITHUB ACTIONS CI" AIS {
+    participant "CI.\yml\n(Unified CI)" as CI
+    participant "AI_CICD.yml\n(AI Safety Audit)" as AICI
+    participant "JIRA-GOV\n(jira-governance)" as JIRA_GOV
+  }
+
+  ' --- POST-DEPLOY TDD ---
+  box "🧪 POST-DEPLOY TDD" AIS {
+    participant "TEAM RED\n(attack simulation)" as TEAM_RED
+    participant "TEAM BLUE\n(validation)" as TEAM_BLUE
+  }
+
+  ' --- RELEASE GATE ---
+  box "🚪 RELEASE GATE (dod-production-gate.yml)" AIS {
+    participant "ORCH\n(orchestrator)" as ORCH
+    participant "HITL" as HITL
+    participant "DEVOPS" as DEVOPS
+  }
+
+  ' --- PRODUCTION ---
+  box "🏭 PRODUCTION" AIS {
+    participant "HF Docker\npphothidaen/horoconsultant-core-backend\n(sdk: docker)" as HF_SPACE
+    participant "Vercel\nhttps://horo-consultant-psi.vercel.app" as VERCEL
+  }
+
+  ' --- AGENT LAYERS (logic) ---
+  participant "TDD GATE\n(tdd_gate.py)\nTOD RED->GREEN->Review->Done" as TDD_GATE
+  participant "PROVENANCE GUARD\n(test_provenance_guard.py)" as PROV_GUARD
+  participant "DOC SYNC\n(run_doc_sync.sh)" as DOC_SYNC
+  participant "CODE REVIEW\n(code_reviewer.py)" as CODE_REV
+  participant "SECRET SCAN" as SEC_SCAN
+  participant "POST-COMMIT CHECK\n(post_commit_check.py)" as POST_CHECK
+}
+
+' ============================================================================
+' SEQUENCES
+' ============================================================================
+
+' --- Phase 0: BA intake ---
+BA -> QA : 9-Dim grill \nspecs -> ATOMIC_TICKET.md / plans/plan.md
+BA -> QA : ticket READY (agent-* label)
+
+' --- Phase 1: QA writes test (TDD RED) ---
+QA -> TDD_GATE : Red test first\n(tests/ + manifest)
+TDD_GATE -> TDD_GATE : Backlog -> TDD RED\n(failing test)
+
+' --- Phase 2: QA verifies (TDD GREEN) ---
+QA -> TDD_GATE : all tests pass\n+ provenance manifest
+TDD_GATE -> TDD_GATE : TDD RED -> TDD GREEN
+TDD_GATE -> PROV_GUARD : test provenance verified\nTEST_BASELINE_VERIFIED
+
+' --- Phase 3: Pre-commit local gate ---
+QA -> PRE_COMMIT : commit\n(test_provenance_guard.py\n+ jira_label_gate.py)
+PRE_COMMIT -> PRE_COMMIT : read-only\nconsole only\n(exit 0/1, non-blocking)
+
+' --- Phase 4: Developer coding ---
+DEV -> TDD_GATE : source code\n(+ Test-Baseline trailer)
+TDD_GATE -> TDD_GATE : TDD GREEN -> Review
+
+' --- Phase 5: Pre-push local gate ---
+DEV -> PRE_PUSH : push\n(tdd_gate.py\n+ test_provenance_guard.py)
+PRE_PUSH -> PRE_PUSH : per-commit coverage\ndocs-only exemption (KAN-180)
+
+' --- Phase 6: GitHub Actions CI ---
+DEV -> JIRA_GOV : PR open (KAN-NN prefix)\nJira sync
+JIRA_GOV -> JIRA_GOV : PR title regex\nexit on failure\nsync Issue: Review
+DEV -> CI : push / PR (main)
+DEV -> AICI : push / PR
+AICI -> AICI : code_reviewer.py --review --use-python\nsecurity audit, AST, secret scan
+CI -> CI : test_provenance_guard.py verify-pr\nconfig drift detection\ndoc sync (run_doc_sync.sh)
+
+' --- Phase 7: Post-deploy TDD (after prod deploy) ---
+TEAM_RED -> TEAM_RED : attack simulation\npython .github/scripts/redteam_attack.py
+TEAM_BLUE -> TEAM_BLUE : validation\npython .github/scripts/blueteam_validate.py
+TEAM_RED -> TEAM_BLUE : parallel\n+ Jira auto-create on failure
+
+' --- Phase 8: Release gate ---
+TEAM_BLUE -> DEVOPS : evidence bundle\nrelease notes, tag, push, clean worktree
+DEVOPS -> ORCH : automated review\nDoD verification
+ORCH -> ORCH : 100% tests green\nsecrets 0\ntag + push + worktree clean
+ORCH -> HITL : HITL approval\n(release, data safety, model promotion)
+HITL --> DEVOPS : approve / reject
+
+' --- Phase 9: Production ---
+DEVOPS -> HF_SPACE : HF Docker deploy\n(sdk: docker)\nrollback revision record
+DEVOPS -> VERCEL : Vercel deploy\ngateway/API
+HF_SPACE -> VERCEL : full path: Vercel -> Render -> HF Space
+DEVOPS -> ORCH : 100% DONE\nticket complete\narchive plans (22-rule)
+
+' ============================================================================
+' NOTES
+' ============================================================================
+note right of PRE_COMMIT
+  Local hooks — read-only verify only
+  exit 0 = pass, non-zero = warn (console)
+  ไม่บล็อก commits
+end note
+
+note right of PRE_PUSH
+  Local hooks — read-only verify only
+  TDD state gate + provenance
+  docs-only exemption (KAN-180)
+end note
+
+note bottom of CI
+  GitHub Actions CI — ระบบตรวจสอบจริง
+  - code_reviewer.py --review (security, AST, static scan)
+  - test_provenance_guard.py verify-pr
+  - run_doc_sync.sh (KAN-308 4D)
+  - config drift detection (M11)
+end note
+
+note bottom of RELEASE GATE
+  Release gate ก่อน production
+  100% green + secrets 0 + docs sync clean
+  + HITL approval (human authority)
+  2 surfaces: HF Docker + Vercel
+end note
+
+' Reference locations
+footer
+  .githooks/ : pre-commit, pre-push, commit-msg, prepare-commit-msg\n
+  .github/workflows/ : ai_cicd.yml, ci.yml, jira-governance.yml,\n
+    post-deploy-tdd.yml, dod-production-gate.yml, update-index.yml\n
+  scripts/ : tdd_gate.py, test_provenance_guard.py,\n
+    post_commit_check.py, run_doc_sync.sh, verify_doc_index.py
+end footer
+@enduml

@@ -1,0 +1,7 @@
+{"ticket_id": "KAN-130", "agent_role": "code_reviewer", "reason": "Manual escalation", "timestamp": "2026-10-30T06:13:53Z", "max_retries": 2, "token_cap": 30000}
+{"ticket_id": "KAN-124", "agent_role": "code_reviewer", "reason": "Test escalation reason", "timestamp": "2026-10-30T06:13:54Z", "max_retries": 2, "token_cap": 30000}
+{"ticket_id": "KAN-122", "agent_role": "developer", "reason": "Test", "timestamp": "2026-10-30T06:13:54Z", "max_retries": 3, "token_cap": 100000}
+{"ticket_id": "KAN-130", "agent_role": "code_reviewer", "reason": "Manual escalation", "timestamp": "2026-10-30T06:14:43Z", "max_retries": 2, "token_cap": 30000}
+{"ticket_id": "KAN-124", "agent_role": "code_reviewer", "reason": "Test escalation reason", "timestamp": "2026-10-30T06:14:43Z", "max_retries": 2, "token_cap": 30000}
+{"ticket_id": "KAN-122", "agent_role": "developer", "reason": "Test", "timestamp": "2026-10-30T06:14:43Z", "max_retries": 3, "token_cap": 100000}
+{"ticket_id": "KAN-122", "agent_role": "developer", "reason": "Test escalation", "timestamp": "2026-10-30T06:16:48Z", "max_retries": 3, "token_cap": 100000, "status": "ESCALATED"}
