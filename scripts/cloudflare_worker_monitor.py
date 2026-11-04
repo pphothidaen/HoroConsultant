@@ -27,7 +27,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 # M3 Prompt Injection Defenses: centralized sanitizer
-from prompt_sanitizer import sanitize_for_prompt
+try:
+    from prompt_sanitizer import sanitize_for_prompt
+except ImportError:
+    from scripts.prompt_sanitizer import sanitize_for_prompt
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_WORKER_URL = "https://horoconsultant-production.pansakorn.workers.dev"
