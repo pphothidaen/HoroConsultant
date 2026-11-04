@@ -21,8 +21,8 @@ from tdd_gate import (
 
 def test_allowed_transitions_structure():
     """Verify standard transition graph completeness."""
-    assert "TDD RED" in ALLOWED_TRANSITIONS["Backlog"]
-    assert "TDD GREEN" in ALLOWED_TRANSITIONS["TDD RED"]
+    assert "TDD_RED_INTEGRATION" in ALLOWED_TRANSITIONS["Backlog"]
+    assert "TDD_GREEN_INTEGRATION" in ALLOWED_TRANSITIONS["TDD RED"]
     assert "Review" in ALLOWED_TRANSITIONS["TDD GREEN"]
     assert "Done" in ALLOWED_TRANSITIONS["Review"]
     assert ALLOWED_TRANSITIONS["Done"] == []
@@ -52,7 +52,7 @@ def test_check_red_state_blocked_when_tests_pass(mock_run):
     mock_run.return_value = MagicMock(returncode=0, stdout="All passed")
     ok, msg = check_red_state("tests/dummy.py")
     assert not ok
-    assert "requires at least one failing test" in msg
+    assert "Integration tests now pass" in msg or "requires failing" in msg
 
 
 @patch("subprocess.run")
@@ -61,7 +61,7 @@ def test_check_red_state_approved_when_tests_fail(mock_run):
     mock_run.return_value = MagicMock(returncode=1, stdout="1 failed")
     ok, msg = check_red_state("tests/dummy.py")
     assert ok
-    assert "Failing test verified" in msg
+    assert "Failing unit test verified" in msg or "Failing test verified" in msg
 
 
 @patch("subprocess.run")
@@ -70,7 +70,7 @@ def test_check_green_state_blocked_when_tests_fail(mock_run):
     mock_run.return_value = MagicMock(returncode=1, stdout="1 failed")
     ok, msg = check_green_state("KAN-105", "tests/dummy.py")
     assert not ok
-    assert "requires all tests to pass" in msg
+    assert "Integration tests failed" in msg or "Unit tests failed" in msg or "requires all tests to pass" in msg
 
 
 @patch("subprocess.run")

@@ -953,3 +953,8 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# Backward-compatible aliases (legacy test API names)
+check_red_state = check_red_unit_state
+check_green_state = check_green_integration_state
