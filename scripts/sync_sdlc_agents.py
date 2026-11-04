@@ -30,7 +30,10 @@ from typing import Any
 import yaml
 
 # M3 Prompt Injection Defenses: centralized sanitizer
-from prompt_sanitizer import sanitize_for_prompt
+try:
+    from prompt_sanitizer import sanitize_for_prompt
+except ImportError:
+    from scripts.prompt_sanitizer import sanitize_for_prompt
 
 ROOT = Path(__file__).resolve().parents[1]
 ANTIGRAVITY_DIR = ROOT / ".antigravity" / "agents"

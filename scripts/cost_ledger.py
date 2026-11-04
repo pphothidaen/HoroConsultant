@@ -20,7 +20,10 @@ from datetime import datetime
 from pathlib import Path
 
 # M3 Prompt Injection Defenses: centralized sanitizer
-from prompt_sanitizer import sanitize_for_prompt
+try:
+    from prompt_sanitizer import sanitize_for_prompt
+except ImportError:
+    from scripts.prompt_sanitizer import sanitize_for_prompt
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LEDGER = REPO_ROOT / "plans" / "evidence" / "cost-ledger" / "sessions.jsonl"
