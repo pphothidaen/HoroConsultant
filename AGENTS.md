@@ -11,6 +11,7 @@
 - **Doom-Loop Detection:** หากเรียกใช้เครื่องมือเดิมด้วยพารามิเตอร์เดิมซ้ำกันเกิน 2–3 ครั้ง ให้หยุดและส่งต่อให้มนุษย์ทันที (ก่อนแตะเพดาน Iteration ที่ 5)
 - **Secret Hygiene:** ห้าม commit secret/token/credential; redact headers ใน logs; ใช้ Doppler สำหรับ secrets
 - **Pure ASCII Logging:** ใช้ `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]` เท่านั้น
+- **Branch Hygiene:** หลัง merge PR และ deploy to production แล้ว **ต้อง** ลบ branch ทั้ง local และ remote เสมอ (`git branch -D <branch>`, `git push origin --delete <branch>`, `git remote prune origin`) — ห้ามปล่อย branch ค้าง
 
 ## 2. Context Navigation Matrix
 
