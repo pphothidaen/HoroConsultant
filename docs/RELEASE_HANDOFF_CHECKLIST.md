@@ -91,7 +91,16 @@ evidence-only and cannot replace it. Environment values, CLI defaults, runtime
 - [ ] `code_reviewer` verdict is green and `orchestrator` records the final
   candidate-specific decision.
 
-## Candidate verification commands
+## Gate 6 — Post-deploy branch cleanup (MANDATORY)
+
+- [ ] All feature/fix branches merged via PR are deleted (local + remote)
+- [ ] `git branch` shows only `main`
+- [ ] `git branch -r` shows only `origin/main` + `origin/HEAD`
+- [ ] `git remote prune origin` executed to remove stale refs
+- [ ] No orphan branches remain on remote
+
+**Rule**: After every production deployment, cleanup is mandatory — not optional.
+No merged branch should remain. This prevents stale branch accumulation and CI confusion.
 
 These commands are pre-publish/read-only checks. Running them does not authorize
 an external action.

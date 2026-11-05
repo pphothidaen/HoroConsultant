@@ -102,3 +102,9 @@ User Delivery Complete
 - **Action**:
   1. Conduct final code review and security audit.
   2. Synthesize results and deliver comprehensive summary report to User.
+  3. **Branch Cleanup (MANDATORY)**: After PR merge and production deployment, delete all local and remote feature/fix branches that have been merged:
+     - `git branch -D <branch>` (local)
+     - `git push origin --delete <branch>` (remote)
+     - `git remote prune origin` (clean stale refs)
+     - Verify: `git branch` shows only `main` and `git branch -r` shows only `origin/main` + `origin/HEAD`
+     - **No merged branch should remain** — this prevents stale branch accumulation and CI confusion.
