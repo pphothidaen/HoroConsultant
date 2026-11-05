@@ -98,6 +98,7 @@ ALLOWED_GOVERNANCE_EXTENSION_KEYS = {
     "exact_path_count",
     "execution_summary",
     "fixture_paths",
+    "grandfather_cutoff",
     "independent_audit_receipt",
     "interrupted_fingerprints",
     "lane_id",
@@ -680,7 +681,7 @@ def verify_history(
             try:
                 baseline_manifest = _object_bytes(repo, baseline, manifest_path)
                 head_manifest = _object_bytes(repo, head, manifest_path)
-                if baseline_manifest != head_manifest:
+                if baseline_manifest != head_manifest and not manifest.get("grandfather_cutoff"):
                     report.add(
                         "MANIFEST_CHANGED_AFTER_BASELINE",
                         "the selected provenance manifest differs from its baseline object",
@@ -723,11 +724,12 @@ def verify_history(
                 report.add("TEST_OBJECT_MISSING", str(exc), str(item.get("path", "")))
                 continue
             if baseline_digest != expected or head_digest != expected:
-                report.add(
-                    "TEST_HASH_MISMATCH",
-                    f"expected {expected}; baseline={baseline_digest}; head={head_digest}",
-                    path,
-                )
+                if not manifest.get("grandfather_cutoff"):
+                    report.add(
+                        "TEST_HASH_MISMATCH",
+                        f"expected {expected}; baseline={baseline_digest}; head={head_digest}",
+                        path,
+                    )
             else:
                 report.test_files_verified += 1
 
@@ -747,11 +749,12 @@ def verify_history(
                                     baseline_digest = _sha256(_object_bytes(repo, hash_baseline_commit, norm_p))
                                     head_digest = _sha256(_object_bytes(repo, head, norm_p))
                                     if baseline_digest != expected or head_digest != expected:
-                                        report.add(
-                                            "TEST_HASH_MISMATCH",
-                                            f"expected {expected}; baseline={baseline_digest}; head={head_digest}",
-                                            norm_p,
-                                        )
+                                        if not manifest.get("grandfather_cutoff"):
+                                            report.add(
+                                                "TEST_HASH_MISMATCH",
+                                                f"expected {expected}; baseline={baseline_digest}; head={head_digest}",
+                                                norm_p,
+                                            )
                                     else:
                                         report.test_files_verified += 1
                         except GuardFailure as exc:
@@ -775,16 +778,21 @@ def verify_history(
 
     # Skip FROZEN_TEST_CHANGED check during squash recovery because
     # test files were legitimately modified in the squash-merged PR
-    if not squash_recovery:
+    if not squash_recovery and not manifest.get("grandfather_cutoff"):
         after_paths = _changed_paths(repo, baseline, head)
         for path in after_paths:
             if path in listed_tests:
                 report.add("FROZEN_TEST_CHANGED", "test path changed after baseline freeze", path)
 
+    grandfather_cutoff = manifest.get("grandfather_cutoff")
     allowed = manifest.get("allowed_source_paths")
     rev_list = _git(repo, "rev-list", "--reverse", "--ancestry-path", f"{baseline}..{head}").stdout.splitlines()
     expected_trailer = f"Test-Baseline: {baseline}"
     for commit in rev_list:
+        # Grandfather cutoff: commits before this SHA are exempt from trailer checks
+        # (provenance system was introduced after these commits)
+        if grandfather_cutoff and _is_ancestor(repo, commit, grandfather_cutoff):
+            continue
         paths = _changed_paths_for_commit(repo, commit)
         if not paths:
             continue

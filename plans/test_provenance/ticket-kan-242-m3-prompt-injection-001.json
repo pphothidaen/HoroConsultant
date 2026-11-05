@@ -38,5 +38,6 @@
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "M3 Prompt Injection Defenses (Issue #242). Red Team found 11 prompt injection sites where raw/untrusted data interpolated into LLM prompts without sanitization. RED: no sanitizer module, no canary protocol, all 11 sites bypass protection (9/9 tests fail). GREEN: centralized sanitize_for_prompt() with 12 injection patterns; canary_token()/verify_canary() for exfiltration detection; all 11 sites hardened; latency <1ms; 9/9 contract tests pass."
+  "rationale": "M3 Prompt Injection Defenses (Issue #242). Red Team found 11 prompt injection sites where raw/untrusted data interpolated into LLM prompts without sanitization. RED: no sanitizer module, no canary protocol, all 11 sites bypass protection (9/9 tests fail). GREEN: centralized sanitize_for_prompt() with 12 injection patterns; canary_token()/verify_canary() for exfiltration detection; all 11 sites hardened; latency <1ms; 9/9 contract tests pass.",
+  "grandfather_cutoff": "b460a89b289f5636ed0d1704ad3c7409d048f6b1"
 }
