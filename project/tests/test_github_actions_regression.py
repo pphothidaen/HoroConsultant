@@ -25,6 +25,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 WORKFLOWS_DIR = ROOT_DIR / ".github" / "workflows"
 
 EXPECTED_WORKFLOW_FILES = [
+    "agent-evals.yml",
     "ai_agent_ecosystem_sync.yml",
     "ai_cicd.yml",
     "ci.yml",
