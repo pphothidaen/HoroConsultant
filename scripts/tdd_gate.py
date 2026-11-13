@@ -79,7 +79,7 @@ ALLOWED_TRANSITIONS = {
     # Legacy support
     "Backlog": ["TDD_RED_INTEGRATION", "Selected for Development"],
     "Selected for Development": ["TDD_RED_INTEGRATION", "Backlog"],
-    "TDD RED": ["TDD_GREEN_INTEGRATION", "Backlog"],
+    "TDD RED": ["TDD GREEN", "TDD_GREEN_INTEGRATION", "Backlog"],
     "TDD GREEN": ["Review", "TDD RED"],
     "Review": ["Done", "TDD RED"],
 }
