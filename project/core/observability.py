@@ -442,10 +442,66 @@ async def periodic_grafana_metrics_worker(interval_seconds: int = 300):
 
 
 
+def setup_tracing(app: FastAPI):
+    """
+    Initialize OpenTelemetry distributed tracing and instrument FastAPI (KAN-343).
+    Extracts W3C traceparent (propagated from gemini-web-bridge or client)
+    and exports child spans to Grafana Cloud Tempo.
+    """
+    endpoint = os.getenv("GRAFANA_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+    if not endpoint:
+        logger.info("[Tracing] No GRAFANA_OTLP_ENDPOINT configured; OpenTelemetry tracing inactive.")
+        return
+
+    try:
+        from opentelemetry import trace
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+        from opentelemetry.sdk.resources import Resource
+        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+        service_name = os.getenv("OTEL_SERVICE_NAME", "HoroConsultant")
+        resource = Resource.create({"service.name": service_name})
+        provider = TracerProvider(resource=resource)
+
+        headers = {}
+        headers_str = os.getenv("OTEL_EXPORTER_OTLP_HEADERS", "")
+        if headers_str:
+            for part in headers_str.split(","):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    k, v = k.strip(), v.strip()
+                    if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
+                        v = v[1:-1]
+                    headers[k] = v
+        elif os.getenv("GRAFANA_USER_ID") and os.getenv("GRAFANA_API_KEY"):
+            import base64
+            auth_str = f"{os.getenv('GRAFANA_USER_ID')}:{os.getenv('GRAFANA_API_KEY')}"
+            auth_b64 = base64.b64encode(auth_str.encode()).decode()
+            headers["Authorization"] = f"Basic {auth_b64}"
+
+        traces_endpoint = endpoint if endpoint.endswith("/v1/traces") else f"{endpoint.rstrip('/')}/v1/traces"
+
+        exporter = OTLPSpanExporter(
+            endpoint=traces_endpoint,
+            headers=headers
+        )
+        provider.add_span_processor(BatchSpanProcessor(exporter))
+        trace.set_tracer_provider(provider)
+
+        FastAPIInstrumentor.instrument_app(app, tracer_provider=provider)
+        logger.info(f"[Tracing] OpenTelemetry FastAPI instrumentation initialized -> {traces_endpoint}")
+    except Exception as e:
+        logger.warning(f"[Tracing] OpenTelemetry tracing initialization note: {e}")
+
+
 def setup_observability_middleware(app: FastAPI):
     """
     Configures HTTP timing middleware, `/metrics` endpoint, and `/api/health` ping endpoint on FastAPI.
+    Also initializes OpenTelemetry distributed tracing (KAN-343).
     """
+    setup_tracing(app)
 
     @app.middleware("http")
     async def observability_middleware(request: Request, call_next):
