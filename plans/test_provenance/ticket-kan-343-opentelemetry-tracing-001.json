@@ -1,0 +1,30 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-KAN-343",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "80f2941fca312e72a91bfc9de4dc1ce195b7ec1d",
+  "test_files": [
+    {
+      "path": "tests/test_opentelemetry_tracing.py",
+      "sha256": "6da91c976ad023cd0ac08fa0c28a1628ea77c7e6a216a8936982f42befefc4a7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [".venv/bin/python3", "-m", "pytest", "-q", "tests/test_opentelemetry_tracing.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_tracing_initialization_and_traceparent_propagation"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/observability.py",
+    "pyproject.toml",
+    "requirements.txt"
+  ],
+  "test_owner_role": "agent-developer_core",
+  "reviewer_role": "agent-code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Unit tests for OpenTelemetry distributed tracing and W3C traceparent propagation from edge into FastAPI."
+}
